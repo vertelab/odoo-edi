@@ -18,24 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from openerp import models, fields, api, _
+from openerp.exceptions import except_orm, Warning, RedirectWarning
 
-{
-    'name': 'EDI Routes',
-    'version': '0.1',
-    'category': 'edi',
-    'summary': 'Routes for EDI',
-    'licence': 'AGPL-3',
-    'description': """
-Add routes for EDI
-""",
-    'author': 'Vertel AB',
-    'website': 'http://www.vertel.se',
-    'depends': ['edi','mail'],
-    'data': [ 'edi_route_view.xml','res_partner_view.xml',
-    #'security/ir.model.access.csv',
-    ],
-    'application': False,
-    'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
-}
-# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
+import logging
+_logger = logging.getLogger(__name__)
+
+class res_partner(models.Model):
+    _inherit='res.partner'
+    
+    route_ids = fields.Many2many(comodel_name='edi.route')
+
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

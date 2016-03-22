@@ -20,18 +20,18 @@
 ##############################################################################
 
 {
-    'name': 'EDI Routes',
+    'name': 'EDI Routes FTP',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'Routes for EDI',
+    'summary': 'Routes for EDI using FTP',
     'licence': 'AGPL-3',
     'description': """
-Add routes for EDI
+Add routes for EDI using FTP and SFTP
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['edi','mail'],
-    'data': [ 'edi_route_view.xml','res_partner_view.xml',
+    'data': [ 'edi_route_view.xml',
     #'security/ir.model.access.csv',
     ],
     'application': False,
