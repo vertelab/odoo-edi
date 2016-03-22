@@ -36,13 +36,13 @@ class edi_envelope(models.Model):
     
     name = fields.Char(string="Name",required=True)
     route_id = fields.Many2one(comodel_name='edi.route',required=True)
-    partner_id = fields.Many2one(string="Partner",related='route_id.partner_id.id')
-    edi_type = fields.Selection(related="route_id.edi_type")
-    direction = fields.Selection(related="route_id.direction")
-    date = fields.DateTime(string='Date')
+    partner_id = fields.Many2one(string="Partner",related='route_id.partner_id',readonly=True)
+    edi_type = fields.Selection(related="route_id.edi_type",readonly=True)
+    direction = fields.Selection(related="route_id.direction",readonly=True)
+    date = fields.Datetime(string='Date',default=fields.Datetime.now())
     body = fields.Binary()
     message_ids = fields.One2many(comodel_name='edi.message',inverse_name='envelope_id')
-    state = fields.Selection([('progress','Progress'),('sent','Sent'),('recieved','Receieved'),('canceled','Canceled')])
+    state = fields.Selection([('progress','Progress'),('sent','Sent'),('recieved','Receieved'),('canceled','Canceled')],default='progress')
     
     @api.one
     def transform(self):
@@ -55,6 +55,7 @@ class edi_message(models.Model):
     
     name = fields.Char(string="Name",required=True)
     envelope_id = fields.Many2one(comodel_name='edi.envelope',required=True)
+    partner_id = fields.Many2one(comodel_name='res.partner',required=True)
     edi_type = fields.Selection(related="envelope_id.edi_type")
     body = fields.Binary()
     model = fields.Many2one(comodel_name="ir.model")
@@ -76,14 +77,14 @@ class edi_route(models.Model):
     direction = fields.Selection([('in','In'),('out','Out')])
     frequency_quant = fields.Integer(string="Frequency")
     frequency_uom = fields.Selection([('1','min'),('60','hour'),('1440','day'),('10080','week'),('40320','month')])
-    next_run = fields.DateTime(string='Next run')
+    next_run = fields.Datetime(string='Next run')
     model = fields.Many2one(comodel_name="ir.model")
     
     @api.one
     def check_connection(self):
         _logger.info('Check connection [%s:%s]' % (self.name,self.route_type))
         
-   @api.one
+    @api.one
     def get_file(self):
         pass
         

@@ -45,7 +45,7 @@
         <field name="name">EDI Route</field>
         <field name="model">edi.route</field>
         <field name="arch" type="xml">
-            <tree string="EDI Route" fonts="bold:active==False">
+            <tree string="EDI Route" >
                 <field name="name" />
                 <field name="partner_id" />
                 <field name="route_type" />
@@ -64,7 +64,6 @@
             <search string="Search EDI Route">
                 <field name="name" string="Route" filter_domain="[('name','ilike',self),('partner_id','ilike',self),('route_type','ilike',self)]"/>
                 <field name="partner_id"/>
-                <filter icon="terp-go-today" string="Partner" domain="[('partner_id','=',uid)]" help="My Urls"/>
                 <filter icon="terp-go-today" string="Active" domain="[('active','=',True)]" help="Active"/>
                 <filter icon="terp-go-today" string="Inactive" domain="[('active','=',False)]" help="Inactive"/>
                 <separator/>
@@ -109,6 +108,223 @@
     <menuitem id="menu_edi_configuration" name="EDI" parent="base.menu_custom"  /> <!-- groups="base.group_no_one"/> -->
     <menuitem id="menu_edi_route_configuration" name="EDI Route" parent="edi_route.menu_edi_configuration" action='action_edi_route' /> <!-- groups="base.group_no_one"/> -->
        
+       <!-- EDI Envelope Form View -->
+
+    <record model="ir.ui.view" id="view_edi_envelope_form">
+        <field name="name">EDI Envelope</field>
+        <field name="model">edi.envelope</field>
+        <field name="arch" type="xml">
+            <form string="EDI Envelope">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="progress,recieved,sent,canceled" />
+
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <div class="oe_edit_only">
+                            <label for="name"/>
+                        </div>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <group>
+                            
+                            <field name="partner_id" />
+                            <field name="route_id" />
+                            <field name="edi_type" />
+                            <field name="direction" />
+                            <field name="date" />
+                            <field name="body" />
+                            <button name="send" string="Send" type="object" icon="gtk-ok" colspan="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Messages">
+                                <field name="message_ids">
+                                    <tree string="Messages">
+                                        <field name="name"/>
+                                        <field name="model"/>
+                                        <field name="res_id"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread" />
+                </div>
+            </form>
+        </field>
+    </record>
+    
+
+    <!-- EDI Envelope Tree View  -->
+
+    <record model="ir.ui.view" id="view_edi_envelope_tree">
+        <field name="name">EDI Envelope</field>
+        <field name="model">edi.envelope</field>
+        <field name="arch" type="xml">
+            <tree string="EDI Envelope" >
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="edi_type" />
+                <field name="direction" />
+                <field name="date" />
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- EDI Envelope Search View  -->
+    <record id="view_edi_envelope_search" model="ir.ui.view">
+        <field name="name">EDI Envelope Search</field>
+        <field name="model">edi.envelope</field>
+        <field name="arch" type="xml">
+            <search string="Search EDI Envelope">
+                <field name="name" string="Envelope" filter_domain="[('name','ilike',self),('partner_id','ilike',self),('route_id','ilike',self)]"/>
+                <field name="partner_id"/>
+                <filter icon="terp-go-today" string="Partner" domain="[('partner_id','=',uid)]" help="My Urls"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Partner" icon="terp-personal" domain="[]" context="{'group_by':'partner_id'}"/>
+                    <filter string="Direction" icon="terp-personal" domain="[]" context="{'group_by':'direction'}"/>
+                    <filter string="Route" icon="terp-personal" domain="[]" context="{'group_by':'route_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_edi_envelope" model="ir.actions.act_window">
+        <field name="name">EDI Envelope</field>
+        <field name="res_model">edi.envelope</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_edi_envelope_tree"/>
+        <field name="search_view_id" ref="view_edi_envelope_search"/>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click to schedule a new EDI Envelope.
+          </p><p>
+            The Routes in delivers and recieves EDI-messages. 
+          </p>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="action_view_edi_envelope_tree">
+        <field name="act_window_id" ref="action_edi_envelope"/>
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_edi_envelope_tree"/>
+    </record>
+    <record model="ir.actions.act_window.view" id="action_view_edi_envelope_form">
+        <field name="act_window_id" ref="action_edi_envelope"/>
+        <field name="sequence" eval="3"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_edi_envelope_form"/>
+    </record>
+
+
+    <menuitem id="menu_edi_envelope_configuration" name="EDI Envelope" parent="edi_route.menu_edi_configuration" action='action_edi_envelope' /> <!-- groups="base.group_no_one"/> -->
+
+   <!-- EDI Message Form View -->
+
+    <record model="ir.ui.view" id="view_edi_message_form">
+        <field name="name">EDI Message</field>
+        <field name="model">edi.message</field>
+        <field name="arch" type="xml">
+            <form string="EDI Message">
+                <sheet>
+                    <div class="oe_title">
+                        <div class="oe_edit_only">
+                            <label for="name"/>
+                        </div>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <group>                            
+                            <field name="envelope_id" />
+                            <field name="edi_type" />
+                            <field name="model" />
+                            <field name="res_id" />
+                            <field name="body" />
+                        </group>
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread" />
+                </div>
+            </form>
+        </field>
+    </record>
+    
+
+    <!-- EDI Message Tree View  -->
+
+    <record model="ir.ui.view" id="view_edi_message_tree">
+        <field name="name">EDI Message</field>
+        <field name="model">edi.message</field>
+        <field name="arch" type="xml">
+            <tree string="EDI Message" >
+                <field name="name" />
+                <field name="envelope_id" />
+                <field name="edi_type" />
+                <field name="model" />
+                <field name="res_id" />
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- EDI Message Search View  -->
+    <record id="view_edi_message_search" model="ir.ui.view">
+        <field name="name">EDI Message Search</field>
+        <field name="model">edi.message</field>
+        <field name="arch" type="xml">
+            <search string="Search EDI Message">
+                <field name="name" string="Message" filter_domain="[('name','ilike',self),('envelope_id','ilike',self),('edi_type','ilike',self)]"/>
+                <field name="envelope_id"/>
+                <field name="model"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Envelope" icon="terp-personal" domain="[]" context="{'group_by':'envelope_id'}"/>
+                    <filter string="Model" icon="terp-personal" domain="[]" context="{'group_by':'model'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_edi_message" model="ir.actions.act_window">
+        <field name="name">EDI Message</field>
+        <field name="res_model">edi.message</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_edi_message_tree"/>
+        <field name="search_view_id" ref="view_edi_message_search"/>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click to schedule a new EDI Message.
+          </p><p>
+            The Routes in delivers and recieves EDI-messages. 
+          </p>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="action_view_edi_message_tree">
+        <field name="act_window_id" ref="action_edi_message"/>
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_edi_message_tree"/>
+    </record>
+    <record model="ir.actions.act_window.view" id="action_view_edi_message_form">
+        <field name="act_window_id" ref="action_edi_message"/>
+        <field name="sequence" eval="3"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_edi_message_form"/>
+    </record>
+
+
+    <menuitem id="menu_edi_message_configuration" name="EDI Message" parent="edi_route.menu_edi_configuration" action='action_edi_message' /> <!-- groups="base.group_no_one"/> -->
+
     
     </data>
 </openerp>

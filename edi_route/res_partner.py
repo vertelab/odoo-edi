@@ -29,4 +29,22 @@ class res_partner(models.Model):
     
     route_ids = fields.Many2many(comodel_name='edi.route')
 
+
+from openerp import http
+from openerp.http import request
+
+
+class res_partner_controller(http.Controller):
+
+    @http.route(['/partner/<model("res.partner"):partner>/test'], type='http', auth="public", website=True)
+    def partner_test(self, partner=False, **post):
+        if partner:
+            return partner.name
+
+    @http.route(['/partner/<model("res.partner"):partner>/json'], type='json', auth="public",)
+    def partner_json(self, partner=False, **post):
+        if partner:
+            return partner.name
+
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
