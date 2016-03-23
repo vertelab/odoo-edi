@@ -55,7 +55,10 @@ class edi_message(models.Model):
     
     name = fields.Char(string="Name",required=True)
     envelope_id = fields.Many2one(comodel_name='edi.envelope',required=True)
-    partner_id = fields.Many2one(comodel_name='res.partner',required=True)
+    consignor_id = fields.Many2one(comodel_name='res.partner',required=True,string="Consignor",help="Consignor - the party sending the goods.") 
+    consignee_id = fields.Many2one(comodel_name='res.partner',required=True,string="Consignee",help="Consignee - the party receiving the goods.") 
+    forwarder_id = fields.Many2one(comodel_name='res.partner',required=True,string="Forwarder",help="Forwarder - the party planning the transport on behalf of the consignor or consignee.") 
+    carrier_id = fields.Many2one(comodel_name='res.partner',required=True,string="Carrier",help="Carrier - the party transporting the goods between two points.") 
     edi_type = fields.Selection(related="envelope_id.edi_type")
     body = fields.Binary()
     model = fields.Many2one(comodel_name="ir.model")

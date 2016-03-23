@@ -243,7 +243,11 @@
                         </h1>
                         <group>                            
                             <field name="envelope_id" />
-                            <field name="edi_type" />
+                            <field name="edi_type" />                            
+                            <field name="consignor_id" />
+                            <field name="consignee_id" />
+                            <field name="forwarder_id" />
+                            <field name="carrier_id" />
                             <field name="model" />
                             <field name="res_id" />
                             <field name="body" />
@@ -268,6 +272,11 @@
             <tree string="EDI Message" >
                 <field name="name" />
                 <field name="envelope_id" />
+                                            <field name="consignor_id" />
+                            <field name="consignee_id" />
+                            <field name="forwarder_id" />
+                            <field name="carrier_id" />
+
                 <field name="edi_type" />
                 <field name="model" />
                 <field name="res_id" />
@@ -282,11 +291,15 @@
         <field name="model">edi.message</field>
         <field name="arch" type="xml">
             <search string="Search EDI Message">
-                <field name="name" string="Message" filter_domain="[('name','ilike',self),('envelope_id','ilike',self),('edi_type','ilike',self)]"/>
+                <field name="name" string="Message" filter_domain="[('name','ilike',self),('envelope_id','ilike',self),('edi_type','ilike',self),('consignee_id','ilike',self),('consignor_id','ilike',self),('forwarder_id','ilike',self),('carrier_id','ilike',self)]"/>
                 <field name="envelope_id"/>
                 <field name="model"/>
                 <separator/>
                 <group expand="0" string="Group By">
+                    <filter string="Consignor" icon="terp-personal" domain="[]" context="{'group_by':'consignor_id'}"/>
+                    <filter string="Consignee" icon="terp-personal" domain="[]" context="{'group_by':'consignee_id'}"/>
+                    <filter string="Forwarder" icon="terp-personal" domain="[]" context="{'group_by':'forwarder_id'}"/>
+                    <filter string="Carrier" icon="terp-personal" domain="[]" context="{'group_by':'carrier_id'}"/>
                     <filter string="Envelope" icon="terp-personal" domain="[]" context="{'group_by':'envelope_id'}"/>
                     <filter string="Model" icon="terp-personal" domain="[]" context="{'group_by':'model'}"/>
                 </group>

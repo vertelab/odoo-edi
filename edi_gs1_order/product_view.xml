@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+<record id="product_normal_form_view" model="ir.ui.view">
+          <field name="name">product.product.gs1</field>
+      <field name="model">product.product</field>
+      <field name="inherit_id" ref="product.product_normal_form_view" />
+      <field name="arch" type="xml">
+        <field name="ean13" position="after">
+              <field name="gs1_gtin14"  />
+              <field name="gs1_gtin13"  />
+        </field>
+      </field>
+    </record>
+  </data>
+</openerp>

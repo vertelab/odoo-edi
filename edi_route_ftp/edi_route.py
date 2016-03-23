@@ -22,12 +22,6 @@
 from openerp import models, fields, api, _
 from openerp.exceptions import except_orm, Warning, RedirectWarning
 
-
-
-
-
-
-
 import os
 import sys
 import posixpath
@@ -342,7 +336,6 @@ class _comsession(object):
                                 filesize=filesize)
             return nrmimesaved
         #*****************end of nested function savemime***************************
-        @botslib.log_session
         def mdnreceive():
             tmp = msg.get_param('reporttype')
             if tmp is None or email.Utils.collapse_rfc2231_value(tmp)!='disposition-notification':    #invalid MDN
@@ -364,7 +357,7 @@ class _comsession(object):
                                 {'status':FILEOUT,'reference':originalmessageid,'confirmed':True,'confirmtype':'ask-email-MDN','confirmidta':ta_from.idta,'confirmasked':True})
             #for now no checking if processing was OK.....
             #performance: not good. Index should be on the reference.
-        @botslib.log_session
+        
         def mdnsend(ta_from):
             if not botslib.checkconfirmrules('send-email-MDN',idroute=self.idroute,idchannel=self.channeldict['idchannel'],
                                                             frompartner=frompartner,topartner=topartner):
@@ -504,7 +497,7 @@ class _comsession(object):
                 ta_from.update(statust=DONE,confirmtype=confirmtype,confirmed=confirmed,confirmasked=confirmasked,confirmidta=confirmidta)
         return
 
-    @staticmethod
+
     def checkheaderforcharset(org_header):
         ''' correct handling of charset for email headers that are saved in database.
         ''' 
@@ -568,7 +561,7 @@ class _comsession(object):
     def disconnect(self):
         pass
 
-    @staticmethod
+    
     def convertcodecformime(codec_in):
         convertdict = {
             'ascii' : 'us-ascii',
@@ -672,7 +665,7 @@ class ftp(_comsession):
                 self.session.mkd(self.dirpath)           #set right path on ftp-server; no nested directories
                 self.session.cwd(self.dirpath)           #set right path on ftp-server
 
-    @botslib.log_session
+
     def incommunicate(self):
         ''' do ftp: receive files. To be used via receive-dispatcher.
             each to be imported file is transaction.
@@ -738,7 +731,7 @@ class ftp(_comsession):
                 if (datetime.datetime.now()-startdatetime).seconds >= self.maxsecondsperchannel:
                     break
 
-    @botslib.log_session
+ 
     def outcommunicate(self):
         ''' do ftp: send files. To be used via receive-dispatcher.
             each to be send file is transaction.
@@ -869,7 +862,7 @@ class sftp(_comsession):
         self.transport.close()
         
 
-    @botslib.log_session
+  
     def incommunicate(self):
         ''' do ftp: receive files. To be used via receive-dispatcher.
             each to be imported file is transaction.
@@ -914,7 +907,7 @@ class sftp(_comsession):
                 if (datetime.datetime.now()-startdatetime).seconds >= self.maxsecondsperchannel:
                     break
 
-    @botslib.log_session
+   
     def outcommunicate(self):
         ''' do ftp: send files. To be used via receive-dispatcher.
             each to be send file is transaction.
