@@ -24,9 +24,40 @@ from openerp.exceptions import except_orm, Warning, RedirectWarning
 import logging
 _logger = logging.getLogger(__name__)
 
-class res_partner(models.Model):
-    _inherit='res.partner'
+               
+class edi_envelope(models.Model):
+    _inherit = 'edi.envelope' 
     
-    gs1_gln = fields.Char(string="Global Location Number",help="GS1 Global Location Number (GLN)")
+    @api.one
+    def transform(self):
+        pass
+        
+    
+        
+                
+class edi_message(models.Model):
+    _inherit = 'edi.message' 
+    
+    @api.one
+    def get(self,record):
+        if self.edi_type == 'orders':
+            return edi.data[record]
+    
+    
+    def _cron_job_in(self,cr,uid, edi, context=None):
+        if edi.edi_type == 'order':
+            self.pool.get('sale.order').edi_import(edi.id)
+        if edi.edi_type == 'ordrsp':
+            self.pool.get('sale.order').edi_import(edi.id)
+
+        return super(edi_message,self)._cron_job_in(cr,uid,edi,context=context)
+
+    def _cron_job_out(self,cr,uid, edi, context=None):
+        if edi.edi_type == 'order':
+            self.pool.get('sale.order').edi_export(edi.id)
+        if edi.edi_type == 'ordrsp':
+            self.pool.get('sale.order').edi_export(edi.id)
+
+        return super(edi_message,self)._cron_job_out(cr,uid,edi,context=context)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

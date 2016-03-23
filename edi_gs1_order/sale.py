@@ -17,17 +17,34 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-##############################################################################
+#########################################################################id###
 from openerp import models, fields, api, _
 from openerp.exceptions import except_orm, Warning, RedirectWarning
 
 import logging
 _logger = logging.getLogger(__name__)
 
-class product_product(models.Model):
-    _inherit='product.product'
-    
-    gs1_gtin14 = fields.Char(string="GTIN-14",help="GS1 Global Trade Item Number (GTIN) for outer packages or pallets")
-    gs1_gtin13 = fields.Char(string="GTIN-13",help="GS1 Global Trade Item Number (GTIN) for consumer products")
 
+
+class sale_order(models.Model):
+    _inherit='sale.order'
+    
+    edi_message_id = fields.Many2one(string="EDI Message",comodel_name='edi.message')
+    
+    @api.one
+    def edi_import(self,edi_message_id):
+        edi = self.env['edi.message'].browse(edi_message_id)
+        order = self.env['sale.order'].create(edi.get('sale.order'))
+        for line in edi.get('sale.order.line'):
+            line['order_id'] = order.id
+            self.env['sale.order.line'].create(line)
+        self.env['mail.message'].create({
+                'body': _("Imported EDI %s" % edi.name),
+                'subject': 'Created from EDI-message',
+                'author_id': order.partner_id.id,
+                'res_id': order.id,
+                'model': order._name,
+                'type': 'notification',
+            })
+        order.edi_message_id = edi.id
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

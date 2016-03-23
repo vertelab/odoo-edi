@@ -63,6 +63,28 @@ class edi_message(models.Model):
     body = fields.Binary()
     model = fields.Many2one(comodel_name="ir.model")
     res_id = fields.Integer()
+    to_import = fields.Boolean(default=False)
+    to_export = fields.Boolean(default=False)
+  
+    @api.one
+    def get(self,record):
+        if self.edi_type == 'orders':
+            return edi.data[record]
+    
+    def _cron_job_in(self,cr,uid, edi, context=None):
+        edi.write({'to_import': False})
+
+    def _cron_job_out(self,cr,uid, edi, context=None):
+        edi.write({'to_export': False})
+
+    
+    @api.v7
+    def cron_job(self, cr, uid, context=None):
+        for edi in self.pool.get('edi.message').browse(cr, uid, self.pool.get('edi.message').search(cr, uid, [('to_import','=',True)])):
+            edi._cron_job_in(cr,uid,edi,context=context)
+        for edi in self.pool.get('edi.message').browse(cr, uid, self.pool.get('edi.message').search(cr, uid, [('to_export','=',True)])):
+            edi._cron_job_out(cr,uid,edi,context=context)
+
     
 class edi_route(models.Model):
     _name = 'edi.route' 
