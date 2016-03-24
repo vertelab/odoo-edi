@@ -49,6 +49,8 @@ class edi_envelope(models.Model):
         pass
         
         
+    
+        
 class edi_message(models.Model):
     _name = 'edi.message' 
     _inherit = ['mail.thread']

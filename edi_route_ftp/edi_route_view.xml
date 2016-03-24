@@ -4,107 +4,24 @@
 
 
     <!-- EDI Route Form View -->
-
+    
     <record model="ir.ui.view" id="view_edi_route_form">
         <field name="name">EDI Route</field>
         <field name="model">edi.route</field>
+      <field name="inherit_id" ref="edi_route.view_edi_route_form" />
         <field name="arch" type="xml">
-            <form string="EDI Route">
-                <sheet>
-                    <div class="oe_title">
-                        <div class="oe_edit_only">
-                            <label for="name"/>
-                        </div>
-                        <h1>
-                            <field name="name"/>
-                        </h1>
-                        <group>
-                            <field name="partner_id" />
-                            <field name="route_type" />
-                            <field name="direction" />
-                            <field name="active" />
-                            <button name="check_connection" string="Check" type="object" icon="gtk-ok" colspan="1"/>
-                        </group>
-                    </div>
-                </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids" widget="mail_followers"/>
-                    <field name="message_ids" widget="mail_thread" />
-                </div>
-            </form>
+            <group name="route_type" position="inside">
+                <field name="ftp_host"    attrs="{'invisible': [('route_type','not in',['ftp','sftp'])], 'required': [('route_type','in',['ftp','sftp'])]}"/>
+                <field name="ftp_user"    attrs="{'invisible': [('route_type','not in',['ftp','sftp'])], 'required': [('route_type','in',['ftp','sftp'])]}"/>
+                <field name="ftp_password" attrs="{'invisible': [('route_type','not in',['ftp','sftp'])], 'required': [('route_type','in',['ftp','sftp'])]}" />
+                <field name="ftp_directory" attrs="{'invisible': [('route_type','not in',['ftp','sftp'])]}" />
+                <field name="ftp_pattern" attrs="{'invisible': [('route_type','not in',['ftp','sftp'])]}"/>
+                <field name="ftp_debug" attrs="{'invisible': [('route_type','not in',['ftp','sftp'])]}"/>
+            </group>
         </field>
     </record>
     
 
-    <!-- EDI Route Tree View  -->
-
-    <record model="ir.ui.view" id="view_edi_route_tree">
-        <field name="name">EDI Route</field>
-        <field name="model">edi.route</field>
-        <field name="arch" type="xml">
-            <tree string="EDI Route" fonts="bold:active==False">
-                <field name="name" />
-                <field name="partner_id" />
-                <field name="route_type" />
-                <field name="direction" />
-                <field name="active" />
-            </tree>
-        </field>
-    </record>
-
-
-    <!-- EDI Route Search View  -->
-    <record id="view_edi_route_search" model="ir.ui.view">
-        <field name="name">EDI Route Search</field>
-        <field name="model">edi.route</field>
-        <field name="arch" type="xml">
-            <search string="Search EDI Route">
-                <field name="name" string="Route" filter_domain="[('name','ilike',self),('partner_id','ilike',self),('route_type','ilike',self)]"/>
-                <field name="partner_id"/>
-                <filter icon="terp-go-today" string="Partner" domain="[('partner_id','=',uid)]" help="My Urls"/>
-                <filter icon="terp-go-today" string="Active" domain="[('active','=',True)]" help="Active"/>
-                <filter icon="terp-go-today" string="Inactive" domain="[('active','=',False)]" help="Inactive"/>
-                <separator/>
-                <group expand="0" string="Group By">
-                    <filter string="Partner" icon="terp-personal" domain="[]" context="{'group_by':'partner_id'}"/>
-                    <filter string="Direction" icon="terp-personal" domain="[]" context="{'group_by':'direction'}"/>
-                    <filter string="Type" icon="terp-personal" domain="[]" context="{'group_by':'route_type'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
-    <record id="action_edi_route" model="ir.actions.act_window">
-        <field name="name">EDI Route</field>
-        <field name="res_model">edi.route</field>
-        <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="view_edi_route_tree"/>
-        <field name="search_view_id" ref="view_edi_route_search"/>
-        <field name="help" type="html">
-          <p class="oe_view_nocontent_create">
-            Click to schedule a new EDI Route.
-          </p><p>
-            The Routes in delivers and recieves EDI-messages. 
-          </p>
-        </field>
-    </record>
-
-    <record model="ir.actions.act_window.view" id="action_view_edi_route_tree">
-        <field name="act_window_id" ref="action_edi_route"/>
-        <field name="sequence" eval="2"/>
-        <field name="view_mode">tree</field>
-        <field name="view_id" ref="view_edi_route_tree"/>
-    </record>
-    <record model="ir.actions.act_window.view" id="action_view_edi_route_form">
-        <field name="act_window_id" ref="action_edi_route"/>
-        <field name="sequence" eval="3"/>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_edi_route_form"/>
-    </record>
-
-
-    <menuitem id="menu_edi_configuration" name="EDI" parent="base.menu_custom"  /> <!-- groups="base.group_no_one"/> -->
-    <menuitem id="menu_edi_route_configuration" name="EDI Route" parent="edi_route.menu_edi_configuration" action='action_edi_route' /> <!-- groups="base.group_no_one"/> -->
        
     
     </data>

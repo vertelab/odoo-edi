@@ -18,6 +18,7 @@
                         <h1>
                             <field name="name"/>
                         </h1>
+                        <group cols="4">
                         <group>
                             <field name="partner_id" />
                             <field name="route_type" />
@@ -27,6 +28,10 @@
                             <field name="active" />
                             <button name="check_connection" string="Check" type="object" icon="gtk-ok" colspan="1"/>
                             <button name="run" string="Run" type="object" icon="gtk-ok" colspan="1"/>
+                        </group>
+                        <group name="route_type">
+                        
+                        </group>
                         </group>
                     </div>
                 </sheet>
