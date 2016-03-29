@@ -47,13 +47,7 @@ class edi_envelope(models.Model):
     @api.one
     def transform(self):
         pass
-        
-<<<<<<< HEAD
-        
-    
-        
-=======
-            
+                    
     def _cron_job_in(self,cr,uid, edi, context=None):
         edi.write({'to_import': False})
 
@@ -66,7 +60,6 @@ class edi_envelope(models.Model):
         for edi in self.pool.get('edi.message').browse(cr, uid, self.pool.get('edi.message').search(cr, uid, [('to_export','=',True)])):
             edi._cron_job_out(cr,uid,edi,context=context)
 
->>>>>>> 1e1f2da1736322657355c0b65732afc139a14488
 class edi_message(models.Model):
     _name = 'edi.message' 
     _inherit = ['mail.thread']
