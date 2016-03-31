@@ -1,0 +1,75 @@
+#!/bin/bash
+#
+#       print_label.sh
+#       
+#       Copyright 2010 Yan Ryberg <yan.ryberg@vertel.se>
+#       
+#       This program is free software; you can redistribute it and/or modify
+#       it under the terms of the GNU General Public License as published by
+#       the Free Software Foundation; either version 2 of the License, or
+#       (at your option) any later version.
+#       
+#       This program is distributed in the hope that it will be useful,
+#       but WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#       GNU General Public License for more details.
+#       
+#       You should have received a copy of the GNU General Public License
+#       along with this program; if not, write to the Free Software
+#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#       MA 02110-1301, USA.
+#
+clean(){
+    rm -r /tmp/$$
+    exit
+}
+
+TEST="false"
+DATABASE="test_aw11"
+MRPJOURNAL="119"
+while getopts d:m:th o
+  do
+    case "$o" in
+      d)    DATABASE="$OPTARG";;
+      m)    MRPJOURNAL="$OPTARG";;
+      t)    TEST="true";;
+      h)  echo "Usage: $0 -m MRPJOURNAL -d database -t" && exit 1;;        
+      \?)  echo "Usage: $0 -m MRPJOURNAL -d database -t" && exit 1;;
+    esac
+  done
+
+eval `dbus-launch --sh-syntax`
+
+export DBUS_SESSION_BUS_ADDRESS
+export DBUS_SESSION_BUS_PID
+mkdir /tmp/$$
+
+trap clean INT TERM EXIT ERR
+/usr/share/greenvision/print_labels.py --database=$DATABASE --mrpid=$MRPJOURNAL --mappid=$$ > /tmp/$$/$$.csv
+
+#more /tmp/$$/$$.csv
+
+while read line 
+do
+    SSCC=$(echo $line | cut -d "," -f6)
+    SSCCHOLE=$(echo $line | cut -d "," -f7)
+
+#    zint --notext -o "/tmp/$$/$SSCC.png" --barcode=16 -d $SSCCHOLE #Utan siffror under
+#    echo "SSCC $SSCC"
+    zint -o "/tmp/$$/$SSCC.png" --barcode=16 -d $SSCCHOLE #Med siffror under
+done < /tmp/$$/$$.csv
+
+#echo "Klart att skriva ut"
+glabels-batch -i /tmp/$$/$$.csv -o /tmp/$$/$$.ps /usr/share/greenvision/ica.glabels
+
+if [ $TEST == "true" ]
+then
+    cp /tmp/$$/$$.csv ~/$$.csv
+    cp /tmp/$$/$$.ps ~/$$.ps
+else
+#    echo "Ta bort detta i scriptet när vi skall skriva till skrivare"
+#    echo /tmp/$$/$$.ps $MRPJOURNAL.pdf
+    ps2pdf /tmp/$$/$$.ps /var/spool/greenvision/labels/$MRPJOURNAL.pdf
+    lp /var/spool/greenvision/labels/$MRPJOURNAL.pdf
+fi
+

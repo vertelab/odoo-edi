@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+
+ <wizard
+            id="ica_label_single_print"
+            model="ica.label"
+            name="ica.label_single_print"
+            multi="False"
+            keyword="client_print_multi"
+            string="Print Labels"
+            />
+          
+
+
+
+    </data>
+</openerp>

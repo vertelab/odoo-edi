@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        
+        <record id="view_ica_invoice_form" model="ir.ui.view">
+            <field name="name">ica.invoice.form</field>
+            <field name="model">ica.invoice</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <tree string="ICA Invoices-blobs">
+                    <field name="date"/>
+                    <field name="status"/>
+                    <field name="saleorder_id" />
+                    <field name="mrpjournal_id" />
+
+ 		            <field name="blob"/>
+                </tree>
+            </field>
+        </record>        
+        
+        <record id="view_ica_invoice_tree" model="ir.ui.view">
+            <field name="name">ica.invoice.tree</field>
+            <field name="model">ica.invoice</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="ICA Invoices tree">
+                    <field name="date"/>
+                    <field name="status"/>
+                    <field name="saleorder_id" />
+                    <field name="mrpjournal_id" />
+                    <field name="blob"/>
+
+                </tree>
+            </field>
+        </record>
+            
+
+    </data>
+</openerp>

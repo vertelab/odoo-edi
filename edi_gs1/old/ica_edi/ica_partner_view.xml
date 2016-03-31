@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+    <record model="ir.ui.view" id="view_partner_tree">
+        <field name="name">res.partner.tree.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <tree string="Partners">
+                <field name="category_id" position="after"/>
+                <field name="shop_iln"/>
+                <field name="partnertype" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_partner_property_form" model="ir.ui.view">
+            <field name="name">res.partner.property.form.inherit_ica</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml"> 
+                    <notebook position="inside">
+						<page string="ICA EDI">
+							 <field name="consignee_iln" />
+							 <field name="shop_iln" />
+							 <field name="customernumber" />
+							 <field name="partnertype" />
+						 </page>          
+                    </notebook>
+            </field>
+     </record>
+            
+    </data>
+</openerp>

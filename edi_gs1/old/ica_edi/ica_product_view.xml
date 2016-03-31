@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    
+        <record id="product_product_tree" model="ir.ui.view">
+            <field name="name">product.product.tree.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_product_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="su_articlecode"/>
+                    <field name="ica_gln"/>
+                    <field name="ean14"/>                   
+                </field>
+            </field>
+        </record>
+    
+       <record id="product_normal_form_view1" model="ir.ui.view">
+            <field name="name">product.normal.form.inherit3</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+           <field name="arch" type="xml">
+                <field name="variants" position="after">
+                    <field name="utskriftsgrupp"/>
+                    <field name="utskriftsprio"/>
+                </field>		            
+            </field>
+        </record>
+
+
+       <record id="product_normal_form_view" model="ir.ui.view">
+            <field name="name">product.normal.form.inherit2</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <field name="ean13" position="after">
+                    <field name="ean14"/>
+                    <field name="su_articlecode"/>
+                    <field name="ica_gln"/>                    
+                </field>    
+            </field>
+        </record>
+
+
+
+    </data>
+</openerp>

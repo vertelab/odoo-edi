@@ -1,0 +1,52 @@
+
+# -*- encoding: utf-8 -*-
+##############################################################################
+#
+#    OpenERP, Open Source Management Solution   
+#    Copyright (C) 2004-2009 vertel.se
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
+
+import wizard
+import pooler
+import os
+import json
+import datetime
+from osv import fields, osv
+from tools.translate import _
+
+class ica_mrpjournal_do_import_order_sale(wizard.interface):
+    def _do_import_order(self, cr, uid, data, context):
+        today = datetime.datetime.today()
+        journal = pooler.get_pool(cr.dbname).get('ica.mrpjournal')
+        journal.write(cr, uid, [data['id']], {'status': 's'})
+        cr.commit()
+        os.system('/usr/share/greenvision/do_create_saleorder.py --journal=%d --database=%s --noupdate=1' % (data['id'],cr.dbname))
+        journal.write(cr, uid, [data['id']], {'saleorder_imported': today.strftime('%Y-%m-%d %H:%M')})  # mark journal done
+        cr.commit()
+        return {}
+
+    states = {
+            'init' : {
+                'actions' : [_do_import_order],
+                'result'  : {
+                        'type' : 'state',
+                        'state' : 'end'}
+                },
+        }
+ica_mrpjournal_do_import_order_sale("ica.do_import_order_sale")
+
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

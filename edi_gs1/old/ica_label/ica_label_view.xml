@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_ica_label_tree" model="ir.ui.view">
+            <field name="name">ica.label.tree</field>
+            <field name="model">ica.label</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="ICA label">            
+                    <field name="completed"/>
+                    <field name="date_printed"/>                            
+                    <field name="customernumber"/>
+                    <field name="date_order"/>
+                    <field name="deldateshop"/>
+                    <field name="desadvnumber"/>
+                    <field name="dspadv_id"/>
+                    <field name="eanbuyer"/>
+                    <field name="eanconsignee"/>
+                    <field name="eandelivery"/>
+                    <field name="eanreceiver"/>
+                    <field name="eansender"/>
+                    <field name="eansupplier"/>
+                    <field name="eanshop"/>
+                    <field name="estdeldate"/>
+                    <field name="ica_mrpjournal"/>
+                    <field name="line_id"/>
+                    <field name="order_id"/>
+                    <field name="ordernumber"/>
+                    <field name="pacnumber"/>
+                    <field name="partner_id"/>
+                    <field name="product_id"/>
+                    <field name="sscc"/>
+                    <field name="pallet_no"/>
+                    <field name="transportnumber"/>
+                    <field name="typeofpackage"/>
+                    <field name="lass"/> 
+                    <field name="pl"/>
+                    <field name="utlevomr"/>   
+                    <field name="port"/>   
+                    <field name="ruta1"/>   
+                    <field name="ruta2"/>
+                    <field name="utskriftsgrupp"/>
+                    <field name="utskriftsprio"/>
+                    <field name="plockid"/>
+                </form>
+            </field>
+        </record>
+        <record id="view_ica_mrpjournal_form" model="ir.ui.view">
+            <field name="name">ica.label.form</field>
+            <field name="model">ica.label</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="ICA label tree">
+                    <field name="completed"/>   
+                    <field name="date_printed"/>                         
+                    <field name="customernumber"/>
+                    <field name="date_order"/>
+                    <field name="deldateshop"/>
+                    <field name="desadvnumber"/>
+                    <field name="dspadv_id"/>
+                    <field name="eanbuyer"/>
+                    <field name="eanconsignee"/>
+                    <field name="eandelivery"/>
+                    <field name="eanreceiver"/>
+                    <field name="eansender"/>
+                    <field name="eansupplier"/>
+                    <field name="eanshop"/>
+                    <field name="estdeldate"/>
+                    <field name="ica_mrpjournal"/>
+                    <field name="line_id"/>
+                    <field name="order_id"/>
+                    <field name="ordernumber"/>
+                    <field name="pacnumber"/>
+                    <field name="partner_id"/>
+                    <field name="product_id"/>
+                    <field name="sscc"/>
+                    <field name="transportnumber"/>
+                    <field name="typeofpackage"/>
+                    <field name="lass"/> 
+                    <field name="pl"/>
+                    <field name="utlevomr"/>   
+                    <field name="port"/>   
+                    <field name="ruta1"/>   
+                    <field name="ruta2"/>
+                    <field name="utskriftsgrupp"/>
+                    <field name="utskriftsprio"/>
+                    <field name="plockid"/>
+                    <field name='bundle_qty'/>
+                    <field name='pallet_no'/>
+                                                            
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_ica_label_form" model="ir.actions.act_window">
+            <field name="name">ICA label</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ica.label</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+        </record>
+        <menuitem action="action_ica_label_form" id="menu_ica_label_form" parent="ica_mrpjournal.menu_edi_root"/>
+
+    </data>
+</openerp>

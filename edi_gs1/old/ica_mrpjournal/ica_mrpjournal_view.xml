@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <menuitem icon="terp-sale" id="ica_mrpjournal.menu_edi_root" name="EDI"/>
+
+        <record id="view_ica_mrpjournal_tree" model="ir.ui.view">
+            <field name="name">ica.mrpjournal.tree</field>
+            <field name="model">ica.mrpjournal</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="ICA mrp">
+                    <field name="datum"/>
+                    <field name="status"/>
+                    <field name="saleorder_imported"/>
+                    <field name="saleorder_ordrsp"/>
+                    <field name="labels_printed"/>
+                    <field name="produktion_startad"/>
+                    <field name="produktion_avslutad"/>
+                    <field name="saleorder_dspadv"/>
+                    <field name="saleorder_invoice"/>
+                    <field name="partner_id"/>
+
+
+                </form>
+            </field>
+        </record>
+        <record id="view_ica_mrpjournal_form" model="ir.ui.view">
+            <field name="name">ica.mrpjournal.form</field>
+            <field name="model">ica.mrpjournal</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="ICA mrp tree">
+                    <field name="partner_id"/>
+                    <field name="datum"/>
+                    <field name="status"/>
+                    <field name="saleorder_imported"/>
+                    <field name="saleorder_ordrsp"/>
+                    <field name="saleorder_dspadv"/>
+                    <field name="labels_printed"/>
+                    <field name="produktion_startad"/>
+                    <field name="produktion_avslutad"/>
+                    <field name="saleorder_invoice"/>
+                    
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_ica_mrpjournal_form" model="ir.actions.act_window">
+            <field name="name">Production journal</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ica.mrpjournal</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+
+        </record>
+        <menuitem action="action_ica_mrpjournal_form" id="menu_ica_mrpjournal_form" parent="ica_mrpjournal.menu_edi_root"/>
+
+    </data>
+</openerp>

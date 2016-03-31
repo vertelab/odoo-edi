@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <wizard
+            id="sale_edi_import_order"
+            model="sale.order"
+            name="sale.edi_import_order"
+            multi="True"
+            string="Bekräfta order"/>
+
+    </data>
+</openerp>

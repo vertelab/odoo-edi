@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_ica_order_form" model="ir.ui.view">
+            <field name="name">ica.import_order.form</field>
+            <field name="model">ica.import_order</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <tree string="ICA Order-blobs">
+                    <field name="date"/>
+                    <field name="status"/>
+                    <field name="blob"/>
+                </tree>
+            </field>
+        </record>        
+        
+        <record id="view_ica_order_tree" model="ir.ui.view">
+            <field name="name">ica.import_order.tree</field>
+            <field name="model">ica.import_order</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="ICA order tree">
+                    <field name="date"/>
+                    <field name="status"/>
+                </tree>
+            </field>
+        </record>
+            
+    </data>
+</openerp>

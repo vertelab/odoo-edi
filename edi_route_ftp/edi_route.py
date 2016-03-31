@@ -246,7 +246,7 @@ class sftp(_comsession):
         if self.debug:
             log_file = 'sftp.log'
             # Convert ftpdebug to paramiko logging level (1=20=info, 2=10=debug)
-            paramiko.util.log_to_file('sftp.log', 30)
+            paramiko.util.log_to_file('/tmp/sftp.log', 30)
 
       
         #~ if self.userscript and hasattr(self.userscript,'hostkey'):
@@ -328,25 +328,38 @@ class edi_route(models.Model):
         else:
             super(edi_route, self).check_connection()
     
-    
     @api.one
     def run(self):
+        super(edi_route, self).run()
         _logger.info('run [%s:%s]' % (self.name,self.route_type))
         if self.route_type == 'ftp':
             pass
         elif self.route_type == 'sftp':
+            if self.ftp_debug:
+                self.log('sftp host=%s  username=%s password=%s')
+                _logger.debug('sftp host=%s  username=%s password=%s' % (self.ftp_host,self.ftp_user,self.ftp_password))
             try:
                 server =  sftp(host=self.ftp_host,username=self.ftp_user,password=self.ftp_password,debug=self.ftp_debug)
                 server.connect()
             except Exception as e:
+                if self.ftp_debug:
+                    self.log('error in sftp %s' % e)                
                 _logger.error('error in sftp %s' % e)
             else:
-                for f in server.list_files(path=self.ftp_directory,pattern=self.ftp_pattern):
-                    self.env['edi.envelope'].create({'name': f, 'body': base64.encodestring(server.get_file(f)), 'route_id': self.id})                
-                    # self.rm(f)                
-            server.disconnect()
-        else:
-            super(edi_route, self).check_connection()        
+                try:
+                    if self.ftp_debug:
+                        _logger.info('info list %s' % server.list_files(path=self.ftp_directory,pattern=self.ftp_pattern))
+                    for f in server.list_files(path=self.ftp_directory,pattern=self.ftp_pattern):
+                        self.env['edi.envelope'].create({'name': f, 'body': base64.encodestring(server.get_file(f)), 'route_id': self.id})                
+                        # self.rm(f)
+                except Exception as e:
+                    if self.ftp_debug:
+                        self.log('error in sftp %s' % e)                
+                    _logger.error('error in sftp READ %s' % e)             
+                finally:
+                    server.disconnect()
+        
+                    
 
     @api.one
     def get_file(self):

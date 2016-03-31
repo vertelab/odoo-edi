@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+ <wizard
+            id="ica_label_print"
+            model="ica.mrpjournal"
+            name="ica.label_print"
+            multi="False"
+            keyword="client_print_multi"
+            string="Print Labels"
+            />
+          
+
+ <wizard    id="ica_mrpjournal_do_invoice"
+            model="ica.mrpjournal"
+            name="ica.do_invoice"
+            multi="False"
+            keyword="client_action_multi"
+            string="7. Fakturera EDI"
+            />
+
+  
+ <wizard    id="ica_mrpjournal_create_invoice"
+            model="ica.mrpjournal"
+            name="ica.do_create_invoice"
+            multi="False"
+            keyword="client_action_multi"
+            string="6. Skapa fakturor (3 dgr)"
+            />
+
+
+  <wizard   id="ica_mrpjournal_do_dspadv"
+            model="ica.mrpjournal"
+            name="ica.do_dspadv"
+            multi="False"
+            keyword="client_action_multi"
+            string="5. Leveransbekräftelse EDI"
+            />
+
+
+  <wizard   id="ica_label_create"
+            model="ica.mrpjournal"
+            name="ica.label_create"
+            multi="False"
+            keyword="client_action_multi"
+            string=" 4. Skapa etiketter"
+            />
+
+
+  <wizard   id="ica_mrpjournal_do_ordrsp"
+            model="ica.mrpjournal"
+            name="ica.do_ordrsp"
+            multi="False"
+            keyword="client_action_multi"
+            string="3. Orderbekräftelse EDI"
+            />
+
+
+  <wizard   id="ica_mrpjournal_do_import_order_sale"
+            model="ica.mrpjournal"
+            name="ica.do_import_order_sale"
+            multi="False"
+            keyword="client_action_multi"
+            string="2. Kundorder"
+            />
+
+<wizard   id="ica_mrpjournal_do_import_order_edi"
+            model="ica.mrpjournal"
+            name="ica.do_import_order_edi"
+            multi="False"
+            keyword="client_action_multi"
+            string="1. EDI order"
+            />
+
+    </data>
+</openerp>

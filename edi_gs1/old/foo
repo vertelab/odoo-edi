@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<Glabels-document xmlns="http://snaught.com/glabels/2.2/">
+  <Template brand="(null)" size="Other" width="323.15pt" height="141.732pt" description="ICA label 2.1">
+    <Label-rectangle id="0" width="317.48pt" height="136.063pt" round="0pt" x_waste="0pt" y_waste="0pt">
+      <Markup-margin size="2.83465pt"/>
+      <Layout nx="1" ny="1" x0="2.83465pt" y0="2.83465pt" dx="323.15pt" dy="56.6929pt"/>
+    </Label-rectangle>
+  </Template>
+  <Objects id="0" rotate="False">
+    <Object-line x="2.62691pt" y="2.62691pt" dx="312.094pt" dy="-0pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="2.6893pt" y="133.457pt" dx="8.01903e-15pt" dy="-130.961pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="314.666pt" y="2.43927pt" dx="0.187636pt" dy="131.158pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="2.62691pt" y="133.096pt" dx="312.227pt" dy="0pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="2.81454pt" y="33.4986pt" dx="311.476pt" dy="-0.187636pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="3.00218pt" y="61.6639pt" dx="312.039pt" dy="0.375272pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="2.81454pt" y="90.0653pt" dx="312.039pt" dy="0pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="53.5317pt" y="33.77pt" dx="0.250148pt" dy="-31.5187pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="107.314pt" y="33.0196pt" dx="1.89193e-15pt" dy="-30.8976pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="243.233pt" y="33.2598pt" dx="1.89193e-15pt" dy="-30.8976pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="107.063pt" y="21.2632pt" dx="136.081pt" dy="-0.250148pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="169.1pt" y="20.7623pt" dx="1.10284e-15pt" dy="-18.0107pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-text x="2.25133pt" y="1.75104pt" w="15.5092pt" h="11.0065pt" justify="Left" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Fr&#xE5;n</Span>
+    </Object-text>
+    <Object-text x="54.2822pt" y="1.50089pt" w="15.5092pt" h="11.0065pt" justify="Left" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Till</Span>
+    </Object-text>
+    <Object-text x="126.325pt" y="1.0006pt" w="23.5139pt" h="11.0065pt" justify="Left" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Artikelnr</Span>
+    </Object-text>
+    <Object-text x="190.363pt" y="0.750447pt" w="32.2691pt" h="11.0065pt" justify="Left" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">OpenErp ID</Span>
+    </Object-text>
+    <Object-text x="266.908pt" y="1.25074pt" w="19.7617pt" h="11.0065pt" justify="Left" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Plock id</Span>
+    </Object-text>
+    <Object-text x="3.58645pt" y="10.3405pt" w="46.2774pt" h="18.511pt" justify="Left" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="1"/>
+      </Span>
+    </Object-text>
+    <Object-text x="56.5335pt" y="10.5062pt" w="46.2774pt" h="18.511pt" justify="Left" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="2"/>
+      </Span>
+    </Object-text>
+    <Object-text x="109.522pt" y="7.72703pt" w="58.1207pt" h="13.7743pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="8" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="3"/>
+      </Span>
+    </Object-text>
+    <Object-text x="170.331pt" y="8.39894pt" w="71.223pt" h="12.4304pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="8" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="4"/>
+      </Span>
+    </Object-text>
+    <Object-text x="245.981pt" y="10.4718pt" w="65.704pt" h="19.546pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="16" font_weight="Bold" font_italic="False" line_spacing="1">
+        <Field name="6"/>
+      </Span>
+    </Object-text>
+    <Object-text x="108.649pt" y="20.7705pt" w="132.994pt" h="10.5406pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="7" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="5"/>
+      </Span>
+    </Object-text>
+    <Object-line x="71.5424pt" y="33.5199pt" dx="0.250148pt" dy="28.7671pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="110.816pt" y="33.77pt" dx="1.70101e-15pt" dy="27.7795pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="144.085pt" y="33.5199pt" dx="-0.250148pt" dy="28.7671pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="202.12pt" y="61.8532pt" dx="1.75308e-15pt" dy="-28.6299pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="251.899pt" y="33.1865pt" dx="0.250148pt" dy="29.0172pt" line_width="0.5pt" line_color="0x0000007f" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="100.81pt" y="62.0368pt" dx="-0.250148pt" dy="28.2668pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="173.521pt" y="90.2031pt" dx="1.75308e-15pt" dy="-28.6299pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-line x="207.373pt" y="62.2869pt" dx="-0.250148pt" dy="27.7665pt" line_width="0.5pt" line_color="0x000000ff" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+    <Object-text x="2.25133pt" y="32.2691pt" w="67.7902pt" h="11.0065pt" justify="Center" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Kund</Span>
+    </Object-text>
+    <Object-text x="72.7931pt" y="32.5192pt" w="37.2721pt" h="11.0065pt" justify="Center" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Antal kolli</Span>
+    </Object-text>
+    <Object-text x="112.567pt" y="33.0195pt" w="30.0178pt" h="11.0065pt" justify="Center" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Utlev.dag</Span>
+    </Object-text>
+    <Object-text x="145.336pt" y="33.7699pt" w="56.0329pt" h="11.0065pt" justify="Center" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Lass/PL i bil</Span>
+    </Object-text>
+    <Object-text x="203.12pt" y="33.2696pt" w="47.5277pt" h="11.0065pt" justify="Center" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Utlev omr / port</Span>
+    </Object-text>
+    <Object-text x="252.149pt" y="32.7693pt" w="62.0372pt" h="11.0065pt" justify="Center" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Fr&#xE5;n - Till ruta</Span>
+    </Object-text>
+    <Object-text x="4.00237pt" y="61.5365pt" w="22.0131pt" h="11.0065pt" justify="Left" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Lev adr</Span>
+    </Object-text>
+    <Object-text x="4.08763pt" y="39.7604pt" w="65.704pt" h="19.546pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Sans" font_size="16" font_weight="Bold" font_italic="False" line_spacing="1">
+        <Field name="7"/>
+      </Span>
+    </Object-text>
+    <Object-text x="72.128pt" y="40.7397pt" w="25.1797pt" h="19.546pt" justify="Left" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="14" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="8"/>
+      </Span>
+    </Object-text>
+    <Object-text x="112.152pt" y="40.7397pt" w="30.1826pt" h="19.546pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="14" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="9"/>
+      </Span>
+    </Object-text>
+    <Object-text x="143.921pt" y="40.9898pt" w="56.9482pt" h="19.546pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="14" font_weight="Bold" font_italic="False" line_spacing="1">
+        <Field name="10"/>
+      </Span>
+    </Object-text>
+    <Object-text x="204.121pt" y="41.4901pt" w="47.028pt" h="19.546pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="14" font_weight="Bold" font_italic="False" line_spacing="1">
+        <Field name="11"/>
+      </Span>
+    </Object-text>
+    <Object-text x="252.4pt" y="40.7184pt" w="60.5359pt" h="20.2965pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="14" font_weight="Bold" font_italic="False" line_spacing="1">
+        <Field name="12"/>
+      </Span>
+    </Object-text>
+    <Object-text x="24.0986pt" y="64.8722pt" w="72.7931pt" h="22.013pt" justify="Left" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="13"/>
+      </Span>
+    </Object-text>
+    <Object-text x="100.56pt" y="61.5365pt" w="71.0421pt" h="11.0065pt" justify="Center" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Pall nr</Span>
+    </Object-text>
+    <Object-text x="174.103pt" y="62.0374pt" w="32.2691pt" h="11.0065pt" justify="Center" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">Lastb&#xE4;rare</Span>
+    </Object-text>
+    <Object-text x="207.623pt" y="61.5371pt" w="106.814pt" h="11.0065pt" justify="Center" auto_shrink="False" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="5" font_weight="Regular" font_italic="False" line_spacing="1">SSCC</Span>
+    </Object-text>
+    <Object-text x="102.146pt" y="69.4855pt" w="69.4556pt" h="19.546pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="11" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="14"/>
+      </Span>
+    </Object-text>
+    <Object-text x="175.354pt" y="69.5412pt" w="30.2678pt" h="20.0119pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="11" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="15"/>
+      </Span>
+    </Object-text>
+    <Object-text x="209.974pt" y="69.2911pt" w="101.459pt" h="20.0119pt" justify="Center" auto_shrink="True" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0">
+      <Span color="0x000000ff" font_family="Arial" font_size="11" font_weight="Regular" font_italic="False" line_spacing="1">
+        <Field name="16"/>
+      </Span>
+    </Object-text>
+    <Object-image x="6.23653pt" y="93.0552pt" w="306.142pt" h="36.8504pt" field="18" a0="1" a1="0" a2="0" a3="1" a4="0" a5="0"/>
+  </Objects>
+  <Merge type="Text/Comma" src="/home/aw/labels.csv"/>
+  <Data/>
+</Glabels-document>

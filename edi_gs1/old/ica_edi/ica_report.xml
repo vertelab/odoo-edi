@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <report auto="False" id="report_ica_order" model="sale.order" name="sale.order" rml="ica_edi/report/ica_order.rml" string="ICA Rapport"/>
+          
+    </data>
+</openerp>

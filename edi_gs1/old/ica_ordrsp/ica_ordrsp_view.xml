@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        
+        <record id="view_ica_ordrsp_form" model="ir.ui.view">
+            <field name="name">ica.ordrsp.form</field>
+            <field name="model">ica.ordsrp</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <tree string="ICA Orderrsp-blobs">
+                    <field name="date"/>
+                    <field name="status"/>
+                    <field name="mrpjournal_id" />
+                    <field name="saleorder_id" />
+                    <field name="blob"/>
+                </tree>
+            </field>
+        </record>        
+        
+        <record id="view_ica_ordrsp_tree" model="ir.ui.view">
+            <field name="name">ica.ordrsp.tree</field>
+            <field name="model">ica.ordrsp</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="ICA ordrsp tree">
+                    <field name="date"/>
+                    <field name="status"/>
+                    <field name="mrpjournal_id" />
+                    <field name="saleorder_id" />
+                    <field name="blob"/>
+                </tree>
+            </field>
+        </record>
+            
+    </data>
+</openerp>

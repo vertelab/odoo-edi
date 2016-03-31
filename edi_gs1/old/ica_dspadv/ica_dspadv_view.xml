@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        
+        <record id="view_ica_dspadv_form" model="ir.ui.view">
+            <field name="name">ica.dspadv.form</field>
+            <field name="model">ica.dspadv</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <tree string="ICA dspadv-blobs">
+                    <field name="date"/>
+                    <field name="status"/>
+                    <field name="saleorder_id" />
+                    <field name="mrpjournal_id" />
+                    <field name="blob"/>
+                </tree>
+            </field>
+        </record>        
+        
+        <record id="view_ica_dspadv_tree" model="ir.ui.view">
+            <field name="name">ica.dspadv.tree</field>
+            <field name="model">ica.dspadv</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="ICA dspadv tree">
+                    <field name="date"/>
+                    <field name="mrpjournal_id" />
+                    <field name="saleorder_id" />
+                    <field name="status"/>
+                </tree>
+            </field>
+        </record>
+            
+    
+    </data>
+</openerp>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+  
+        
+        <record id="view_order_tree" model="ir.ui.view">
+            <field name="name">sale.order.tree.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="arch" type="xml">
+                <field name="state" position="after">
+                    <field name="ica_status"/>
+                    <field name="ica_mrpjournal"/>
+                    <field name="eansender"/>
+                    <field name="eanreceiver"/>
+                    <field name="eandelivery"/>
+                    <field name="eansupplier"/>
+                    
+                </field>
+            </field>
+        </record>
+        
+        <record id="view_order_form" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <field name="invoiced" position="after">
+                    <field name="ica_status"/>
+                    <field name="date_delfromica"/>
+                    <field name="date_promised"/>
+                    <field name="date_requested"/>
+                    <field name="ica_mrpjournal"/>
+                    <field name="eansender"/>
+                    <field name="eanreceiver"/>
+                    <field name="eansupplier"/>
+                    <field name="eandelivery"/>
+                    <field name="eanbuyer"/>
+                    <field name="eanshop"/>
+                    <field name="customernumber"/>   
+                    <field name="lass"/> 
+                    <field name="pl"/>
+                    <field name="utlevomr"/>   
+                    <field name="port"/>   
+                    <field name="ruta1"/>   
+                    <field name="ruta2"/>
+                </field>
+            </field>
+        </record>
+            
+    </data>
+</openerp>

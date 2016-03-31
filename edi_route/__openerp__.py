@@ -31,7 +31,7 @@ Add routes for EDI
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['edi','mail'],
-    'data': [ 'edi_route_view.xml','res_partner_view.xml',
+    'data': [ 'edi_route_view.xml','res_partner_view.xml','edi_route_data.xml'
     #'security/ir.model.access.csv',
     ],
     'application': False,

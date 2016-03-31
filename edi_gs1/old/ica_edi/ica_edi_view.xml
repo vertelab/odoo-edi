@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <menuitem icon="terp-sale" id="ica_edi.menu_edi_root" name="ICA EDI"/>
+    </data>
+</openerp>

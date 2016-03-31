@@ -115,6 +115,7 @@ class edi_route(models.Model):
     frequency_uom = fields.Selection([('1','min'),('60','hour'),('1440','day'),('10080','week'),('40320','month')])
     next_run = fields.Datetime(string='Next run')
     model = fields.Many2one(comodel_name="ir.model")
+    run_sequence = fields.Char(string="Last run id")
     
     @api.one
     def check_connection(self):
@@ -130,8 +131,19 @@ class edi_route(models.Model):
         
     @api.one
     def run(self):
-        pass
-
+        self.run_sequence = self.env['ir.sequence'].next_by_id(self. 'edi_route.sequence_edi_run')
+      
+        
+    def log(self,message):
+        user = self.env['res.users'].browse(self._uid)  
+        self.env['mail.message'].create({
+                'body': message,
+                'subject': '[%s] Debug EDI-route' % self.run_sequence,
+                'author_id': user.partner_id.id,
+                'res_id': self.id,
+                'model': self._name,
+                'type': 'notification',})                
+    
     @api.v7
     def cron_job(self, cr, uid, context=None):
         for route in self.pool.get('edi.route').browse(cr, uid, self.pool.get('edi.route').search(cr, uid, [('active','=',True)])):
