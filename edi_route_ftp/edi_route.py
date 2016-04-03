@@ -332,11 +332,11 @@ class edi_route(models.Model):
     def run(self):
         super(edi_route, self).run()
         _logger.info('run [%s:%s]' % (self.name,self.route_type))
+        envelops = []
         if self.route_type == 'ftp':
             pass
         elif self.route_type == 'sftp':
             if self.ftp_debug:
-                self.log('sftp host=%s  username=%s password=%s')
                 _logger.debug('sftp host=%s  username=%s password=%s' % (self.ftp_host,self.ftp_user,self.ftp_password))
             try:
                 server =  sftp(host=self.ftp_host,username=self.ftp_user,password=self.ftp_password,debug=self.ftp_debug)
@@ -350,7 +350,7 @@ class edi_route(models.Model):
                     if self.ftp_debug:
                         _logger.info('info list %s' % server.list_files(path=self.ftp_directory,pattern=self.ftp_pattern))
                     for f in server.list_files(path=self.ftp_directory,pattern=self.ftp_pattern):
-                        self.env['edi.envelope'].create({'name': f, 'body': base64.encodestring(server.get_file(f)), 'route_id': self.id})                
+                        envelops.append(self.env['edi.envelope'].create({'name': f, 'body': base64.encodestring(server.get_file(f)), 'route_id': self.id}))                
                         # self.rm(f)
                 except Exception as e:
                     if self.ftp_debug:
@@ -358,7 +358,10 @@ class edi_route(models.Model):
                     _logger.error('error in sftp READ %s' % e)             
                 finally:
                     server.disconnect()
-        
+            log = 'sftp host=%s  username=%s password=%s\nNbr envelops %s\n%s' % (self.ftp_host,self.ftp_user,self.ftp_password,len(envelops),','.join([e.name for e in envelops]))
+            _logger.info(log)
+            if self.ftp_debug:
+                self.log(log)
                     
 
     @api.one

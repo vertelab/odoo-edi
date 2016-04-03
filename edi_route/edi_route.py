@@ -131,7 +131,7 @@ class edi_route(models.Model):
         
     @api.one
     def run(self):
-        self.run_sequence = self.env['ir.sequence'].next_by_id(self. 'edi_route.sequence_edi_run')
+        self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
       
         
     def log(self,message):
