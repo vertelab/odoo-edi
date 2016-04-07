@@ -37,12 +37,19 @@ class edi_envelope(models.Model):
     name = fields.Char(string="Name",required=True)
     route_id = fields.Many2one(comodel_name='edi.route',required=True)
     partner_id = fields.Many2one(string="Partner",related='route_id.partner_id',readonly=True)
-    edi_type = fields.Selection(related="route_id.edi_type",readonly=True)
     direction = fields.Selection(related="route_id.direction",readonly=True)
     date = fields.Datetime(string='Date',default=fields.Datetime.now())
     body = fields.Binary()
     message_ids = fields.One2many(comodel_name='edi.message',inverse_name='envelope_id')
     state = fields.Selection([('progress','Progress'),('sent','Sent'),('recieved','Receieved'),('canceled','Canceled')],default='progress')
+    @api.one
+    def _message_count(self):
+        self.message_count = self.env['edi.message'].search_count([('envelope_id','=',self.id)])
+    message_count = fields.Integer(compute='_message_count',string="# messages")
+    def _envelope_type(self):
+        return [('plain','Plain')]
+    envelope_type = fields.Selection(selection='_envelope_type',default='plain')
+
     
     @api.one
     def transform(self):
@@ -70,12 +77,16 @@ class edi_message(models.Model):
     consignee_id = fields.Many2one(comodel_name='res.partner',required=True,string="Consignee",help="Consignee - the party receiving the goods.") 
     forwarder_id = fields.Many2one(comodel_name='res.partner',required=True,string="Forwarder",help="Forwarder - the party planning the transport on behalf of the consignor or consignee.") 
     carrier_id = fields.Many2one(comodel_name='res.partner',required=True,string="Carrier",help="Carrier - the party transporting the goods between two points.") 
-    edi_type = fields.Selection(related="envelope_id.edi_type")
     body = fields.Binary()
     model = fields.Many2one(comodel_name="ir.model")
     res_id = fields.Integer()
     to_import = fields.Boolean(default=False)
     to_export = fields.Boolean(default=False)
+    route_id = fields.Many2one(related="envelope_id.route_id",readonly=True)
+    def _edi_type(self):
+        return [('none','None')]
+    edi_type = fields.Selection(selection='_edi_type',default='none')
+
   
     @api.one
     def get(self,record):
@@ -107,15 +118,24 @@ class edi_route(models.Model):
     def _route_type(self):
         return [('none','None')]
     route_type = fields.Selection(selection='_route_type')
-    def _edi_type(self):
-        return [('none','None')]
-    edi_type = fields.Selection(selection='_edi_type')
     direction = fields.Selection([('in','In'),('out','Out')])
     frequency_quant = fields.Integer(string="Frequency")
     frequency_uom = fields.Selection([('1','min'),('60','hour'),('1440','day'),('10080','week'),('40320','month')])
     next_run = fields.Datetime(string='Next run')
     model = fields.Many2one(comodel_name="ir.model")
     run_sequence = fields.Char(string="Last run id")
+    
+    @api.one
+    def _envelope_count(self):
+        self.envelope_count = len(self.env['edi.envelope'].search([('route_id','=',self.id)]))
+        self.envelope_count = 42
+        self.envelope_count = self.env['edi.envelope'].search_count([('route_id','=',self.id)])
+    envelope_count = fields.Integer(compute='_envelope_count',string="# envelopes")
+    @api.one
+    def _message_count(self):
+        self.message_count = len(self.env['edi.message'].search([('route_id','=',self.id)]))
+        self.message_count = self.env['edi.message'].search_count([('route_id','=',self.id)])
+    message_count = fields.Integer(compute='_message_count',string="# messages")
     
     @api.one
     def check_connection(self):
