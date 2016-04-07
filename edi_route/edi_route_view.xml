@@ -216,6 +216,7 @@
                             <field name="date" />
                             <field name="body" />
                             <button name="send" string="Send" type="object" icon="gtk-ok" colspan="1"/>
+                            <button name="split" string="Split" type="object" icon="gtk-ok" colspan="1"/>
                         </group>                    
                 </sheet>
                 <div class="oe_chatter">

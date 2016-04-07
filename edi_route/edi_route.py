@@ -54,6 +54,10 @@ class edi_envelope(models.Model):
     @api.one
     def transform(self):
         pass
+    
+    @api.one
+    def split(self):
+        pass
                     
     def _cron_job_in(self,cr,uid, edi, context=None):
         edi.write({'to_import': False})
@@ -87,7 +91,6 @@ class edi_message(models.Model):
         return [('none','None')]
     edi_type = fields.Selection(selection='_edi_type',default='none')
 
-  
     @api.one
     def get(self,record):
         if self.edi_type == 'orders':
