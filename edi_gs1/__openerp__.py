@@ -72,7 +72,7 @@ http://www.gs1.se/EANCOM%202000/Index.htm
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','mail','product'],
+    'depends': ['edi_route','sale','product','stock','account'],
     'data': [ 'res_partner_view.xml','product_view.xml','res_company_view.xml',
     #'security/ir.model.access.csv',
     ],
