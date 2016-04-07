@@ -79,8 +79,8 @@ class edi_message(models.Model):
     envelope_id = fields.Many2one(comodel_name='edi.envelope',required=True)
     consignor_id = fields.Many2one(comodel_name='res.partner',required=True,string="Consignor",help="Consignor - the party sending the goods.") 
     consignee_id = fields.Many2one(comodel_name='res.partner',required=True,string="Consignee",help="Consignee - the party receiving the goods.") 
-    forwarder_id = fields.Many2one(comodel_name='res.partner',required=True,string="Forwarder",help="Forwarder - the party planning the transport on behalf of the consignor or consignee.") 
-    carrier_id = fields.Many2one(comodel_name='res.partner',required=True,string="Carrier",help="Carrier - the party transporting the goods between two points.") 
+    forwarder_id = fields.Many2one(comodel_name='res.partner',string="Forwarder",help="Forwarder - the party planning the transport on behalf of the consignor or consignee.") 
+    carrier_id = fields.Many2one(comodel_name='res.partner',string="Carrier",help="Carrier - the party transporting the goods between two points.") 
     body = fields.Binary()
     model = fields.Many2one(comodel_name="ir.model")
     res_id = fields.Integer()
@@ -92,9 +92,8 @@ class edi_message(models.Model):
     edi_type = fields.Selection(selection='_edi_type',default='none')
 
     @api.one
-    def get(self,record):
-        if self.edi_type == 'orders':
-            return edi.data[record]
+    def unpack(self):
+        pass
     
     def _cron_job_in(self,cr,uid, edi, context=None):
         edi.write({'to_import': False})
