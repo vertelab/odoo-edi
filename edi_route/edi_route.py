@@ -174,4 +174,9 @@ class edi_route(models.Model):
                 route.next_run = datetime.fromtimestamp(mktime(strptime(route.next_run, DEFAULT_SERVER_DATETIME_FORMAT))) + timedelta(minutes=route.frequency_quant * int(route.frequency_uom))
                 _logger.info('Cron job for %s done' % route.name)
 
+class res_partner(models.Model):
+    _inherit='res.partner'
+    
+    gln = fields.Char(string="Global Location Number",help="Global Location Number (GLN)")
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -76,8 +76,7 @@ class edi_envelope(models.Model):
                 self.env['edi.message'].create(order_dict)
         
         super(edi_envelope, self).split()
-    
-    @api.model
+
     def _get_partner(self, l):
         _logger.warn('get partner %s' % l)
         if l[1] == '14':
@@ -107,67 +106,102 @@ class edi_message(models.Model):
             delivery_prom_dt = None
             #Message sent date?
             doc_dt = None
-            buyer = None
+            order_values = {}
+            order_values['order_line'] = []
+            line = {}
             for segment in eval(base64.b64decode(self.body)):
                 segment_count += 1
                 _logger.warn('segment: %s' % segment)
                 #Begin Message
                 if segment[0] == 'BGM':
                     self.name = segment[2]
+                    order_values['client_order_ref'] = segment[2]
                 #Datetime
                 elif segment[0] == 'DTM':
-                    function = segment[0]
-                    dt = segment[1]
-                    dt_format = segment[2]
+                    function = segment[1][0]
                     if function == '2':
-                        delivery_dt = _parse_date(dt, dt_format)
+                        delivery_dt = self._parse_date(segment[1])
                     elif function == '69':
-                        delivery_prom_dt = _parse_date(dt, dt_format)
+                        #Is this the correct date to use???
+                        order_values['date_order'] = self._parse_date(segment[1])
                     elif function == '137':
-                        doc_dt = _parse_date(dt, dt_format)
+                        doc_dt = self._parse_date(segment[1])
                 elif segment[0] == 'NAD':
                     if segment[1] == 'BY':
-                        buyer = self.env['edi.envelope']._get_partner(segment[2])
+                        order_values['partner_id'] = self._get_partner(segment[2]).id
                     elif segment[1] == 'SU':
-                        supplier = self.env['edi.envelope']._get_partner(segment[2])
+                        supplier = self._get_partner(segment[2])
+                        _logger.warn('supplier: %s' % segment[2])
                     elif segment[1] == 'SN':
-                        store_keeper = self.env['edi.envelope']._get_partner(segment[2])
+                        store_keeper = self._get_partner(segment[2])
+                        #ICA Sverige AB
+                        _logger.warn('store keeper: %s' % segment[2])
                     elif segment[1] == 'CN':
-                        consignee = self.env['edi.envelope']._get_partner(segment[2])
+                        consignee = self._get_partner(segment[2])
+                        _logger.warn('consignee: %s' % segment[2])
                     #Delivery Party
                     elif segment[1] == 'DP':
                         recipient = self.env['edi.envelope']._get_partner(segment[2])
+                        _logger.warn('recipient: %s' % segment[2])
                 elif segment[0] == 'LIN':
-                    pass
+                    if line:
+                        order_values['order_line'].append((0, 0, line))
+                    line = {'product_id': self._get_product(segment[3]).id}
                 elif segment[0] == 'QTY':
-                    pass
+                    line['product_uom_qty'] = self._parse_quantity(segment[1])
+                #Alternative Product Identification
                 elif segment[0] == 'PIA':
                     pass
-                elif segment[0] == 'FTX':
-                    pass
-                elif segment[0] == 'RFF':
-                    #CR customer reference number
-                    #GN Government Reference Number
-                    #VA VAT registration number
-                    pass
-                elif segment[0] == '':
-                    pass
+                #Free text
+                #~ #elif segment[0] == 'FTX':
+                #~ #    pass
+                #~ #elif segment[0] == 'RFF':
+                    #~ #CR customer reference number
+                    #~ #GN Government Reference Number
+                    #~ #VA VAT registration number
+                #~ #    pass
                 #End of message
                 elif segment[0] == 'UNT':
                     if segment_count != int(segment[1]):
                         raise Warning('Wrong number of segments! %s %s' % (segment_count, segment))
+                    #Add last line
+                    if line:
+                        order_values['order_line'].append((0, 0, line))
+                    _logger.warn(order_values)
                     #create order
+                    self.env['sale.order'].create(order_values)
     
-    def _parse_date(self, dt, dt_format):
-        if dt_format == '102':
-            return fields.Datetime.to_string(datetime.strptime(dt, '%Y%m%d'))        
+    def _get_partner(self, l):
+        _logger.warn('get partner %s' % l)
+        partner = None
+        if l[2] == '9':
+            partner = self.env['res.partner'].search([('gln', '=', l[0])])
+        _logger.warn(partner)
+        if len(partner) == 1:
+            return partner[0]
+        _logger.warn('Warning!')
+        raise Warning("Unknown part %s" % len(l) >0 and l[0] or "[EMPTY LIST!]")
     
-class edi_route(models.Model):
-    _inherit = 'edi.route'
+    def _parse_quantity(self, l):
+        #if l[0] == '21':
+        return float(l[1])
     
-class res_partner(models.Model):
-    _inherit='res.partner'
+    def _get_product(self, l):
+        product = None
+        if l[1] == 'EN':
+            product = self.env['product.product'].search([('default_code', '=', l[0])])
+        if product:
+            return product
+        raise Warning('Product not found! EAN: %s' % l[0])
     
-    gln = fields.Char(string="Global Location Number",help="Global Location Number (GLN)")
+    @api.model
+    def _parse_date(self, l):
+        if l[2] == '102':
+            return fields.Datetime.to_string(datetime.strptime(l[1], '%Y%m%d'))        
+    
+#~ class edi_route(models.Model):
+    #~ _inherit = 'edi.route'
+    
+
 
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
