@@ -28,6 +28,17 @@ class res_partner(models.Model):
     _inherit='res.partner'
     
     route_ids = fields.Many2many(comodel_name='edi.route')
+    @api.one
+    def _message_count(self):
+        self.message_count = len(self.message_ids)
+    message_count = fields.Integer(compute='_message_count',string="# messages")
+    @api.one
+    def _message_ids(self):
+        #raise Warning([(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])])
+#        self.message_ids = self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])
+       # self.message_ids = [p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])]
+        self.message_ids = [(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])]
+    message_ids = fields.Many2many(compute='_message_ids',comodel_name="edi.messages",string="Messages")    
 
 
 from openerp import http
