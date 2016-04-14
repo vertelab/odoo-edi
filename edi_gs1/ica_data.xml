@@ -1,0 +1,26 @@
+<openerp>
+<!-- TODO: noupdate=1 -->
+<data>
+    <record model="ir.actions.server" id="ica_update_partners">
+        <field name="name">Uppdatera ICA-butiker</field>
+        <field name="state">code</field>
+        <field name="condition" eval="True"/>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="code">
+env['res.partner'].ica_update_store_registry()
+        </field>
+    </record>
+    
+    <record model="ir.values" id="ica_update_partners_action_menu">
+        <field name="name">Uppdatera ICA-butiker</field>
+        <field name="model">res.partner</field>
+        <field name="key2">client_action_multi</field>
+        <field name="value" eval="'ir.actions.server,%d' % ica_update_partners"/>
+    </record>
+    
+    <record model="res.partner" id="ica_gruppen">
+        <field name="name">ICA Gruppen</field>
+        <field name="is_company" eval="True"/>
+    </record>
+</data>
+</openerp>
