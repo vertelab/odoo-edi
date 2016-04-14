@@ -314,6 +314,7 @@
                         <h1>
                             <field name="name"/>
                         </h1>
+                    </div>
                         <button name="unpack" string="Unpack" type="object" icon="gtk-ok" colspan="1"/>
                         <group>                            
                             <field name="envelope_id" />
@@ -323,11 +324,11 @@
                             <field name="consignee_id" />
                             <field name="forwarder_id" />
                             <field name="carrier_id" />
+                            <field name="model_record" />
                             <field name="model" />
                             <field name="res_id" />
                             <field name="body" />
                         </group>
-                    </div>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>

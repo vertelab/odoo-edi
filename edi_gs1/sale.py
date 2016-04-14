@@ -33,7 +33,7 @@ class sale_order(models.Model):
                 if not self.env['edi.message'].search([('model','=',self._name),('res_id','=',self.id),('edi_type','=',edi_type)]): # Just one message per sale.order and type
                     routes = {r.edi_type: r.id for r in self.partner_id.parent_id.edi_route_ids}
                     message = self.env['edi.message'].create({
-                            'name': self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id)
+                            'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id),
                             'edi_type': edi_type,
                             'model': self._name,
                             'res_id': self.id,
@@ -50,7 +50,7 @@ class sale_order(models.Model):
 
     @api.one
     def action_create_ordrsp(self):
-        self._edi_message_create('INVOIC')
+        self._edi_message_create('ORDRSP')
 
     @api.one
     def action_create_invoic(self):
