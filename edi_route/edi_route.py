@@ -64,7 +64,6 @@ class edi_envelope(models.Model):
 
     def _cron_job_out(self,cr,uid, edi, context=None):
         edi.write({'to_export': False})
-
     
     @api.v7
     def cron_job(self, cr, uid, context=None):
@@ -79,22 +78,26 @@ class edi_message(models.Model):
     envelope_id = fields.Many2one(comodel_name='edi.envelope',required=True)
     consignor_id = fields.Many2one(comodel_name='res.partner',required=True,string="Consignor",help="Consignor - the party sending the goods.") 
     consignee_id = fields.Many2one(comodel_name='res.partner',required=True,string="Consignee",help="Consignee - the party receiving the goods.") 
-    forwarder_id = fields.Many2one(comodel_name='res.partner',required=True,string="Forwarder",help="Forwarder - the party planning the transport on behalf of the consignor or consignee.") 
-    carrier_id = fields.Many2one(comodel_name='res.partner',required=True,string="Carrier",help="Carrier - the party transporting the goods between two points.") 
+    forwarder_id = fields.Many2one(comodel_name='res.partner',string="Forwarder",help="Forwarder - the party planning the transport on behalf of the consignor or consignee.") 
+    carrier_id = fields.Many2one(comodel_name='res.partner',string="Carrier",help="Carrier - the party transporting the goods between two points.") 
     body = fields.Binary()
-    model = fields.Many2one(comodel_name="ir.model")
+    model = fields.Char(string="Model")
     res_id = fields.Integer()
     to_import = fields.Boolean(default=False)
     to_export = fields.Boolean(default=False)
     route_id = fields.Many2one(related="envelope_id.route_id",readonly=True)
+    
     def _edi_type(self):
         return [('none','None')]
     edi_type = fields.Selection(selection='_edi_type',default='none')
 
     @api.one
-    def get(self,record):
-        if self.edi_type == 'orders':
-            return edi.data[record]
+    def unpack(self):
+        pass
+    
+    @api.one
+    def pack(self):
+        pass
     
     def _cron_job_in(self,cr,uid, edi, context=None):
         edi.write({'to_import': False})
@@ -109,7 +112,20 @@ class edi_message(models.Model):
             edi._cron_job_in(cr,uid,edi,context=context)
         for edi in self.pool.get('edi.message').browse(cr, uid, self.pool.get('edi.message').search(cr, uid, [('to_export','=',True)])):
             edi._cron_job_out(cr,uid,edi,context=context)
+    
+    @api.one
+    def _model_record(self):
+        if self.model and self.res_id and self.env[self.model].browse(self.res_id):
+            self.model_record = self.env[self.model].browse(self.res_id)
 
+    @api.model
+    def _reference_models(self):
+        models = self.env['ir.model'].search([('state', '!=', 'manual')])
+#        return self.env[self.model].browse(self.res_id)
+        return [(model.model, model.name)
+                for model in models
+                if not model.model.startswith('ir.')]
+    model_record = fields.Reference(string="Record",selection="_reference_models",compute="_model_record")
     
 class edi_route(models.Model):
     _name = 'edi.route' 
@@ -174,5 +190,10 @@ class edi_route(models.Model):
                 route.run()
                 route.next_run = datetime.fromtimestamp(mktime(strptime(route.next_run, DEFAULT_SERVER_DATETIME_FORMAT))) + timedelta(minutes=route.frequency_quant * int(route.frequency_uom))
                 _logger.info('Cron job for %s done' % route.name)
+
+class res_partner(models.Model):
+    _inherit='res.partner'
+    
+    gln = fields.Char(string="Global Location Number",help="Global Location Number (GLN)")
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
