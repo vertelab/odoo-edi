@@ -75,9 +75,9 @@ class edi_message(models.Model):
     _inherit = ['mail.thread']
     
     name = fields.Char(string="Name",required=True)
-    envelope_id = fields.Many2one(comodel_name='edi.envelope',required=True)
-    consignor_id = fields.Many2one(comodel_name='res.partner',required=True,string="Consignor",help="Consignor - the party sending the goods.") 
-    consignee_id = fields.Many2one(comodel_name='res.partner',required=True,string="Consignee",help="Consignee - the party receiving the goods.") 
+    envelope_id = fields.Many2one(comodel_name='edi.envelope',required=False)
+    consignor_id = fields.Many2one(comodel_name='res.partner',required=False,string="Consignor",help="Consignor - the party sending the goods.") 
+    consignee_id = fields.Many2one(comodel_name='res.partner',required=False,string="Consignee",help="Consignee - the party receiving the goods.") 
     forwarder_id = fields.Many2one(comodel_name='res.partner',string="Forwarder",help="Forwarder - the party planning the transport on behalf of the consignor or consignee.") 
     carrier_id = fields.Many2one(comodel_name='res.partner',string="Carrier",help="Carrier - the party transporting the goods between two points.") 
     body = fields.Binary()
@@ -97,7 +97,9 @@ class edi_message(models.Model):
     
     @api.one
     def pack(self):
-        pass
+        if not self.model_record:
+            raise Warning("ORDRSP: Can not create message without attached sale.order record!")
+        self.name = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id)
     
     def _cron_job_in(self,cr,uid, edi, context=None):
         edi.write({'to_import': False})
@@ -143,6 +145,9 @@ class edi_route(models.Model):
     next_run = fields.Datetime(string='Next run')
     model = fields.Many2one(comodel_name="ir.model")
     run_sequence = fields.Char(string="Last run id")
+    def _edi_type(self):
+        return [('none','None')]
+    edi_type = fields.Selection(selection='_edi_type',default='none')
     
     @api.one
     def _envelope_count(self):

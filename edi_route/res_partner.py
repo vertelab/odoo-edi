@@ -28,6 +28,7 @@ class res_partner(models.Model):
     _inherit='res.partner'
     
     route_ids = fields.Many2many(comodel_name='edi.route')
+    
     @api.one
     def _message_count(self):
         self.message_count = len(self.message_ids)

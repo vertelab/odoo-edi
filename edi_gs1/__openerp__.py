@@ -42,22 +42,36 @@ Consignee - the party receiving the goods.
 Forwarder - the party planning the transport on behalf of the consignor or consignee.
 Carrier - the party transporting the goods between two points.
 
-GS1 standards in use in Sweden 2016
+GS1 standards in use in Sweden 2016 to be used in 
+for example ESAP20 edi-flow.
 
-+-----------------+-------------+---------------+
-| EDI standard    | Implemented |  in / out     |
-+-----------------+-------------+---------------+
-| PARTIN          |      N      |               |
-| PRICAT          |      N      |               | 
-| ORDERS          |      Y      |   in          |            
-| ORDRSP          |      Y      |   out         |    
-| IFTMIN          |      N      |               | 
-| IFTSTA          |      N      |               | 
-| DESADV          |      Y      |   out         |    
-| RECADV          |      N      |               | 
-| INVOIC          |      Y      |   out         |    
-| FINSTA          |      N      |               |
-+-----------------+-------------+---------------+
+ +-----------------+-------------+---------------+
+ | EDI standard    | Implemented |  in / out     |
+ +-----------------+-------------+---------------+
+ | PARTIN          |      N      |               |
+ +-----------------+-------------+---------------+
+ | PRICAT          |      N      |               |
+ +-----------------+-------------+---------------+ 
+ | ORDERS          |      Y      |   in          |
+ +-----------------+-------------+---------------+ 
+ | REPORD          |      Y      |   out         |
+ +-----------------+-------------+---------------+            
+ | CONTRL          |      Y      |   in/out      |
+ +-----------------+-------------+---------------+                
+ | ORDRSP          |      Y      |   in/out      |
+ +-----------------+-------------+---------------+    
+ | IFTMIN          |      N      |               |
+ +-----------------+-------------+---------------+ 
+ | IFTSTA          |      N      |               |
+ +-----------------+-------------+---------------+ 
+ | DESADV          |      Y      |   out         |
+ +-----------------+-------------+---------------+    
+ | RECADV          |      N      |               |
+ +-----------------+-------------+---------------+ 
+ | INVOIC          |      Y      |   out         |
+ +-----------------+-------------+---------------+
+ | FINSTA          |      N      |               |
+ +-----------------+-------------+---------------+
 
 http://www.gs1.org/sites/default/files/docs/EDI/edi_implementation_2015_-_detailed_report.pdf
 page 9
@@ -68,6 +82,11 @@ Invoice
 Despatch_advice
 http://ocp.gs1.org/sites/faq/Pages/if-i-want-to-use-the-gs1-xml-standards-what-documents-should-i-download.aspx
 http://www.gs1.se/EANCOM%202000/Index.htm
+
+
+Res.partner has a GLN and product.product GTIN-numbers. SSCC can be
+generated for stock.picking / stock.pack.
+
 
 """,
     'author': 'Vertel AB',

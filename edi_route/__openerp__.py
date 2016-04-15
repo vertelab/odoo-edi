@@ -47,17 +47,19 @@ and mapping to Odoo-classes.
 
 edi.route uses automation (ir.cron) to empty the mailbox when 
 recieving envelopes (edi-messages). Outgoing transfer initiates
-when edi.route finds ready edi.envelopes for its route. Every 
-run identifies with an internal sequence number. 
+when edi.route finds ready edi.messages (to be folded in an 
+edi.envelope) for its route. Every run identifies with an internal 
+sequence number. 
 
-edi.envelope also uses automation to find messages for the 
-same route to be folded in an envelope and passed to the 
-route. Every envelope identifies with an internal sequence number. 
+Every envelope created internally identifies with an internal 
+sequence number. Incomming envelops identifies by identification given
+by the part.
 
-Each edi.message identifies with an internal sequence number. Edi-type
-and Consignee are keys to find a proper route for outgoing messages.
+Each edi.message created internally identifies with an internal 
+sequence number. Incomming messages is identified by idenfication given
+by the part. Edi-type and Consignee are keys to find a proper route for
+outgoing messages.
 
-Res.partner
 
 """,
     'author': 'Vertel AB',

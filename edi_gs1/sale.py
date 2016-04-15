@@ -24,8 +24,21 @@ from openerp.exceptions import except_orm, Warning, RedirectWarning
 import logging
 _logger = logging.getLogger(__name__)
 
+
+#TODO: move to another module
+class sale_order_line(models.Model):
+    _inherit = 'sale.order.line'
+    
+    order_qty = fields.Float(string='Original Order Quantity')
+
 class sale_order(models.Model):
     _inherit = "sale.order"
+
+    @api.one
+    def tmp_ordererkannande(self):
+        _logger.warn('tmp_ordererkännande')
+        self._edi_message_create('ORDRSP')
+
 
     @api.one
     def _message_count(self):
@@ -34,16 +47,20 @@ class sale_order(models.Model):
    
 
     def _edi_message_create(self,edi_type):
+        _logger.warn('Here I am')
         if self.partner_id and self.partner_id.parent_id: 
-            if edi_type in [r.edit_type for r in self.partner_id.parent_id.edi_route_ids]: # Parent customer has route for this message type
-                if not self.env['edi.message'].search([('model','=',self._name),('res_id','=',self.id),('edi_type','=',edi_type)]): # Just one message per sale.order and type
-                    routes = {r.edi_type: r.id for r in self.partner_id.parent_id.edi_route_ids}
+            _logger.warn('Got parent')
+            if edi_type in [r.edi_type for r in self.partner_id.parent_id.route_ids]: # Parent customer has route for this message type
+                if  self.env['edi.message'].search([('model','=',self._name),('res_id','=',self.id),('edi_type','=',edi_type)]): # Just one message per sale.order and type
+                    routes = {r.edi_type: r.id for r in self.partner_id.parent_id.route_ids}
                     message = self.env['edi.message'].create({
                             'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id),
                             'edi_type': edi_type,
                             'model': self._name,
                             'res_id': self.id,
-                            'route_id': routes[edi_type]
+                            'route_id': routes[edi_type],
+                            'consignor_id': self.env.ref('base.main_partner').id,
+                            'consignee_id': self.partner_id.id,
                     })
                     message.pack()
                     self.env['mail.message'].create({
