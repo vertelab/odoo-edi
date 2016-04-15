@@ -21,6 +21,8 @@
 from openerp import models, fields, api, _
 from openerp.exceptions import except_orm, Warning, RedirectWarning
 import re, urllib2, base64, unicodecsv as csv #pip install unicodecsv
+import os
+import openerp.tools as tools
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -93,8 +95,8 @@ class res_partner(models.Model):
     @api.model
     def ica_update_logo(self):
         def _get_logo(img):
-            return open(os.path.join( tools.config['root_path'], 'addons', 'edi_gs1', 'static', 'img',img), 'rb').read().encode('base64')
-        
+            return open(os.path.join(tools.config['root_path'], 'addons', 'edi_gs1', 'static', 'img', img), 'rb').read().encode('base64')
+
         for p in self.env['res.partner'].search([]):
             if p.name.find('ICA') and p.name.find(u'Nära'):
                 p.logo = _get_logo('ica_nara.jpg')
