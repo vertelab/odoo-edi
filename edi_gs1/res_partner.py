@@ -23,6 +23,7 @@ from openerp.exceptions import except_orm, Warning, RedirectWarning
 import re, urllib2, base64, unicodecsv as csv #pip install unicodecsv
 import os
 import openerp.tools as tools
+from openerp.modules import get_module_path
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -95,35 +96,37 @@ class res_partner(models.Model):
     @api.model
     def ica_update_logo(self):
         def _get_logo(img):
-            return open(os.path.join(tools.config['root_path'], 'addons', 'edi_gs1', 'static', 'img', img), 'rb').read().encode('base64')
+            return open(os.path.join(get_module_path('edi_gs1'), 'static', 'img', img), 'rb').read().encode('base64')
 
         for p in self.env['res.partner'].search([]):
-            if p.name.find('ICA') and p.name.find(u'Nära'):
-                p.logo = _get_logo('ica_nara.jpg')
-            elif p.name.find('ICA') and p.name.find(u'Supermarket'):
-                p.logo = _get_logo('ica_supermarket.jpg')
-            elif p.name.find('ICA') and p.name.find(u'Kvantum'):
-                p.logo = _get_logo('ica_kvantum.jpg')
-            elif p.name.find(u'Maxi'):
-                p.logo = _get_logo('ica_maxi.jpg')
-            elif p.name.find(u'ICA'):
-                p.logo = _get_logo('ica_nara.jpg')
-            elif p.name.find('Apotek') and p.name.find(u'Hjärtat'):
-                p.logo = _get_logo('apotek_hjartat.jpg')
-            elif p.name.find('Coop') and p.name.find(u'Extra'):
-                p.logo = _get_logo('coop_extra.jpg')
-            elif p.name.find('Coop') and p.name.find(u'Forum'):
-                p.logo = _get_logo('coop_forum.jpg')
-            elif p.name.find('Coop') and p.name.find(u'Nära'):
-                p.logo = _get_logo('coop_nara.jpg')
-            elif p.name.find('Hemköp'):
-                p.logo = _get_logo('hemkop.jpg')
-            elif p.name.find('Willys') and p.name.find(u'Hemma'):
-                p.logo = _get_logo('willys_hemma.jpg')
-            elif p.name.find('Willys'):
-                p.logo = _get_logo('willys.gif')
-            elif p.name.find('Tempo'):
-                p.logo = _get_logo('tempo.png')
+            if (u'ICA') in p.name and (u'Nära') in p.name:
+                p.image = _get_logo('ica_nara.jpg')
+            elif (u'ICA') in p.name and (u'Supermarket') in p.name:
+                p.image = _get_logo('ica_supermarket.jpg')
+            elif (u'Apotek') in p.name and (u'Hjärtat') in p.name:
+                p.image = _get_logo('apotek_hjartat.png')
+            elif (u'ICA') in p.name and (u'Kvantum') in p.name:
+                p.image = _get_logo('ica_kvantum.jpg')
+            elif (u'Maxi') in p.name:
+                p.image = _get_logo('ica_maxi.jpg')
+            elif (u'ICA') in p.name:
+                p.image = _get_logo('ica_nara.jpg')
+            elif (u'Coop') in p.name and (u'Extra') in p.name:
+                p.image = _get_logo('coop_extra.jpg')
+            elif (u'Coop') in p.name and (u'Forum') in p.name:
+                p.image = _get_logo('coop_forum.png')
+            elif (u'Coop') in p.name and (u'Konsum') in p.name:
+                p.image = _get_logo('coop_konsum.png')
+            elif (u'Coop') in p.name and (u'Nära') in p.name:
+                p.image = _get_logo('coop_nara.jpg')
+            elif (u'Hemköp') in p.name:
+                p.image = _get_logo(u'hemkop.jpg')
+            elif (u'Willys') in p.name and (u'Hemma') in p.name:
+                p.image = _get_logo('willys_hemma.png')
+            elif (u'Willys') in p.name:
+                p.image = _get_logo(u'willys.gif')
+            elif (u'Tempo') in p.name:
+                p.image = _get_logo('tempo.png')
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
