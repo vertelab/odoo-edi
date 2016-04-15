@@ -127,8 +127,8 @@ UNZ 		M 		1 		INTERCHANGE TRAILER
                 #Another DTM?
                 #FNX?
                 msg += self._create_RFF_segment(self.model_record.client_order_ref)
-                msg += self._create_NAD_segment('BY', self.consignee_id)
-                msg += self._create_NAD_segment('SU', self.consignor_id)
+                msg += self.NAD_BY()
+                msg += self.NAD_SU()
                 line_index = 0
                 for line in self.model_record.order_line:
                     line_index += 1
@@ -137,22 +137,22 @@ UNZ 		M 		1 		INTERCHANGE TRAILER
                     #Required?
                     #msg += self._create_PIA_segment(line.product_id, 'BP')
                     msg += self._create_QTY_segment(line)
-                msg += self._create_UNS_segment()
-                msg += self._create_UNT_segment(8 + 3 * line_index, self.name)
+                msg += self.UNS()
+                msg += self.UNT()
                 self.body = base64.b64encode(msg)
         elif self.edi_type == 'ORDRSP-oers':
             if self.model_record._model != 'sale.order':
                 raise Warning("ORDRSP: Attached record is not a sale.order!")
-            msg =  self.UNH(self.edi_type.replace('-oers',''))
+            msg =  self.UNH(edi_type=self.edi_type.replace('-oers',''))
             msg += self.BGM(231, self.model_record.name, 12)
             msg += self._create_DTM_segment(137)
             msg += self._create_DTM_segment(137,203)
             msg += self._create_FTX_segment('')
             msg += self._create_RFF_segment(self.model_record.client_order_ref or '')
-            msg += self._create_NAD_segment('BY', self.consignee_id)
-            msg += self._create_NAD_segment('SU', self.consignor_id)
-            msg += self._create_UNS_segment()
-            msg += self._create_UNT_segment(10, self.name)
+            msg += self.NAD_BY()
+            msg += self.NAD_SU()
+            msg += self.UNS()
+            msg += self.UNT()
             self.body = base64.b64encode(msg)
 
     @api.one

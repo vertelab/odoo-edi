@@ -45,17 +45,24 @@ def _escape_string(s):
 class edi_message(models.Model):
     _inherit='edi.message'
 
+    _seg_count = 0
     #move to route
     def _create_UNB_segment(self,sender, recipient):
+        self._seg_count += 1
         return "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (sender.gs1_gln, recipient.gs1_gln, date, time, interchange_control_ref)
 
-    def UNH(self,msg_type, version='D', release='96A'):
-        return "UNH+{ref_no}+{msg_type}:{version}:{release}:UN:EDIT30'".format(ref_no=self.name,msg_type=msg_type,version=version,release=release)
+    def UNH(self,edi_type=False, version='D', release='96A'):
+        self._seg_count += 1
+        if not edi_type:
+            edi_type = self.edi_type
+        return "UNH+{ref_no}+{msg_type}:{version}:{release}:UN:EDIT30'".format(ref_no=self.name,msg_type=edi_type,version=version,release=release)
 
     def BGM(self,doc_name, doc_no, msg_function, resp_agency=9):
+        self._seg_count += 1
         return "BGM+{doc_name}::{resp_agency}+{doc_no}+{msg_function}'".format(doc_name=doc_name,resp_agency=resp_agency,doc_no=_escape_string(doc_no),msg_function=msg_function)
 
     def _create_DTM_segment(self,func_code, dt=False, format=102):
+        self._seg_count += 1        
         if not dt:
             dt = fields.Datetime.from_string(fields.Datetime.now())
         if format == 102:
@@ -65,20 +72,29 @@ class edi_message(models.Model):
         return "DTM+%s:%s:%s'" % (func_code, dt, format)
 
     def _create_FTX_segment(self,msg1, msg2='', msg3='', msg4='', msg5='', subj='ZZZ', func=1, ref='001'):
+        self._seg_count += 1        
         return "FTX+%s+%s+%s+%s:%s:%s:%s:%s'" % (subj, func, ref, _escape_string(msg1), _escape_string(msg2), _escape_string(msg3), _escape_string(msg4), _escape_string(msg5))
 
     #CR = Customer Reference
     def _create_RFF_segment(self,ref, qualifier='CR'):
+        self._seg_count += 1
         return "RFF+%s:%s'" % (qualifier, ref)
 
-    def _create_NAD_segment(self,role, partner, type='GLN'):
+    def _NAD(self,role, partner, type='GLN'):
+        self._seg_count += 1        
         if type == 'GLN':
             party_id = partner.gs1_gln
             code = 9
         return "NAD+%s+%s::%s'" % (role, party_id, code)
+    def NAD_SU(self,type='GLN'):
+        return _NAD('SU',self.consignor_id,type)
+    def NAD_BY(self,type='GLN'):
+        return _NAD('BY',self.consignee_id,type)
+
 
     #code = error/status code
     def _create_LIN_segment(self,nr, line):
+        self._seg_count += 1        
         if line.product_uom_qty <= 0:
             code = 7 # Not accepted
         elif line.product_uom_qty != line.order_qty:
@@ -89,6 +105,7 @@ class edi_message(models.Model):
 
     #SA = supplier code BP = buyer code
     def _create_PIA_segment(self,product, code):
+        self._seg_count += 1
         prod_nr = None
         if code == 'SA':
             prod_nr = product.default_code
@@ -99,17 +116,18 @@ class edi_message(models.Model):
         return ""
 
     def _create_QTY_segment(self,line):
+        self._seg_count += 1
         #~ if line.product_uom_qty != line.order_qty:
             #~ code = 12
         #~ else:
         code = 21
         return "QTY+%s:%s'" % (code, line.product_uom_qty)
 
-    def _create_UNS_segment(self):
+    def UNS(self):
         return "UNS+S'"
 
-    def _create_UNT_segment(self,segment_count, ref):
-        return "UNT+%s+%s'" % (segment_count, ref)
+    def UNT(self):
+        return "UNT+{count}+{ref}'".format(count=self._seg_count,ref=self.name)
 
             
     def _get_partner(self, l):
