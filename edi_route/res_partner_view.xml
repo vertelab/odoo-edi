@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
+      
+      
+    <record id="action_edi_message_partner" model="ir.actions.act_window">
+        <field name="name">EDI Message</field>
+        <field name="res_model">edi.message</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_consignee_id': active_id,'search_default_consigor_id': active_id,'search_default_forwarder_id': active_id,'search_default_carrier_id': active_id}</field>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click to schedule a new EDI Message.
+          </p><p>
+            The Routes in delivers and recieves EDI-messages. 
+          </p>
+        </field>
+    </record>    
+      
     <record id="view_partner_form" model="ir.ui.view">
       <field name="name">res.partner.edi</field>
       <field name="model">res.partner</field>
@@ -11,6 +27,11 @@
               <field name="route_ids" widget="many2many_tags" />
           </page>
         </page>
+        <div name="buttons" position="inside">
+          <button class="oe_inline oe_stat_button" type="action" name="%(edi_route.action_edi_message_partner)d" icon="fa-envelope-o">
+            <field string="Messages" name="message_count" widget="statinfo" />
+          </button>
+        </div>
       </field>
     </record>
   </data>

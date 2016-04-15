@@ -27,6 +27,12 @@ _logger = logging.getLogger(__name__)
 class sale_order(models.Model):
     _inherit = "sale.order"
 
+    @api.one
+    def _message_count(self):
+        self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
+    message_count = fields.Integer(compute='_message_count',string="# messages")
+   
+
     def _edi_message_create(self,edi_type):
         if self.partner_id and self.partner_id.parent_id: 
             if edi_type in [r.edit_type for r in self.partner_id.parent_id.edi_route_ids]: # Parent customer has route for this message type

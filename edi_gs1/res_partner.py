@@ -39,7 +39,7 @@ def excel_remove_clutter(string):
 
 class res_partner(models.Model):
     _inherit='res.partner'
-    
+
     gs1_gln = fields.Char(string="Global Location Number",help="GS1 Global Location Number (GLN)", select=True)
 
     #
@@ -51,11 +51,11 @@ class res_partner(models.Model):
         username = self.env['ir.config_parameter'].get_param('ica.levnet.username')
         password = self.env['ir.config_parameter'].get_param('ica.levnet.password')
         base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
-        request.add_header("Authorization", "Basic %s" % base64string)   
+        request.add_header("Authorization", "Basic %s" % base64string)
         result = urllib2.urlopen(request)
         csv_data = csv.DictReader(utf_8_encoder(result), encoding='utf-8', dialect='excel', delimiter='\t')
-        #"Företag", "Postadress", "Postnummer", "Ort", "Kundnummer", 
-        #"Lokaliseringskod, butik", "Lagerenhet", "Lokaliseringskod LE", 
+        #"Företag", "Postadress", "Postnummer", "Ort", "Kundnummer",
+        #"Lokaliseringskod, butik", "Lagerenhet", "Lokaliseringskod LE",
         #"Telefon", "Roll", "Lokaliseringskod godsadress", "Ändringsdatum"
 
         ica = self.env.ref('edi_gs1.ica_gruppen')
