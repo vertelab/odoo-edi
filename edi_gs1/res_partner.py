@@ -90,5 +90,38 @@ class res_partner(models.Model):
             else:
                 partner.create(partner_values)
 
+    @api.model
+    def ica_update_logo(self):
+        def _get_logo(img):
+            return open(os.path.join( tools.config['root_path'], 'addons', 'edi_gs1', 'static', 'img',img), 'rb').read().encode('base64')
+        
+        for p in self.env['res.partner'].search([]):
+            if p.name.find('ICA') and p.name.find(u'Nära'):
+                p.logo = _get_logo('ica_nara.jpg')
+            elif p.name.find('ICA') and p.name.find(u'Supermarket'):
+                p.logo = _get_logo('ica_supermarket.jpg')
+            elif p.name.find('ICA') and p.name.find(u'Kvantum'):
+                p.logo = _get_logo('ica_kvantum.jpg')
+            elif p.name.find(u'Maxi'):
+                p.logo = _get_logo('ica_maxi.jpg')
+            elif p.name.find(u'ICA'):
+                p.logo = _get_logo('ica_nara.jpg')
+            elif p.name.find('Apotek') and p.name.find(u'Hjärtat'):
+                p.logo = _get_logo('apotek_hjartat.jpg')
+            elif p.name.find('Coop') and p.name.find(u'Extra'):
+                p.logo = _get_logo('coop_extra.jpg')
+            elif p.name.find('Coop') and p.name.find(u'Forum'):
+                p.logo = _get_logo('coop_forum.jpg')
+            elif p.name.find('Coop') and p.name.find(u'Nära'):
+                p.logo = _get_logo('coop_nara.jpg')
+            elif p.name.find('Hemköp'):
+                p.logo = _get_logo('hemkop.jpg')
+            elif p.name.find('Willys') and p.name.find(u'Hemma'):
+                p.logo = _get_logo('willys_hemma.jpg')
+            elif p.name.find('Willys'):
+                p.logo = _get_logo('willys.gif')
+            elif p.name.find('Tempo'):
+                p.logo = _get_logo('tempo.png')
+
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

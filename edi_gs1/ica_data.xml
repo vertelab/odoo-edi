@@ -18,9 +18,33 @@ env['res.partner'].ica_update_store_registry()
         <field name="value" eval="'ir.actions.server,%d' % ica_update_partners"/>
     </record>
     
+    <record model="ir.actions.server" id="ica_update_logo">
+        <field name="name">Uppdatera logga för kedjor</field>
+        <field name="state">code</field>
+        <field name="condition" eval="True"/>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="code">
+env['res.partner'].ica_update_logo()
+        </field>
+    </record>
+    
+    <record model="ir.values" id="ica_update_partners_action_menu">
+        <field name="name">Uppdatera Kedje-loggor</field>
+        <field name="model">res.partner</field>
+        <field name="key2">client_action_multi</field>
+        <field name="value" eval="'ir.actions.server,%d' % ica_update_logo"/>
+    </record>
+    
     <record model="res.partner" id="ica_gruppen">
-        <field name="name">ICA Gruppen</field>
+        <field name="name">ICA EDI</field>
         <field name="is_company" eval="True"/>
     </record>
+    
+    <record model="res.partner" id="ica_gruppen">
+        <field name="name">ICA EDI</field>
+        <field name="is_company" eval="True"/>
+    </record>
+    
+    
 </data>
 </openerp>
