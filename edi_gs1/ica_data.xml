@@ -22,5 +22,16 @@ env['res.partner'].ica_update_store_registry()
         <field name="name">ICA Gruppen</field>
         <field name="is_company" eval="True"/>
     </record>
+    
+    <record model="ir.ui.view" id="sale_order_test">
+        <field name="name">sale.order.gs1.ica</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <button name="action_quotation_send" position="after">
+                <button name="tmp_ordererkannande" type="object"/>
+            </button>
+        </field>
+    </record>
 </data>
 </openerp>

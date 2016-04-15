@@ -59,7 +59,8 @@ class res_partner(models.Model):
         #"Telefon", "Roll", "Lokaliseringskod godsadress", "Ändringsdatum"
 
         ica = self.env.ref('edi_gs1.ica_gruppen')
-        if not ica Warning("Couldn't find ICA central record (edi_gs1.ica_gruppen).")
+        if not ica:
+            raise Warning("Couldn't find ICA central record (edi_gs1.ica_gruppen).")
         for row in csv_data:
             partner_values = {
                 'name': excel_remove_clutter(row[u'Företag']),
