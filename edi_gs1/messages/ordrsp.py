@@ -121,22 +121,21 @@ UNZ 		M 		1 		INTERCHANGE TRAILER
             status = _check_order_status(self.model_record)
             if status != 0:
                 msg = self.UNH(self.edi_type)
-                msg += self.BGM(231, self.model_record.name, status)
-                dt = fields.Datetime.from_string(fields.Datetime.now())
-                msg += self._create_DTM_segment(137, dt)
+                msg += self.BGM(231, self.model_record.name, status=status)
+                msg += self.DTM(137,dt=self.model_record.date_order)  # sale.order date?
                 #Another DTM?
                 #FNX?
-                msg += self._create_RFF_segment(self.model_record.client_order_ref)
+                msg += self.RFF(self.model_record.client_order_ref)
                 msg += self.NAD_BY()
                 msg += self.NAD_SU()
                 line_index = 0
                 for line in self.model_record.order_line:
                     line_index += 1
-                    msg += self._create_LIN_segment(line_index, line)
-                    msg += self._create_PIA_segment(line.product_id, 'SA')
+                    msg += self.LIN(line_index, line)
+                    msg += self.PIA(line.product_id, 'SA')
                     #Required?
                     #msg += self._create_PIA_segment(line.product_id, 'BP')
-                    msg += self._create_QTY_segment(line)
+                    msg += self.QTY(line)
                 msg += self.UNS()
                 msg += self.UNT()
                 self.body = base64.b64encode(msg)
@@ -146,7 +145,7 @@ UNZ 		M 		1 		INTERCHANGE TRAILER
             msg =  self.UNH(edi_type=self.edi_type.replace('-oers',''))
             msg += self.BGM(231, self.model_record.name, 12)
             msg += self._create_DTM_segment(137)
-            msg += self._create_DTM_segment(137,203)
+            msg += self._create_DTM_segment(137,format=203)
             msg += self._create_FTX_segment('')
             msg += self._create_RFF_segment(self.model_record.client_order_ref or '')
             msg += self.NAD_BY()

@@ -41,6 +41,7 @@ class edi_message(models.Model):
     """
 UNH+204853+DESADV:D:93A:UN:EDIT30'
 BGM+351+SO069412+9'
+BGM+231::9+201101311720471+4'
 DTM+137:20120314:102'
 DTM+132:20120315:102'
 RFF+AAS:229933'
@@ -96,25 +97,37 @@ UNT		Avslutar ordermeddelandet.
         if self.edi_type == 'DESADV':
             if self.model_record._name != 'stock.pack':
                 raise Warning("DESADV: Attached record is not a sale.order! {model}".format(model=self.model_record._name))
-            status = _check_order_status(self.model_record)
-            if status != 0:
-                msg = self.UNH(self.edi_type)
-                msg += self.BGM(231, self.model_record.name, status)
-                dt = fields.Datetime.from_string(fields.Datetime.now())
-                msg += self._create_DTM_segment(137, dt)
-                #Another DTM?
-                #FNX?
-                msg += self._create_RFF_segment(self.model_record.client_order_ref)
-                msg += self.NAD_BY()
-                msg += self.NAD_SU()
-                line_index = 0
-                for line in self.model_record.order_line:
-                    line_index += 1
-                    msg += self._create_LIN_segment(line_index, line)
-                    msg += self._create_PIA_segment(line.product_id, 'SA')
-                    #Required?
-                    #msg += self._create_PIA_segment(line.product_id, 'BP')
-                    msg += self._create_QTY_segment(line)
-                msg += self.UNS()
-                msg += self.UNT()
-                self.body = base64.b64encode(msg)
+
+            msg = self.UNH()
+            msg += self.BGM(doc_code=351, doc_no=self.model_record.name)
+            msg += self.DTM(137)
+            msg += self.DTM(132,dt=self.model_record.date)
+            #Another DTM?
+            #FNX?
+            msg += self.RFF(self.model_record.client_order_ref,qualifier='AAS')
+            msg += self.NAD_BY()
+            msg += self.NAD_SH()
+            msg += self.NAD_DP()
+            
+                    #~ 'EANSENDER':        order_record['EANRECEIVER'],
+                    #~ 'EANRECEIVER':      order_record['EANSENDER'],
+					#~ 'TEST':             '0',
+					#~ 'DESADVNUMBER':		order_record['name'],	
+					#~ 'DESADVDATE':	    datetime.datetime.strptime(order_record['date_order'],'%Y-%m-%d').strftime("%Y%m%d"),
+					#~ 'ESTDELDATE':	    datetime.datetime.strptime(order_record['date_promised'],'%Y-%m-%d %H:%M:%S').strftime('%Y%m%d'),
+					#~ 'EANBUYER':	        '7301005140009',
+					#~ 'EANSHIPPER':	    '7350031550009',    
+					#~ 'EANDELIVERY':	    partner['consignee_iln'],	
+
+            
+            line_index = 0
+            for line in self.model_record.order_line:
+                line_index += 1
+                msg += self.LIN(line_index, line)
+                msg += self.PIA(line.product_id, 'SA')
+                #Required?
+                #msg += self._create_PIA_segment(line.product_id, 'BP')
+                msg += self.QTY(line)
+            msg += self.UNS()
+            msg += self.UNT()
+            self.body = base64.b64encode(msg)

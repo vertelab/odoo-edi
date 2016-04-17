@@ -57,18 +57,33 @@ class edi_message(models.Model):
             edi_type = self.edi_type
         return "UNH+{ref_no}+{msg_type}:{version}:{release}:UN:EDIT30'".format(ref_no=self.name,msg_type=edi_type,version=version,release=release)
 
-    def BGM(self,doc_name, doc_no, msg_function, resp_agency=9):
+    def BGM(self,doc_code=False, doc_no=False,status=False):
+        # Beginning of message
+        # doc_code = Order, Document/message by means of which a buyer initiates a transaction with a seller involving the supply of goods or services as specified, according to conditions set out in an offer, or otherwise known to the buyer.
+        # BGM+220::9+20120215150105472'
+        # doc_code 231 Purchase order response, Response to an purchase order already received.
+        # BGM+231::9+201101311720471+4'
+        # doc_code 351 Despatch advice, Document/message by means of which the seller or consignor informs the consignee about the despatch of goods.
+        # BGM+351+SO069412+9'
         self._seg_count += 1
-        return "BGM+{doc_name}::{resp_agency}+{doc_no}+{msg_function}'".format(doc_name=doc_name,resp_agency=resp_agency,doc_no=_escape_string(doc_no),msg_function=msg_function)
+        if doc_code == 231: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
+            return "BGM+231::9+{doc_no}+4'".format(doc_no=_escape_string(doc_no))    
+        elif doc_code == 220: # Resp agency = EAN/GS1 (9),
+            return "BGM+220::9+{doc_no}'".format(doc_no=_escape_string(doc_no))
+        elif doc_code == 351:
+            return "BGM+351+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
+            
 
-    def _create_DTM_segment(self,func_code, dt=False, format=102):
-        self._seg_count += 1        
+    def DTM(self,func_code=False, dt=False, format=102):
+        self._seg_count += 1
+        # 132 =  Transport means arrival date/time, estimated
+        # 137 =  Document/message date/time, date/time when a document/message is issued. This may include authentication.
         if not dt:
             dt = fields.Datetime.from_string(fields.Datetime.now())
         if format == 102:
-            dt = dt.strftime('%Y%M%d')
+            dt = fields.Datetime.from_string(dt).strftime('%Y%M%d')
         elif format == 203:
-            dt = dt.strftime('%Y%M%d%H%M')
+            dt = fields.Datetime.from_string(dt).strftime('%Y%M%d%H%M')
         return "DTM+%s:%s:%s'" % (func_code, dt, format)
 
     def _create_FTX_segment(self,msg1, msg2='', msg3='', msg4='', msg5='', subj='ZZZ', func=1, ref='001'):
@@ -76,7 +91,8 @@ class edi_message(models.Model):
         return "FTX+%s+%s+%s+%s:%s:%s:%s:%s'" % (subj, func, ref, _escape_string(msg1), _escape_string(msg2), _escape_string(msg3), _escape_string(msg4), _escape_string(msg5))
 
     #CR = Customer Reference
-    def _create_RFF_segment(self,ref, qualifier='CR'):
+    def RFF(self,ref, qualifier='CR'):
+        # CR = Customer reference, AAS = Transport document number, Reference assigned by the carrier or his agent to the transport document.
         self._seg_count += 1
         return "RFF+%s:%s'" % (qualifier, ref)
 
@@ -84,13 +100,18 @@ class edi_message(models.Model):
         self._seg_count += 1        
         if type == 'GLN':
             party_id = partner.gs1_gln
+            if not party_id:
+                raise Warning('NAD missing GLN role=%s partner=%s' % (role,partner.name))
             code = 9
         return "NAD+%s+%s::%s'" % (role, party_id, code)
     def NAD_SU(self,type='GLN'):
-        return _NAD('SU',self.consignor_id,type)
+        return self._NAD('SU',self.consignor_id,type)
     def NAD_BY(self,type='GLN'):
-        return _NAD('BY',self.consignee_id,type)
-
+        return self._NAD('BY',self.consignee_id,type)
+    def NAD_SH(self,type='GLN'):
+        return self._NAD('SH',self.forwarder_id,type)
+    def NAD_DP(self,type='GLN'):
+        return sielf._NAD('DP',self.carrier_id,type)
 
     #code = error/status code
     def _create_LIN_segment(self,nr, line):

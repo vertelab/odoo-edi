@@ -75,6 +75,7 @@
                             <field name="active" />
                             <button name="check_connection" string="Check" type="object" icon="gtk-ok" colspan="1"/>
                             <button name="run" string="Run" type="object" icon="gtk-ok" colspan="1"/>
+                            <button name="fold" string="Fold" type="object" icon="gtk-ok" colspan="1"/>
                         </group>
                         <group name="route_type">
                         
@@ -315,6 +316,7 @@
                             <field name="name"/>
                         </h1>
                     </div>
+                        <button name="pack" string="Pack" type="object" icon="gtk-ok" colspan="1"/>
                         <button name="unpack" string="Unpack" type="object" icon="gtk-ok" colspan="1"/>
                         <group>                            
                             <field name="envelope_id" />
@@ -327,6 +329,7 @@
                             <field name="model_record" />
                             <field name="model" />
                             <field name="res_id" />
+<field name="edi_type"/>                            
                             <field name="body" />
                         </group>
                 </sheet>

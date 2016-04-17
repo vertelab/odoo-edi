@@ -57,6 +57,8 @@ class stock_picking(models.Model):
     def action_done(self):
         self.action_create_desadv()        
         return super(stock_picking,self).action_done()
+        
+    
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

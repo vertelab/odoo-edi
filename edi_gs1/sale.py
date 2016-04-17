@@ -35,12 +35,6 @@ class sale_order(models.Model):
     _inherit = "sale.order"
 
     @api.one
-    def tmp_ordererkannande(self):
-        _logger.warn('tmp_ordererkännande')
-        self._edi_message_create('ORDRSP')
-
-
-    @api.one
     def _message_count(self):
         self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
     message_count = fields.Integer(compute='_message_count',string="# messages")
