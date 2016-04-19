@@ -20,6 +20,7 @@
 ##############################################################################
 from openerp import models, fields, api, _
 from pytz import timezone
+import base64
 from openerp.exceptions import except_orm, Warning, RedirectWarning
 from datetime import datetime, timedelta, time
 from time import strptime, mktime, strftime
@@ -36,7 +37,7 @@ class edi_envelope(models.Model):
     
     name = fields.Char(string="Name",required=True)
     route_id = fields.Many2one(comodel_name='edi.route',required=True)
-    partner_id = fields.Many2one(string="Partner",related='route_id.partner_id',readonly=True)
+    #partner_id = fields.Many2one(string="Partner",related='route_id.partner_id',readonly=True)
     direction = fields.Selection(related="route_id.direction",readonly=True)
     date = fields.Datetime(string='Date',default=fields.Datetime.now())
     body = fields.Binary()
@@ -58,6 +59,12 @@ class edi_envelope(models.Model):
     @api.one
     def split(self):
         pass
+                
+    @api.one
+    def fold(self,route): # Folds messages in an envelope
+        if route.envelope_type == 'plain':
+            self.body = base64.b64encode(''.join([base64.b64decode(m.body) for m in self.message_ids]))
+        return self
                     
     def _cron_job_in(self,cr,uid, edi, context=None):
         edi.write({'to_import': False})
@@ -85,11 +92,11 @@ class edi_message(models.Model):
     res_id = fields.Integer()
     to_import = fields.Boolean(default=False)
     to_export = fields.Boolean(default=False)
-    route_id = fields.Many2one(related="envelope_id.route_id",readonly=True)
+    route_id = fields.Many2one(comodel_name="edi.route")
     
     def _edi_type(self):
         return [('none','None')]
-    edi_type = fields.Selection(selection='_edi_type',default='none')
+    edi_type = fields.Selection(selection=[('none','None')],default='none')
 
     @api.one
     def unpack(self):
@@ -143,11 +150,9 @@ class edi_route(models.Model):
     frequency_quant = fields.Integer(string="Frequency")
     frequency_uom = fields.Selection([('1','min'),('60','hour'),('1440','day'),('10080','week'),('40320','month')])
     next_run = fields.Datetime(string='Next run')
-    model = fields.Many2one(comodel_name="ir.model")
     run_sequence = fields.Char(string="Last run id")
-    def _edi_type(self):
-        return [('none','None')]
-    edi_type = fields.Selection(selection='_edi_type',default='none')
+    edi_type = fields.Selection(selection=[('none','None')],default='none')
+    envelope_type = fields.Selection(selection=[('plain','Plain')],default='plain')
     
     @api.one
     def _envelope_count(self):
@@ -166,8 +171,15 @@ class edi_route(models.Model):
         _logger.info('Check connection [%s:%s]' % (self.name,self.route_type))
         
     @api.one
-    def get_file(self):
-        pass
+    def fold(self): # Folds messages in an envelope
+        envelope = self.env['edi.envelope'].create({
+            'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
+            'route_id': self.id,
+            })
+        for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',self.id)]):
+            m.envelope_id = envelope.id
+        envelope.fold(self)
+        return envelope
         
     @api.one
     def put_file(self,file):

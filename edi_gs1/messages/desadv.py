@@ -30,9 +30,7 @@ _logger = logging.getLogger(__name__)
 
 class edi_route(models.Model):
     _inherit = 'edi.route' 
-    
-    def _edi_type(self):
-        return [t for t in super(edi_route, self)._edi_type() + [('DESADV','DESADV')] if not t[0] == 'none']
+    edi_type = fields.Selection(selection_add=[('DESADV','DESADV')])  
 
 
 class edi_message(models.Model):
@@ -86,10 +84,7 @@ QTY	Kvantitet.
 UNS		Avslutar orderrad.
 UNT		Avslutar ordermeddelandet.
 """ 
-
-    #TODO: replace with new selection_add (?) parameter
-    def _edi_type(self):
-        return [t for t in super(edi_message, self)._edi_type() + [('DESADV','DESADV')] if not t[0] == 'none']
+    edi_type = fields.Selection(selection_add=[('DESADV','DESADV')])  
     
     @api.one
     def pack(self):

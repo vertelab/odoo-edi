@@ -26,13 +26,35 @@ from datetime import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
+class edi_envelope(models.Model):
+    _inherit = 'edi.envelope' 
+    
+    @api.one
+    def fold(self,route): # Folds messages in an envelope
+        for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
+            m.envelope_id = self.id
+        envelope = super(edi_envelope,self).fold(route)
+        if route.envelope_type == 'edifact':
+            interchange_controle_ref = ''
+            date = ''
+            time = ''
+            UNA = "UNA:+.? '"
+            UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (route.partner_id.company_id.partner_id.gs1_gln, route.partner_id.gs1_gln, date, time, interchange_control_ref)
+            body = ''.join([base64.b64decode(m.body) for m in envelope.message_ids])
+            UNZ = "UNZ+%s+627'" % (len(envelope.message_ids),len(body))
+            envelope.body = base64.b64encode(UNA + UNB + body + UNZ)
+        return envelope
+
+    def _create_UNB_segment(self,sender, recipient):
+        self._seg_count += 1
+        return "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (sender.gs1_gln, recipient.gs1_gln, date, time, interchange_control_ref)
 
 
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    def _edi_type(self):
-        return [t for t in super(edi_route, self)._edi_type() + [('ORDERS','ORDERS'),('ORDRSP','ORDRSP')] if not t[0] == 'none']
+    edi_type = fields.Selection(selection_add=[('ORDERS','ORDERS'),('ORDRSP','ORDRSP')])
+    envelope_type = fields.Selection(selection_add=[('edifact','Edifact')])
 
 
 def _escape_string(s):
@@ -45,11 +67,9 @@ def _escape_string(s):
 class edi_message(models.Model):
     _inherit='edi.message'
 
+
+
     _seg_count = 0
-    #move to route
-    def _create_UNB_segment(self,sender, recipient):
-        self._seg_count += 1
-        return "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (sender.gs1_gln, recipient.gs1_gln, date, time, interchange_control_ref)
 
     def UNH(self,edi_type=False, version='D', release='96A'):
         self._seg_count += 1

@@ -71,7 +71,7 @@
                             <field name="partner_id" />
                             <field name="route_type" />
                             <field name="direction" />
-                            <field name="model" />
+                            <field name="edi_type" />
                             <field name="active" />
                             <button name="check_connection" string="Check" type="object" icon="gtk-ok" colspan="1"/>
                             <button name="run" string="Run" type="object" icon="gtk-ok" colspan="1"/>
@@ -210,8 +210,6 @@
                         
                         <group>
                             
-                            <field name="partner_id" />
-                            <field name="route_id" />
                             <field name="envelope_type" />
                             <field name="direction" />
                             <field name="date" />
@@ -237,7 +235,7 @@
         <field name="arch" type="xml">
             <tree string="EDI Envelope" >
                 <field name="name" />
-                <field name="partner_id" />
+
                 <field name="envelope_type" />
                 <field name="route_id" />
                 
@@ -255,7 +253,6 @@
         <field name="arch" type="xml">
             <search string="Search EDI Envelope">
                 <field name="name" string="Envelope" filter_domain="[('name','ilike',self),('partner_id','ilike',self),('route_id','ilike',self)]"/>
-                <field name="partner_id"/>
                 <field name="route_id"/>
                 <filter icon="terp-go-today" string="Partner" domain="[('partner_id','=',uid)]" help="My Urls"/>
                 <separator/>

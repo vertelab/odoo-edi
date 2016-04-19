@@ -89,11 +89,8 @@ QTY	Kvantitet.
 UNS		Avslutar orderrad.
 UNT		Avslutar ordermeddelandet.
 """ 
+    edi_type = fields.Selection(selection_add=[('ORDRSP','ORDRSP')])
 
-    #TODO: replace with new selection_add (?) parameter
-    def _edi_type(self):
-        return [t for t in super(edi_message, self)._edi_type() + [('ORDRSP','ORDRSP'),('ORDRSP-oers',u'Ordererkännande')] if not t[0] == 'none']
-        
     @api.one
     def tmp_ordererkannande(self):
         """
