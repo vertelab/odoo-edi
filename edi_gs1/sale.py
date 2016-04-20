@@ -39,35 +39,17 @@ class sale_order(models.Model):
         self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
     message_count = fields.Integer(compute='_message_count',string="# messages")
    
-
     def _edi_message_create(self,edi_type):
-        _logger.warn('Here I am')
-        if self.partner_id and self.partner_id.parent_id: 
-            _logger.warn('Got parent')
-            if edi_type in [r.edi_type for r in self.partner_id.parent_id.route_ids]: # Parent customer has route for this message type
-                if  self.env['edi.message'].search([('model','=',self._name),('res_id','=',self.id),('edi_type','=',edi_type)]): # Just one message per sale.order and type
-                    routes = {r.edi_type: r.id for r in self.partner_id.parent_id.route_ids}
-                    message = self.env['edi.message'].create({
-                            'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id),
-                            'edi_type': edi_type,
-                            'model': self._name,
-                            'res_id': self.id,
-                            'route_id': routes[edi_type],
-                            'consignor_id': self.env.ref('base.main_partner').id,
-                            'consignee_id': self.partner_id.id,
-                    })
-                    message.pack()
-                    self.env['mail.message'].create({
-                            'body': _("%s %s created" % (edi_type,message.name)),
-                            'subject': edi_type,
-                            'author_id': self.user_id.partner_id.id,
-                            'res_id': self.id,
-                            'model': self._name,
-                            'type': 'notification',})                
+        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,check_route=False,check_double=False)
 
     @api.one
     def action_create_ordrsp(self):
         self._edi_message_create('ORDRSP')
+
+    @api.one
+    def action_create_ordrsp_oerk(self):
+        self._edi_message_create('ORDRSP-oerk')
+
 
     @api.one
     def action_create_invoic(self):

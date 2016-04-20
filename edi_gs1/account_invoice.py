@@ -28,25 +28,7 @@ class account_invoice(models.Model):
     _inherit = "account.invoice"
         
     def _edi_message_create(self,edi_type):
-        if self.partner_id and self.partner_id.parent_id: 
-            if edi_type in [r.edit_type for r in self.partner_id.parent_id.edi_route_ids]: # Parent customer has route for this message type
-                if not self.env['edi.message'].search([('model','=',self._name),('res_id','=',self.id),('edi_type','=',edi_type)]): # Just one message per sale.order and type
-                    routes = {r.edi_type: r.id for r in self.partner_id.parent_id.edi_route_ids}
-                    message = self.env['edi.message'].create({
-                            'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id),
-                            'edi_type': edi_type,
-                            'model': self._name,
-                            'res_id': self.id,
-                            'route_id': routes[edi_type]
-                    })
-                    message.pack()
-                    self.env['mail.message'].create({
-                            'body': _("%s %s created" % (edi_type,message.name)),
-                            'subject': edi_type,
-                            'author_id': self.user_id.partner_id.id,
-                            'res_id': self.id,
-                            'model': self._name,
-                            'type': 'notification',})                
+        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,check_route=False,check_double=False)
 
     @api.one
     def action_create_invoic(self):

@@ -114,7 +114,38 @@ class edi_message(models.Model):
     def _cron_job_out(self,cr,uid, edi, context=None):
         edi.write({'to_export': False})
 
-    
+    def _edi_message_create(self,edi_type=None,obj=None,partner=None,check_route=True,check_double=True):
+        if partner and obj and edi_type:
+            routes = partner.get_routes(partner)
+            if check_route and not edi_type in routes:
+                return None
+            if check_double and len(self.env['edi.message'].search([('model','=',obj._name),('res_id','=',obj.id),('edi_type','=',edi_type)])) > 0:
+                return None
+            message = self.env['edi.message'].create({
+                    'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id),
+                    'edi_type': edi_type,
+                    'model': obj._name,
+                    'res_id': obj.id,
+                    'route_id': routes.get(edi_type,1),
+                    'consignor_id': self.env.ref('base.main_partner').id,
+                    'consignee_id': partner.id,
+            })
+            message.pack()
+            self.env['mail.message'].create({
+                    'body': _("{type} <a href='/web#model={model}&id={id}'>{message}</a> created\n").format(type=edi_type,model=message._name,id=message.id,message=message.name),
+                    'subject': edi_type,
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': obj.id,
+                    'model': obj._name,
+                    'type': 'notification',})                
+            self.env['mail.message'].create({
+                    'body': _("{type} <a href='/web#model={model}&id={id}'>{message}</a> created\n").format(type=edi_type,model=obj._name,id=obj.id,message=obj.name),
+                    'subject': edi_type,
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': message.id,
+                    'model': message._name,
+                    'type': 'notification',})                
+
     @api.v7
     def cron_job(self, cr, uid, context=None):
         for edi in self.pool.get('edi.message').browse(cr, uid, self.pool.get('edi.message').search(cr, uid, [('to_import','=',True)])):

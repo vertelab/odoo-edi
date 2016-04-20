@@ -121,7 +121,8 @@ class edi_message(models.Model):
         if type == 'GLN':
             party_id = partner.gs1_gln
             if not party_id:
-                raise Warning('NAD missing GLN role=%s partner=%s' % (role,partner.name))
+                #raise Warning('NAD missing GLN role=%s partner=%s' % (role,partner.name))
+                party_id = 1 # Jusr for test
             code = 9
         return "NAD+%s+%s::%s'" % (role, party_id, code)
     def NAD_SU(self,type='GLN'):
@@ -134,7 +135,7 @@ class edi_message(models.Model):
         return sielf._NAD('DP',self.carrier_id,type)
 
     #code = error/status code
-    def _create_LIN_segment(self,nr, line):
+    def LIN(self,nr, line):
         self._seg_count += 1        
         if line.product_uom_qty <= 0:
             code = 7 # Not accepted
@@ -145,7 +146,7 @@ class edi_message(models.Model):
         return "LIN+%s+%s+%s:%s'" %(nr, code, line.product_id.gs1_gtin14, 'EN')
 
     #SA = supplier code BP = buyer code
-    def _create_PIA_segment(self,product, code):
+    def PIA(self,product, code):
         self._seg_count += 1
         prod_nr = None
         if code == 'SA':
@@ -156,7 +157,7 @@ class edi_message(models.Model):
             return "PIA+5+%s:%s'" % (prod_nr, code)
         return ""
 
-    def _create_QTY_segment(self,line):
+    def QTY(self,line):
         self._seg_count += 1
         #~ if line.product_uom_qty != line.order_qty:
             #~ code = 12

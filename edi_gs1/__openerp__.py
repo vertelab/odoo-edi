@@ -98,6 +98,8 @@ generated for stock.picking / stock.pack.
         'res_company_view.xml',
         'ica_data.xml',
         'sale_data.xml',
+        'account_invoice_data.xml',
+        'stock_data.xml',
         #'security/ir.model.access.csv',
     ],
     'application': False,
