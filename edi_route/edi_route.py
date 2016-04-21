@@ -93,9 +93,7 @@ class edi_message(models.Model):
     to_import = fields.Boolean(default=False)
     to_export = fields.Boolean(default=False)
     route_id = fields.Many2one(comodel_name="edi.route")
-    
-    def _edi_type(self):
-        return [('none','None')]
+    test_mode = fields.Boolean('Test Mode') #TODO: Implement in BGM?
     edi_type = fields.Selection(selection=[('none','None')],default='none')
 
     @api.one
@@ -174,9 +172,7 @@ class edi_route(models.Model):
     name = fields.Char(string="Name",required=True)
     partner_id = fields.Many2one(comodel_name='res.partner',required=True)
     active = fields.Boolean()
-    def _route_type(self):
-        return [('none','None')]
-    route_type = fields.Selection(selection='_route_type')
+    route_type = fields.Selection(selection=[('none','None')])
     direction = fields.Selection([('in','In'),('out','Out')])
     frequency_quant = fields.Integer(string="Frequency")
     frequency_uom = fields.Selection([('1','min'),('60','hour'),('1440','day'),('10080','week'),('40320','month')])

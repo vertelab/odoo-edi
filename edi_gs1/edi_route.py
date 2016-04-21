@@ -66,10 +66,9 @@ def _escape_string(s):
 
 class edi_message(models.Model):
     _inherit='edi.message'
-
-
-
+    
     _seg_count = 0
+    _lin_count = 0
 
     def UNH(self,edi_type=False, version='D', release='96A'):
         self._seg_count += 1
@@ -78,6 +77,8 @@ class edi_message(models.Model):
         return "UNH+{ref_no}+{msg_type}:{version}:{release}:UN:EDIT30'".format(ref_no=self.name,msg_type=edi_type,version=version,release=release)
 
     def BGM(self,doc_code=False, doc_no=False,status=False):
+        #TODO: look up test mode on route and add to BGM
+        
         # Beginning of message
         # doc_code = Order, Document/message by means of which a buyer initiates a transaction with a seller involving the supply of goods or services as specified, according to conditions set out in an offer, or otherwise known to the buyer.
         # BGM+220::9+20120215150105472'
@@ -99,14 +100,15 @@ class edi_message(models.Model):
         # 132 =  Transport means arrival date/time, estimated
         # 137 =  Document/message date/time, date/time when a document/message is issued. This may include authentication.
         if not dt:
-            dt = fields.Datetime.from_string(fields.Datetime.now())
+            dt = fields.Datetime.now()
+        dt = fields.Datetime.from_string(dt)
         if format == 102:
-            dt = fields.Datetime.from_string(dt).strftime('%Y%M%d')
+            dt = dt.strftime('%Y%M%d')
         elif format == 203:
-            dt = fields.Datetime.from_string(dt).strftime('%Y%M%d%H%M')
+            dt = dt.strftime('%Y%M%d%H%M')
         return "DTM+%s:%s:%s'" % (func_code, dt, format)
 
-    def _create_FTX_segment(self,msg1, msg2='', msg3='', msg4='', msg5='', subj='ZZZ', func=1, ref='001'):
+    def FTX(self, msg1, msg2='', msg3='', msg4='', msg5='', subj='ZZZ', func=1, ref='001'):
         self._seg_count += 1        
         return "FTX+%s+%s+%s+%s:%s:%s:%s:%s'" % (subj, func, ref, _escape_string(msg1), _escape_string(msg2), _escape_string(msg3), _escape_string(msg4), _escape_string(msg5))
 
@@ -135,15 +137,16 @@ class edi_message(models.Model):
         return sielf._NAD('DP',self.carrier_id,type)
 
     #code = error/status code
-    def LIN(self,nr, line):
-        self._seg_count += 1        
+    def LIN(self, line):
+        self._seg_count += 1
+        self._lin_count += 1
         if line.product_uom_qty <= 0:
             code = 7 # Not accepted
         elif line.product_uom_qty != line.order_qty:
             code = 12 # Quantity changed
         else:
             code = 5 # Accepted without amendment
-        return "LIN+%s+%s+%s:%s'" %(nr, code, line.product_id.gs1_gtin14, 'EN')
+        return "LIN+%s+%s+%s:%s'" %(self._lin_count, code, line.product_id.gs1_gtin14 or line.product_id.gs1_gtin13, 'EN')
 
     #SA = supplier code BP = buyer code
     def PIA(self,product, code):
@@ -155,7 +158,7 @@ class edi_message(models.Model):
             pass
         if prod_nr:
             return "PIA+5+%s:%s'" % (prod_nr, code)
-        return ""
+        raise Warning("PIA: couldn't find product code (%s) for %s (id: %s)" % (code, product.name, product.id))
 
     def QTY(self,line):
         self._seg_count += 1
@@ -166,9 +169,11 @@ class edi_message(models.Model):
         return "QTY+%s:%s'" % (code, line.product_uom_qty)
 
     def UNS(self):
+        self._seg_count += 1
         return "UNS+S'"
 
     def UNT(self):
+        self._seg_count += 1
         return "UNT+{count}+{ref}'".format(count=self._seg_count,ref=self.name)
 
             

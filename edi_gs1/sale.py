@@ -48,7 +48,7 @@ class sale_order(models.Model):
 
     @api.one
     def action_create_ordrsp_oerk(self):
-        self._edi_message_create('ORDRSP-oerk')
+        self._edi_message_create('ORDRSP-oerk', self)
 
 
     @api.one
