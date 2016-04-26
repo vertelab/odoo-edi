@@ -36,8 +36,9 @@ class account_invoice(models.Model):
 
     @api.one
     def action_move_create(self):
-        self.action_create_invoic()        
-        return super(account_invoice,self).action_move_create()
+        res = super(account_invoice,self).action_move_create()
+        self.action_create_invoic()   
+        return res
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

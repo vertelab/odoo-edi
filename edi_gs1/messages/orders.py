@@ -30,9 +30,8 @@ _logger = logging.getLogger(__name__)
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    def _edi_type(self):
-        return [t for t in super(edi_route, self)._edi_type() + [('ORDERS','ORDERS')] if not t[0] == 'none']
-
+    edi_type = fields.Selection(selection_add=[('ORDERS','ORDERS')]) 
+    
 class edi_message(models.Model):
     _inherit='edi.message'
         

@@ -93,9 +93,6 @@ class edi_message(models.Model):
     to_import = fields.Boolean(default=False)
     to_export = fields.Boolean(default=False)
     route_id = fields.Many2one(comodel_name="edi.route")
-    
-    def _edi_type(self):
-        return [('none','None')]
     edi_type = fields.Selection(selection=[('none','None')],default='none')
 
     @api.one
@@ -114,7 +111,7 @@ class edi_message(models.Model):
     def _cron_job_out(self,cr,uid, edi, context=None):
         edi.write({'to_export': False})
 
-    def _edi_message_create(self,edi_type=None,obj=None,partner=None,check_route=True,check_double=True):
+    def _edi_message_create(self, edi_type=None,obj=None, partner=None, check_route=True, check_double=True):
         if partner and obj and edi_type:
             routes = partner.get_routes(partner)
             if check_route and not edi_type in routes:
@@ -174,9 +171,7 @@ class edi_route(models.Model):
     name = fields.Char(string="Name",required=True)
     partner_id = fields.Many2one(comodel_name='res.partner',required=True)
     active = fields.Boolean()
-    def _route_type(self):
-        return [('none','None')]
-    route_type = fields.Selection(selection='_route_type')
+    route_type = fields.Selection(selection=[('none','None')])
     direction = fields.Selection([('in','In'),('out','Out')])
     frequency_quant = fields.Integer(string="Frequency")
     frequency_uom = fields.Selection([('1','min'),('60','hour'),('1440','day'),('10080','week'),('40320','month')])
@@ -184,6 +179,7 @@ class edi_route(models.Model):
     run_sequence = fields.Char(string="Last run id")
     edi_type = fields.Selection(selection=[('none','None')],default='none')
     envelope_type = fields.Selection(selection=[('plain','Plain')],default='plain')
+    test_mode = fields.Boolean('Test Mode') #TODO: Implement in BGM?
     
     @api.one
     def _envelope_count(self):

@@ -31,9 +31,7 @@ _logger = logging.getLogger(__name__)
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    def _edi_type(self):
-        return [t for t in super(edi_route, self)._edi_type() + [('ORDRSP','ORDRSP'),('ORDRSP-oers',u'Ordererkännande')] if not t[0] == 'none']
-
+    edi_type = fields.Selection(selection_add=[('ORDRSP','ORDRSP'),('ORDRSP-oerk',u'Ordererkännande')])
 
 def _check_order_status(order):
     edited = 0
@@ -89,7 +87,7 @@ QTY	Kvantitet.
 UNS		Avslutar orderrad.
 UNT		Avslutar ordermeddelandet.
 """ 
-    edi_type = fields.Selection(selection_add=[('ORDRSP','ORDRSP')])
+    edi_type = fields.Selection(selection_add=[('ORDRSP','ORDRSP'),('ORDRSP-oerk','Ordererkännande')])
 
     @api.one
     def tmp_ordererkannande(self):
@@ -112,7 +110,9 @@ UNZ 		M 		1 		INTERCHANGE TRAILER
     @api.one
     def pack(self):
         super(edi_message, self).pack()
+        msg = None
         if self.edi_type == 'ORDRSP':
+            _logger.warn('mode_record: %s' % self.model_record)
             if self.model_record._name != 'sale.order':
                 raise Warning("ORDRSP: Attached record is not a sale.order! {model}".format(model=self.model_record._name))
             status = _check_order_status(self.model_record)
@@ -121,35 +121,35 @@ UNZ 		M 		1 		INTERCHANGE TRAILER
                 msg += self.BGM(231, self.model_record.name, status=status)
                 msg += self.DTM(137,dt=self.model_record.date_order)  # sale.order date?
                 #Another DTM?
-                #FNX?
+                #FTX?
                 msg += self.RFF(self.model_record.client_order_ref)
                 msg += self.NAD_BY()
                 msg += self.NAD_SU()
-                line_index = 0
                 for line in self.model_record.order_line:
-                    line_index += 1
-                    msg += self.LIN(line_index, line)
+                    msg += self.LIN(line)
                     msg += self.PIA(line.product_id, 'SA')
                     #Required?
                     #msg += self._create_PIA_segment(line.product_id, 'BP')
                     msg += self.QTY(line)
                 msg += self.UNS()
                 msg += self.UNT()
-                self.body = base64.b64encode(msg)
-        elif self.edi_type == 'ORDRSP-oers':
-            if self.model_record._model != 'sale.order':
+        elif self.edi_type == 'ORDRSP-oerk':
+            _logger.warn('mode_record: %s' % self.model_record)
+            if self.model_record._name != 'sale.order':
                 raise Warning("ORDRSP: Attached record is not a sale.order!")
-            msg =  self.UNH(edi_type=self.edi_type.replace('-oers',''))
+            msg =  self.UNH(edi_type='ORDRSP')
             msg += self.BGM(231, self.model_record.name, 12)
-            msg += self._create_DTM_segment(137)
-            msg += self._create_DTM_segment(137,format=203)
-            msg += self._create_FTX_segment('')
-            msg += self._create_RFF_segment(self.model_record.client_order_ref or '')
+            msg += self.DTM(137)
+            msg += self.DTM(137,format=203)
+            msg += self.FTX('')
+            msg += self.RFF(self.model_record.client_order_ref or '')
             msg += self.NAD_BY()
             msg += self.NAD_SU()
             msg += self.UNS()
             msg += self.UNT()
-            self.body = base64.b64encode(msg)
+        if msg:
+            #TODO: What encoding should be used?
+            self.body = base64.b64encode(msg.encode('utf-8').decode('ascii', 'ignore'))
 
     @api.one
     def unpack(self):

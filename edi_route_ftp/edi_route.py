@@ -315,9 +315,8 @@ class edi_route(models.Model):
     ftp_directory = fields.Char(string="Directory",)
     ftp_pattern = fields.Char(string="Pattern",help="File pattern eg *.edi")
     ftp_debug = fields.Boolean(string="Debug")
-
-    def _route_type(self):
-        return [t for t in super(edi_route, self)._route_type() + [('ftp','Ftp'),('sftp','Sftp')] if not t[0] == 'none']
+    route_type = fields.Selection(selection_add=[('ftp','Ftp'),('sftp','Sftp')])
+    
     @api.one
     def check_connection(self):
         _logger.info('Check connection [%s:%s]' % (self.name,self.route_type))
