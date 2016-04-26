@@ -94,11 +94,20 @@ class edi_message(models.Model):
         elif doc_code == 351:
             return "BGM+351+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
             
-
-    def DTM(self,func_code=False, dt=False, format=102):
+    def CTL(self, qualifier, value):
         self._seg_count += 1
-        # 132 =  Transport means arrival date/time, estimated
-        # 137 =  Document/message date/time, date/time when a document/message is issued. This may include authentication.
+        return "CNT+%s+%s'" % (qualifier, value)
+    
+    def DTM(self,func_code, dt=False, format=102):
+        self._seg_count += 1
+        #11	Despatch date and or time - (2170) Date/time on which the goods are or are expected to be despatched or shipped.
+        #13 Terms net due date - Date by which payment must be made.
+        #35	Delivery date/time, actual - Date/time on which goods or consignment are delivered at their destination.
+        #50 Goods receipt date/time - Date/time upon which the goods were received by a given party.
+        #132 Transport means arrival date/time, estimated
+        #137 Document/message date/time, date/time when a document/message is issued. This may include authentication.
+        #167 Charge period start date - The charge period's first date.
+        #168 Charge period end date - The charge period's last date.
         if not dt:
             dt = fields.Datetime.now()
         dt = fields.Datetime.from_string(dt)
@@ -113,11 +122,17 @@ class edi_message(models.Model):
         return "FTX+%s+%s+%s+%s:%s:%s:%s:%s'" % (subj, func, ref, _escape_string(msg1), _escape_string(msg2), _escape_string(msg3), _escape_string(msg4), _escape_string(msg5))
 
     #CR = Customer Reference
-    def RFF(self,ref, qualifier='CR'):
+    def RFF(self, ref, qualifier='CR'):
         # CR = Customer reference, AAS = Transport document number, Reference assigned by the carrier or his agent to the transport document.
         self._seg_count += 1
         return "RFF+%s:%s'" % (qualifier, ref)
 
+    def TAX(self, rate, tax_type = 'VAT', qualifier = 7, category = 'S'):
+        self._seg_count += 1
+        #qualifier
+        #   7 = tax
+        return "TAX+%s+%s+++:::%s+%s'" % (qualifier, tax_type, rate, category)
+    
     def _NAD(self,role, partner, type='GLN'):
         self._seg_count += 1        
         if type == 'GLN':
@@ -135,19 +150,37 @@ class edi_message(models.Model):
         return self._NAD('SH',self.forwarder_id,type)
     def NAD_DP(self,type='GLN'):
         return sielf._NAD('DP',self.carrier_id,type)
-
+    def NAD_CN(self,type='GLN'):
+        return self._NAD('CN',self.consignee_id,type)
     #code = error/status code
     def LIN(self, line):
         self._seg_count += 1
         self._lin_count += 1
-        if line.product_uom_qty <= 0:
+        if line._name == 'account.invoice.line':
+            code = ''
+        elif line.product_uom_qty <= 0:
             code = 7 # Not accepted
         elif line.product_uom_qty != line.order_qty:
             code = 12 # Quantity changed
         else:
             code = 5 # Accepted without amendment
         return "LIN+%s+%s+%s:%s'" %(self._lin_count, code, line.product_id.gs1_gtin14 or line.product_id.gs1_gtin13, 'EN')
-
+    
+    def MOA(self, amount, qualifier = 203):
+        self._seg_count += 1
+        return "MOA+%s:amount'" % (qualifier, amount)
+    
+    def PAT(self, pttq=3, ptr=66, tr=1):
+        self._seg_count += 1
+        #pttq   4279 	Payment terms type qualifier
+            #3 Fixed date - Payments are due on the fixed date specified.
+        #ptr    2475 	Payment time reference, coded
+            #66	Specified date - Date specified elsewhere.
+		#tr     2009 	Time relation, coded
+            #1	Date of order - Payment time reference is date of order.
+        
+        return "PAT+%s++%s:%s'" % (pttq, ptr, tr)
+    
     #SA = supplier code BP = buyer code
     def PIA(self,product, code):
         self._seg_count += 1
@@ -160,13 +193,27 @@ class edi_message(models.Model):
             return "PIA+5+%s:%s'" % (prod_nr, code)
         raise Warning("PIA: couldn't find product code (%s) for %s (id: %s)" % (code, product.name, product.id))
 
-    def QTY(self,line):
+    def PRI(self):
         self._seg_count += 1
-        #~ if line.product_uom_qty != line.order_qty:
+        pass
+        
+    def QTY(self,line, code = None):
+        self._seg_count += 1
+       
+        if line._name == 'account.invoice.line':
+            code = 47
+            qty = line.quantity
+        else:
+            qty = line.product_uom_qty
+        
+         #~ if line.product_uom_qty != line.order_qty:
             #~ code = 12
         #~ else:
-        code = 21
-        return "QTY+%s:%s'" % (code, line.product_uom_qty)
+        if code:
+            pass
+        else:
+            code = 21
+        return "QTY+%s:%s'" % (code, qty)
 
     def UNS(self):
         self._seg_count += 1

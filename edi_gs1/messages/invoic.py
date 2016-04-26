@@ -112,38 +112,91 @@ QTY	Kvantitet.
 UNS		Avslutar orderrad.
 UNT		Avslutar ordermeddelandet.
 """ 
-
-    #TODO: replace with new selection_add (?) parameter
-    def _edi_type(self):
-        return [t for t in super(edi_message, self)._edi_type() + [('INVOIC','INVOIC')] if not t[0] == 'none']
-            
+    edi_type = fields.Selection(selection_add = [('INVOIC','INVOIC')])
+    
+    _edi_lines_tot_qty = 0
+    
     @api.one
     def pack(self):
         super(edi_message, self).pack()
         if self.edi_type == 'INVOIC':
-            if self.model_record._name != 'account.invoic':
-                raise Warning("INVOIC: Attached record is not a sale.order! {model}".format(model=self.model_record._name))
-            status = _check_order_status(self.model_record)
-            if status != 0:
-                msg = self.UNH(self.edi_type)
-                msg += self.BGM(231, self.model_record.name, status)
-                dt = fields.Datetime.from_string(fields.Datetime.now())
-                msg += self._create_DTM_segment(137, dt)
-                #Another DTM?
-                #FNX?
-                msg += self._create_RFF_segment(self.model_record.client_order_ref)
-                msg += self.NAD_BY()
-                msg += self.NAD_CN()
-                msg += self.NAD_SU()
-                line_index = 0
-                for line in self.model_record.order_line:
-                    line_index += 1
-                    msg += self._create_LIN_segment(line_index, line)
-                    msg += self._create_PIA_segment(line.product_id, 'SA')
-                    #Required?
-                    #msg += self._create_PIA_segment(line.product_id, 'BP')
-                    msg += self._create_QTY_segment(line)
-                msg += self.UNS()
-                msg += self.UNT()
-                self.body = base64.b64encode(msg)
+            if self.model_record._name != 'account.invoice':
+                raise Warning("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record._name))
+            invoice = self.model_record
+            msg = self.UNH(self.edi_type)
+            #280 = 	Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
+            #9 = Original - Initial transmission related to a given transaction.
+            msg += self.BGM(280, invoice.name, 9)
+            
+            #Dates
+            #Document date
+            msg += self.DTM(137)
+            #Actual delivery date
+            #msg += self.DTM(35)
+            #Despatch date
+            #msg += self.DTM(11)
+            #Invoice period
+            #msg += self.DTM(167)
+            #msg += self.DTM(168, invoice.date_due)
+            
+            #Invoice reference
+            msg += self.RFF(invoice.name, 'IV')
+            #Order reference
+            msg += self.RFF(invoice.origin, 'ON')
+            msg += self.NAD_SU()
+            msg += self.RFF(self.consignor_id.vat, 'VA')
+            msg += self.RFF(self.consignor_id.company_registry, 'GN')
+            msg += self.NAD_BY()
+            msg += self.RFF(self.consigee_id.vat, 'VA')
+            msg += self.NAD_CN()
+            #CUX Currency
+            msg += self.PAT()
+            msg += self.DTM(13, invoice.date_due)
+            
+            #Shipping charge, discount, collection reduction, service charge, packing charge 
+            #   ALC Freigt charge
+            #   MOA Ammount
+            #   TAX
+            
+            for line in invoice.invoice_line:
+                self._edi_lines_tot_qty += line.quantity
+                msg += self.LIN(line)
+                msg += self.PIA(line.product_id, 'SA')
+                #Invoice qty
+                msg += self.QTY(line)
+                #Delivered qty
+                #msg += self._create_QTY_segment(line)
+                #Reason for crediting
+                #ALI
+                msg += self.MOA(line.price_subtotal)
+                #Net unit price, and many more
+                #PRI
+                #Reference to invoice. Again?
+                #RFF
+                #Justification for tax exemption
+                #TAX
+            msg += self.UNS()
+            msg += self.CNT(1, self._edi_lines_tot_qty)
+            msg += self.CNT(2, self._lin_count)
+            #Amount due
+            self.msg += self.MOA(invoice.amount_total, 9)
+            #Small change roundoff
+            #self.msg += self.MOA()
+            #Sum of all line items
+            self.msg += self.MOA(amount_total, 79)
+            #Total taxable amount
+            self.msg += self.MOA(invoice.total_untaxed, 125)
+            #Total taxes
+            self.msg += self.MOA(invoice.amount_tax, 176)
+            #Total allowance/charge amount
+            #self.msg += self.MOA(, 131)
+            #TAX-MOA-MOA
+            #self.msg += self.TAX()
+            #self.msg += self.MOA()
+            #self.msg += self.MOA()
+            #Tax subtotals
+            self.msg += self.TAX('%.2f' % invoice.amount_tax / invoice.amount_total)
+            self.msg += self.MOA(invoice.amount_tax, 150)
+            msg += self.UNT()
+            self.body = base64.b64encode(msg.encode('utf-8'))
 

@@ -93,7 +93,6 @@ class edi_message(models.Model):
     to_import = fields.Boolean(default=False)
     to_export = fields.Boolean(default=False)
     route_id = fields.Many2one(comodel_name="edi.route")
-    test_mode = fields.Boolean('Test Mode') #TODO: Implement in BGM?
     edi_type = fields.Selection(selection=[('none','None')],default='none')
 
     @api.one
@@ -112,7 +111,7 @@ class edi_message(models.Model):
     def _cron_job_out(self,cr,uid, edi, context=None):
         edi.write({'to_export': False})
 
-    def _edi_message_create(self,edi_type=None,obj=None,partner=None,check_route=True,check_double=True):
+    def _edi_message_create(self, edi_type=None,obj=None, partner=None, check_route=True, check_double=True):
         if partner and obj and edi_type:
             routes = partner.get_routes(partner)
             if check_route and not edi_type in routes:
@@ -180,6 +179,7 @@ class edi_route(models.Model):
     run_sequence = fields.Char(string="Last run id")
     edi_type = fields.Selection(selection=[('none','None')],default='none')
     envelope_type = fields.Selection(selection=[('plain','Plain')],default='plain')
+    test_mode = fields.Boolean('Test Mode') #TODO: Implement in BGM?
     
     @api.one
     def _envelope_count(self):

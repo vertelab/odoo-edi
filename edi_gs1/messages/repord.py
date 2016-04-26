@@ -96,7 +96,7 @@ UNT		Avslutar ordermeddelandet.
                 raise Warning("DESADV: Attached record is not a sale.order! {model}".format(model=self.model_record._name))
             status = _check_order_status(self.model_record)
             if status != 0:
-                msg = self.UNH(self.edi_type)
+                msg = self.UNH('ORDERS')
                 msg += self.BGM(231, self.model_record.name, status)
                 dt = fields.Datetime.from_string(fields.Datetime.now())
                 msg += self._create_DTM_segment(137, dt)

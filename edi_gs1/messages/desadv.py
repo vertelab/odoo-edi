@@ -91,7 +91,7 @@ UNT		Avslutar ordermeddelandet.
         super(edi_message, self).pack()
         if self.edi_type == 'DESADV':
             if self.model_record._name != 'stock.pack':
-                raise Warning("DESADV: Attached record is not a sale.order! {model}".format(model=self.model_record._name))
+                raise Warning("DESADV: Attached record is not a stock.pack! {model}".format(model=self.model_record._name))
 
             msg = self.UNH()
             msg += self.BGM(doc_code=351, doc_no=self.model_record.name)
