@@ -126,6 +126,7 @@ UNT		Avslutar ordermeddelandet.
             msg = self.UNH(self.edi_type)
             #280 = 	Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
             #9 = Original - Initial transmission related to a given transaction.
+            _logger.warn(invoice.name)
             msg += self.BGM(280, invoice.name, 9)
             
             #Dates
@@ -144,10 +145,11 @@ UNT		Avslutar ordermeddelandet.
             #Order reference
             msg += self.RFF(invoice.origin, 'ON')
             msg += self.NAD_SU()
+            _logger.warn(self.consignor_id.name)
             msg += self.RFF(self.consignor_id.vat, 'VA')
-            msg += self.RFF(self.consignor_id.company_registry, 'GN')
+            msg += self.RFF('556334-1691', 'GN') #self.consignor_id.company_registry, 'GN') #doesn't work!
             msg += self.NAD_BY()
-            msg += self.RFF(self.consigee_id.vat, 'VA')
+            msg += self.RFF(self.consignee_id.vat, 'VA')
             msg += self.NAD_CN()
             #CUX Currency
             msg += self.PAT()
@@ -179,15 +181,15 @@ UNT		Avslutar ordermeddelandet.
             msg += self.CNT(1, self._edi_lines_tot_qty)
             msg += self.CNT(2, self._lin_count)
             #Amount due
-            self.msg += self.MOA(invoice.amount_total, 9)
+            msg += self.MOA(invoice.amount_total, 9)
             #Small change roundoff
             #self.msg += self.MOA()
             #Sum of all line items
-            self.msg += self.MOA(amount_total, 79)
+            msg += self.MOA(invoice.amount_total, 79)
             #Total taxable amount
-            self.msg += self.MOA(invoice.total_untaxed, 125)
+            msg += self.MOA(invoice.amount_untaxed, 125)
             #Total taxes
-            self.msg += self.MOA(invoice.amount_tax, 176)
+            msg += self.MOA(invoice.amount_tax, 176)
             #Total allowance/charge amount
             #self.msg += self.MOA(, 131)
             #TAX-MOA-MOA
@@ -195,8 +197,8 @@ UNT		Avslutar ordermeddelandet.
             #self.msg += self.MOA()
             #self.msg += self.MOA()
             #Tax subtotals
-            self.msg += self.TAX('%.2f' % invoice.amount_tax / invoice.amount_total)
-            self.msg += self.MOA(invoice.amount_tax, 150)
+            msg += self.TAX('%.2f' % (invoice.amount_tax / invoice.amount_total))
+            msg += self.MOA(invoice.amount_tax, 150)
             msg += self.UNT()
             self.body = base64.b64encode(msg.encode('utf-8'))
 

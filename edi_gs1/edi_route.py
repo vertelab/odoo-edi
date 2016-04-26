@@ -76,7 +76,7 @@ class edi_message(models.Model):
             edi_type = self.edi_type
         return "UNH+{ref_no}+{msg_type}:{version}:{release}:UN:EDIT30'".format(ref_no=self.name,msg_type=edi_type,version=version,release=release)
 
-    def BGM(self,doc_code=False, doc_no=False,status=False):
+    def BGM(self,doc_code=False, doc_no=False,status=''):
         #TODO: look up test mode on route and add to BGM
         
         # Beginning of message
@@ -87,14 +87,17 @@ class edi_message(models.Model):
         # doc_code 351 Despatch advice, Document/message by means of which the seller or consignor informs the consignee about the despatch of goods.
         # BGM+351+SO069412+9'
         self._seg_count += 1
-        if doc_code == 231: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
-            return "BGM+231::9+{doc_no}+4'".format(doc_no=_escape_string(doc_no))    
-        elif doc_code == 220: # Resp agency = EAN/GS1 (9),
+        if doc_code == 220: # Resp agency = EAN/GS1 (9),
             return "BGM+220::9+{doc_no}'".format(doc_no=_escape_string(doc_no))
+        elif doc_code == 231: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
+            return "BGM+231::9+{doc_no}+4'".format(doc_no=_escape_string(doc_no))
+        elif doc_code == 280: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
+            return "BGM+280::9+{doc_no}+9'".format(doc_no=_escape_string(doc_no)) 
         elif doc_code == 351:
             return "BGM+351+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
+        #return "BGM+{code}::{}+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), code=doc_code, status=status)
             
-    def CTL(self, qualifier, value):
+    def CNT(self, qualifier, value):
         self._seg_count += 1
         return "CNT+%s+%s'" % (qualifier, value)
     
@@ -168,7 +171,7 @@ class edi_message(models.Model):
     
     def MOA(self, amount, qualifier = 203):
         self._seg_count += 1
-        return "MOA+%s:amount'" % (qualifier, amount)
+        return "MOA+%s:%s'" % (qualifier, amount)
     
     def PAT(self, pttq=3, ptr=66, tr=1):
         self._seg_count += 1
