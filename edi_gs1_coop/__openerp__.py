@@ -20,10 +20,10 @@
 ##############################################################################
 
 {
-    'name': 'EDI GS1 (Axfood)',
+    'name': 'EDI GS1 (Coop)',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'GS1 Axfood – the global language of business',
+    'summary': 'GS1 Coop ',
     'licence': 'AGPL-3',
     'description': """
 Wizard for load Axfood shops and adresses
@@ -35,7 +35,7 @@ Wizard for load Axfood shops and adresses
     'depends': ['edi_gs1',],
     'data': [
         'res_partner_view.xml',
-        'axfood_data.xml',
+        'coop_data.xml',
     ],
     'application': False,
     'installable': True,

@@ -1,0 +1,13 @@
+<openerp>
+<!-- TODO: noupdate=1 -->
+<data>
+ 
+    <record model="res.partner" id="axfood_group">
+        <field name="name">Axfood EDI</field>
+        <field name="is_company" eval="True"/>
+        <field name="image" type="base64" file="edi_gs1_axfood/static/img/Axfood.png"/>
+    </record>
+
+
+</data>
+</openerp>

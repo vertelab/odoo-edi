@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
-          <record id="wizard_res_partner_axfood" model="ir.ui.view">
-            <field name="name">Import Axfood file</field>
-            <field name="model">res.partner.axfood</field>
+          <record id="wizard_res_partner_coop" model="ir.ui.view">
+            <field name="name">Import Coop file</field>
+            <field name="model">res.partner.coop</field>
             <field name="arch" type="xml">
                 <form string="Import">
                     <field invisible="1" name="state"/>
@@ -22,15 +22,15 @@
             </field>
         </record>
 
-        <record id="action_wizard_res_partner_axfood" model="ir.actions.act_window">
-            <field name="name">import Axfood-file</field>
+        <record id="action_wizard_res_partner_coop" model="ir.actions.act_window">
+            <field name="name">import Coop-file</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">res.partner.axfood</field>
+            <field name="res_model">res.partner.coop</field>
             <field name="view_type">form</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>
-        <menuitem action="action_wizard_res_partner_axfood" id="menu_wizard_res_partner_axfood" parent="base.menu_sales" sequence="99" groups="base.group_sale_salesman,base.group_sale_manager" />
+        <menuitem action="action_wizard_res_partner_coop" id="menu_wizard_res_partner_coop" parent="base.menu_sales" sequence="99" groups="base.group_sale_salesman,base.group_sale_manager" />
 
       
       

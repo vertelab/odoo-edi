@@ -1,0 +1,13 @@
+<openerp>
+<!-- TODO: noupdate=1 -->
+<data>
+ 
+    <record model="res.partner" id="coop">
+        <field name="name">Coop EDI</field>
+        <field name="is_company" eval="True"/>
+        <field name="image" type="base64" file="edi_gs1_coop/static/img/Coop.png"/>
+    </record>
+
+
+</data>
+</openerp>

@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
@@ -19,26 +20,65 @@
 #
 ##############################################################################
 
-{
-    'name': 'EDI GS1 (Axfood)',
-    'version': '0.1',
-    'category': 'edi',
-    'summary': 'GS1 Axfood – the global language of business',
-    'licence': 'AGPL-3',
-    'description': """
-Wizard for load Axfood shops and adresses
 
 
-""",
-    'author': 'Vertel AB',
-    'website': 'http://www.vertel.se',
-    'depends': ['edi_gs1',],
-    'data': [
-        'res_partner_view.xml',
-        'axfood_data.xml',
-    ],
-    'application': False,
-    'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
-}
-# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
+from openpyxl import load_workbook
+
+wb = load_workbook(filename = 'Axfood_Shops.xlsx', read_only=True)
+
+ws = wb['Blad1']
+
+#print wb.get_sheet_names()
+
+ws = wb[wb.get_sheet_names()[0]]
+t = tuple(ws.rows)
+
+title = [p.value for p in list(t[0])]
+d = []
+for r in ws.rows:
+    d.append({title[n]: r[n].value for n in range(len(r))})
+
+
+
+print d
+
+
+#record = {t[c][0].value: t[c][r].value [c,r for c,r in range(10),range(10)]}
+
+
+title = [p.value for p in list(t[0])]
+
+print title
+
+l = list(t)
+l.pop()
+l.pop()
+
+for row in l:
+    for c in range(len(list(row))):
+        print row[c].value
+    exit()
+
+print t[0][0].value
+
+exit()
+
+
+records = {}
+for row in ws.rows:
+    r = {}
+    for cell in row:
+        print cell.columns
+
+exit()
+for ws in wb._sheets:
+    print ws.values()
+exit()
+    
+for h in ws.columns:
+    print h[0].value
+    
+for row in ws.rows:
+    print row.print_titles()
+    
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

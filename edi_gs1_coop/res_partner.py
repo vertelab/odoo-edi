@@ -73,7 +73,7 @@ class import_res_partner_axfood(models.TransientModel):
     @api.multi
     def send_form(self,):
         def _get_logo(img):
-            return open(os.path.join(get_module_path('edi_gs1_axfood'), 'static', 'img', img), 'rb').read().encode('base64')
+            return open(os.path.join(get_module_path('edi_gs1_coop'), 'static', 'img', img), 'rb').read().encode('base64')
 
         
         
@@ -86,68 +86,33 @@ class import_res_partner_axfood(models.TransientModel):
             wb = load_workbook(filename = StringIO(base64.b64decode(chart.data)), read_only=True)
             ws = wb[wb.get_sheet_names()[0]]
             t = tuple(ws.rows)
-            title = [p.value for p in list(t[0])]
+            title = [p.value for p in list(t[4])]
 
+            i = 0
             for r in ws.rows:
-                if r[0].value == 'Butik':
+                i += 1
+                if i < 6:
                     continue
                 l = {title[n]: r[n].value for n in range(len(r))}
-                partner = self.env['res.partner'].search([('customer_no', '=', l['Kund id']),('parent_id','=',self.env.ref('edi_gs1_axfood.axfood_group').id)])
+                partner = self.env['res.partner'].search([('customer_no', '=', l['Butiksnr']),('parent_id','=',self.env.ref('edi_gs1_coop.coop').id)])
                 record = {
                     'name': l['Butik'],
-                    'role': l['Kedja'],
-                    'active': l['Status'] == 'Aktiv',
-                    'phone': l['Telefon'],
-#                    'company_registry': l['Organisationsnr'],
-                    #'vat': 'SE%s01' % l['Organisationsnr'].replace('-',''),
-                    'vat': l['Organisationsnr'],
-                    'customer_no': l['Kund id'],
-                    'gs1_gln': l['GLN'],
-                    #Direkt Lev. Fakt.
-                    'street': l['Butiksadress'],
-                    'city': l['Ort (butiksadress)'],
-                    'zip': l['Postnr (butiksadress)'],
+                    'role': l['Rangebox'],
+                    'customer_no': l['Butiksnr'],
+                    'city': l['Postadress'],
+                    'zip': l['Postnummer'],
                     'country_id': self.env.ref('base.se').id,
-                    'parent_id': self.env.ref('edi_gs1_axfood.axfood_group').id,
+                    'parent_id': self.env.ref('edi_gs1_coop.coop').id,
                     'is_company': True,
                     'customer': True,
-                    'image': _get_logo('%s.png' % l['Kedja']),
+                    'image': _get_logo('%s.png' % l['Rangebox']),
                     }
                 if partner:
                     partner[0].write(record)
                     parent_id = partner[0].id
                 else:
                     parent_id = self.env['res.partner'].create(record).id
-                record_invoice = {
-                    'name': _('invoice'),
-                    'street': l['Postadress'],
-                    'city': l['Ort (postadress)'],
-                    'zip': l['Postnr (postadress)'],
-                    'country_id': self.env.ref('base.se').id,
-                    'parent_id': parent_id,
-                    'customer': False,
-                    'type': 'invoice',
-                }
-                partner_invoice = self.env['res.partner'].search([('type', '=', 'invoice'),('parent_id','=',parent_id)])
-                if partner_invoice:
-                    partner_invoice[0].write(record_invoce)
-                else:
-                    self.env['res.partner'].create(record_invoice)                                
-                record_delivery = {
-                    'name': _('delivery'),
-                    'street': l['Leveransadress'],
-                    'city': l['Ort (leveransadress)'],
-                    'zip': l['Postnr (leveransadress)'],
-                    'country_id': self.env.ref('base.se').id,
-                    'parent_id': parent_id,
-                    'customer': False,
-                    'type': 'delivery',
-                }
-                partner_delivery = self.env['res.partner'].search([('type', '=', 'delivery'),('parent_id','=',parent_id)])
-                if partner_delivery:
-                    partner_delivery[0].write(record_delivery)
-                else:
-                    self.env['res.partner'].create(record_delivery)                                
+                           
             return True
         chart.write({'state': 'get','result': 'All well'})
         return {
