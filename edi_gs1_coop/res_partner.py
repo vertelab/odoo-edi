@@ -39,7 +39,7 @@ _logger = logging.getLogger(__name__)
 
 
 class import_res_partner_axfood(models.TransientModel):
-    _name = 'res.partner.axfood'
+    _name = 'res.partner.coop'
 
     data = fields.Binary('File')
     @api.one
@@ -49,26 +49,7 @@ class import_res_partner_axfood(models.TransientModel):
     state =  fields.Selection([('choose', 'choose'), ('get', 'get')],default="choose")
     result = fields.Text(string="Result",default='')
 
-#~ """
-#~ Butik
-#~ Ägandeform
-#~ Kedja
-#~ Status
-#~ Telefon
-#~ Organisationsnr
-#~ Kund id
-#~ GLN
-#~ Direkt Lev. Fakt.
-#~ Leveransadress
-#~ Ort (leveransadress)
-#~ Postnr (leveransadress)
-#~ Butiksadress
-#~ Ort (butiksadress)
-#~ Postnr (butiksadress)
-#~ Postadress
-#~ Ort (postadress)
-#~ Postnr (postadress)
-#~ """
+
    
     @api.multi
     def send_form(self,):
