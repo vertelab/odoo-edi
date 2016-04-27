@@ -26,35 +26,14 @@ _logger = logging.getLogger(__name__)
 
 class stock_picking(models.Model):
     _inherit = "stock.picking"
- 
+
     @api.one
     def _message_count(self):
         self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
     message_count = fields.Integer(compute='_message_count',string="# messages")
    
-    def _edi_message_create(self,edi_type):
-        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,check_route=False,check_double=False)
-
-    @api.one
-    def action_create_invoic(self):
-        self._edi_message_create('INVOIC')
-
-    @api.one
-    def action_invoice_create(self,grouped=False, states=['confirmed', 'done', 'exception'], date_invoice = False):
-        self.action_create_invoic()
-        return super(sale_order,self).action_invoice_create(grouped=grouped, states=states, date_invoice = date_invoice)
-
-    @api.one
-    def action_create_desadv(self):
-        # Create SCCS-number ?
-        self._edi_message_create('DESADV')
-
-    @api.one
-    def action_done(self):
-        self.action_create_desadv()        
-        return super(stock_picking,self).action_done()
-
+    def _edi_create_desadv(self):
+        self.env['edi.message']._edi_message_create(edi_type='DESADV', obj=self, partner=self.partner_id, check_route=False, check_double=False)
     
-
-
+    
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

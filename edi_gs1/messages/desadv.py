@@ -90,39 +90,38 @@ UNT		Avslutar ordermeddelandet.
     def pack(self):
         super(edi_message, self).pack()
         if self.edi_type == 'DESADV':
-            if self.model_record._name != 'stock.pack':
+            if self.model_record._name != 'stock.picking':
                 raise Warning("DESADV: Attached record is not a stock.pack! {model}".format(model=self.model_record._name))
-
+            picking = self.model_record
             msg = self.UNH('DESADV')
-            msg += self.BGM(doc_code=351, doc_no=self.model_record.name)
+            msg += self.BGM(doc_code=351, doc_no=self.model_record.origin)
             msg += self.DTM(137)
-            msg += self.DTM(132,dt=self.model_record.date)
-            #Another DTM?
-            #FNX?
-            msg += self.RFF(self.model_record.client_order_ref,qualifier='AAS')
-            msg += self.NAD_BY()
+            msg += self.DTM(11, picking.date_done, 203)
+            #Beräknad ankomsttidpunkt
+            msg += self.DTM(17, format=203)
+            #Order reference
+            ref = self.env['sale.order'].search([('name', '=', picking.origin)]).client_order_ref
+            if ref:
+                msg += self.RFF(ref, qualifier='ON')
+            msg += self.NAD_SU()
+            #Godsavsändare
             msg += self.NAD_SH()
-            msg += self.NAD_DP()
-            
-                    #~ 'EANSENDER':        order_record['EANRECEIVER'],
-                    #~ 'EANRECEIVER':      order_record['EANSENDER'],
-					#~ 'TEST':             '0',
-					#~ 'DESADVNUMBER':		order_record['name'],	
-					#~ 'DESADVDATE':	    datetime.datetime.strptime(order_record['date_order'],'%Y-%m-%d').strftime("%Y%m%d"),
-					#~ 'ESTDELDATE':	    datetime.datetime.strptime(order_record['date_promised'],'%Y-%m-%d %H:%M:%S').strftime('%Y%m%d'),
-					#~ 'EANBUYER':	        '7301005140009',
-					#~ 'EANSHIPPER':	    '7350031550009',    
-					#~ 'EANDELIVERY':	    partner['consignee_iln'],	
-
-            
-            line_index = 0
-            for line in self.model_record.order_line:
-                line_index += 1
-                msg += self.LIN(line_index, line)
-                msg += self.PIA(line.product_id, 'SA')
-                #Required?
-                #msg += self._create_PIA_segment(line.product_id, 'BP')
-                msg += self.QTY(line)
+            #Hämtplats
+            #msg += self.NAD()
+            msg += self.NAD_BY()
+            #Godsmottagare
+            #msg += self.NAD()
+            #Leveransplats
+            #msg += self.NAD()
+            #Transportsätt
+            #TDT
+            for line in picking.pack_operation_ids:
+                msg += self.CPS()
+                msg += self.PAC()
+                msg += self.PCI()
+                msg += self.GIN()
+                msg += self.LIN(line)
             msg += self.UNS()
+            msg += self.CNT(2, self._lin_count)
             msg += self.UNT()
             self.body = base64.b64encode(msg)

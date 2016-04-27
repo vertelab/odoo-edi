@@ -7,13 +7,13 @@
         <field name="condition" eval="True"/>
         <field name="model_id" ref="stock.model_stock_picking"/>
         <field name="code">for o in object.browse(context.get('active_ids', [])):
-    o._edi_message_create('DESADV')
+    o._edi_create_desadv()
         </field>
     </record>
 
     <record model="ir.values" id="action_create_desadv_menu">
         <field name="name">Create DESADV</field>
-        <field name="model">stock.pincking</field>
+        <field name="model">stock.picking</field>
         <field name="key2">client_action_multi</field>
         <field name="value" eval="'ir.actions.server,%d' % action_create_desadv"/>
     </record>

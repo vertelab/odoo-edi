@@ -70,11 +70,11 @@ class edi_message(models.Model):
     _seg_count = 0
     _lin_count = 0
 
-    def UNH(self,edi_type=False, version='D', release='96A'):
+    def UNH(self,edi_type=False, version='D', release='96A', ass_code='EAN005'):
         self._seg_count += 1
         if not edi_type:
             edi_type = self.edi_type
-        return "UNH+{ref_no}+{msg_type}:{version}:{release}:UN:EDIT30'".format(ref_no=self.name,msg_type=edi_type,version=version,release=release)
+        return "UNH+{ref_no}+{msg_type}:{version}:{release}:UN:{ass_code}'".format(ref_no=self.name,msg_type=edi_type,version=version,release=release, ass_code=ass_code)
 
     def BGM(self,doc_code=False, doc_no=False,status=''):
         #TODO: look up test mode on route and add to BGM
@@ -96,7 +96,11 @@ class edi_message(models.Model):
         elif doc_code == 351:
             return "BGM+351+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
         #return "BGM+{code}::{}+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), code=doc_code, status=status)
-            
+    
+    def CPS(self):
+        self._seg_count += 1
+        return "CPS+%s'" % (self._lin_count + 1)
+    
     def CNT(self, qualifier, value):
         self._seg_count += 1
         return "CNT+%s+%s'" % (qualifier, value)
@@ -123,7 +127,12 @@ class edi_message(models.Model):
     def FTX(self, msg1, msg2='', msg3='', msg4='', msg5='', subj='ZZZ', func=1, ref='001'):
         self._seg_count += 1        
         return "FTX+%s+%s+%s+%s:%s:%s:%s:%s'" % (subj, func, ref, _escape_string(msg1), _escape_string(msg2), _escape_string(msg3), _escape_string(msg4), _escape_string(msg5))
-
+    
+    def GIN(self, sscc='373500310002299341'):
+        self._seg_count += 1
+        #BJ 		Serial shipping container code
+        return "GIN+SS+%s'" % sscc
+    
     #CR = Customer Reference
     def RFF(self, ref, qualifier='CR'):
         # CR = Customer reference, AAS = Transport document number, Reference assigned by the carrier or his agent to the transport document.
@@ -145,6 +154,7 @@ class edi_message(models.Model):
                 party_id = 1 # Jusr for test
             code = 9
         return "NAD+%s+%s::%s'" % (role, party_id, code)
+    
     def NAD_SU(self,type='GLN'):
         return self._NAD('SU',self.consignor_id,type)
     def NAD_BY(self,type='GLN'):
@@ -155,11 +165,15 @@ class edi_message(models.Model):
         return sielf._NAD('DP',self.carrier_id,type)
     def NAD_CN(self,type='GLN'):
         return self._NAD('CN',self.consignee_id,type)
+    
     #code = error/status code
     def LIN(self, line):
         self._seg_count += 1
         self._lin_count += 1
+        item_nr_type = 'EU'
         if line._name == 'account.invoice.line':
+            code = ''
+        elif line._name == 'stock.pack.operation':
             code = ''
         elif line.product_uom_qty <= 0:
             code = 7 # Not accepted
@@ -167,11 +181,20 @@ class edi_message(models.Model):
             code = 12 # Quantity changed
         else:
             code = 5 # Accepted without amendment
-        return "LIN+%s+%s+%s:%s'" %(self._lin_count, code, line.product_id.gs1_gtin14 or line.product_id.gs1_gtin13, 'EN')
+        return "LIN+%s+%s+%s:%s::%s'" %(self._lin_count, code, line.product_id.gs1_gtin14 or line.product_id.gs1_gtin13, item_nr_type, 9)
     
     def MOA(self, amount, qualifier = 203):
         self._seg_count += 1
         return "MOA+%s:%s'" % (qualifier, amount)
+    
+    def PAC(self):
+        self._seg_count += 1
+        #30 	½ EUR-pall
+        #34     EUR 2-pall
+        #35     EUR 3-pall
+        #36     EUR 6-pall
+        #37 	EUR-pall (EUR6)
+        return "PAC+1+:52+34:::7350000000269'"
     
     def PAT(self, pttq=3, ptr=66, tr=1):
         self._seg_count += 1
@@ -183,6 +206,11 @@ class edi_message(models.Model):
             #1	Date of order - Payment time reference is date of order.
         
         return "PAT+%s++%s:%s'" % (pttq, ptr, tr)
+    
+    def PCI(self):
+        self._seg_count += 1
+        #33E 		Marked with serial shipping container code (EAN Code)
+        return "PCI+33E'"
     
     #SA = supplier code BP = buyer code
     def PIA(self,product, code):
