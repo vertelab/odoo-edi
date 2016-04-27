@@ -8,7 +8,29 @@
       <field name="arch" type="xml">
         <field name="website" position="after">
           <field name="gs1_gln" />
+          <field name="customer_no" />
+          <field name="role" />
         </field>
+      </field>
+    </record>
+    <record id="view_partner_tree" model="ir.ui.view">
+      <field name="name">res.partner.tree.gs1</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_tree" />
+      <field name="arch" type="xml">
+        <field name="phone" position="before">
+          <field name="role" />
+        </field>
+      </field>
+    </record>
+    <record id="view_res_partner_filter" model="ir.ui.view">
+      <field name="name">res.partner.select.gs1</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_res_partner_filter" />
+      <field name="arch" type="xml">
+        <filter string="Country" position="after">
+          <filter string="Role" context="{'group_by': 'role'}" />
+        </filter>
       </field>
     </record>
   </data>
