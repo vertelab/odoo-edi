@@ -93,7 +93,7 @@ UNT		Avslutar ordermeddelandet.
             if self.model_record._name != 'stock.pack':
                 raise Warning("DESADV: Attached record is not a stock.pack! {model}".format(model=self.model_record._name))
 
-            msg = self.UNH()
+            msg = self.UNH('DESADV')
             msg += self.BGM(doc_code=351, doc_no=self.model_record.name)
             msg += self.DTM(137)
             msg += self.DTM(132,dt=self.model_record.date)

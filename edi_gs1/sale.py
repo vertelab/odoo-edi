@@ -55,21 +55,17 @@ class sale_order(models.Model):
     #~ def action_create_invoic(self):
         #~ self._edi_message_create('INVOIC')
 
-    @api.one
+    @api.multi
     def action_invoice_create(self,grouped=False, states=['confirmed', 'done', 'exception'], date_invoice = False):
         res = super(sale_order,self).action_invoice_create(grouped=grouped, states=states, date_invoice = date_invoice)
+        _logger.warn('res: %s' % res)
         self.env['account.invoice'].browse(res)._edi_message_create('INVOIC')
         return res
 
-    @api.one
+    @api.multi
     def action_wait(self):
-        self.action_create_ordrsp()
+        for order in self:
+            order.action_create_ordrsp()
         return super(sale_order, self).action_wait()
-
-class account_invoice(models.Model):
-    _inherit = 'account.invoice'
-    
-    def _edi_message_create(self, edi_type):
-        self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, check_route=False, check_double=False)
     
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

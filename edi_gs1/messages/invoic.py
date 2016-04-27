@@ -147,7 +147,8 @@ UNT		Avslutar ordermeddelandet.
             msg += self.NAD_SU()
             _logger.warn(self.consignor_id.name)
             msg += self.RFF(self.consignor_id.vat, 'VA')
-            msg += self.RFF('556334-1691', 'GN') #self.consignor_id.company_registry, 'GN') #doesn't work!
+            _logger.warn('consignor: %s' % self.consignee_id.company_registry)
+            msg += self.RFF(self.consignor_id.company_registry, 'GN')
             msg += self.NAD_BY()
             msg += self.RFF(self.consignee_id.vat, 'VA')
             msg += self.NAD_CN()
