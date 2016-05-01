@@ -1,0 +1,22 @@
+<openerp>
+<!-- TODO: noupdate=1 -->
+<data>
+    <record model="ir.actions.server" id="action_create_invoic">
+        <field name="name">Create INVOIC</field>
+        <field name="state">code</field>
+        <field name="condition" eval="True"/>
+        <field name="model_id" ref="account.model_account_invoice"/>
+        <field name="code">for o in object.browse(context.get('active_ids', [])):
+    o._edi_message_create('INVOIC')
+        </field>
+    </record>
+
+    <record model="ir.values" id="action_create_invoic_menu">
+        <field name="name">Create INVOIC</field>
+        <field name="model">account.invoice</field>
+        <field name="key2">client_action_multi</field>
+        <field name="value" eval="'ir.actions.server,%d' % action_create_invoic"/>
+    </record>
+
+</data>
+</openerp>

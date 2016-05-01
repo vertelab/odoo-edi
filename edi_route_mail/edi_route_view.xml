@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+
+    <!-- EDI Route Form View -->
+    
+    <record model="ir.ui.view" id="view_edi_route_form">
+        <field name="name">EDI Route</field>
+        <field name="model">edi.route</field>
+      <field name="inherit_id" ref="edi_route.view_edi_route_form" />
+        <field name="arch" type="xml">
+            <group name="route_type" position="inside">
+                <field name="mail_address"    attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}"/>
+                <field name="mail_debug"    attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}"/>
+            </group>
+        </field>
+    </record>
+    
+
+       
+    
+    </data>
+</openerp>
