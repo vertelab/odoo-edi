@@ -11,7 +11,7 @@
       <field name="inherit_id" ref="edi_route.view_edi_route_form" />
         <field name="arch" type="xml">
             <group name="route_type" position="inside">
-                <field name="mail_address"    attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}"/>
+                <field name="alias_id"    attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}"/>
                 <field name="mail_debug"    attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}"/>
             </group>
         </field>

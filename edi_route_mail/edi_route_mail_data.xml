@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+       
+
+
+      
+        <!-- Message-related subtypes for messaging / Chatter -->
+        <record id="mt_edi_message_new" model="mail.message.subtype">
+            <field name="name">New edi message</field>
+            <field name="res_model">edi.message</field>
+            <field name="default" eval="False"/>
+            <field name="hidden" eval="True"/>
+            <field name="description">EDI message created</field>
+        </record>
+
+        <!-- Route-related subtypes for messaging / Chatter -->
+        <record id="mt_edi_route_message_new" model="mail.message.subtype">
+            <field name="name">EDI Message created</field>
+            <field name="sequence">10</field>
+            <field name="res_model">edi.route</field>
+            <field name="default" eval="False"/>
+            <field name="parent_id" eval="ref('mt_edi_message_new')"/>
+            <field name="relation_field">route_id</field>
+        </record>
+
+        <!-- notify all employees of module installation -->
+        <record model="mail.message" id="module_install_notification">
+            <field name="model">mail.group</field>
+            <field name="res_id" ref="mail.group_all_employees"/>
+            <field name="type">notification</field>
+            <field name="subtype_id" ref="mail.mt_comment"/>
+            <field name="subject">EDI Management application installed!</field>
+            <field name="body"><![CDATA[<p>Manage inbound/outbound EDI messages. </p>]]></field>
+        </record>
+    </data>
+</openerp>

@@ -36,7 +36,12 @@ _logger = logging.getLogger(__name__)
             
 class edi_route(models.Model):
     _inherit = 'edi.route' 
+    _inherits = {"mail.alias": "alias_id"}
     
+    alias_id = fields.Many2one(comodel_name='mail.alias', string='Alias', ondelete="restrict", required=True,
+                                    help="Internal email associated with this route. Incoming emails are automatically synchronized"
+                                         "with messagesd.")
+    alias_model = fields.Char(String="Alias Model",default='edi.message')
     mail_address = fields.Char(string="Mail Address",required=True)
     mail_debug = fields.Boolean(string="Debug")
     route_type = fields.Selection(selection_add=[('mail','Mail')])
