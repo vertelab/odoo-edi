@@ -101,8 +101,8 @@ class edi_message(models.Model):
     
     @api.one
     def pack(self):
-        if not self.model_record:
-            raise Warning("ORDRSP: Can not create message without attached sale.order record!")
+        #~ if not self.model_record:
+            #~ raise Warning("ORDRSP: Can not create message without attached sale.order record!")
         self.name = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id)
     
     def _cron_job_in(self,cr,uid, edi, context=None):

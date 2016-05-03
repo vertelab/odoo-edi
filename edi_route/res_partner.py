@@ -39,7 +39,7 @@ class res_partner(models.Model):
 #        self.message_ids = self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])
        # self.message_ids = [p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])]
         self.message_ids = [(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])]
-    message_ids = fields.Many2many(compute='_message_ids',comodel_name="edi.messages",string="Messages")    
+    message_ids = fields.Many2many(compute='_message_ids',comodel_name="edi.message",string="Messages")    
 
     @api.model
     def get_routes(self,partner):  # own routes are of higher precedence than routes from parent

@@ -27,11 +27,13 @@
     'licence': 'AGPL-3',
     'description': """
 Add routes for EDI using Odoo Mail
+
+pip install filemagic
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi','mail'],
-    'data': [ 'edi_route_view.xml',
+    'depends': ['edi_route','mail'],
+    'data': [ 'edi_route_view.xml',"edi_route_mail_data.xml",
     #'security/ir.model.access.csv',
     ],
     'application': False,

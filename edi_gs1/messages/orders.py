@@ -78,7 +78,8 @@ UNT		Avslutar ordermeddelandet.
 
     @api.one
     def unpack(self):
-        super(edi_message, self).pack()
+        _logger.warning('unpack (orders.py) %s %s' % (self.edi_type, self))
+        super(edi_message, self).unpack()
         if self.edi_type == 'ORDERS':
             segment_count = 0
             delivery_dt = None
@@ -152,7 +153,7 @@ UNT		Avslutar ordermeddelandet.
                     order = self.env['sale.order'].create(order_values)
                     self.model = order._name
                     self.res_id = order.id
-    
+
     def _get_partner(self, l):
         _logger.warn('get partner %s' % l)
         partner = None
