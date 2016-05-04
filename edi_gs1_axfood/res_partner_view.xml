@@ -30,7 +30,7 @@
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>
-        <menuitem action="action_wizard_res_partner_axfood" id="menu_wizard_res_partner_axfood" parent="base.menu_sales" sequence="99" groups="base.group_sale_salesman,base.group_sale_manager" />
+        <menuitem action="action_wizard_res_partner_axfood" id="menu_wizard_res_partner_axfood" parent="crm.root_menu" sequence="99" groups="base.group_sale_salesman,base.group_sale_manager" />
 
       
       

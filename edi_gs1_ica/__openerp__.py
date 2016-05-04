@@ -20,22 +20,25 @@
 ##############################################################################
 
 {
-    'name': 'EDI Edifact',
+    'name': 'EDI GS1 (ICA)',
     'version': '0.1',
     'category': 'edi',
-    'summary': '',
+    'summary': 'GS1 ICA additions ',
     'licence': 'AGPL-3',
     'description': """
+Wizard for load ICA shops and adresses
 
 
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route'],
-    'data': [ 
-    #'security/ir.model.access.csv',
+    'depends': ['edi_gs1',],
+    'data': [
+        'res_partner_view.xml',
+        'ica_data.xml',
     ],
     'application': False,
     'installable': True,
+ #   'demo': ['calendar_ics_demo.xml',],
 }
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
