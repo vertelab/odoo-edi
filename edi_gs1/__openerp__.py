@@ -92,6 +92,7 @@ generated for stock.picking / stock.pack.
         'res_company_view.xml',
         'sale_data.xml',
         'account_invoice_data.xml',
+        'stock_view.xml',
         'stock_data.xml',
     ],
     'application': False,
