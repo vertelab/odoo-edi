@@ -85,7 +85,7 @@ generated for stock.picking / stock.pack.
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','sale','product','stock','account'],
+    'depends': ['edi_route','crm','sale','product','stock','account'],
     'data': [
         'res_partner_view.xml',
         'product_view.xml',
