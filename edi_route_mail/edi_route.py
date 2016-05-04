@@ -43,7 +43,7 @@ class edi_envelope(models.Model):
         self.mail_id = mail.id
         attachments = self.env['ir.attachment'].search([('res_model','=','edi.envelope'),('res_id','=',self.id)])
         if len(attachments)>0:
-            import magic
+            import magic  #  pip install filemagic
             if 'PDF' in magic.Magic().id_buffer(attachments[0].datas.decode('base64')):
                 _logger.warning('filetype %s' % magic.Magic().id_buffer(attachments[0].datas.decode('base64')))
                 message = self.env['edi.message'].create({
@@ -117,7 +117,7 @@ class edi_message(models.Model):
                     'type': 'notification',})                
 
         else:
-            super(edi_message, self).upack()
+            super(edi_message, self).unpack()
 
             
 class edi_route(models.Model):
