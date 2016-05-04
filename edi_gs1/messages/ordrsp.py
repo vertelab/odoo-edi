@@ -153,7 +153,6 @@ UNZ 		M 		1 		INTERCHANGE TRAILER
 
     @api.one
     def unpack(self):
-        super(edi_message, self).unpack()
         if self.edi_type == 'ORDRSP':
             segment_count = 0
             delivery_dt = None
@@ -227,3 +226,5 @@ UNZ 		M 		1 		INTERCHANGE TRAILER
                     order = self.env['sale.order'].create(order_values)
                     self.model = order._name
                     self.res_id = ordet.id
+        else:
+            super(edi_message, self).unpack()
