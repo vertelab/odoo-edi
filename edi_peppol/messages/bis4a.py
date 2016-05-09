@@ -38,58 +38,35 @@ class edi_message(models.Model):
         
     edi_type = fields.Selection(selection_add = [('invoice bis4a','Invoice BIS 4A')])
     
-    _edi_lines_tot_qty = 0
-    
-    @api.model
-    def _bis4a_get_partner(self, tagd):
-        """
-GLN         GS1                                                                             0088
-DUNS        Dun & Bradstreet                                                                0062
-IBAN        S.W.I.F.T. Society for Worldwide Interbank Financial Telecommunications s.c.    0021
-ISO6523     ISO (International Organization for Standardization)                            0028
-DK:CPR      Danish Ministry of the Interior and Health                                      9901
-DK:CVR      The Danish Commerce and Companies Agency                                        9902
-DK:P        The Danish Commerce and Companies Agency                                        0096
-DK:SE       Danish Ministry of Taxation, Central Customs and Tax Administration             9904
-DK:VANS     Danish VANS providers                                                           9905
-IT:VAT      Ufficio responsabile gestione partite IVA                                       9906
-IT:CF       TAX Authority                                                                   9907
-IT:FTI      Ediforum Italia                                                                 0097
-IT:SIA      Società Interbancaria per l’Automazione             0135
-IT:SECETI   Servizi Centralizzati SECETI            0142
-NO:ORGNR    Enhetsregisteret ved Bronnoysundregisterne                  9908
-NO:VAT      Enhetsregisteret ved Bronnoysundregisterne          9909    
-HU:VAT                  9910
-SE:ORGNR                0007
-FI:OVT      Finnish tax board              0037
-EU:VAT      National ministries of Economy                  9912
-EU:REID     Business Registers Network              9913
-FR:SIRET    INSEE: National Institute for statistics and Economic studies           0009
-AT:VAT      Österreichische Umsatzsteuer-Identifikationsnummer               9914
-AT:GOV      Österreichisches Verwaltungs bzw. Organisationskennzeichen                9915
-AT:CID      Firmenidentifikationsnummer der Statistik Austria           9916
-IS:KT       Icelandic National Registry                 9917
+    def _peppol_build_invoice_diff_msg(self, total, untaxed, tax, lines, charges, allowances):
+        msg = """
+\nCalculated invoice does not match received invoice!
+Total amount: %s
+Untaxed amount: %s
+Tax amount: %s
+
+Lines
 """
-        if not tagd:
-            return None
-        partner = []
-        scheme = tagd.get('@schemeID')
-        text = tagd.get('#text')
-        if not text:
-            return None
-        elif scheme == 'GLN':
-            partner = self.env['res.partner'].search([('gs1_gln', '=', text)])
-        elif re.match(r'.*:VAT', scheme):
-            partner = self.env['res.partner'].search([('vat', '=', text)])
-        if len(partner) > 1:
-            raise Warning("Found more than one matching partner! %s: %s" % (scheme, text))
-        elif len(partner) == 1:
-            return partner[0]
-        return None
+        for line in lines:
+            msg += line
+        if charges:
+            msg += "\nCharges\n"
+            for charge in charges:
+                msg += charge
+        if allowances:
+            msg += "\nAllowances\n"
+            for allowance in allowances:
+                msg += allowance
+        return msg
     
-    @api.model
-    def _bis4a_find_partner(self, partnerd):
-        return _bis4a_get_partner(partnerd.get('cbc:EndpointID')) or _bis4a_get_partner(partnerd.get('cac:PartyIdentification') and partnerd.get('cac:PartyIdentification').get('cbc:ID'))
+    def _peppol_create_inv_line(self, line):
+        res = (0, {
+           'name': ,
+           'quantity': ,
+           'price_unit': ,
+        })
+        
+        res['product_id'] = None
     
     @api.one
     def unpack(self):
@@ -99,9 +76,77 @@ IS:KT       Icelandic National Registry                 9917
             if not invd:
                 raise Warning('No Invoice in message!')
             node = invd.get('cac:AccountingSupplierParty') and invd.get('cac:AccountingSupplierParty').get('cac:Party')
-            supplier = _bis4a_find_partner(node)
+            supplier = _peppol_find_partner(node)
             node = invd.get('cac:AccountingCustomerParty') and invd.get('cac:AccountingCustomerParty').get('cac:Party')
-            buyer = _bis4a_find_partner(node)
+            buyer = _peppol_find_partner(node)
+            node = invd.get('cac:PayeeParty')
+            payee = _peppol_find_partner(node)
+            ref = invd.get('cac:OrderReference') and invd.get('cac:OrderReference').get('cbc:ID')
+            order = self.env['purchase.order'].search(['|', ('name', '=', ref), ('partner_ref', '=', ref)])
+            if len(order) > 1:
+                raise Warning('Found multiple matching purchase orders! reference: %s. orders: %s' % (ref, [o.name for o in order]]))
+            elif len(order) != 1:
+                raise Warning("Couldn't find a purchase order matching reference '%s'!" % ref)
+            else:
+                order = order[0]
+            payment_ref = invd.get('cac:PaymentMeans') and invd.get('cac:PaymentMeans').get('cbc:PaymentID')
+            node = invd.get('cac:LegalMonetaryTotal')
+            #Sum of line amounts
+            lineExtensionAmount = node.get('cbc:LineExtensionAmount') and node.get('cbc:LineExtensionAmount').get('#text')
+            lineExtensionCurrency = node.get('cbc:LineExtensionAmount') and node.get('cbc:LineExtensionAmount').get('@currencyID')
+            #Invoice total amount without VAT
+            taxExclusiveAmount = node.get('cbc:TaxExclusiveAmount') and node.get('cbc:TaxExclusiveAmount').get('#text')
+            taxExclusiveCurrency = node.get('cbc:TaxExclusiveAmount') and node.get('cbc:TaxExclusiveAmount').get('@currencyID')
+            #Invoice total amount with VAT
+            taxInclusiveAmount = node.get('cbc:TaxInclusiveAmount') and node.get('cbc:TaxInclusiveAmount').get('#text')
+            taxInclusiveCurrency = node.get('cbc:TaxInclusiveAmount') and node.get('cbc:TaxInclusiveAmount').get('@currencyID')
+            #Allowance/discounts on document level
+            allowanceTotalAmount = node.get('cbc:AllowanceTotalAmount') and node.get('cbc:AllowanceTotalAmount').get('#text')
+            allowanceTotalCurrency = node.get('cbc:AllowanceTotalAmount') and node.get('cbc:AllowanceTotalAmount').get('@currencyID')
+            #Charges on document level
+            chargeTotalAmount = node.get('cbc:ChargeTotalAmount') and node.get('cbc:ChargeTotalAmount').get('#text')
+            chargeTotalCurrency = node.get('cbc:ChargeTotalAmount') and node.get('cbc:ChargeTotalAmount').get('@currencyID')
+            #The amount prepaid
+            prepaidAmount = node.get('cbc:PrepaidAmount') and node.get('cbc:PrepaidAmount').get('#text')
+            prepaidCurrency = node.get('cbc:PrepaidAmount') and node.get('cbc:PrepaidAmount').get('@currencyID')
+            #The amount used to round
+            payableRoundingAmount = node.get('cbc:PayableRoundingAmount') and node.get('cbc:PayableRoundingAmount').get('#text')
+            payableRoundingCurrency = node.get('cbc:PayableRoundingAmount') and node.get('cbc:PayableRoundingAmount').get('@currencyID')
+            #Final amount to be paid
+            payableAmount = node.get('cbc:PayableAmount') and node.get('cbc:PayableAmount').get('#text')
+            payableCurrency = node.get('cbc:PayableAmount') and node.get('cbc:PayableAmount').get('@currencyID')
+            currency = None
+            for c in [lineExtensionCurrency, taxExclusiveCurrency, taxExclusiveCurrency, taxInclusiveCurrency, allowanceTotalCurrency, chargeTotalCurrency, prepaidCurrency, payableRoundingCurrency, payableCurrency]:
+                if not currency:
+                    currency = c
+                else:
+                    if currency != c:
+                        raise Warning("Multiple currencies in one invoice!")
+            if not currency:
+                raise Warning("No currency specified in invoice!")
+            currency_obj = self.env['res.currency'].search([('name', '=', currency)])
+            if len(currency_obj) > 1:
+                raise Warning("Found multiple matching currencies! Currency code: %s" % currency)
+            elif len(currency_obj) != 1:
+                raise Warning("No matching currency found! Currency code: %s" % currency)
+            currency_obj = currency_obj[0]
+            lines = charges = allowances = []
+            if order:
+                invoice = order.view_invoice().get('res_id')
+                if not invoice:
+                    raise Warning("Couldn't create invoice!")
+                invoice = self.env['account.invoice'].browse(invoice)
+                invoice.reference = payment_ref or ref
+                total = float(payableAmount)
+                untaxed = float(taxExclusiveAmount)
+                tax = float(taxInclusiveAmount) - float(taxExclusiveAmount)
+                if invoice.amount_untaxed != untaxed or invoice.amount_tax != tax or invoice.amount_total != total:
+                    invoice.comment += _peppol_build_invoice_diff_msg(total, untaxed, tax, lines, charges, allowances)
+            else:
+                invoice.create({
+                    
+                })
+            
             
         else:
             super(edi_message, self).pack()

@@ -42,11 +42,11 @@ def excel_remove_clutter(string):
 
 class res_partner(models.Model):
     _inherit='res.partner'
-
+    
     gs1_gln = fields.Char(string="Global Location Number",help="GS1 Global Location Number (GLN)", select=True)
     role = fields.Char(string="Role",help="Chain or type of shop", select=True)
     customer_no = fields.Char(string="Customer No",help="The Customer No of the chain", select=True)
-
+    
     #
     @api.model
     def ica_update_store_registry(self):
