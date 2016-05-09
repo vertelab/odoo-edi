@@ -20,23 +20,108 @@
 ##############################################################################
 from openerp import models, fields, api, _
 from openerp.exceptions import except_orm, Warning, RedirectWarning
-import re, urllib2, base64, unicodecsv as csv #pip install unicodecsv
-import os
 import openerp.tools as tools
 from openerp.modules import get_module_path
+from cStringIO import StringIO
+import base64
+from openpyxl import load_workbook
+import os
+
 
 import logging
 _logger = logging.getLogger(__name__)
 
+#~ try:
+    #~ import openpyxl
+#~ except ImportError:
+    #~ raise Warning('excel library missing, pip install openpyxl')
+
+
+
+class import_res_partner_ica(models.TransientModel):
+    _name = 'res.partner.ica'
+
+    data = fields.Binary('File')
+    @api.one
+    def _data(self):
+        self.xml_file = self.data
+    xml_file = fields.Binary(compute='_data')
+    state =  fields.Selection([('choose', 'choose'), ('get', 'get')],default="choose")
+    result = fields.Text(string="Result",default='')
+
+
+   
+    @api.multi
+    def send_form(self,):
+        def _get_logo(img):
+            return open(os.path.join(get_module_path('edi_gs1_ica'), 'static', 'img', img), 'rb').read().encode('base64')
+
+        
+        
+        chart = self[0]
+        #_logger.warning('data %s b64 %s ' % (account.data,base64.decodestring(account.data)))
+        #raise Warning('data %s b64 %s ' % (chart.data.encode('utf-8'),base64.decodestring(chart.data.encode('utf-8'))))
+        
+        if not chart.data == None:
+            
+            wb = load_workbook(filename = StringIO(base64.b64decode(chart.data)), read_only=True)
+            ws = wb[wb.get_sheet_names()[0]]
+            t = tuple(ws.rows)
+            title = [p.value for p in list(t[4])]
+
+            i = 0
+            for r in ws.rows:
+                i += 1
+                if i < 6:
+                    continue
+                l = {title[n]: r[n].value for n in range(len(r))}
+                partner = self.env['res.partner'].search([('customer_no', '=', l['Butiksnr']),('parent_id','=',self.env.ref('edi_gs1_coop.coop').id)])
+                record = {
+                    'name': l['Butik'],
+                    'role': l['Rangebox'],
+                    'customer_no': l['Butiksnr'],
+                    'city': l['Postadress'],
+                    'zip': l['Postnummer'],
+                    'country_id': self.env.ref('base.se').id,
+                    'parent_id': self.env.ref('edi_gs1_coop.coop').id,
+                    'is_company': True,
+                    'customer': True,
+                    'image': _get_logo('%s.png' % l['Rangebox']),
+                    }
+                if partner:
+                    partner[0].write(record)
+                    parent_id = partner[0].id
+                else:
+                    parent_id = self.env['res.partner'].create(record).id
+                           
+            return True
+        chart.write({'state': 'get','result': 'All well'})
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'import.chart.template',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id': chart.id,
+            'views': [(False, 'form')],
+            'target': 'new',
+        }
+
+
+############## ICA helper functions ##############
+def utf_8_encoder(input):
+    for line in input:
+        yield line.decode('windows-1252').encode('utf-8')
+
+def excel_remove_clutter(string):
+    pattern = re.compile('=T\(".*"\)')
+    if pattern.match(string):
+        return string[4:-2]
+    return string
+##################################################
 
 class res_partner(models.Model):
     _inherit='res.partner'
-    
-    gs1_gln = fields.Char(string="Global Location Number",help="GS1 Global Location Number (GLN)", select=True)
-    role = fields.Char(string="Role",help="Chain or type of shop", select=True)
-    customer_no = fields.Char(string="Customer No",help="The Customer No of the chain", select=True)
-    
-    #
+
     @api.model
     def ica_update_store_registry(self):
         request = urllib2.Request("https://levnet.ica.se/Levnet/ButRegLev.nsf/wwwviwButiksfil/frmButiksfil/$FILE/butreg.xls")

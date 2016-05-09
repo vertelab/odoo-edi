@@ -52,9 +52,9 @@ class edi_envelope(models.Model):
     envelope_type = fields.Selection(selection='_envelope_type',default='plain')
 
     
-    @api.one
-    def transform(self):
-        pass
+    #~ @api.one
+    #~ def transform(self):
+        #~ pass
     
     @api.one
     def split(self):

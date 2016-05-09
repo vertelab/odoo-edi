@@ -52,13 +52,11 @@ for example ESAP20 edi-flow.
  +-----------------+-------------+---------------+
  | PRICAT          |      N      |               |
  +-----------------+-------------+---------------+ 
- | ORDERS          |      Y      |   in          |
+ | ORDERS          |      Y      |   in / out    |
  +-----------------+-------------+---------------+ 
- | REPORD          |      Y      |   out         |
- +-----------------+-------------+---------------+            
- | CONTRL          |      Y      |   in/out      |
+ | CONTRL          |      Y      |   in / out    |
  +-----------------+-------------+---------------+                
- | ORDRSP          |      Y      |   in/out      |
+ | ORDRSP          |      Y      |   in / out    |
  +-----------------+-------------+---------------+    
  | IFTMIN          |      N      |               |
  +-----------------+-------------+---------------+ 
@@ -68,7 +66,7 @@ for example ESAP20 edi-flow.
  +-----------------+-------------+---------------+    
  | RECADV          |      N      |               |
  +-----------------+-------------+---------------+ 
- | INVOIC          |      Y      |   out         |
+ | INVOIC          |      Y      |   in / out    |
  +-----------------+-------------+---------------+
  | FINSTA          |      N      |               |
  +-----------------+-------------+---------------+
@@ -76,10 +74,6 @@ for example ESAP20 edi-flow.
 http://www.gs1.org/sites/default/files/docs/EDI/edi_implementation_2015_-_detailed_report.pdf
 page 9
 
-Order
-Order Response
-Invoice
-Despatch_advice
 http://ocp.gs1.org/sites/faq/Pages/if-i-want-to-use-the-gs1-xml-standards-what-documents-should-i-download.aspx
 http://www.gs1.se/EANCOM%202000/Index.htm
 
@@ -91,16 +85,15 @@ generated for stock.picking / stock.pack.
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','sale','product','stock','account'],
+    'depends': ['edi_route','crm','sale','product','stock','account'],
     'data': [
         'res_partner_view.xml',
         'product_view.xml',
         'res_company_view.xml',
-        'ica_data.xml',
         'sale_data.xml',
         'account_invoice_data.xml',
+        'stock_view.xml',
         'stock_data.xml',
-        #'security/ir.model.access.csv',
     ],
     'application': False,
     'installable': True,

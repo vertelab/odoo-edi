@@ -34,6 +34,11 @@ class stock_picking(models.Model):
    
     def _edi_create_desadv(self):
         self.env['edi.message']._edi_message_create(edi_type='DESADV', obj=self, partner=self.partner_id, check_route=False, check_double=False)
-    
+
+class stock_production_lot(models.Model):
+    _inherit = 'stock.production.lot'
+
+    sscc = fields.Char(String="SSCC#", help="SSCC-number on the pallet")    
+
     
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

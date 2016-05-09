@@ -88,24 +88,6 @@ UNS		Avslutar orderrad.
 UNT		Avslutar ordermeddelandet.
 """ 
     edi_type = fields.Selection(selection_add=[('ORDRSP','ORDRSP'),('ORDRSP-oerk','Ordererkännande')])
-
-    @api.one
-    def tmp_ordererkannande(self):
-        """
-UNA 		C 		1 		SERVICE STRING ADVICE
-UNB 		M 		1 		INTERCHANGE HEADER
-UNH 		M 		1 		MESSAGE HEADER
-BGM 		M 		1 		Document type and number
-DTM 		M 		35 		Order response date
-DTM 		M 		35 		Order response date time
-FTX 		C 		99 		Reason for rejection
-RFF 		M 		1 		Reference to order
-NAD 		M 		1 		Supplier
-NAD 		M 		1 		Buyer
-UNS 		M 		1 		SECTION CONTROL
-UNT 		M 		1 		MESSAGE TRAILER
-UNZ 		M 		1 		INTERCHANGE TRAILER
-"""
     
     @api.one
     def pack(self):
