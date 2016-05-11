@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-    <data noupdate="1">
+    <data noupdate="0">
 
 
         <record id="sequence_edi_run" model="ir.sequence">
@@ -20,6 +20,11 @@
             <field name="prefix">EDIM-</field>
         </record>
 
+   <record id="main_route" model="edi.route">
+            <field name="name">EDI Route</field>
+            <field name="partner_id" ref="base.main_partner"/>
+            <field name="active" eval="True"/>
+        </record>
 
     </data>
 </openerp>

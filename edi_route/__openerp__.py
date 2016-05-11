@@ -65,7 +65,7 @@ outgoing messages.
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['edi','mail'],
-    'data': [ 'edi_route_view.xml','res_partner_view.xml','edi_route_data.xml'
+    'data': [ 'edi_route_data.xml','edi_route_view.xml','res_partner_view.xml',
     #'security/ir.model.access.csv',
     ],
     'application': False,

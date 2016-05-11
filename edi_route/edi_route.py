@@ -123,7 +123,7 @@ class edi_message(models.Model):
                     'edi_type': edi_type,
                     'model': obj._name,
                     'res_id': obj.id,
-                    'route_id': routes.get(edi_type,1),
+                    'route_id': routes.get(edi_type,1),# self.env.ref('edi_route.main_route').id),
                     'consignor_id': self.env.ref('base.main_partner').id,
                     'consignee_id': partner.id,
             })

@@ -217,7 +217,7 @@ class edi_message(models.Model):
         self._seg_count += 1
         prod_nr = None
         if code == 'SA':
-            prod_nr = product.default_code
+            prod_nr = product.default_code or '#'
         elif code == 'BP':
             pass
         if prod_nr:
