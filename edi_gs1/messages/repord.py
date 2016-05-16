@@ -26,15 +26,10 @@ from datetime import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
-
-
-class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    
-    edi_type = fields.Selection(selection_add=[('REPORD','REPORD')])
-
 class edi_message(models.Model):
     _inherit='edi.message'
+    
+    edi_type = fields.Selection(selection_add=[('REPORD','REPORD')])
         
     """
 UNH+204853+DESADV:D:93A:UN:EDIT30'
@@ -110,8 +105,7 @@ UNT		Avslutar ordermeddelandet.
                     line_index += 1
                     msg += self._create_LIN_segment(line_index, line)
                     msg += self._create_PIA_segment(line.product_id, 'SA')
-                    #Required?
-                    #msg += self._create_PIA_segment(line.product_id, 'BP')
+                    msg += self._create_PIA_segment(line.product_id, 'BP', self.model_record.partner_id)
                     msg += self._create_QTY_segment(line)
                 msg += self.UNS()
                 msg += self.UNT()

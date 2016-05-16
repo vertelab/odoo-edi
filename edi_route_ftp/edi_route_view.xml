@@ -10,13 +10,14 @@
         <field name="model">edi.route</field>
       <field name="inherit_id" ref="edi_route.view_edi_route_form" />
         <field name="arch" type="xml">
-            <group name="route_type" position="inside">
-                <field name="ftp_host"    attrs="{'invisible': [('route_type','not in',['ftp','sftp'])], 'required': [('route_type','in',['ftp','sftp'])]}"/>
-                <field name="ftp_user"    attrs="{'invisible': [('route_type','not in',['ftp','sftp'])], 'required': [('route_type','in',['ftp','sftp'])]}"/>
-                <field name="ftp_password" attrs="{'invisible': [('route_type','not in',['ftp','sftp'])], 'required': [('route_type','in',['ftp','sftp'])]}" />
-                <field name="ftp_directory" attrs="{'invisible': [('route_type','not in',['ftp','sftp'])]}" />
-                <field name="ftp_pattern" attrs="{'invisible': [('route_type','not in',['ftp','sftp'])]}"/>
-                <field name="ftp_debug" attrs="{'invisible': [('route_type','not in',['ftp','sftp'])]}"/>
+            <group name="protocol" position="inside">
+                <field name="ftp_host"    attrs="{'invisible': [('protocol','not in',['ftp','sftp'])], 'required': [('protocol','in',['ftp','sftp'])]}"/>
+                <field name="ftp_user"    attrs="{'invisible': [('protocol','not in',['ftp','sftp'])], 'required': [('protocol','in',['ftp','sftp'])]}"/>
+                <field name="ftp_password" attrs="{'invisible': [('protocol','not in',['ftp','sftp'])], 'required': [('protocol','in',['ftp','sftp'])]}" />
+                <field name="ftp_directory_in" attrs="{'invisible': [('protocol','not in',['ftp','sftp'])]}" />
+                <field name="ftp_directory_out" attrs="{'invisible': [('protocol','not in',['ftp','sftp'])]}" />
+                <field name="ftp_pattern" attrs="{'invisible': [('protocol','not in',['ftp','sftp'])]}"/>
+                <field name="ftp_debug" attrs="{'invisible': [('protocol','not in',['ftp','sftp'])]}"/>
             </group>
         </field>
     </record>

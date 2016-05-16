@@ -26,7 +26,9 @@
     'summary': 'Routes for EDI using FTP',
     'licence': 'AGPL-3',
     'description': """
-Add routes for EDI using FTP and SFTP
+Add routes for EDI using FTP and SFTP.
+
+Requires python libraries paramiko and pycrypto. http://www.paramiko.org/installing.html
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',

@@ -26,13 +26,6 @@ from datetime import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
-
-
-class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    edi_type = fields.Selection(selection_add=[('DESADV','DESADV')])  
-
-
 class edi_message(models.Model):
     _inherit='edi.message'
         

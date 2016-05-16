@@ -26,13 +26,6 @@ from datetime import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
-
-
-class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    
-    edi_type = fields.Selection(selection_add=[('ORDRSP','ORDRSP'),('ORDRSP-oerk',u'Ordererkännande')])
-
 def _check_order_status(order):
     edited = 0
     zeroed = 0
@@ -91,6 +84,7 @@ UNT		Avslutar ordermeddelandet.
     
     @api.one
     def pack(self):
+        _logger.warn('pack ORDRSP')
         super(edi_message, self).pack()
         msg = None
         if self.edi_type == 'ORDRSP':
@@ -98,23 +92,22 @@ UNT		Avslutar ordermeddelandet.
             if self.model_record._name != 'sale.order':
                 raise Warning("ORDRSP: Attached record is not a sale.order! {model}".format(model=self.model_record._name))
             status = _check_order_status(self.model_record)
-            if status != 0:
-                msg = self.UNH(self.edi_type)
-                msg += self.BGM(231, self.model_record.name, status=status)
-                msg += self.DTM(137,dt=self.model_record.date_order)  # sale.order date?
-                #Another DTM?
-                #FTX?
-                msg += self.RFF(self.model_record.client_order_ref)
-                msg += self.NAD_BY()
-                msg += self.NAD_SU()
-                for line in self.model_record.order_line:
-                    msg += self.LIN(line)
-                    msg += self.PIA(line.product_id, 'SA')
-                    #Required?
-                    #msg += self._create_PIA_segment(line.product_id, 'BP')
-                    msg += self.QTY(line)
-                msg += self.UNS()
-                msg += self.UNT()
+            msg = self.UNH(self.edi_type)
+            msg += self.BGM(231, self.model_record.name, status=status)
+            msg += self.DTM(137,dt=self.model_record.date_order)  # sale.order date?
+            #Another DTM?
+            #FTX?
+            msg += self.RFF(self.model_record.client_order_ref)
+            msg += self.NAD_BY()
+            msg += self.NAD_SU()
+            for line in self.model_record.order_line:
+                msg += self.LIN(line)
+                msg += self.PIA(line.product_id, 'SA')
+                #Required?
+                #msg += self._create_PIA_segment(line.product_id, 'BP')
+                msg += self.QTY(line)
+            msg += self.UNS()
+            msg += self.UNT()
         elif self.edi_type == 'ORDRSP-oerk':
             _logger.warn('mode_record: %s' % self.model_record)
             if self.model_record._name != 'sale.order':

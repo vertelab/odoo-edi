@@ -68,7 +68,7 @@ def gtin14_checksum(eancode):
     return check
 
 def check_gtin14(eancode):
-    """returns True if eancode is a valid ean13 string, or null"""
+    """returns True if eancode is a valid ean14 string, or null"""
     if not eancode:
         return True
     if len(eancode) != 14:

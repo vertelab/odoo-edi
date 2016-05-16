@@ -312,17 +312,18 @@ class edi_route(models.Model):
     ftp_host = fields.Char(string="Host",required=True)
     ftp_user = fields.Char(string="User",required=True)
     ftp_password = fields.Char(string="Password",required=True)
-    ftp_directory = fields.Char(string="Directory",)
+    ftp_directory_in = fields.Char(string="Directory In",)
+    ftp_directory_out = fields.Char(string="Directory Out",)
     ftp_pattern = fields.Char(string="Pattern",help="File pattern eg *.edi")
     ftp_debug = fields.Boolean(string="Debug")
-    route_type = fields.Selection(selection_add=[('ftp','Ftp'),('sftp','Sftp')])
+    protocol = fields.Selection(selection_add=[('ftp','Ftp'),('sftp','Sftp')])
     
     @api.one
     def check_connection(self):
-        _logger.info('Check connection [%s:%s]' % (self.name,self.route_type))
-        if self.route_type == 'ftp':
+        _logger.info('Check connection [%s:%s]' % (self.name,self.protocol))
+        if self.protocol == 'ftp':
             pass
-        elif self.route_type == 'sftp':
+        elif self.protocol == 'sftp':
             pass
         else:
             super(edi_route, self).check_connection()
@@ -330,11 +331,11 @@ class edi_route(models.Model):
     @api.one
     def run(self):
         super(edi_route, self).run()
-        _logger.info('run [%s:%s]' % (self.name,self.route_type))
+        _logger.info('run [%s:%s]' % (self.name,self.protocol))
         envelops = []
-        if self.route_type == 'ftp':
+        if self.protocol == 'ftp':
             pass
-        elif self.route_type == 'sftp':
+        elif self.protocol == 'sftp':
             if self.ftp_debug:
                 _logger.debug('sftp host=%s  username=%s password=%s' % (self.ftp_host,self.ftp_user,self.ftp_password))
             try:
@@ -346,15 +347,16 @@ class edi_route(models.Model):
                 _logger.error('error in sftp %s' % e)
             else:
                 try:
+                    f_list = server.list_files(path=self.ftp_directory_in or '.', pattern=self.ftp_pattern or '*')
                     if self.ftp_debug:
-                        _logger.info('info list %s' % server.list_files(path=self.ftp_directory,pattern=self.ftp_pattern))
-                    for f in server.list_files(path=self.ftp_directory,pattern=self.ftp_pattern):
-                        envelops.append(self.env['edi.envelope'].create({'name': f, 'body': base64.encodestring(server.get_file(f)), 'route_id': self.id}))                
+                        _logger.info('info list %s' % f_list)
+                    for f in f_list:
+                        envelops.append(self.env['edi.envelope'].create({'name': f, 'body': base64.encodestring(server.get_file(f)), 'route_id': self.id, 'envelope_type': self.edi_type}))
                         # self.rm(f)
                 except Exception as e:
                     if self.ftp_debug:
-                        self.log('error in sftp %s' % e)                
-                    _logger.error('error in sftp READ %s' % e)             
+                        self.log('error in sftp %s' % e)
+                    _logger.error('error in sftp READ %s' % e)
                 finally:
                     server.disconnect()
             log = 'sftp host=%s  username=%s password=%s\nNbr envelops %s\n%s' % (self.ftp_host,self.ftp_user,self.ftp_password,len(envelops),','.join([e.name for e in envelops]))
@@ -365,20 +367,20 @@ class edi_route(models.Model):
 
     @api.one
     def get_file(self):
-        _logger.info('get_file [%s:%s]' % (self.name,self.route_type))
-        if self.route_type == 'ftp':
+        _logger.info('get_file [%s:%s]' % (self.name,self.protocol))
+        if self.protocol == 'ftp':
             pass
-        elif self.route_type == 'sftp':
+        elif self.protocol == 'sftp':
            pass
             
         else:
             super(edi_route, self).check_connection()        
     @api.one
     def put_file(self,file):
-        _logger.info('put_file [%s:%s]' % (self.name,self.route_type))
-        if self.route_type == 'ftp':
+        _logger.info('put_file [%s:%s]' % (self.name,self.protocol))
+        if self.protocol == 'ftp':
             pass
-        elif self.route_type == 'sftp':
+        elif self.protocol == 'sftp':
             pass
         else:
             super(edi_route, self).check_connection()

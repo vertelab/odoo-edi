@@ -69,18 +69,18 @@
                         <group cols="4">
                         <group>
                             <field name="partner_id" />
+                            <field name="protocol" />
                             <field name="route_type" />
-                            <field name="direction" />
-                            <field name="edi_type" />
                             <field name="active" />
                             <button name="check_connection" string="Check" type="object" icon="gtk-ok" colspan="1"/>
                             <button name="run" string="Run" type="object" icon="gtk-ok" colspan="1"/>
                             <button name="fold" string="Fold" type="object" icon="gtk-ok" colspan="1"/>
                         </group>
-                        <group name="route_type">
+                        <group name="protocol">
                         
                         </group>
                         </group>
+                        <field name="route_line_ids"/>
                     
                 </sheet>
                 <div class="oe_chatter">
@@ -101,8 +101,7 @@
             <tree string="EDI Route" >
                 <field name="name" />
                 <field name="partner_id" />
-                <field name="route_type" />
-                <field name="direction" />
+                <field name="protocol" />
                 <field name="active" />
             </tree>
         </field>
@@ -115,15 +114,14 @@
         <field name="model">edi.route</field>
         <field name="arch" type="xml">
             <search string="Search EDI Route">
-                <field name="name" string="Route" filter_domain="[('name','ilike',self),('partner_id','ilike',self),('route_type','ilike',self)]"/>
+                <field name="name" string="Route" filter_domain="[('name','ilike',self),('partner_id','ilike',self),('protocol','ilike',self)]"/>
                 <field name="partner_id"/>
                 <filter icon="terp-go-today" string="Active" domain="[('active','=',True)]" help="Active"/>
                 <filter icon="terp-go-today" string="Inactive" domain="[('active','=',False)]" help="Inactive"/>
                 <separator/>
                 <group expand="0" string="Group By">
                     <filter string="Partner" icon="terp-personal" domain="[]" context="{'group_by':'partner_id'}"/>
-                    <filter string="Direction" icon="terp-personal" domain="[]" context="{'group_by':'direction'}"/>
-                    <filter string="Type" icon="terp-personal" domain="[]" context="{'group_by':'route_type'}"/>
+                    <filter string="Type" icon="terp-personal" domain="[]" context="{'group_by':'protocol'}"/>
                 </group>
             </search>
         </field>
@@ -210,8 +208,6 @@
                         
                         <group>
                             
-                            <field name="envelope_type" />
-                            <field name="direction" />
                             <field name="date" />
                             <field name="body" />
                             <button name="send" string="Send" type="object" icon="gtk-ok" colspan="1"/>
@@ -236,10 +232,7 @@
             <tree string="EDI Envelope" >
                 <field name="name" />
 
-                <field name="envelope_type" />
                 <field name="route_id" />
-                
-                <field name="direction" />
                 <field name="date" />
             </tree>
         </field>
@@ -258,7 +251,6 @@
                 <separator/>
                 <group expand="0" string="Group By">
                     <filter string="Partner" icon="terp-personal" domain="[]" context="{'group_by':'partner_id'}"/>
-                    <filter string="Direction" icon="terp-personal" domain="[]" context="{'group_by':'direction'}"/>
                     <filter string="Route" icon="terp-personal" domain="[]" context="{'group_by':'route_id'}"/>
                 </group>
             </search>
@@ -317,7 +309,8 @@
                         <button name="unpack" string="Unpack" type="object" icon="gtk-ok" colspan="1"/>
                         <group>                            
                             <field name="route_id" />
-                            <field name="edi_type" />                            
+                            <field name="edi_type" />
+                            <field name="route_type" />
                             <field name="envelope_id" />
                             <field name="consignor_id" />
                             <field name="consignee_id" />
@@ -346,7 +339,7 @@
             <tree string="EDI Message" >
                 <field name="name" />
                 <field name="envelope_id" />
-                                            <field name="consignor_id" />
+                            <field name="consignor_id" />
                             <field name="consignee_id" />
                             <field name="forwarder_id" />
                             <field name="carrier_id" />

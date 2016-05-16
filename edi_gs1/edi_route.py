@@ -19,6 +19,7 @@
 #
 ##############################################################################
 from openerp import models, fields, api, _
+from edifact.helpers import separate_segments, separate_components
 import base64
 from datetime import datetime
 #https://www.stylusstudio.com/edifact/frames.htm
@@ -29,12 +30,14 @@ _logger = logging.getLogger(__name__)
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 
     
+    route_type = fields.Selection(selection_add=[('esap20','ESAP 20')])
+    
     @api.one
     def fold(self,route): # Folds messages in an envelope
         for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
             m.envelope_id = self.id
-        envelope = super(edi_envelope,self).fold(route)
-        if route.envelope_type == 'edifact':
+        envelope = super(edi_envelope, self).fold(route)
+        if self.envelope_type == 'esap20':
             interchange_controle_ref = ''
             date = ''
             time = ''
@@ -44,17 +47,70 @@ class edi_envelope(models.Model):
             UNZ = "UNZ+%s+627'" % (len(envelope.message_ids),len(body))
             envelope.body = base64.b64encode(UNA + UNB + body + UNZ)
         return envelope
+    
+    @api.one
+    def split(self):
+        if self.envelope_type == 'esap20':
+            message = None
+            #_logger.warn('body: %s' % base64.b64decode(self.body))
+            msg_count = 0
+            msgs = []
+            for segment in separate_segments(base64.b64decode(self.body)):
+                segment = separate_components(segment)
+                if segment[0] == 'UNB':
+                    sender = self._get_partner(segment[2])
+                    recipient = self._get_partner(segment[3])
+                    date = segment[4][0]
+                    time = segment[4][1]
+                elif segment[0] == 'UNH':
+                    edi_type = segment[2][0]
+                    message = [segment]
+                    segment_count = 1
+                elif segment[0] == 'UNT':
+                    #skapa message
+                    if segment_count + 1 != int(segment[1]):
+                        raise Warning('Wrong number of segments! %s %s' % (segment_count, segment))
+                    message.append(segment)
+                    msgs.append({
+                        'name': 'foobar',
+                        'envelope_id': self.id,
+                        'body': base64.b64encode(str(message)),
+                        'edi_type': edi_type,
+                        'consignor_id': sender.id,
+                        'consignee_id': recipient.id,
+                    })
+                    message = None
+                    msg_count += 1
+                elif message:
+                    message.append(segment)
+                    segment_count += 1
+                elif segment[0] == 'UNZ':
+                    if msg_count != int(segment[1]):
+                        raise Warning('Wrong message count!')
+            
+            for msg_dict in msgs:
+                self.env['edi.message'].create(msg_dict)
+        
+        super(edi_envelope, self).split()
 
+    def _get_partner(self, l):
+        _logger.warn('get partner %s' % l)
+        if l[1] == '14':
+            partner = self.env['res.partner'].search([('gs1_gln', '=', l[0])])
+            _logger.warn(partner)
+            if len(partner) == 1:
+                return partner
+            _logger.warn('Warning!')
+        raise Warning("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"))
+    
     def _create_UNB_segment(self,sender, recipient):
         self._seg_count += 1
         return "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (sender.gs1_gln, recipient.gs1_gln, date, time, interchange_control_ref)
-
-
+        
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    edi_type = fields.Selection(selection_add=[('ORDERS','ORDERS'),('ORDRSP','ORDRSP')])
-    envelope_type = fields.Selection(selection_add=[('edifact','Edifact')])
+    route_type = fields.Selection(selection_add=[('esap20','ESAP 20')])
 
 
 def _escape_string(s):
@@ -66,6 +122,8 @@ def _escape_string(s):
 
 class edi_message(models.Model):
     _inherit='edi.message'
+    
+    route_type = fields.Selection(selection_add=[('esap20', 'ESAP 20')])
     
     _seg_count = 0
     _lin_count = 0
@@ -212,17 +270,22 @@ class edi_message(models.Model):
         #33E 		Marked with serial shipping container code (EAN Code)
         return "PCI+33E'"
     
+    def _get_customer_product_code(self, product, customer):
+        #TODO: Create module that hooks this up with product_customer_code
+        return None
+    
     #SA = supplier code BP = buyer code
-    def PIA(self,product, code):
-        self._seg_count += 1
+    def PIA(self, product, code, customer=None):
         prod_nr = None
         if code == 'SA':
-            prod_nr = product.default_code or '#'
+            prod_nr = product.default_code
         elif code == 'BP':
-            pass
+            prod_nr = self._get_customer_product_code(product, customer)
         if prod_nr:
+            self._seg_count += 1
             return "PIA+5+%s:%s'" % (prod_nr, code)
-        raise Warning("PIA: couldn't find product code (%s) for %s (id: %s)" % (code, product.name, product.id))
+        return ""
+        #raise Warning("PIA: couldn't find product code (%s) for %s (id: %s)" % (code, product.name, product.id))
 
     def PRI(self):
         self._seg_count += 1
@@ -259,12 +322,12 @@ class edi_message(models.Model):
         _logger.warn('get partner %s' % l)
         partner = None
         if l[2] == '9':
-            partner = self.env['res.partner'].search([('gln', '=', l[0])])
+            partner = self.env['res.partner'].search([('gs1_gln', '=', l[0])])
         _logger.warn(partner)
         if len(partner) == 1:
             return partner[0]
         _logger.warn('Warning!')
-        raise Warning("Unknown part %s" % len(l) >0 and l[0] or "[EMPTY LIST!]")
+        raise Warning("Unknown part %s" % (len(l) >0 and l[0] or "[EMPTY LIST!]"))
     
     def _parse_quantity(self, l):
         #if l[0] == '21':

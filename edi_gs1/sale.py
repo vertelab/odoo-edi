@@ -44,11 +44,17 @@ class sale_order(models.Model):
 
     @api.one
     def action_create_ordrsp(self):
-        self._edi_message_create('ORDRSP')
+        if self.edi_type:
+            route = env['edi.route'].search([('edi_type', '=', o.edi_type)])
+            if len(route) == 1:
+                route[0].edi_action('sale.order.action_create_ordrsp', order=self)
 
     @api.one
     def action_create_ordrsp_oerk(self):
-        self._edi_message_create('ORDRSP-oerk')
+        if self.edi_type:
+            route = env['edi.route'].search([('edi_type', '=', o.edi_type)])
+            if len(route) == 1:
+                route[0].edi_action('sale.order.action_create_ordrsp_oerk', order=self)
 
 
     #~ @api.one

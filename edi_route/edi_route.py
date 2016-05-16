@@ -25,7 +25,7 @@ from openerp.exceptions import except_orm, Warning, RedirectWarning
 from datetime import datetime, timedelta, time
 from time import strptime, mktime, strftime
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
-
+from openerp.tools.safe_eval import safe_eval as eval
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -38,18 +38,15 @@ class edi_envelope(models.Model):
     name = fields.Char(string="Name",required=True)
     route_id = fields.Many2one(comodel_name='edi.route',required=True)
     #partner_id = fields.Many2one(string="Partner",related='route_id.partner_id',readonly=True)
-    direction = fields.Selection(related="route_id.direction",readonly=True)
     date = fields.Datetime(string='Date',default=fields.Datetime.now())
     body = fields.Binary()
     message_ids = fields.One2many(comodel_name='edi.message',inverse_name='envelope_id')
-    state = fields.Selection([('progress','Progress'),('sent','Sent'),('recieved','Receieved'),('canceled','Canceled')],default='progress')
+    state = fields.Selection([('progress','Progress'),('sent','Sent'),('recieved','Recieved'),('canceled','Canceled')],default='progress')
     @api.one
     def _message_count(self):
         self.message_count = self.env['edi.message'].search_count([('envelope_id','=',self.id)])
     message_count = fields.Integer(compute='_message_count',string="# messages")
-    def _envelope_type(self):
-        return [('plain','Plain')]
-    envelope_type = fields.Selection(selection='_envelope_type',default='plain')
+    route_type = fields.Selection(selection=[('plain','Plain')],default='plain')
 
     
     #~ @api.one
@@ -93,8 +90,9 @@ class edi_message(models.Model):
     to_import = fields.Boolean(default=False)
     to_export = fields.Boolean(default=False)
     route_id = fields.Many2one(comodel_name="edi.route")
+    route_type = fields.Selection(selection=[('plain','Plain')],default='plain')
     edi_type = fields.Selection(selection=[('none','None')],default='none')
-
+    
     @api.one
     def unpack(self):
         pass
@@ -171,15 +169,14 @@ class edi_route(models.Model):
     name = fields.Char(string="Name",required=True)
     partner_id = fields.Many2one(comodel_name='res.partner',required=True)
     active = fields.Boolean()
-    route_type = fields.Selection(selection=[('none','None')])
-    direction = fields.Selection([('in','In'),('out','Out')])
+    protocol = fields.Selection(selection=[('none','None')])
     frequency_quant = fields.Integer(string="Frequency")
     frequency_uom = fields.Selection([('1','min'),('60','hour'),('1440','day'),('10080','week'),('40320','month')])
     next_run = fields.Datetime(string='Next run')
     run_sequence = fields.Char(string="Last run id")
-    edi_type = fields.Selection(selection=[('none','None')],default='none')
-    envelope_type = fields.Selection(selection=[('plain','Plain')],default='plain')
+    route_type = fields.Selection(selection=[('plain','Plain')],default='plain')
     test_mode = fields.Boolean('Test Mode') #TODO: Implement in BGM?
+    route_line_ids = fields.One2many('edi.route.line', 'route_id', 'Python Acctions')
     
     @api.one
     def _envelope_count(self):
@@ -234,6 +231,51 @@ class edi_route(models.Model):
                 route.run()
                 route.next_run = datetime.fromtimestamp(mktime(strptime(route.next_run, DEFAULT_SERVER_DATETIME_FORMAT))) + timedelta(minutes=route.frequency_quant * int(route.frequency_uom))
                 _logger.info('Cron job for %s done' % route.name)
+    
+    @api.one
+    def edi_action(self, caller, **kwargs):
+        action = self.env['edi.route.line'].search([('caller', '=', caller), ('route_id', '=', self.id)])
+        if len(action) > 1:
+            _logger.warn("Found multiple matching EDI actions! Caller ID: %s, matching ids: %s" % (caller, [a.id for a in action]))
+        elif action:
+            return action[0].run_action_code(kwargs)
+
+class edi_route_lines(models.Model):
+    _name = 'edi.route.line'
+    
+    name = fields.Char('name')
+    caller = fields.Char('Caller ID', help="Unique ID representing the method that should trigger this action, eg. 'sale.order.action_invoice_create'.", required=True)
+    code = fields.Text('Python Action', required=True)
+    route_id = fields.Many2one('edi.route', 'EDI Route', required=True)
+    
+    @api.one
+    def run_action_code(self, values):
+        eval_context = self._get_eval_context(values)
+        eval(self.code.strip(), eval_context, mode="exec", nocopy=True)  # nocopy allows to return 'result'
+        if 'result' in eval_context:
+            return eval_context['result']
+    
+    @api.multi
+    def _get_eval_context(self, values):
+        """ Prepare the context used when evaluating python code.
+
+        :returns: dict -- evaluation context given to (safe_)eval """
+        values.update({
+            # python libs
+            #~ 'time': time,
+            #~ 'datetime': datetime,
+            #~ 'dateutil': dateutil,
+            #~ # NOTE: only `timezone` function. Do not provide the whole `pytz` module as users
+            #~ #       will have access to `pytz.os` and `pytz.sys` to do nasty things...
+            #~ 'timezone': pytz.timezone,
+            # orm
+            'env': self.env,
+            # Exceptions
+            'Warning': openerp.exceptions.Warning,
+        })
+        return values
+        
+        
 
 class res_partner(models.Model):
     _inherit='res.partner'

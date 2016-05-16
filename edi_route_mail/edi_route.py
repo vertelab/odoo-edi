@@ -129,7 +129,7 @@ class edi_route(models.Model):
                                          "with messagesd.")
     alias_model = fields.Char(String="Alias Model",default='edi.envelope')
     mail_debug = fields.Boolean(string="Debug",required=False)
-    route_type = fields.Selection(selection_add=[('mail','Mail')])
+    protocol = fields.Selection(selection_add=[('mail','Mail')])
     edi_type = fields.Selection(selection_add = [('invoice_pdf','Invoice-pdf')])
         
     @api.one

@@ -25,15 +25,11 @@ from datetime import datetime
 
 import logging
 _logger = logging.getLogger(__name__)
-
-
-class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    
-    edi_type = fields.Selection(selection_add=[('ORDERS','ORDERS')]) 
     
 class edi_message(models.Model):
     _inherit='edi.message'
+    
+    edi_type = fields.Selection(selection_add=[('ORDERS','ORDERS')]) 
         
     """
 UNA:+.? '
@@ -87,8 +83,10 @@ UNT		Avslutar ordermeddelandet.
             delivery_prom_dt = None
             #Message sent date?
             doc_dt = None
-            order_values = {}
-            order_values['order_line'] = []
+            order_values = {
+                'edi_type': 'esap20',
+                'order_line': [],
+            }
             line = {}
             for segment in eval(base64.b64decode(self.body)):
                 segment_count += 1
@@ -122,7 +120,7 @@ UNT		Avslutar ordermeddelandet.
                         _logger.warn('consignee: %s' % segment[2])
                     #Delivery Party
                     elif segment[1] == 'DP':
-                        recipient = self.env['edi.envelope']._get_partner(segment[2])
+                        recipient = self._get_partner(segment[2])
                         _logger.warn('recipient: %s' % segment[2])
                 elif segment[0] == 'LIN':
                     if line:
@@ -153,17 +151,6 @@ UNT		Avslutar ordermeddelandet.
                     order = self.env['sale.order'].create(order_values)
                     self.model = order._name
                     self.res_id = order.id
-
-    def _get_partner(self, l):
-        _logger.warn('get partner %s' % l)
-        partner = None
-        if l[2] == '9':
-            partner = self.env['res.partner'].search([('gln', '=', l[0])])
-        _logger.warn(partner)
-        if len(partner) == 1:
-            return partner[0]
-        _logger.warn('Warning!')
-        raise Warning("Unknown part %s" % len(l) >0 and l[0] or "[EMPTY LIST!]")
     
     def _parse_quantity(self, l):
         #if l[0] == '21':
