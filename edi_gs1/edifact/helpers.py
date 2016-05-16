@@ -3,7 +3,7 @@
 
 import regex
 
-from edifact.exceptions import MissingSegmentAtPositionError
+from exceptions import MissingSegmentAtPositionError
 
 
 def separate_segments(src_string, segment_terminator='\'', release_character='?'):
