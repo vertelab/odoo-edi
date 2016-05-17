@@ -26,7 +26,8 @@ from cStringIO import StringIO
 import base64
 from openpyxl import load_workbook
 import os
-
+import urllib2, re
+import unicodecsv as csv
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -137,7 +138,7 @@ class res_partner(models.Model):
         #"Lokaliseringskod, butik", "Lagerenhet", "Lokaliseringskod LE",
         #"Telefon", "Roll", "Lokaliseringskod godsadress", "Ändringsdatum"
 
-        ica = self.env.ref('edi_gs1.ica_gruppen')
+        ica = self.env.ref('edi_gs1_ica.ica_gruppen')
         if not ica:
             raise Warning("Couldn't find ICA central record (edi_gs1.ica_gruppen).")
         for row in csv_data:
