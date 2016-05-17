@@ -173,7 +173,7 @@ class res_partner(models.Model):
     @api.model
     def ica_update_logo(self):
         def _get_logo(img):
-            return open(os.path.join(get_module_path('edi_gs1'), 'static', 'img', img), 'rb').read().encode('base64')
+            return open(os.path.join(get_module_path('edi_gs1_ica'), 'static', 'img', img), 'rb').read().encode('base64')
 
         for p in self.env['res.partner'].search([]):
             if (u'ICA') in p.name and (u'Nära') in p.name:
