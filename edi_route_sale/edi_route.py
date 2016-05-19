@@ -26,7 +26,7 @@ _logger = logging.getLogger(__name__)
 class sale_order(models.Model):
     _inherit = 'sale.order'
     
-    route_type = fields.Selection([('manual', 'Manual')], 'EDI Type')
+    route_id = fields.Many2one(comodel_name="edi.route")
     
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

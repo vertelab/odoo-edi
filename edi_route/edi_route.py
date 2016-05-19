@@ -245,11 +245,15 @@ class edi_route_lines(models.Model):
     
     name = fields.Char('name')
     caller = fields.Char('Caller ID', help="Unique ID representing the method that should trigger this action, eg. 'sale.order.action_invoice_create'.", required=True)
-    code = fields.Text('Python Action', required=True)
+    code = fields.Text('Python Action', required=True, default="""#
+#env - Environment
+#Warning - Warning
+"""
+    )
     route_id = fields.Many2one('edi.route', 'EDI Route', required=True)
     
     @api.one
-    def run_action_code(self, values):
+    def run_action_code(self, **values):
         eval_context = self._get_eval_context(values)
         eval(self.code.strip(), eval_context, mode="exec", nocopy=True)  # nocopy allows to return 'result'
         if 'result' in eval_context:

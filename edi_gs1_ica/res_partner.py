@@ -154,7 +154,7 @@ class res_partner(models.Model):
                 'is_company': True,
                 #~ 'foobar': excel_remove_clutter(csv_data[u'Lagerenhet']),
                 #~ 'foobar': excel_remove_clutter(csv_data[u'Lokaliseringskod LE']),
-                #~ 'foobar': excel_remove_clutter(csv_data[u'Roll']),
+                'role': excel_remove_clutter(csv_data[u'Roll']),
                 #~ 'foobar': excel_remove_clutter(csv_data[u'Lokaliseringskod godsadress']),
                 #~ 'foobar': excel_remove_clutter(csv_data[u'Ändringsdatum']),
             }

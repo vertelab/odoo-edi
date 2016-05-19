@@ -44,22 +44,13 @@ class sale_order(models.Model):
 
     @api.one
     def action_create_ordrsp(self):
-        if self.edi_type:
-            route = env['edi.route'].search([('edi_type', '=', o.edi_type)])
-            if len(route) == 1:
-                route[0].edi_action('sale.order.action_create_ordrsp', order=self)
+        if self.route_id:
+            self.route_id.edi_action('sale.order.action_create_ordrsp', order=self)
 
     @api.one
     def action_create_ordrsp_oerk(self):
-        if self.edi_type:
-            route = env['edi.route'].search([('edi_type', '=', o.edi_type)])
-            if len(route) == 1:
-                route[0].edi_action('sale.order.action_create_ordrsp_oerk', order=self)
-
-
-    #~ @api.one
-    #~ def action_create_invoic(self):
-        #~ self._edi_message_create('INVOIC')
+        if self.route_id:
+            route_id.edi_action('sale.order.action_create_ordrsp_oerk', order=self)
 
     @api.multi
     def action_invoice_create(self,grouped=False, states=['confirmed', 'done', 'exception'], date_invoice = False):
