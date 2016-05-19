@@ -81,6 +81,11 @@ http://www.gs1.se/EANCOM%202000/Index.htm
 Res.partner has a GLN and product.product GTIN-numbers. SSCC can be
 generated for stock.picking / stock.pack.
 
+This module implements the ESAP20 route (edi.route and edi.route.line(s))
+route_id is connected to sale.order / stock.picking / account.invoice.
+When ORDERS are recieved route_id are set to ESAP20 for the created sale.order 
+and moved forward to related documents using rules in edi.route. (may be base.action.rule?)
+
 
 """,
     'author': 'Vertel AB',
