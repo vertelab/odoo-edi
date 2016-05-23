@@ -39,30 +39,30 @@ class sale_order(models.Model):
         self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
     message_count = fields.Integer(compute='_message_count',string="# messages")
    
-    def _edi_message_create(self, edi_type):
-        self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, check_route=False, check_double=False)
+    #~ def _edi_message_create(self, edi_type):
+        #~ self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, check_route=False, check_double=False)
+#~ 
+    #~ @api.one
+    #~ def action_create_ordrsp(self):
+        #~ if self.route_id:
+            #~ self.route_id.edi_action('sale.order.action_create_ordrsp', order=self)
+#~ 
+    #~ @api.one
+    #~ def action_create_ordrsp_oerk(self):
+        #~ if self.route_id:
+            #~ route_id.edi_action('sale.order.action_create_ordrsp_oerk', order=self)
+#~ 
+    #~ @api.multi
+    #~ def action_invoice_create(self, grouped=False, states=['confirmed', 'done', 'exception'], date_invoice = False):
+        #~ res = super(sale_order, self).action_invoice_create(grouped=grouped, states=states, date_invoice = date_invoice)
+        #~ _logger.warn('res: %s' % res)
+        #~ self.env['account.invoice'].browse(res)._edi_message_create('INVOIC')
+        #~ return res
 
-    @api.one
-    def action_create_ordrsp(self):
-        if self.route_id:
-            self.route_id.edi_action('sale.order.action_create_ordrsp', order=self)
-
-    @api.one
-    def action_create_ordrsp_oerk(self):
-        if self.route_id:
-            route_id.edi_action('sale.order.action_create_ordrsp_oerk', order=self)
-
-    @api.multi
-    def action_invoice_create(self,grouped=False, states=['confirmed', 'done', 'exception'], date_invoice = False):
-        res = super(sale_order,self).action_invoice_create(grouped=grouped, states=states, date_invoice = date_invoice)
-        _logger.warn('res: %s' % res)
-        self.env['account.invoice'].browse(res)._edi_message_create('INVOIC')
-        return res
-
-    @api.multi
-    def action_wait(self):
-        for order in self:
-            order.action_create_ordrsp()
-        return super(sale_order, self).action_wait()
+    #~ @api.multi
+    #~ def action_wait(self):
+        #~ for order in self:
+            #~ order.action_create_ordrsp()
+        #~ return super(sale_order, self).action_wait()
     
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
