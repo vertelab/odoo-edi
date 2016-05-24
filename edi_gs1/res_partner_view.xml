@@ -11,6 +11,7 @@
           <field name="customer_no" />
           <field name="role" />
           <field name="store_class" />
+          <field name="areg" />
         </field>
       </field>
     </record>
@@ -23,6 +24,7 @@
           <field name="role" />
           <field name="category_id" />
           <field name="store_class" />
+          <field name="areg" />
         </field>
       </field>
     </record>
