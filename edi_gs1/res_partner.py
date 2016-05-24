@@ -97,7 +97,7 @@ class res_partner(models.Model):
     ('68', u'Luleå/Boden'),
     ('69', u'Haparanda/Kalix'),
     ('70', u'Kiruna/Gällivare'),
-    ], string='Store Class')
+    ], string='Areg')
 
     #
     @api.model
