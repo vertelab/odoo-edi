@@ -31,11 +31,19 @@ _logger = logging.getLogger(__name__)
 
 class res_partner(models.Model):
     _inherit='res.partner'
-    
+
     gs1_gln = fields.Char(string="Global Location Number",help="GS1 Global Location Number (GLN)", select=True)
     role = fields.Char(string="Role",help="Chain or type of shop", select=True)
     customer_no = fields.Char(string="Customer No",help="The Customer No of the chain", select=True)
-    
+    store_class = fields.Selection([('A', 'A'),('B', 'B'),('C', 'C'),('D', 'D'),('E', 'E')], string='Store Class')
+    areg = fields.Selection([
+    ('44', 'Arvika'),
+    ('53', 'Avesta/Hedemora'),
+    ('57', 'Bollnäs/Söderhamn'),
+    ('52', 'Borlänge/Falun'),
+    ('E', 'E'),
+    ], string='Store Class')
+
     #
     @api.model
     def ica_update_store_registry(self):
