@@ -28,6 +28,7 @@ from openpyxl import load_workbook
 import os
 import urllib2, re
 import unicodecsv as csv
+import ssl
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -51,20 +52,20 @@ class import_res_partner_ica(models.TransientModel):
     result = fields.Text(string="Result",default='')
 
 
-   
+
     @api.multi
     def send_form(self,):
         def _get_logo(img):
             return open(os.path.join(get_module_path('edi_gs1_ica'), 'static', 'img', img), 'rb').read().encode('base64')
 
-        
-        
+
+
         chart = self[0]
         #_logger.warning('data %s b64 %s ' % (account.data,base64.decodestring(account.data)))
         #raise Warning('data %s b64 %s ' % (chart.data.encode('utf-8'),base64.decodestring(chart.data.encode('utf-8'))))
-        
+
         if not chart.data == None:
-            
+
             wb = load_workbook(filename = StringIO(base64.b64decode(chart.data)), read_only=True)
             ws = wb[wb.get_sheet_names()[0]]
             t = tuple(ws.rows)
@@ -94,7 +95,7 @@ class import_res_partner_ica(models.TransientModel):
                     parent_id = partner[0].id
                 else:
                     parent_id = self.env['res.partner'].create(record).id
-                           
+
             return True
         chart.write({'state': 'get','result': 'All well'})
         return {
@@ -132,7 +133,8 @@ class res_partner(models.Model):
         password = self.env['ir.config_parameter'].get_param('ica.levnet.password')
         base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
-        result = urllib2.urlopen(request)
+        context = ssl._create_unverified_context()
+        result = urllib2.urlopen(request, context=context)
         csv_data = csv.DictReader(utf_8_encoder(result), encoding='utf-8', dialect='excel', delimiter='\t')
         #"Företag", "Postadress", "Postnummer", "Ort", "Kundnummer",
         #"Lokaliseringskod, butik", "Lagerenhet", "Lokaliseringskod LE",
@@ -141,34 +143,38 @@ class res_partner(models.Model):
         ica = self.env.ref('edi_gs1_ica.ica_gruppen')
         if not ica:
             raise Warning("Couldn't find ICA central record (edi_gs1.ica_gruppen).")
+        if not self.env['ir.config_parameter'].get_param('ica.levnet.role'):
+            self.env['ir.config_parameter'].set_param('ica.levnet.role', u'Nära Maxi Supermarket Kvantum')
         for row in csv_data:
-            partner_values = {
-                'name': excel_remove_clutter(row[u'Företag']),
-                'gs1_gln': excel_remove_clutter(row[u'Lokaliseringskod, butik']),
-                'street': excel_remove_clutter(row[u'Postadress']),
-                'zip': excel_remove_clutter(row[u'Postnummer']),
-                'city': excel_remove_clutter(row[u'Ort']),
-                'phone': excel_remove_clutter(row[u'Telefon']),
-                'ref': excel_remove_clutter(row[u'Kundnummer']),
-                'parent_id': ica.id,
-                'is_company': True,
-                #~ 'foobar': excel_remove_clutter(csv_data[u'Lagerenhet']),
-                #~ 'foobar': excel_remove_clutter(csv_data[u'Lokaliseringskod LE']),
-                'role': excel_remove_clutter(csv_data[u'Roll']),
-                #~ 'foobar': excel_remove_clutter(csv_data[u'Lokaliseringskod godsadress']),
-                #~ 'foobar': excel_remove_clutter(csv_data[u'Ändringsdatum']),
-            }
-            partner = self.env['res.partner'].search([('gs1_gln', '=', partner_values['name'])])
-            #Remove redundant values
-            for key in partner_values:
-                if partner and getattr(partner, key) == partner_values[key]:
-                    del(partner_values[key])
-            _logger.warn("partner_values: %s" %partner_values)
-            if partner:
-                if partner_values:
-                    partner.write(partner_values)
-            else:
-                partner.create(partner_values)
+            if excel_remove_clutter(row[u'Roll']) in self.env['ir.config_parameter'].get_param('ica.levnet.role'):
+                partner_values = {
+                    'name': excel_remove_clutter(row[u'Företag']),
+                    'gs1_gln': excel_remove_clutter(row[u'Lokaliseringskod, butik']),
+                    'street': excel_remove_clutter(row[u'Postadress']),
+                    'zip': excel_remove_clutter(row[u'Postnummer']),
+                    'city': excel_remove_clutter(row[u'Ort']),
+                    'phone': excel_remove_clutter(row[u'Telefon']),
+                    'ref': excel_remove_clutter(row[u'Kundnummer']),
+                    'role': excel_remove_clutter(row[u'Roll']),
+                    'parent_id': ica.id,
+                    'is_company': True,
+                    #~ 'foobar': excel_remove_clutter(csv_data[u'Lagerenhet']),
+                    #~ 'foobar': excel_remove_clutter(csv_data[u'Lokaliseringskod LE']),
+                    #~ 'foobar': excel_remove_clutter(csv_data[u'Roll']),
+                    #~ 'foobar': excel_remove_clutter(csv_data[u'Lokaliseringskod godsadress']),
+                    #~ 'foobar': excel_remove_clutter(csv_data[u'Ändringsdatum']),
+                }
+                partner = self.env['res.partner'].search([('gs1_gln', '=', partner_values['gs1_gln'])])
+                #Remove redundant values
+                for key in partner_values.keys():
+                    if partner and getattr(partner, key) == partner_values[key]:
+                        del(partner_values[key])
+                _logger.warn("partner_values: %s" %partner_values)
+                if partner:
+                    if partner_values:
+                        partner.write(partner_values)
+                else:
+                    partner.create(partner_values)
 
     @api.model
     def ica_update_logo(self):

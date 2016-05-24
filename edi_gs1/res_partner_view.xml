@@ -10,6 +10,8 @@
           <field name="gs1_gln" />
           <field name="customer_no" />
           <field name="role" />
+          <field name="store_class" />
+          <field name="areg" />
         </field>
       </field>
     </record>
@@ -20,6 +22,9 @@
       <field name="arch" type="xml">
         <field name="phone" position="before">
           <field name="role" />
+          <field name="category_id" />
+          <field name="store_class" />
+          <field name="areg" />
         </field>
       </field>
     </record>
@@ -28,10 +33,33 @@
       <field name="model">res.partner</field>
       <field name="inherit_id" ref="base.view_res_partner_filter" />
       <field name="arch" type="xml">
+        <field name="parent_id" position="after">
+          <field name="role" />
+          <field name="category_id" />
+          <field name="city" />
+          <field name="zip" />
+          <field name="store_class" />
+        </field>
         <filter string="Country" position="after">
-          <filter string="Role" context="{'group_by': 'role'}" />
+          <!--
+               <filter string="Role" context="{'group_by': 'role'}" />
+               <filter string="Zip" context="{'group_by': 'zip'}" />
+          -->
+          <filter string="Store Class" context="{'group_by': 'store_class'}" />
         </filter>
       </field>
     </record>
+<!--
+    <record id="res_partner_opt_out_search_inherit" model="ir.ui.view">
+      <field name="name">res.partner.opt_out.search</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="email_template.res_partner_opt_out_search_" />
+      <field name="arch" type="xml">
+        <filter name="not_opt_out" position="replace">
+          <filter string="OPT IN" name='not_opt_out' domain="[('opt_out', '=', False)]" help="Partners that did not ask not to be included in mass mailing campaigns" />
+        </filter>
+      </field>
+    </record>
+-->
   </data>
 </openerp>
