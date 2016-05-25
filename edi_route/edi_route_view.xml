@@ -211,7 +211,7 @@
                         
                         
                         <group>
-                            
+                            <field name="route_type"/>
                             <field name="date" />
                             <field name="body" />
                             <button name="send" string="Send" type="object" icon="gtk-ok" colspan="1"/>

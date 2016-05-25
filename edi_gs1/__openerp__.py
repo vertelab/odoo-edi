@@ -90,7 +90,7 @@ and moved forward to related documents using rules in edi.route. (may be base.ac
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','crm','sale','product','stock','account','email_template'],
+    'depends': ['edi_route', 'crm','sale','product','stock','account','email_template'],
     'data': [
         'res_partner_view.xml',
         'product_view.xml',

@@ -46,6 +46,7 @@ class edi_envelope(models.Model):
     def _message_count(self):
         self.message_count = self.env['edi.message'].search_count([('envelope_id','=',self.id)])
     message_count = fields.Integer(compute='_message_count',string="# messages")
+    #change to related field?
     route_type = fields.Selection(selection=[('plain','Plain')],default='plain')
 
     
