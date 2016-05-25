@@ -233,21 +233,25 @@ class edi_route(models.Model):
                 _logger.info('Cron job for %s done' % route.name)
     
     @api.one
-    def edi_action(self, caller, **kwargs):
-        action = self.env['edi.route.line'].search([('caller', '=', caller), ('route_id', '=', self.id)])
-        if len(action) > 1:
-            _logger.warn("Found multiple matching EDI actions! Caller ID: %s, matching ids: %s" % (caller, [a.id for a in action]))
-        elif action:
-            return action[0].run_action_code(kwargs)
+    def edi_action(self, caller_name, **kwargs):
+        caller = self.env['edi.route.caller'].search([('name', '=', caller_name)])
+        if caller:
+            for action in self.env['edi.route.line'].search([('caller_id', '=', caller.id), ('route_id', '=', self.id)]):
+                _logger.info("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
+                action.run_action_code(kwargs)
+        else:
+            _logger.info("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs))
 
 class edi_route_lines(models.Model):
     _name = 'edi.route.line'
     
     name = fields.Char('name')
-    caller = fields.Char('Caller ID', help="Unique ID representing the method that should trigger this action, eg. 'sale.order.action_invoice_create'.", required=True)
+    caller_id = fields.Many2one('edi.route.caller','Caller ID', help="Unique ID representing the method that should trigger this action, eg. 'sale.order.action_invoice_create'.", required=True)
     code = fields.Text('Python Action', required=True, default="""#
 #env - Environment
 #Warning - Warning
+#invoice._edi_message_create('INVOIC',check_double=True)
+#
 """
     )
     route_id = fields.Many2one('edi.route', 'EDI Route', required=True)
@@ -279,7 +283,11 @@ class edi_route_lines(models.Model):
         })
         return values
         
-        
+class edi_route_caller(models.Model):
+    _name = 'edi.route.caller'
+    
+    name = fields.Char('name')
+   
 
 class res_partner(models.Model):
     _inherit='res.partner'

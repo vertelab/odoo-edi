@@ -28,5 +28,66 @@ class sale_order(models.Model):
     
     route_id = fields.Many2one(comodel_name="edi.route")
     
+    @api.one
+    def _message_count(self):
+        self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
+    message_count = fields.Integer(compute='_message_count',string="# messages")
+    
+
+    @api.model
+    def create(self, vals):
+        order =  super(sale_order,self).create(vals)
+        if order:
+            order.route_id.edi_action('sale.order.create',order=order)
+        return order
+    @api.one
+    def action_cancel(self):
+        res =  super(sale_order,self).action_cancel()        
+        self.route_id.edi_action('sale.order.action_cancel',order=self,res=res)
+        return res
+    @api.one
+    def action_button_confirm(self):
+        res =  super(sale_order,self).action_button_confirm()        
+        self.route_id.edi_action('sale.order.action_button_confirm',order=self,res=res)
+        return res
+    @api.one
+    def action_wait(self):
+        res =  super(sale_order,self).action_wait()        
+        self.route_id.edi_action('sale.order.action_wait',order=self,res=res)
+        return res
+    @api.one
+    def action_done(self):
+        res =  super(sale_order,self).action_done()        
+        self.route_id.edi_action('sale.order.action_done',order=self,res=res)
+        return res
+    @api.one
+    def action_ship_create(self):
+        res =  super(sale_order,self).action_ship_create()        
+        self.route_id.edi_action('sale.order.action_ship_create',order=self,res=res)
+        return res
+    @api.one
+    def action_invoice_create(self, grouped=False, states=None, date_invoice = False):
+        res =  super(sale_order,self).action_invoice_create(grouped=grouped, states=states, date_invoice = date_invoice)        
+        invoices = [i.id for i in self.invoice_ids if i.state == 'draft']
+        if len(invoices)>0:
+            self.route_id.edi_action('sale.order.action_invoice_create',order=self,invoice=invoices[-1])
+    @api.one
+    def action_invoice_cancel(self):
+        res =  super(sale_order,self).action_invoice_cancel()        
+        self.route_id.edi_action('sale.order.action_invoice_cancel',order=self,res=res)
+        return res
+    @api.one
+    def action_invoice_end(self):
+        res =  super(sale_order,self).action_invoice_end()        
+        self.route_id.edi_action('sale.order.action_invoice_end',order=self,res=res)
+        return res    
+    @api.one
+    def action_ignore_delivery_exception(self):
+        res =  super(sale_order,self).action_ignore_delivery_exception()        
+        self.route_id.edi_action('sale.order.action_ignore_delivery_exception',order=self,res=res)
+        return res
+     
+    def _edi_message_create(self, edi_type):
+        self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, check_route=False, check_double=False)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
