@@ -24,16 +24,6 @@ from openerp.exceptions import except_orm, Warning, RedirectWarning
 import logging
 _logger = logging.getLogger(__name__)
 
-class stock_picking(models.Model):
-    _inherit = "stock.picking"
-
-    @api.one
-    def _message_count(self):
-        self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
-    message_count = fields.Integer(compute='_message_count',string="# messages")
-   
-    def _edi_create_desadv(self):
-        self.env['edi.message']._edi_message_create(edi_type='DESADV', obj=self, partner=self.partner_id, check_route=False, check_double=False)
 
 class stock_production_lot(models.Model):
     _inherit = 'stock.production.lot'
