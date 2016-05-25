@@ -24,11 +24,13 @@ from openerp.exceptions import except_orm, Warning, RedirectWarning
 import logging
 _logger = logging.getLogger(__name__)
 
-
-class stock_production_lot(models.Model):
-    _inherit = 'stock.production.lot'
-
-    sscc = fields.Char(String="SSCC#", help="SSCC-number on the pallet")    
-
+class account_invoice(models.Model):
+    _inherit = "account.invoice"
     
+    @api.one
+    def _edi_message_create(self,edi_type):
+        orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
+        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,route=orders and orders[0].route_id,check_double=False)
+
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

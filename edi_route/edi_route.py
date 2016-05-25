@@ -46,6 +46,7 @@ class edi_envelope(models.Model):
     def _message_count(self):
         self.message_count = self.env['edi.message'].search_count([('envelope_id','=',self.id)])
     message_count = fields.Integer(compute='_message_count',string="# messages")
+    #change to related field?
     route_type = fields.Selection(selection=[('plain','Plain')],default='plain')
 
     
@@ -109,11 +110,8 @@ class edi_message(models.Model):
     def _cron_job_out(self,cr,uid, edi, context=None):
         edi.write({'to_export': False})
 
-    def _edi_message_create(self, edi_type=None,obj=None, partner=None, check_route=True, check_double=True):
+    def _edi_message_create(self, edi_type=None,obj=None, partner=None, route=None, check_double=True):
         if partner and obj and edi_type:
-            routes = partner.get_routes(partner)
-            if check_route and not edi_type in routes:
-                return None
             if check_double and len(self.env['edi.message'].search([('model','=',obj._name),('res_id','=',obj.id),('edi_type','=',edi_type)])) > 0:
                 return None
             message = self.env['edi.message'].create({
@@ -121,7 +119,7 @@ class edi_message(models.Model):
                     'edi_type': edi_type,
                     'model': obj._name,
                     'res_id': obj.id,
-                    'route_id': routes.get(edi_type,1),# self.env.ref('edi_route.main_route').id),
+                    'route_id': route and route.id or self.env.ref('edi_route.main_route').id, #routes.get(edi_type,1),# self.env.ref('edi_route.main_route').id),
                     'consignor_id': self.env.ref('base.main_partner').id,
                     'consignee_id': partner.id,
             })
@@ -233,27 +231,31 @@ class edi_route(models.Model):
                 _logger.info('Cron job for %s done' % route.name)
     
     @api.one
-    def edi_action(self, caller, **kwargs):
-        action = self.env['edi.route.line'].search([('caller', '=', caller), ('route_id', '=', self.id)])
-        if len(action) > 1:
-            _logger.warn("Found multiple matching EDI actions! Caller ID: %s, matching ids: %s" % (caller, [a.id for a in action]))
-        elif action:
-            return action[0].run_action_code(kwargs)
+    def edi_action(self, caller_name, **kwargs):
+        caller = self.env['edi.route.caller'].search([('name', '=', caller_name)])
+        if caller:
+            for action in self.env['edi.route.line'].search([('caller_id', '=', caller.id), ('route_id', '=', self.id)]):
+                _logger.info("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
+                action.run_action_code(kwargs)
+        else:
+            _logger.info("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs))
 
 class edi_route_lines(models.Model):
     _name = 'edi.route.line'
     
     name = fields.Char('name')
-    caller = fields.Char('Caller ID', help="Unique ID representing the method that should trigger this action, eg. 'sale.order.action_invoice_create'.", required=True)
+    caller_id = fields.Many2one('edi.route.caller','Caller ID', help="Unique ID representing the method that should trigger this action, eg. 'sale.order.action_invoice_create'.", required=True)
     code = fields.Text('Python Action', required=True, default="""#
 #env - Environment
 #Warning - Warning
+#invoice._edi_message_create('INVOIC',check_double=True)
+#
 """
     )
     route_id = fields.Many2one('edi.route', 'EDI Route', required=True)
     
     @api.one
-    def run_action_code(self, **values):
+    def run_action_code(self, values):
         eval_context = self._get_eval_context(values)
         eval(self.code.strip(), eval_context, mode="exec", nocopy=True)  # nocopy allows to return 'result'
         if 'result' in eval_context:
@@ -264,6 +266,7 @@ class edi_route_lines(models.Model):
         """ Prepare the context used when evaluating python code.
 
         :returns: dict -- evaluation context given to (safe_)eval """
+        import openerp
         values.update({
             # python libs
             #~ 'time': time,
@@ -279,7 +282,11 @@ class edi_route_lines(models.Model):
         })
         return values
         
-        
+class edi_route_caller(models.Model):
+    _name = 'edi.route.caller'
+    
+    name = fields.Char('name')
+   
 
 class res_partner(models.Model):
     _inherit='res.partner'

@@ -80,7 +80,11 @@
                         
                         </group>
                         </group>
-                        <field name="route_line_ids"/>
+                        <field name="route_line_ids">
+                        <tree><field name="name"/> <field name="caller_id"/></tree>
+                        <form><group><field name="name"/> <field name="caller_id"/></group>
+                        <field name="code"/></form>
+                        </field>
                     
                 </sheet>
                 <div class="oe_chatter">
@@ -207,7 +211,7 @@
                         
                         
                         <group>
-                            
+                            <field name="route_type"/>
                             <field name="date" />
                             <field name="body" />
                             <button name="send" string="Send" type="object" icon="gtk-ok" colspan="1"/>

@@ -309,9 +309,9 @@ class sftp(_comsession):
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    ftp_host = fields.Char(string="Host",required=True)
-    ftp_user = fields.Char(string="User",required=True)
-    ftp_password = fields.Char(string="Password",required=True)
+    ftp_host = fields.Char(string="Host")
+    ftp_user = fields.Char(string="User")
+    ftp_password = fields.Char(string="Password")
     ftp_directory_in = fields.Char(string="Directory In",)
     ftp_directory_out = fields.Char(string="Directory Out",)
     ftp_pattern = fields.Char(string="Pattern",help="File pattern eg *.edi")

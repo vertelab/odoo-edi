@@ -30,7 +30,7 @@
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['edi_route','sale'],
-    'data': [],
+    'data': ['sale_data.xml','sale_view.xml'],
     'application': False,
     'installable': True,
     'auto_install': True,

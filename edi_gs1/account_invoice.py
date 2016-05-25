@@ -27,19 +27,5 @@ _logger = logging.getLogger(__name__)
 class account_invoice(models.Model):
     _inherit = "account.invoice"
     
-    @api.one
-    def _edi_message_create(self,edi_type):
-        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,check_route=False,check_double=False)
-
-    @api.one
-    def action_create_invoic(self):
-        self._edi_message_create('INVOIC')
-
-    #~ @api.multi
-    #~ def action_move_create(self):
-        #~ for invoice in self:
-            #~ invoice.action_create_invoic()   
-        #~ return super(account_invoice,self).action_move_create()
-
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

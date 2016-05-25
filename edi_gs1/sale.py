@@ -33,12 +33,8 @@ class sale_order_line(models.Model):
 
 class sale_order(models.Model):
     _inherit = "sale.order"
+ 
 
-    @api.one
-    def _message_count(self):
-        self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
-    message_count = fields.Integer(compute='_message_count',string="# messages")
-   
     #~ def _edi_message_create(self, edi_type):
         #~ self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, check_route=False, check_double=False)
 #~ 

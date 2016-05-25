@@ -36,7 +36,7 @@ class edi_envelope(models.Model):
         for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
             m.envelope_id = self.id
         envelope = super(edi_envelope, self).fold(route)
-        if self.envelope_type == 'esap20':
+        if self.route_type == 'esap20':
             interchange_controle_ref = ''
             date = ''
             time = ''
@@ -49,7 +49,7 @@ class edi_envelope(models.Model):
     
     @api.one
     def split(self):
-        if self.envelope_type == 'esap20':
+        if self.route_type == 'esap20':
             message = None
             #_logger.warn('body: %s' % base64.b64decode(self.body))
             msg_count = 0

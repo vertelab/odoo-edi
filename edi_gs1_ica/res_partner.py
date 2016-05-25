@@ -155,7 +155,7 @@ class res_partner(models.Model):
                     'city': excel_remove_clutter(row[u'Ort']),
                     'phone': excel_remove_clutter(row[u'Telefon']),
                     'ref': excel_remove_clutter(row[u'Kundnummer']),
-                    'role': excel_remove_clutter(row[u'Roll']),
+                    'role': excel_remove_clutter('ICA ' + row[u'Roll']),
                     'parent_id': ica.id,
                     'is_company': True,
                     #~ 'foobar': excel_remove_clutter(csv_data[u'Lagerenhet']),
