@@ -257,7 +257,7 @@ class edi_route_lines(models.Model):
     route_id = fields.Many2one('edi.route', 'EDI Route', required=True)
     
     @api.one
-    def run_action_code(self, **values):
+    def run_action_code(self, values):
         eval_context = self._get_eval_context(values)
         eval(self.code.strip(), eval_context, mode="exec", nocopy=True)  # nocopy allows to return 'result'
         if 'result' in eval_context:
@@ -268,6 +268,7 @@ class edi_route_lines(models.Model):
         """ Prepare the context used when evaluating python code.
 
         :returns: dict -- evaluation context given to (safe_)eval """
+        import openerp
         values.update({
             # python libs
             #~ 'time': time,
