@@ -18,17 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api, _
-from openerp.exceptions import except_orm, Warning, RedirectWarning
 
-import logging
-_logger = logging.getLogger(__name__)
-
-
-class stock_production_lot(models.Model):
-    _inherit = 'stock.production.lot'
-
-    sscc = fields.Char(String="SSCC#", help="SSCC-number on the pallet")    
-
-    
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+{
+    'name': 'EDI Route Account',
+    'version': '0.1',
+    'category': 'edi',
+    'summary': 'Connects EDI Route with Account',
+    'licence': 'AGPL-3',
+    'description': """
+""",
+    'author': 'Vertel AB',
+    'website': 'http://www.vertel.se',
+    'depends': ['edi_route','account'],
+    'data': ['account_data.xml',],
+    'application': False,
+    'installable': True,
+    'auto_install': True,
+}
+# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:

@@ -110,11 +110,8 @@ class edi_message(models.Model):
     def _cron_job_out(self,cr,uid, edi, context=None):
         edi.write({'to_export': False})
 
-    def _edi_message_create(self, edi_type=None,obj=None, partner=None, check_route=True, check_double=True):
+    def _edi_message_create(self, edi_type=None,obj=None, partner=None, route=None, check_double=True):
         if partner and obj and edi_type:
-            routes = partner.get_routes(partner)
-            if check_route and not edi_type in routes:
-                return None
             if check_double and len(self.env['edi.message'].search([('model','=',obj._name),('res_id','=',obj.id),('edi_type','=',edi_type)])) > 0:
                 return None
             message = self.env['edi.message'].create({
@@ -122,7 +119,7 @@ class edi_message(models.Model):
                     'edi_type': edi_type,
                     'model': obj._name,
                     'res_id': obj.id,
-                    'route_id': routes.get(edi_type,1),# self.env.ref('edi_route.main_route').id),
+                    'route_id': route and route.id or self.env.ref('edi_route.main_route').id, #routes.get(edi_type,1),# self.env.ref('edi_route.main_route').id),
                     'consignor_id': self.env.ref('base.main_partner').id,
                     'consignee_id': partner.id,
             })
