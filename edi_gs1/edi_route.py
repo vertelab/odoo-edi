@@ -22,7 +22,6 @@ from openerp import models, fields, api, _
 from edifact.helpers import separate_segments, separate_components
 import base64
 from datetime import datetime
-#https://www.stylusstudio.com/edifact/frames.htm
 
 import logging
 _logger = logging.getLogger(__name__)

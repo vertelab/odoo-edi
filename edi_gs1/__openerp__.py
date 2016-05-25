@@ -42,7 +42,7 @@ Consignee - the party receiving the goods.
 Forwarder - the party planning the transport on behalf of the consignor or consignee.
 Carrier - the party transporting the goods between two points.
 
-GS1 standards in use in Sweden 2016 to be used in 
+GS1 standards in use in Sweden 2016 to be used in
 for example ESAP20 edi-flow.
 
  +-----------------+-------------+---------------+
@@ -51,21 +51,21 @@ for example ESAP20 edi-flow.
  | PARTIN          |      N      |               |
  +-----------------+-------------+---------------+
  | PRICAT          |      N      |               |
- +-----------------+-------------+---------------+ 
+ +-----------------+-------------+---------------+
  | ORDERS          |      Y      |   in / out    |
- +-----------------+-------------+---------------+ 
+ +-----------------+-------------+---------------+
  | CONTRL          |      Y      |   in / out    |
- +-----------------+-------------+---------------+                
+ +-----------------+-------------+---------------+
  | ORDRSP          |      Y      |   in / out    |
- +-----------------+-------------+---------------+    
+ +-----------------+-------------+---------------+
  | IFTMIN          |      N      |               |
- +-----------------+-------------+---------------+ 
+ +-----------------+-------------+---------------+
  | IFTSTA          |      N      |               |
- +-----------------+-------------+---------------+ 
+ +-----------------+-------------+---------------+
  | DESADV          |      Y      |   out         |
- +-----------------+-------------+---------------+    
+ +-----------------+-------------+---------------+
  | RECADV          |      N      |               |
- +-----------------+-------------+---------------+ 
+ +-----------------+-------------+---------------+
  | INVOIC          |      Y      |   in / out    |
  +-----------------+-------------+---------------+
  | FINSTA          |      N      |               |
@@ -81,11 +81,16 @@ http://www.gs1.se/EANCOM%202000/Index.htm
 Res.partner has a GLN and product.product GTIN-numbers. SSCC can be
 generated for stock.picking / stock.pack.
 
+This module implements the ESAP20 route (edi.route and edi.route.line(s))
+route_id is connected to sale.order / stock.picking / account.invoice.
+When ORDERS are recieved route_id are set to ESAP20 for the created sale.order
+and moved forward to related documents using rules in edi.route. (may be base.action.rule?)
+
 
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','crm','sale','product','stock','account'],
+    'depends': ['edi_route','crm','sale','product','stock','account','email_template'],
     'data': [
         'res_partner_view.xml',
         'product_view.xml',

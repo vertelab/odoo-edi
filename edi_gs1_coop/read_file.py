@@ -24,7 +24,7 @@
 
 from openpyxl import load_workbook
 
-wb = load_workbook(filename = 'Axfood_Shops.xlsx', read_only=True)
+wb = load_workbook(filename = 'Coop_Shops.xlsx', read_only=True)
 
 ws = wb['Blad1']
 
@@ -74,11 +74,11 @@ exit()
 for ws in wb._sheets:
     print ws.values()
 exit()
-    
+
 for h in ws.columns:
     print h[0].value
-    
+
 for row in ws.rows:
     print row.print_titles()
-    
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
