@@ -135,7 +135,7 @@ class res_partner(models.Model):
                 #~ 'foobar': excel_remove_clutter(csv_data[u'Lokaliseringskod godsadress']),
                 #~ 'foobar': excel_remove_clutter(csv_data[u'Ändringsdatum']),
             }
-            partner = self.env['res.partner'].search([('gs1_gln', '=', partner_values['name'])])
+            partner = self.env['res.partner'].search([('gs1_gln', '=', partner_values['gs1_gln'])])
             #Remove redundant values
             for key in partner_values:
                 if partner and getattr(partner, key) == partner_values[key]:
