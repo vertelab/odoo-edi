@@ -18,19 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api, _
-from openerp.exceptions import except_orm, Warning, RedirectWarning
 
-import logging
-_logger = logging.getLogger(__name__)
-
-class account_invoice(models.Model):
-    _inherit = "account.invoice"
-    
-    @api.one
-    def _edi_message_create(self,edi_type):
-        orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
-        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,route=orders and orders[0].route_id,check_double=False)
-
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+{
+    'name': 'EDI Route Stock',
+    'version': '0.1',
+    'category': 'edi',
+    'summary': 'Connects EDI Route with Stock',
+    'licence': 'AGPL-3',
+    'description': """
+""",
+    'author': 'Vertel AB',
+    'website': 'http://www.vertel.se',
+    'depends': ['edi_route','stock'],
+    'data': ['stock_data.xml',],
+    'application': False,
+    'installable': True,
+    'auto_install': True,
+}
+# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:

@@ -24,13 +24,18 @@ from openerp.exceptions import except_orm, Warning, RedirectWarning
 import logging
 _logger = logging.getLogger(__name__)
 
-class account_invoice(models.Model):
-    _inherit = "account.invoice"
-    
+class stock_picking(models.Model):
+    _inherit = "stock.picking"
+
+    @api.one
+    def _message_count(self):
+        self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
+    message_count = fields.Integer(compute='_message_count',string="# messages")
+   
     @api.one
     def _edi_message_create(self,edi_type):
-        orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
+        orders = self.env['sale.order'].search([('picking_ids','in',self.id)])
         self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,route=orders and orders[0].route_id,check_double=False)
 
-
+    
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
