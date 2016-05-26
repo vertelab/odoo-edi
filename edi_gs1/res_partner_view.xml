@@ -13,6 +13,11 @@
           <field name="store_class" />
           <field name="areg" />
         </field>
+        <field name="title" position="after">
+          <field name="size" />
+          <field name="fsg_paolos" />
+          <field name="fsg_leroy" />
+        </field>
       </field>
     </record>
     <record id="view_partner_tree" model="ir.ui.view">
@@ -35,7 +40,7 @@
       <field name="arch" type="xml">
         <field name="parent_id" position="after">
           <field name="role" />
-          <field name="category_id" />
+          <field name="gs1_gln" />
           <field name="city" />
           <field name="zip" />
           <field name="store_class" />

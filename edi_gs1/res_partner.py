@@ -98,8 +98,10 @@ class res_partner(models.Model):
     ('69', u'Haparanda/Kalix'),
     ('70', u'Kiruna/Gällivare'),
     ], string='Areg')
+    size = fields.Float(string='Size')
+    fsg_paolos = fields.Float(string='FSG PAOLOS')
+    fsg_leroy = fields.Float(string=u'FSG LERÖY')
 
-    #
     @api.model
     def ica_update_store_registry(self):
         request = urllib2.Request("https://levnet.ica.se/Levnet/ButRegLev.nsf/wwwviwButiksfil/frmButiksfil/$FILE/butreg.xls")
