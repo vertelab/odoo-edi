@@ -40,7 +40,7 @@ class edi_envelope(models.Model):
     #partner_id = fields.Many2one(string="Partner",related='route_id.partner_id',readonly=True)
     date = fields.Datetime(string='Date',default=fields.Datetime.now())
     body = fields.Binary()
-    message_ids = fields.One2many(comodel_name='edi.message',inverse_name='envelope_id')
+    edi_message_ids = fields.One2many(comodel_name='edi.message',inverse_name='envelope_id')
     state = fields.Selection([('progress','Progress'),('sent','Sent'),('recieved','Recieved'),('canceled','Canceled')],default='progress')
     @api.one
     def _message_count(self):
@@ -56,12 +56,59 @@ class edi_envelope(models.Model):
     
     @api.one
     def split(self):
+        try:
+            res = self._split()
+        except ValueError as e:
+            id = self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "ValueError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})  
+            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
+        except TypeError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "TypeError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI TypeError in split %s' % e)
+        except IOError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "IOError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI IOError in split %s' % e)
+        else:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
+                    'subject': "Success",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+        #~ finally:
+            #~ pass
+        
+
+    @api.one
+    def _split(self):
         pass
-                
+
+                                
     @api.one
     def fold(self,route): # Folds messages in an envelope
         if route.envelope_type == 'plain':
-            self.body = base64.b64encode(''.join([base64.b64decode(m.body) for m in self.message_ids]))
+            self.body = base64.b64encode(''.join([base64.b64decode(m.body) for m in self.edi_message_ids]))
         return self
                     
     def _cron_job_in(self,cr,uid, edi, context=None):
@@ -96,8 +143,54 @@ class edi_message(models.Model):
     
     @api.one
     def unpack(self):
+        try:
+            res = self._unpack()
+        except ValueError as e:
+            id = self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "ValueError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})  
+            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
+        except TypeError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "TypeError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI TypeError in split %s' % e)
+        except IOError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "IOError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI IOError in split %s' % e)
+        else:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
+                    'subject': "Success",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+        #~ finally:
+            #~ pass
+        
+
+    @api.one
+    def _unpack(self):
         pass
-    
+
     @api.one
     def pack(self):
         #~ if not self.model_record:
