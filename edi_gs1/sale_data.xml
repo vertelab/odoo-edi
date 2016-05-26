@@ -37,6 +37,7 @@
 
 
 
+<!--
     <record model="edi.route" id="route_esap20">
         <field name="name">ESAP20</field>
         <field name="partner_id" ref="base.main_partner"/>
@@ -62,6 +63,7 @@
         <field name="caller_id" ref="edi_route_sale.caller_action_invoice_create"/>
         <field name="route_id" ref="edi_gs1.route_esap20"/>        
     </record>
+-->
     
 
 </data>

@@ -14,9 +14,11 @@
           <field name="areg" />
         </field>
         <field name="title" position="after">
+<!--
           <field name="size" />
           <field name="fsg_paolos" />
           <field name="fsg_leroy" />
+-->
         </field>
       </field>
     </record>
