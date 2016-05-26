@@ -73,9 +73,9 @@ UNT		Avslutar ordermeddelandet.
         return [t for t in super(edi_message, self)._edi_type() + [('ORDERS','ORDERS')] if not t[0] == 'none']
 
     @api.one
-    def unpack(self):
+    def _unpack(self):
         _logger.warning('unpack (orders.py) %s %s' % (self.edi_type, self))
-        super(edi_message, self).unpack()
+        super(edi_message, self)._unpack()
         if self.edi_type == 'ORDERS':
             segment_count = 0
             delivery_dt = None
@@ -142,7 +142,7 @@ UNT		Avslutar ordermeddelandet.
                 #End of message
                 elif segment[0] == 'UNT':
                     if segment_count != int(segment[1]):
-                        raise Warning('Wrong number of segments! %s %s' % (segment_count, segment))
+                        raise TypeError('Wrong number of segments! %s %s' % (segment_count, segment),segment)
                     #Add last line
                     if line:
                         order_values['order_line'].append((0, 0, line))
@@ -160,9 +160,11 @@ UNT		Avslutar ordermeddelandet.
         product = None
         if l[1] == 'EN':
             product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
+        if l[1] == 'EU':  # Axfood 
+            product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
         if product:
             return product
-        raise Warning('Product not found! EAN: %s' % l[0])
+        raise ValueError('Product not found! EAN: %s' % l[0],l)
     
     @api.model
     def _parse_date(self, l):

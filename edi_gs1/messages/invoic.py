@@ -113,11 +113,11 @@ UNT		Avslutar ordermeddelandet.
     _edi_lines_tot_qty = 0
     
     @api.one
-    def pack(self):
-        super(edi_message, self).pack()
+    def _pack(self):
+        super(edi_message, self)._pack()
         if self.edi_type == 'INVOIC':
             if self.model_record._name != 'account.invoice':
-                raise Warning("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record._name))
+                raise ValueError("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record._name),self.model_record._name)
             invoice = self.model_record
             msg = self.UNH(self.edi_type)
             #280 = 	Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.

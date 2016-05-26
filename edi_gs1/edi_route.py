@@ -326,7 +326,7 @@ class edi_message(models.Model):
         if len(partner) == 1:
             return partner[0]
         _logger.warn('Warning!')
-        raise Warning("Unknown part %s" % (len(l) >0 and l[0] or "[EMPTY LIST!]"))
+        raise ValueError("Unknown part %s" % (len(l) >0 and l[0] or "[EMPTY LIST!]"),l[0],l[1])
     
     def _parse_quantity(self, l):
         #if l[0] == '21':
@@ -338,7 +338,7 @@ class edi_message(models.Model):
             product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
         if product:
             return product
-        raise Warning('Product not found! EAN: %s' % l[0])
+        raise ValueError('Product not found! EAN: %s' % l[0],l)
     
     @api.model
     def _parse_date(self, l):

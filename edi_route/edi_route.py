@@ -90,7 +90,7 @@ class edi_envelope(models.Model):
             #raise Warning('EDI IOError in split %s' % e)
         else:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,self.route_type,len(self.messages_ids))),
+                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
                     'subject': "Success",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
@@ -143,8 +143,54 @@ class edi_message(models.Model):
     
     @api.one
     def unpack(self):
+        try:
+            res = self._unpack()
+        except ValueError as e:
+            id = self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "ValueError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})  
+            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
+        except TypeError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "TypeError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI TypeError in split %s' % e)
+        except IOError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "IOError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI IOError in split %s' % e)
+        else:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
+                    'subject': "Success",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+        #~ finally:
+            #~ pass
+        
+
+    @api.one
+    def _unpack(self):
         pass
-    
+
     @api.one
     def pack(self):
         #~ if not self.model_record:
