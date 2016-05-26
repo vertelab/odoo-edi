@@ -36,6 +36,25 @@
     </record>
 
 
+    <record model="ir.actions.server" id="action_edifact_read">
+        <field name="name">Create EDIFACT read</field>
+        <field name="state">code</field>
+        <field name="condition" eval="True"/>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="code">for o in object.browse(context.get('active_ids', [])):
+    o.edifact_read()
+        </field>
+    </record>
+
+    <record model="ir.values" id="action_edifact_read_menu">
+        <field name="name">Create EDIFACT read</field>
+        <field name="model">edi.messsage</field>
+        <field name="key2">client_action_multi</field>
+        <field name="value" eval="'ir.actions.server,%d' % action_edifact_read"/>
+    </record>
+
+
+
 <!--
     <record model="edi.route" id="route_esap20">
         <field name="name">ESAP20</field>

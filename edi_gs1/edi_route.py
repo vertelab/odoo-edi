@@ -126,6 +126,16 @@ class edi_message(models.Model):
     
     _seg_count = 0
     _lin_count = 0
+    
+    
+    def edifact_read(self):
+        self.env['ir.attachment'].create({
+                'name': self.edi_type,
+                'type': 'binary',
+                'datas': self.body.replace("'","\n"),
+                'res_model': 'edi.message',
+                'res_id': self.id,
+            })
 
     def UNH(self,edi_type=False, version='D', release='96A', ass_code='EAN005'):
         self._seg_count += 1
