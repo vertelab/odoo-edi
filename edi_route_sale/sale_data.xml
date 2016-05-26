@@ -1,34 +1,34 @@
 <openerp>
 <!-- TODO: noupdate=1 -->
 <data>
-    <record model="edi.route.caller" id="caller_create">
+    <record model="edi.route.caller" id="edi_route_sale.caller_create">
         <field name="name">sale.order.create</field>
     </record>
-    <record model="edi.route.caller" id="caller_action_cancel">
+    <record model="edi.route.caller" id="edi_route_sale.caller_action_cancel">
         <field name="name">sale.order.action_cancel</field>
     </record>
-    <record model="edi.route.caller" id="caller_action_button_confirm">
+    <record model="edi.route.caller" id="edi_route_sale.caller_action_button_confirm">
         <field name="name">sale.order.action_button_confirm</field>
     </record>
-    <record model="edi.route.caller" id="caller_action_wait">
+    <record model="edi.route.caller" id="edi_route_sale.caller_action_wait">
         <field name="name">sale.order.action_wait</field>
     </record>
-    <record model="edi.route.caller" id="caller_action_done">
+    <record model="edi.route.caller" id="edi_route_sale.caller_action_done">
         <field name="name">sale.order.action_done</field>
     </record>
-    <record model="edi.route.caller" id="caller_action_ship_create">
+    <record model="edi.route.caller" id="edi_route_sale.caller_action_ship_create">
         <field name="name">sale.order.action_ship_create</field>
     </record>
-    <record model="edi.route.caller" id="caller_action_invoice_create">
+    <record model="edi.route.caller" id="edi_route_sale.caller_action_invoice_create">
         <field name="name">sale.order.action_invoice_create</field>
     </record>
-    <record model="edi.route.caller" id="caller_action_invoice_cancel">
+    <record model="edi.route.caller" id="edi_route_sale.caller_action_invoice_cancel">
         <field name="name">sale.order.action_invoice_cancel</field>
     </record>
-    <record model="edi.route.caller" id="caller_action_invoice_end">
+    <record model="edi.route.caller" id="edi_route_sale.caller_action_invoice_end">
         <field name="name">sale.order.action_invoice_end</field>
     </record>
-    <record model="edi.route.caller" id="caller_action_ignore_delivery_exception">
+    <record model="edi.route.caller" id="edi_route_sale.caller_action_ignore_delivery_exception">
         <field name="name">sale.order.action_ignore_delivery_exception</field>
     </record>
 

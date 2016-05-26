@@ -95,10 +95,10 @@ and moved forward to related documents using rules in edi.route. (may be base.ac
         'python': ['regex'],
     },
     'data': [
+        'sale_data.xml',
         'res_partner_view.xml',
         'product_view.xml',
         'res_company_view.xml',
-        'sale_data.xml',
         'account_invoice_data.xml',
         'stock_view.xml',
         'stock_data.xml',
