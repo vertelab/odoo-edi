@@ -107,6 +107,6 @@ class sale_order(models.Model):
         return res
      
     def _edi_message_create(self, edi_type):
-        self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, route_id=self.route_id, check_double=False)
+        self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, route=self.route_id, check_double=False)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
