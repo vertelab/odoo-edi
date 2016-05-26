@@ -104,10 +104,54 @@ class edi_envelope(models.Model):
     def _split(self):
         pass
 
+
+    @api.one
+    def fold(self,route):
+        try:
+            res = self._fold(route)
+        except ValueError as e:
+            id = self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (route.name,self.route_type,e)),
+                    'subject': "ValueError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})  
+            _logger.error('EDI ValueError Route %s type %s Error %s ' % (route.name,self.route_type,e))
+            #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
+        except TypeError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (route.name,self.route_type,e)),
+                    'subject': "TypeError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI TypeError Route %s type %s Error %s ' % (route.name,self.route_type,e))
+            #raise Warning('EDI TypeError in split %s' % e)
+        except IOError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (route.name,self.route_type,e)),
+                    'subject': "IOError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI IOError in split %s' % e)
+        else:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s %s messages crceated\n" % (route.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
+                    'subject': "Success",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+
                                 
     @api.one
-    def fold(self,route): # Folds messages in an envelope
-        if route.envelope_type == 'plain':
+    def _fold(self,route): # Folds messages in an envelope
+        if route.route_type == 'plain':
             self.body = base64.b64encode(''.join([base64.b64decode(m.body) for m in self.edi_message_ids]))
         return self
                     
@@ -337,6 +381,7 @@ class edi_route(models.Model):
         envelope = self.env['edi.envelope'].create({
             'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
             'route_id': self.id,
+            'route_type': self.route_type,
             })
         for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',self.id)]):
             m.envelope_id = envelope.id

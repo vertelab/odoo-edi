@@ -32,18 +32,18 @@ class edi_envelope(models.Model):
     route_type = fields.Selection(selection_add=[('esap20','ESAP 20')])
     
     @api.one
-    def fold(self,route): # Folds messages in an envelope
+    def _fold(self,route): # Folds messages in an envelope
         for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
             m.envelope_id = self.id
-        envelope = super(edi_envelope, self).fold(route)
+        envelope = super(edi_envelope, self)._fold(route)
         if self.route_type == 'esap20':
-            interchange_controle_ref = ''
+            interchange_control_ref = ''
             date = ''
             time = ''
             UNA = "UNA:+.? '"
             UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (route.partner_id.company_id.partner_id.gs1_gln, route.partner_id.gs1_gln, date, time, interchange_control_ref)
-            body = ''.join([base64.b64decode(m.body) for m in envelope.message_ids])
-            UNZ = "UNZ+%s+627'" % (len(envelope.message_ids),len(body))
+            body = ''.join([base64.b64decode(m.body) for m in envelope.edi_message_ids])
+            UNZ = "UNZ+%s+627'" % (len(envelope.edi_message_ids),len(body))
             envelope.body = base64.b64encode(UNA + UNB + body + UNZ)
         return envelope
     
@@ -68,10 +68,10 @@ class edi_envelope(models.Model):
                 elif segment[0] == 'UNT':
                     #skapa message
                     if segment_count + 1 != int(segment[1]):
-                        raise TypeError('Wrong number of segments! %s %s' % (segment_count, segment))
+                        raise TypeError('Wrong number of segments! %s %s' % (segment_count, segment),segment)
                     message.append(segment)
                     msgs.append({
-                        'name': 'foobar',
+                        'name': edi_type,
                         'envelope_id': self.id,
                         'body': base64.b64encode(str(message)),
                         'edi_type': edi_type,
@@ -100,10 +100,13 @@ class edi_envelope(models.Model):
             if len(partner) == 1:
                 return partner
             _logger.warn('Warning!')
-        raise ValueError("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"),l[0],l[1],part_type)
+        raise ValueError("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"),l,part_type)
     
     def _create_UNB_segment(self,sender, recipient):
         self._seg_count += 1
+        interchange_control_ref = ''
+        date = ''
+        time = ''
         return "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (sender.gs1_gln, recipient.gs1_gln, date, time, interchange_control_ref)
         
 class edi_route(models.Model):
@@ -132,7 +135,7 @@ class edi_message(models.Model):
         self.env['ir.attachment'].create({
                 'name': self.edi_type,
                 'type': 'binary',
-                'datas': self.body.replace("'","\n"),
+                'datas': base64.b64encode(base64.b64decode(self.body).replace("'","\n")),
                 'res_model': 'edi.message',
                 'res_id': self.id,
             })
