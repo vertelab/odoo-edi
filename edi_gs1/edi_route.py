@@ -48,17 +48,17 @@ class edi_envelope(models.Model):
         return envelope
     
     @api.one
-    def split(self):
+    def _split(self):
         if self.route_type == 'esap20':
             message = None
-            #_logger.warn('body: %s' % base64.b64decode(self.body))
+            _logger.warn('body: %s' % base64.b64decode(self.body))
             msg_count = 0
             msgs = []
             for segment in separate_segments(base64.b64decode(self.body)):
                 segment = separate_components(segment)
                 if segment[0] == 'UNB':
-                    sender = self._get_partner(segment[2])
-                    recipient = self._get_partner(segment[3])
+                    sender = self._get_partner(segment[2],'sender')
+                    recipient = self._get_partner(segment[3],'recipent')
                     date = segment[4][0]
                     time = segment[4][1]
                 elif segment[0] == 'UNH':
@@ -68,7 +68,7 @@ class edi_envelope(models.Model):
                 elif segment[0] == 'UNT':
                     #skapa message
                     if segment_count + 1 != int(segment[1]):
-                        raise Warning('Wrong number of segments! %s %s' % (segment_count, segment))
+                        raise TypeError('Wrong number of segments! %s %s' % (segment_count, segment))
                     message.append(segment)
                     msgs.append({
                         'name': 'foobar',
@@ -85,22 +85,22 @@ class edi_envelope(models.Model):
                     segment_count += 1
                 elif segment[0] == 'UNZ':
                     if msg_count != int(segment[1]):
-                        raise Warning('Wrong message count!')
+                        raise TypeError('Wrong message count!')
             
             for msg_dict in msgs:
                 self.env['edi.message'].create(msg_dict)
         
-        super(edi_envelope, self).split()
+        super(edi_envelope, self)._split()
 
-    def _get_partner(self, l):
-        _logger.warn('get partner %s' % l)
+    def _get_partner(self, l,part_type):
+        _logger.warn('get partner %s (%s)' % (l,part_type))
         if l[1] == '14':
             partner = self.env['res.partner'].search([('gs1_gln', '=', l[0])])
             _logger.warn(partner)
             if len(partner) == 1:
                 return partner
             _logger.warn('Warning!')
-        raise Warning("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"))
+        raise ValueError("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"),l[0],l[1],part_type)
     
     def _create_UNB_segment(self,sender, recipient):
         self._seg_count += 1
@@ -126,6 +126,16 @@ class edi_message(models.Model):
     
     _seg_count = 0
     _lin_count = 0
+    
+    
+    def edifact_read(self):
+        self.env['ir.attachment'].create({
+                'name': self.edi_type,
+                'type': 'binary',
+                'datas': self.body.replace("'","\n"),
+                'res_model': 'edi.message',
+                'res_id': self.id,
+            })
 
     def UNH(self,edi_type=False, version='D', release='96A', ass_code='EAN005'):
         self._seg_count += 1
@@ -326,7 +336,7 @@ class edi_message(models.Model):
         if len(partner) == 1:
             return partner[0]
         _logger.warn('Warning!')
-        raise Warning("Unknown part %s" % (len(l) >0 and l[0] or "[EMPTY LIST!]"))
+        raise ValueError("Unknown part %s" % (len(l) >0 and l[0] or "[EMPTY LIST!]"),l[0],l[1])
     
     def _parse_quantity(self, l):
         #if l[0] == '21':
@@ -338,7 +348,7 @@ class edi_message(models.Model):
             product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
         if product:
             return product
-        raise Warning('Product not found! EAN: %s' % l[0])
+        raise ValueError('Product not found! EAN: %s' % l[0],l)
     
     @api.model
     def _parse_date(self, l):

@@ -80,11 +80,11 @@ UNT		Avslutar ordermeddelandet.
     edi_type = fields.Selection(selection_add=[('DESADV','DESADV')])  
     
     @api.one
-    def pack(self):
-        super(edi_message, self).pack()
+    def _pack(self):
+        super(edi_message, self)._pack()
         if self.edi_type == 'DESADV':
             if self.model_record._name != 'stock.picking':
-                raise Warning("DESADV: Attached record is not a stock.pack! {model}".format(model=self.model_record._name))
+                raise ValueError("DESADV: Attached record is not a stock.pack! {model}".format(model=self.model_record._name),self.model_record._name)
             picking = self.model_record
             msg = self.UNH('DESADV')
             msg += self.BGM(doc_code=351, doc_no=self.model_record.origin)

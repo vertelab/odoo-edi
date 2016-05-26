@@ -83,14 +83,14 @@ UNT		Avslutar ordermeddelandet.
     edi_type = fields.Selection(selection_add=[('ORDRSP','ORDRSP'),('ORDRSP-oerk','Ordererkännande')])
     
     @api.one
-    def pack(self):
+    def _pack(self):
         _logger.warn('pack ORDRSP')
-        super(edi_message, self).pack()
+        super(edi_message, self)._pack()
         msg = None
         if self.edi_type == 'ORDRSP':
             _logger.warn('mode_record: %s' % self.model_record)
             if self.model_record._name != 'sale.order':
-                raise Warning("ORDRSP: Attached record is not a sale.order! {model}".format(model=self.model_record._name))
+                raise ValueError("ORDRSP: Attached record is not a sale.order! {model}".format(model=self.model_record._name),self.model_record._name)
             status = _check_order_status(self.model_record)
             msg = self.UNH(self.edi_type)
             msg += self.BGM(231, self.model_record.name, status=status)
@@ -127,7 +127,7 @@ UNT		Avslutar ordermeddelandet.
             self.body = base64.b64encode(msg.encode('utf-8').decode('ascii', 'ignore'))
 
     @api.one
-    def unpack(self):
+    def _unpack(self):
         if self.edi_type == 'ORDRSP':
             segment_count = 0
             delivery_dt = None
@@ -192,7 +192,7 @@ UNT		Avslutar ordermeddelandet.
                 #End of message
                 elif segment[0] == 'UNT':
                     if segment_count != int(segment[1]):
-                        raise Warning('Wrong number of segments! %s %s' % (segment_count, segment))
+                        raise TypeError('Wrong number of segments! %s %s' % (segment_count, segment),segment)
                     #Add last line
                     if line:
                         order_values['order_line'].append((0, 0, line))
@@ -202,4 +202,4 @@ UNT		Avslutar ordermeddelandet.
                     self.model = order._name
                     self.res_id = ordet.id
         else:
-            super(edi_message, self).unpack()
+            super(edi_message, self)._unpack()

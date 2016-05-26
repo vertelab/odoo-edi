@@ -84,11 +84,11 @@ UNT		Avslutar ordermeddelandet.
         return [t for t in super(edi_message, self)._edi_type() + [('REPORD','REPORD')] if not t[0] == 'none']
     
     @api.one
-    def pack(self):
-        super(edi_message, self).pack()
+    def _pack(self):
+        super(edi_message, self)._pack()
         if self.edi_type == 'REPORD':
             if self.model_record._name != 'sale.order':
-                raise Warning("DESADV: Attached record is not a sale.order! {model}".format(model=self.model_record._name))
+                raise ValueError("DESADV: Attached record is not a sale.order! {model}".format(model=self.model_record._name),self.model_record._name)
             status = _check_order_status(self.model_record)
             if status != 0:
                 msg = self.UNH('ORDERS')
