@@ -37,7 +37,7 @@
 
 
     <record model="ir.actions.server" id="action_edifact_read">
-        <field name="name">Create EDIFACT read</field>
+        <field name="name">EDIFACT readable attachement</field>
         <field name="state">code</field>
         <field name="condition" eval="True"/>
         <field name="model_id" ref="edi_route.model_edi_message"/>
@@ -51,6 +51,23 @@
         <field name="model">edi.messsage</field>
         <field name="key2">client_action_multi</field>
         <field name="value" eval="'ir.actions.server,%d' % action_edifact_read"/>
+    </record>
+
+    <record model="ir.actions.server" id="action_envelope_edifact_read">
+        <field name="name">EDIFACT readable attachment</field>
+        <field name="state">code</field>
+        <field name="condition" eval="True"/>
+        <field name="model_id" ref="edi_route.model_edi_envelope"/>
+        <field name="code">for o in object.browse(context.get('active_ids', [])):
+    o.edifact_read()
+        </field>
+    </record>
+
+    <record model="ir.values" id="action_edifact_read_menu">
+        <field name="name">EDIFACT readable attachment</field>
+        <field name="model">edi.envelope</field>
+        <field name="key2">client_action_multi</field>
+        <field name="value" eval="'ir.actions.server,%d' % action_envelope_edifact_read"/>
     </record>
 
 

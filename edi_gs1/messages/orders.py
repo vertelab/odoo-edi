@@ -116,7 +116,7 @@ UNT		Avslutar ordermeddelandet.
                         #ICA Sverige AB
                         _logger.warn('store keeper: %s' % segment[2])
                     elif segment[1] == 'CN':
-                        consignee = self._get_partner(segment[2])
+                        self.consignee_id = self._get_partner(segment[2])
                         _logger.warn('consignee: %s' % segment[2])
                     #Delivery Party
                     elif segment[1] == 'DP':

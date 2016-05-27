@@ -109,6 +109,21 @@ class edi_envelope(models.Model):
         time = ''
         return "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (sender.gs1_gln, recipient.gs1_gln, date, time, interchange_control_ref)
         
+    def edifact_read(self):
+        """
+            Creates an attachement with the envelope in readable form
+        """
+
+        if self and self.body:
+            self.env['ir.attachment'].create({
+                    'name': self.name,
+                    'type': 'binary',
+                    'datas': base64.b64encode(base64.b64decode(self.body).replace("'","\n")),
+                    'res_model': self._name,
+                    'res_id': self.id,
+                })
+
+        
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
