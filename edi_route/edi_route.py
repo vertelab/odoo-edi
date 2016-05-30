@@ -387,7 +387,7 @@ class edi_route(models.Model):
             })
         for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',self.id)]):
             m.envelope_id = envelope.id
-        envelope.fold(self)
+        envelope.fold()
         return envelope
         
     @api.one
