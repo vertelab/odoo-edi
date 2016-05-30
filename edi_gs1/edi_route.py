@@ -116,7 +116,7 @@ class edi_envelope(models.Model):
             self.env['ir.attachment'].create({
                     'name': self.name,
                     'type': 'binary',
-                    'datas': base64.b64encode(base64.b64decode(self.body).replace("'","\n")),
+                    'datas': base64.b64encode(base64.b64decode(self.body).replace("'","'\n")),
                     'res_model': self._name,
                     'res_id': self.id,
                 })
