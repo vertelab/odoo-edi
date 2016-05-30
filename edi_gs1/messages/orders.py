@@ -134,11 +134,15 @@ UNT		Avslutar ordermeddelandet.
                 #Free text
                 #~ #elif segment[0] == 'FTX':
                 #~ #    pass
-                #~ #elif segment[0] == 'RFF':
-                    #~ #CR customer reference number
-                    #~ #GN Government Reference Number
-                    #~ #VA VAT registration number
-                #~ #    pass
+                elif segment[0] == 'RFF':
+                    #CR customer reference number
+                    #GN Government Reference Number
+                    #VA VAT registration number
+                    # CT Contract number
+                    if segment[1] == 'CT':
+                        contract = self._get_contract(segment[2])
+                        if contract:
+                            order_values['project_id'] = contract
                 #End of message
                 elif segment[0] == 'UNT':
                     if segment_count != int(segment[1]):

@@ -204,6 +204,7 @@
                    
                     <button class="oe_inline oe_stat_button" type="action" name="%(edi_route.action_edi_message_envelope)d" 
                         icon="fa-envelope-o">
+                    <button name="fold" string="Fold" type="object" icon="gtk-ok" colspan="1"/>
                         <field string="Messages" name="message_count" widget="statinfo"/>
                     </button>    
                         

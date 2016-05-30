@@ -31,10 +31,8 @@ class edi_envelope(models.Model):
     
     route_type = fields.Selection(selection_add=[('esap20','ESAP 20')])
     
-    @api.one
+    @api.multi
     def _fold(self,route): # Folds messages in an envelope
-        for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
-            m.envelope_id = self.id
         envelope = super(edi_envelope, self)._fold(route)
         if self.route_type == 'esap20':
             interchange_control_ref = ''
@@ -145,6 +143,10 @@ class edi_message(models.Model):
     _seg_count = 0
     _lin_count = 0
     
+    def _get_contract(self, ref):
+        contract = self.env['account.analytic.account'].search([('name', '=', ref)])
+        if contract:
+            return contract.id
     
     def edifact_read(self):
         self.env['ir.attachment'].create({
@@ -220,7 +222,9 @@ class edi_message(models.Model):
     
     #CR = Customer Reference
     def RFF(self, ref, qualifier='CR'):
-        # CR = Customer reference, AAS = Transport document number, Reference assigned by the carrier or his agent to the transport document.
+        # CR = Customer reference
+        # AAS = Transport document number, Reference assigned by the carrier or his agent to the transport document.
+        # CT = Contract Number
         self._seg_count += 1
         return "RFF+%s:%s'" % (qualifier, ref)
 
