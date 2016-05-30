@@ -26,6 +26,29 @@ _logger = logging.getLogger(__name__)
 
 class account_invoice(models.Model):
     _inherit = "account.invoice"
-    
+
+    picking_id = fields.Many2one(string='Stock picking', comodel_name='stock.picking')    
+    order_id = fields.Many2one(string='Sale order', comodel_name='sale.order')
+
+class sale_order(models.Model):
+    _inherit = 'sale.order'
+
+    @api.model
+    def _make_invoice(self, order, lines):
+        inv_id = super(sale_order, self)._make_invoice(order, lines)
+        self.env['account.invoice'].browse(inv_id).write({'order_id' : order.id})
+        return inv_id
+
+class stock_picking(models.Model):
+    _inherit = 'stock.picking'
+
+    @api.multi
+    def action_invoice_create(self,journal_id, group=False, type='out_invoice'):
+        invoices = super(stock_picking, self).action_invoice_create(journal_id, group=group,type=type)
+        if len(invoices) > 0:
+            self.env['account.invoice'].browse(invoices[0]).write({'picking_id' : self.id})
+        return invoices
+
+
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

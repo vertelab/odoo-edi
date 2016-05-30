@@ -129,9 +129,11 @@ UNT		Avslutar ordermeddelandet.
             #Document date
             msg += self.DTM(137)
             #Actual delivery date
-            #msg += self.DTM(35)
+            if self.model_record.picking_id:  # same as despatch-date
+                msg += self.DTM(35,self.model_record.picking_id.date_done)  
             #Despatch date
-            #msg += self.DTM(11)
+            if self.model_record.picking_id:
+                msg += self.DTM(11,self.model_record.picking_id.date_done)  
             #Invoice period
             #msg += self.DTM(167)
             #msg += self.DTM(168, invoice.date_due)
@@ -139,13 +141,24 @@ UNT		Avslutar ordermeddelandet.
             #Invoice reference
             msg += self.RFF(invoice.name, 'IV')
             #Order reference
-            msg += self.RFF(invoice.origin, 'ON')
+            if invoice.order_id:
+                msg += self.RFF(invoice.order_id.client_order_ref, 'ON')
+            if invoice.picking_id:
+                msg += self.RFF(invoice.picking_id.name, 'DQ')
+            if invoice.order_id:
+                msg += self.RFF(invoice.order_id.origin, 'CT')
+
+            
             msg += self.NAD_SU()
             _logger.warn(self.consignor_id.name)
+            if not self.consignor_id and not self.consignor_id.vat:
+                raise ValueError('Missing VAT for consignor %s' % self.consignor_id)
             msg += self.RFF(self.consignor_id.vat, 'VA')
             _logger.warn('consignor: %s' % self.consignee_id.company_registry)
             msg += self.RFF(self.consignor_id.company_registry, 'GN')
             msg += self.NAD_BY()
+            if not self.consignee_id and not self.consignee_id.vat:
+                raise ValueError('Missing VAT for consignee %s' % self.consignee_id)
             msg += self.RFF(self.consignee_id.vat, 'VA')
             msg += self.NAD_CN()
             #CUX Currency
@@ -179,6 +192,8 @@ UNT		Avslutar ordermeddelandet.
             msg += self.CNT(2, self._lin_count)
             #Amount due
             msg += self.MOA(invoice.amount_total, 9)
+            msg += self.MOA(0.0, 165)  # Adjustment amount. Amount being the balance of the amount to be adjusted and the adjusted amount.
+            
             #Small change roundoff
             #self.msg += self.MOA()
             #Sum of all line items
@@ -187,6 +202,8 @@ UNT		Avslutar ordermeddelandet.
             msg += self.MOA(invoice.amount_untaxed, 125)
             #Total taxes
             msg += self.MOA(invoice.amount_tax, 176)
+            msg += self.MOA(0.0, 131)  # The amount specified is the total of all charges/allowances.
+
             #Total allowance/charge amount
             #self.msg += self.MOA(, 131)
             #TAX-MOA-MOA
@@ -195,7 +212,9 @@ UNT		Avslutar ordermeddelandet.
             #self.msg += self.MOA()
             #Tax subtotals
             msg += self.TAX('%.2f' % (invoice.amount_tax / invoice.amount_total))
-            msg += self.MOA(invoice.amount_tax, 150)
+            #msg += self.MOA(invoice.amount_tax, 150)  # Value added tax 	[5490] Amount in national currency resulting from the application, at the appropriate rate, of value added tax (or similar tax) to the invoice amount subject to such tax.
+            msg += self.MOA(sum([l.base_amount for l in invoice.tax_line]), 125)   # Taxable amount
+            msg += self.MOA(invoice.amount_tax, 124)  # Tax amount . Tax imposed by government or other official authority related to the weight/volume charge or valuation charge.
             msg += self.UNT()
             self.body = base64.b64encode(msg.encode('utf-8'))
 

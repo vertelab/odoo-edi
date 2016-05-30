@@ -190,7 +190,7 @@ class edi_message(models.Model):
     
     def CNT(self, qualifier, value):
         self._seg_count += 1
-        return "CNT+%s+%s'" % (qualifier, value)
+        return "CNT+%s:%s'" % (qualifier, value)
     
     def DTM(self,func_code, dt=False, format=102):
         self._seg_count += 1
