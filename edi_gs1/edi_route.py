@@ -35,13 +35,13 @@ class edi_envelope(models.Model):
     def _fold(self,route): # Folds messages in an envelope
         envelope = super(edi_envelope, self)._fold(route)
         if self.route_type == 'esap20':
-            interchange_control_ref = ''
-            date = ''
-            time = ''
+            interchange_control_ref = '' # '+ICARSP4'
+            date = fields.Datetime.now().split(' ')[0].replace('-','')[-6:]
+            time = ''.join(fields.Datetime.now().split(' ')[1].split(':')[:2])
             UNA = "UNA:+.? '"
-            UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (route.partner_id.company_id.partner_id.gs1_gln, route.partner_id.gs1_gln, date, time, interchange_control_ref)
+            UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s%s'" % (route.partner_id.company_id.partner_id.gs1_gln, route.partner_id.gs1_gln, date, time, self.name,interchange_control_ref)
             body = ''.join([base64.b64decode(m.body) for m in envelope.edi_message_ids])
-            UNZ = "UNZ+%s+627'" % (len(envelope.edi_message_ids),len(body))
+            UNZ = "UNZ+%s+%s'" % (len(envelope.edi_message_ids),self.name)
             envelope.body = base64.b64encode(UNA + UNB + body + UNZ)
         return envelope
     
@@ -152,7 +152,7 @@ class edi_message(models.Model):
         self.env['ir.attachment'].create({
                 'name': self.edi_type,
                 'type': 'binary',
-                'datas': base64.b64encode(base64.b64decode(self.body).replace("'","\n")),
+                'datas': base64.b64encode(base64.b64decode(self.body).replace("'","'\n")),
                 'res_model': 'edi.message',
                 'res_id': self.id,
             })

@@ -119,11 +119,11 @@ UNT		Avslutar ordermeddelandet.
             if self.model_record._name != 'account.invoice':
                 raise ValueError("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record._name),self.model_record._name)
             invoice = self.model_record
-            msg = self.UNH(self.edi_type)
+            msg = self.UNH(self.edi_type,ass_code='EAN008')
             #280 = 	Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
             #9 = Original - Initial transmission related to a given transaction.
             _logger.warn(invoice.name)
-            msg += self.BGM(280, invoice.name, 9)
+            msg += self.BGM(380, invoice.name, 9)
             
             #Dates
             #Document date

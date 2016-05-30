@@ -130,6 +130,7 @@ class edi_envelope(models.Model):
                     'model': self._name,
                     'type': 'notification',})
             _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            raise
             #raise Warning('EDI TypeError in split %s' % e)
         except IOError as e:
             self.env['mail.message'].create({
@@ -239,9 +240,6 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self):
-        #~ if not self.model_record:
-            #~ raise Warning("ORDRSP: Can not create message without attached sale.order record!")
-        self.name = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id)
         try:
             res = self._pack()
         except ValueError as e:
@@ -380,16 +378,19 @@ class edi_route(models.Model):
         
     @api.one
     def fold(self): # Folds messages in an envelope
-        envelope = self.env['edi.envelope'].create({
-            'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
-            'route_id': self.id,
-            'route_type': self.route_type,
-            })
-        for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',self.id)]):
-            m.envelope_id = envelope.id
-        envelope.fold(self)
-        return envelope
-        
+        messages = self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',self.id)])
+        if len(messages)>0:
+            envelope = self.env['edi.envelope'].create({
+                'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
+                'route_id': self.id,
+                'route_type': self.route_type,
+                })
+            for m in messages:
+                m.pack()
+                m.envelope_id = envelope.id
+            envelope.fold()
+            return envelope
+        return None
     @api.one
     def put_file(self,file):
         pass
