@@ -117,7 +117,7 @@ UNT		Avslutar ordermeddelandet.
             msg += self.DTM(137)
             msg += self.DTM(137,format=203)
             msg += self.FTX('')
-            msg += self.RFF(self.model_record.client_order_ref or '')
+            msg += self.RFF(self.model_record.client_order_ref or '', 'ON')
             msg += self.NAD_BY()
             msg += self.NAD_SU()
             msg += self.UNS()
