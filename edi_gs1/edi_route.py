@@ -144,7 +144,7 @@ class edi_message(models.Model):
     _lin_count = 0
     
     def _get_contract(self, ref):
-        contract = self.env['account.analytic.account'].search([('name', '=', ref)])
+        contract = self.env['account.analytic.account'].search([('code', '=', ref)])
         if contract:
             return contract.id
     
@@ -261,11 +261,13 @@ class edi_message(models.Model):
         return self._NAD('CN',self.consignee_id,type)  # ????
     
     #code = error/status code
-    def LIN(self, line):
+    def LIN(self, line, code=None):
         self._seg_count += 1
         self._lin_count += 1
         item_nr_type = 'EU'
-        if line._name == 'account.invoice.line':
+        if code != None:
+            pass
+        elif line._name == 'account.invoice.line':
             code = ''
         elif line._name == 'stock.pack.operation':
             code = ''
@@ -348,7 +350,25 @@ class edi_message(models.Model):
         else:
             code = 21
         return "QTY+%s:%s'" % (code, qty)
-
+    
+    def QVR(self):
+        #AS 	Artikeln har utgått ur sortimentet
+        #AUE 	Okänt artikelnummer
+        #AV 	Artikeln slut i lager
+        #PC 	Annan förpackningsstorlek
+        #X35 	Artikeln har dragits tillbaka
+        #Z1 	Slut för säsongen
+        #Z2 	Tillfälligt spärrad för försäljning (varan finns men kan ha karensdagar)
+        #Z3 	Nyhet, ej i lager
+        #Z4 	Tillfälligt spärrad på grund av konflikt
+        #Z5 	Restnoterad artikel från tillverkare och måste beställas på nytt
+        #Z6 	Produktionsproblem
+        #Z7 	Slut i lager hos tillverkaren
+        #Z8 	Beställningsvara
+        #Z9 	Restnoterad från tillverkaren
+        #ZZ 	Annan orsak
+        pass
+    
     def UNS(self):
         self._seg_count += 1
         return "UNS+S'"

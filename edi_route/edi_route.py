@@ -37,6 +37,8 @@ class edi_envelope(models.Model):
     
     name = fields.Char(string="Name",required=True)
     route_id = fields.Many2one(comodel_name='edi.route',required=True)
+    sender = fields.Many2one(comodel_name='res.partner', string='Interchange Sender')
+    recipient = fields.Many2one(comodel_name='res.partner', string='Interchange Recipient')
     #partner_id = fields.Many2one(string="Partner",related='route_id.partner_id',readonly=True)
     date = fields.Datetime(string='Date',default=fields.Datetime.now())
     body = fields.Binary()
@@ -177,6 +179,8 @@ class edi_message(models.Model):
     envelope_id = fields.Many2one(comodel_name='edi.envelope',required=False)
     consignor_id = fields.Many2one(comodel_name='res.partner',required=False,string="Consignor",help="Consignor - the party sending the goods.") 
     consignee_id = fields.Many2one(comodel_name='res.partner',required=False,string="Consignee",help="Consignee - the party receiving the goods.") 
+    sender = fields.Many2one(comodel_name='res.partner', string='Interchange Sender')
+    recipient = fields.Many2one(comodel_name='res.partner', string='Interchange Recipient')
     forwarder_id = fields.Many2one(comodel_name='res.partner',string="Forwarder",help="Forwarder - the party planning the transport on behalf of the consignor or consignee.") 
     carrier_id = fields.Many2one(comodel_name='res.partner',string="Carrier",help="Carrier - the party transporting the goods between two points.") 
     body = fields.Binary()
@@ -381,17 +385,18 @@ class edi_route(models.Model):
     def fold(self): # Folds messages in an envelope
         messages = self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',self.id)])
         if len(messages)>0:
-            envelope = self.env['edi.envelope'].create({
-                'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
-                'route_id': self.id,
-                'route_type': self.route_type,
-                })
-            for m in messages:
-                m.pack()
-                m.envelope_id = envelope.id
-            envelope.fold()
-            return envelope
-        return None
+            for recipient in set(messages.mapped(lambda msg: msg.recipient)):
+                envelope = self.env['edi.envelope'].create({
+                        'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
+                        'route_id': self.id,
+                        'route_type': self.route_type,
+                        'recipient': recipient.id,
+                        'sender': self.env.ref('base.main_partner').id,
+                        })
+                for msg in messages.filtered(lambda msg: msg.recipient == recipient):
+                    m.pack()
+                    m.envelope_id = envelope.id
+                envelope.fold()
 
     @api.one
     def put_file(self,file):

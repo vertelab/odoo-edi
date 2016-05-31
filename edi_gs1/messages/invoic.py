@@ -129,41 +129,43 @@ UNT		Avslutar ordermeddelandet.
             #Document date
             msg += self.DTM(137)
             #Actual delivery date
-            if self.model_record.picking_id:  # same as despatch-date
-                msg += self.DTM(35,self.model_record.picking_id.date_done)  
+            for picking in invoice.picking_ids:  # same as despatch-date
+                msg += self.DTM(35, picking.date_done)
             #Despatch date
-            if self.model_record.picking_id:
-                msg += self.DTM(11,self.model_record.picking_id.date_done)  
+            for picking in invoice.picking_ids:
+                msg += self.DTM(11, picking.date_done)
             #Invoice period
             #msg += self.DTM(167)
             #msg += self.DTM(168, invoice.date_due)
             
             #Invoice reference
-            msg += self.RFF(invoice.name, 'IV')
+            #Probably ref to another invoice. Credit invoice?
+            #msg += self.RFF(invoice.name, 'IV')
+            #Pricelist
+            #msg += ...
+            #Contract reference
+            if invoice.order_id and invoice.order_id.project_id and invoice.order_id.project_id.code:
+                msg += self.RFF(invoice.order_id.project_id.code, 'CT')
+            #Pricelist
+            #msg += ...
             #Order reference
-            if invoice.order_id:
+            if invoice.order_id and invoice.order_id.client_order_ref:
                 msg += self.RFF(invoice.order_id.client_order_ref, 'ON')
-            if invoice.picking_id:
-                msg += self.RFF(invoice.picking_id.name, 'DQ')
-            if invoice.order_id:
-                msg += self.RFF(invoice.order_id.origin, 'CT')
-
+            for picking in invoice.picking_ids:
+                if picking.carrier_tracking_ref:
+                    msg += self.RFF(picking.carrier_tracking_ref, 'DQ')
+            #msg += self.RFF(foobar.desadv, 'AAK')
+            
             
             msg += self.NAD_BY()
-            if not self.consignee_id and not self.consignee_id.vat:
-                raise ValueError('Missing VAT for consignee %s' % self.consignee_id)
-            msg += self.RFF(self.consignee_id.vat, 'VA')
+            if self.consignee_id and self.consignee_id.vat:
+                msg += self.RFF(self.consignee_id.vat, 'VA')
 
             msg += self.NAD_SU()
-            _logger.warn(self.consignor_id.name)
             if not self.consignor_id and not self.consignor_id.vat:
-                raise ValueError('Missing VAT for consignor %s' % self.consignor_id)
-            msg += self.RFF(self.consignor_id.vat, 'VA')
+                msg += self.RFF(self.consignor_id.vat, 'VA')
             msg += self.RFF(self.consignor_id.company_registry, 'GN')
-            _logger.warn('consignor: %s' % self.consignee_id.company_registry)
-
-
-
+            
             msg += self.NAD_CN()
             #CUX Currency
             msg += self.PAT()
