@@ -149,17 +149,21 @@ UNT		Avslutar ordermeddelandet.
                 msg += self.RFF(invoice.order_id.origin, 'CT')
 
             
+            msg += self.NAD_BY()
+            if not self.consignee_id and not self.consignee_id.vat:
+                raise ValueError('Missing VAT for consignee %s' % self.consignee_id)
+            msg += self.RFF(self.consignee_id.vat, 'VA')
+
             msg += self.NAD_SU()
             _logger.warn(self.consignor_id.name)
             if not self.consignor_id and not self.consignor_id.vat:
                 raise ValueError('Missing VAT for consignor %s' % self.consignor_id)
             msg += self.RFF(self.consignor_id.vat, 'VA')
-            _logger.warn('consignor: %s' % self.consignee_id.company_registry)
             msg += self.RFF(self.consignor_id.company_registry, 'GN')
-            msg += self.NAD_BY()
-            if not self.consignee_id and not self.consignee_id.vat:
-                raise ValueError('Missing VAT for consignee %s' % self.consignee_id)
-            msg += self.RFF(self.consignee_id.vat, 'VA')
+            _logger.warn('consignor: %s' % self.consignee_id.company_registry)
+
+
+
             msg += self.NAD_CN()
             #CUX Currency
             msg += self.PAT()
@@ -211,7 +215,7 @@ UNT		Avslutar ordermeddelandet.
             #self.msg += self.MOA()
             #self.msg += self.MOA()
             #Tax subtotals
-            msg += self.TAX('%.2f' % (invoice.amount_tax / invoice.amount_total))
+            msg += self.TAX('%.2f' % (invoice.amount_tax / invoice.amount_total),category='M')
             #msg += self.MOA(invoice.amount_tax, 150)  # Value added tax 	[5490] Amount in national currency resulting from the application, at the appropriate rate, of value added tax (or similar tax) to the invoice amount subject to such tax.
             msg += self.MOA(sum([l.base_amount for l in invoice.tax_line]), 125)   # Taxable amount
             msg += self.MOA(invoice.amount_tax, 124)  # Tax amount . Tax imposed by government or other official authority related to the weight/volume charge or valuation charge.

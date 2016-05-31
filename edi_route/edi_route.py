@@ -244,7 +244,7 @@ class edi_message(models.Model):
             res = self._pack()
         except ValueError as e:
             id = self.env['mail.message'].create({
-                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'body': _("Route %s type %s Value Error %s\n" % (self.route_id.name,self.route_type,e)),
                     'subject': "ValueError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
@@ -254,17 +254,18 @@ class edi_message(models.Model):
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
         except TypeError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'body': _("Route %s type %s Type Error %s\n" % (self.route_id.name,self.route_type,e)),
                     'subject': "TypeError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
             _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
-            #raise Warning('EDI TypeError in split %s' % e)
+            raise
+            raise Warning('EDI TypeError in split %s' % e)
         except IOError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'body': _("Route %s type %s IOError %s\n" % (self.route_id.name,self.route_type,e)),
                     'subject': "IOError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,

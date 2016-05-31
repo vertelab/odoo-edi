@@ -180,6 +180,8 @@ class edi_message(models.Model):
             return "BGM+231::9+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), status = status)
         elif doc_code == 280: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
             return "BGM+280::9+{doc_no}+9'".format(doc_no=_escape_string(doc_no)) 
+        elif doc_code == 380: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
+            return "BGM+380::9+{doc_no}+9'".format(doc_no=_escape_string(doc_no)) 
         elif doc_code == 351:
             return "BGM+351+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
         #return "BGM+{code}::{}+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), code=doc_code, status=status)
@@ -254,7 +256,7 @@ class edi_message(models.Model):
     def NAD_DP(self,type='GLN'):
         return sielf._NAD('DP',self.carrier_id,type)
     def NAD_CN(self,type='GLN'):
-        return self._NAD('CN',self.consignee_id,type)
+        return self._NAD('CN',self.consignee_id,type)  # ????
     
     #code = error/status code
     def LIN(self, line):
