@@ -21,10 +21,11 @@ def _get_store_chef(chef, parent_id):
     if len(c) == 0:
         odoo.env['res.partner'].create({'name': chef, 'function': u'Butikchef', 'parent_id': parent_id, 'use_parent_address': True})
 
-def _get_salesman(salesman):
+def _get_salesman(salesman, parent_id):
     s = odoo.env['res.users'].search([('name', '=', salesman)])
     if len(s) == 0:
-        odoo.env['res.users'].create({'name': salesman, 'login': salesman})
+        odoo.env['res.users'].create({'name': salesman, 'login': salesman, 'sel_groups_9_40_10': '9',})
+    odoo.env['res.partner'].write(parent_id, {'user_id': odoo.env['res.users'].search([('name', '=', salesman)])[0]})
 
 def _get_id_from_gln(gs1_gln):
     p = odoo.env['res.partner'].read(odoo.env['res.partner'].search([('gs1_gln', '=', gs1_gln)]),['id'])
@@ -64,7 +65,7 @@ for i in range(1, 2160):
             print 'Partner create'
             odoo.env['res.partner'].create(partner_values)
         _get_store_chef(line.get(u'BUTIKSCHEF'), _get_id_from_gln(gs1_gln))
-        _get_salesman(line.get(u'SÄLJARE'))
+        _get_salesman(line.get(u'SÄLJARE'), _get_id_from_gln(gs1_gln))
 
 
 

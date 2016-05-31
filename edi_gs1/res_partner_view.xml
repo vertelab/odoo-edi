@@ -14,11 +14,9 @@
           <field name="areg" />
         </field>
         <field name="title" position="after">
-<!--
           <field name="size" />
           <field name="fsg_paolos" />
           <field name="fsg_leroy" />
--->
         </field>
       </field>
     </record>
@@ -31,6 +29,7 @@
           <field name="role" />
           <field name="category_id" />
           <field name="store_class" />
+          <field name="size" />
           <field name="areg" />
         </field>
       </field>
