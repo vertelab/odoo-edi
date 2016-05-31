@@ -86,7 +86,8 @@ class edi_envelope(models.Model):
                         raise TypeError('Wrong message count!')
             
             for msg_dict in msgs:
-                self.env['edi.message'].create(msg_dict)
+                msg = self.env['edi.message'].create(msg_dict)
+                msg.unpack()
         
         super(edi_envelope, self)._split()
 

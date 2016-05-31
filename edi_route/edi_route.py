@@ -36,7 +36,14 @@ class edi_envelope(models.Model):
     _inherit = ['mail.thread']
     
     name = fields.Char(string="Name",required=True)
-    route_id = fields.Many2one(comodel_name='edi.route',required=True)
+    @api.model
+    def _route_default(self):
+        route = self.env['edi.route'].browse(self._context.get('default_route_id'))
+        if route:
+            return route.id
+        else:
+            return self.env['edi.route'].search([])[0]
+    route_id = fields.Many2one(comodel_name='edi.route',required=True,default=_route_default)
     #partner_id = fields.Many2one(string="Partner",related='route_id.partner_id',readonly=True)
     date = fields.Datetime(string='Date',default=fields.Datetime.now())
     body = fields.Binary()
@@ -47,7 +54,16 @@ class edi_envelope(models.Model):
         self.message_count = self.env['edi.message'].search_count([('envelope_id','=',self.id)])
     message_count = fields.Integer(compute='_message_count',string="# messages")
     #change to related field?
-    route_type = fields.Selection(selection=[('plain','Plain')],default='plain')
+    
+    @api.model
+    def _route_type_default(self):
+        route = self.env['edi.route'].browse(self._context.get('default_route_id'))
+        if route:
+            return route.route_type
+        else:
+            'plain'
+    route_type = fields.Selection(selection=[('plain','Plain')],default=_route_type_default)
+    
 
     
     #~ @api.one
@@ -96,14 +112,23 @@ class edi_envelope(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
+            
         #~ finally:
             #~ pass
         
 
     @api.one
     def _split(self):
-        pass
-
+        if self.route_type == 'plain':
+            msg = self.env['edi.message'].create({
+                'name': 'plain',
+                'envelope_id': self.id,
+                'body': self.body,
+                'edi_type': 'none',
+                #~ 'consignor_id': sender.id,
+                #~ 'consignee_id': recipient.id,
+            })
+            msg.unpack()
 
     @api.one
     def fold(self):
