@@ -186,9 +186,9 @@ UNT		Avslutar ordermeddelandet.
                 #ALI
                 msg += self.MOA(line.price_subtotal)
                 #Net unit price, and many more
-                #PRI
+                msg += self.PRI(line.price_unit)
                 #Reference to invoice. Again?
-                #RFF
+                msg += self.RFF(invoice.order_id.client_order_ref, 'ON', self._lin_count * 10)
                 #Justification for tax exemption
                 #TAX
             msg += self.UNS()
