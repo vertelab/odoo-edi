@@ -37,5 +37,81 @@ class stock_picking(models.Model):
         orders = self.env['sale.order'].search([('picking_ids','in',self.id)])
         self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,route=orders and orders[0].route_id,check_double=False)
 
-    
+    def _get_route(self):
+        return [o.route_id for o in self.env['sale.order'].search([('picking_ids','in',self.id)])][0]
+
+    @api.model
+    def create(self, vals):
+        picking =  super(stock_picking,self).create(vals)
+        if picking and picking._get_route():
+            picking._get_route().edi_action('stock.picking.caller_create',picking=picking)
+        return picking
+    @api.multi
+    def action_cancel(self):
+        res =  super(stock_picking,self).action_cancel()
+        for picking in self:
+            if picking._get_route():
+                picking._get_route().edi_action('stock.picking.caller_action_cancel',picking=picking,res=res)
+        return res
+    @api.multi
+    def action_confirm(self):
+        res =  super(stock_picking,self).action_confirm()
+        for picking in self:
+            if picking._get_route():
+                picking._get_route().edi_action('stock.picking.caller_action_confirm',picking=picking,res=res)
+        return res
+    @api.multi
+    def action_assign(self):
+        res =  super(stock_picking,self).action_assign()
+        for picking in self:
+            if picking._get_route():
+                picking._get_route().edi_action('stock.picking.caller_action_assign',picking=picking,res=res)
+        return res
+    @api.multi
+    def action_done(self):
+        res =  super(stock_picking,self).action_done()
+        for picking in self:
+            if picking._get_route():
+                picking._get_route().edi_action('stock.picking.caller_action_done',picking=picking,res=res)
+        return res
+    @api.multi
+    def action_pack(self):
+        res =  super(stock_picking,self).action_pack()
+        for picking in self:
+            if picking._get_route():
+                picking._get_route().edi_action('stock.picking.caller_action_pack',picking=picking,res=res)
+        return res
+
+
+class stock_move(models.Model):
+    _inherit = "stock.move"
+
+    @api.model
+    def create(self, vals):
+        move =  super(stock_move,self).create(vals)
+        if move and move.picking_id._get_route():
+            move.picking_id._get_route().edi_action('stock.move.caller_move_create',move=move)
+        return move
+    @api.multi
+    def action_cancel(self):
+        res =  super(stock_move,self).action_cancel()
+        for move in self:
+            if move.picking_id._get_route():
+                move.picking_id._get_route().edi_action('stock.move.caller_move_action_cancel',move=move,res=res)
+        return res
+    @api.multi
+    def action_confirm(self):
+        res =  super(stock_move,self).action_confirm()
+        for move in self:
+            if move.picking_id._get_route():
+                move.picking_id._get_route().edi_action('stock.move.caller_move_action_confirm',move=move,res=res)
+        return res
+    @api.multi
+    def action_done(self):
+        res =  super(stock_move,self).action_done()
+        for move in self:
+            if move.picking_id._get_route():
+                move.picking_id._get_route().edi_action('stock.move.caller_move_action_done',move=move,res=res)
+        return res
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
