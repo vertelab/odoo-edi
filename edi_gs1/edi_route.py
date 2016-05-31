@@ -223,12 +223,14 @@ class edi_message(models.Model):
         return "GIN+SS+%s'" % sscc
     
     #CR = Customer Reference
-    def RFF(self, ref, qualifier='CR'):
+    def RFF(self, ref, qualifier='CR', line=None):
         # ON    Buyer Order Number
         # CR    Customer reference
         # AAS   Transport document number, Reference assigned by the carrier or his agent to the transport document.
         # CT    Contract Number
         self._seg_count += 1
+        if line:
+            return "RFF+%s:%s:%s'" % (qualifier, ref, line)
         return "RFF+%s:%s'" % (qualifier, ref)
 
     def TAX(self, rate, tax_type = 'VAT', qualifier = 7, category = 'S'):
@@ -321,9 +323,13 @@ class edi_message(models.Model):
         return ""
         #raise Warning("PIA: couldn't find product code (%s) for %s (id: %s)" % (code, product.name, product.id))
 
-    def PRI(self):
+    def PRI(self, amount, ptype='CT', qualifier='AAA'):
+        #price type
+        #   CT  Contract price
+        #qualifier
+        #   AAA Calculation net
         self._seg_count += 1
-        pass
+        return "PRI+%s:%s:%s'" % (qualifier, amount, ptype)
         
     def QTY(self,line, code = None):
         self._seg_count += 1
