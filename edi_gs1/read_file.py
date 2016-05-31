@@ -24,7 +24,7 @@ def _get_store_chef(chef, parent_id):
 def _get_salesman(salesman, parent_id):
     s = odoo.env['res.users'].search([('name', '=', salesman)])
     if len(s) == 0:
-        odoo.env['res.users'].create({'name': salesman, 'login': salesman, 'sel_groups_9_40_10', '9'})
+        odoo.env['res.users'].create({'name': salesman, 'login': salesman, 'sel_groups_9_40_10': '9',})
     odoo.env['res.partner'].write(parent_id, {'user_id': odoo.env['res.users'].search([('name', '=', salesman)])[0]})
 
 def _get_id_from_gln(gs1_gln):
@@ -38,21 +38,21 @@ for i in range(1, 2160):
     gs1_gln = line.get(u'LOKKOD')
     if gs1_gln != 'None':
         partner_values = {
-            #~ 'customer_no': line.get(u'IDNR'),
-            #~ 'name': line.get(u'JURIDNAMN'),
-            #~ 'street': line.get(u'BESADR'),
-            #~ 'zip': line.get(u'POSTNR1'),
-            #~ 'city': line.get(u'ORT1'),
-            #~ 'phone': line.get(u'TELEFON'),
-            #~ 'fax': line.get(u'FAX'),
-            #~ 'areg': line.get(u'AREG'),
-            #~ 'role': line.get(u'KEDJATXT'),
-            #~ 'vat': 'SE' + line.get(u'ORGNR') + '01',
-            #~ 'gs1_gln': line.get(u'LOKKOD'),
-            #~ 'category_id': [(6, False, _get_categ_id(line.get(u'REGION')))],
-            #~ 'store_class': line.get(u'BUTIKSKLASS') if line.get(u'BUTIKSKLASS') != 'None' else '',
-            #~ 'is_company': True,
-            #~ 'size': int(line.get('STORLEK') if line.get('STORLEK') != 'None' else 0) * 1.0,
+            'customer_no': line.get(u'IDNR'),
+            'name': line.get(u'JURIDNAMN'),
+            'street': line.get(u'BESADR'),
+            'zip': line.get(u'POSTNR1'),
+            'city': line.get(u'ORT1'),
+            'phone': line.get(u'TELEFON'),
+            'fax': line.get(u'FAX'),
+            'areg': line.get(u'AREG'),
+            'role': line.get(u'KEDJATXT'),
+            'vat': 'SE' + line.get(u'ORGNR') + '01',
+            'gs1_gln': line.get(u'LOKKOD'),
+            'category_id': [(6, False, _get_categ_id(line.get(u'REGION')))],
+            'store_class': line.get(u'BUTIKSKLASS') if line.get(u'BUTIKSKLASS') != 'None' else '',
+            'is_company': True,
+            'size': int(line.get('STORLEK') if line.get('STORLEK') != 'None' else 0) * 1.0,
             #~ 'fgs_paolos': int(line.get('FSG PAOLOS') if line.get('FSG PAOLOS') != 'None' else 0) * 1.0,
             #~ 'fgs_leroy': int(line.get('FSG LERÖY') if line.get('FSG LERÖY') != 'None' else 0) * 1.0,
         }
