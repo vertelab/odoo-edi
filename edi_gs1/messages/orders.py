@@ -84,8 +84,9 @@ UNT		Avslutar ordermeddelandet.
             #Message sent date?
             doc_dt = None
             order_values = {
-                'edi_type': 'esap20',
+                #'edi_type': 'esap20',
                 'order_line': [],
+                'route_id': self.route_id.id,
             }
             line = {}
             for segment in eval(base64.b64decode(self.body)):

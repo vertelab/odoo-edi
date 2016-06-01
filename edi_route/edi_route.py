@@ -108,7 +108,7 @@ class edi_envelope(models.Model):
             #raise Warning('EDI IOError in split %s' % e)
         else:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
+                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,','.join(['%s(%s)' % (m.name,m.edi_type) for m in self.edi_message_ids]),'ok')), #len(self.edi_messages_ids))),
                     'subject': "Success",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
@@ -458,6 +458,7 @@ class edi_route(models.Model):
                 _logger.info("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
                 action.run_action_code(kwargs)
         else:
+            raise
             _logger.info("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs))
 
 class edi_route_lines(models.Model):

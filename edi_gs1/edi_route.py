@@ -75,6 +75,8 @@ class edi_envelope(models.Model):
                         'edi_type': edi_type,
                         'consignor_id': sender.id,
                         'consignee_id': recipient.id,
+                        'route_type': self.route_type,
+                        'route_id': self.route_id.id,
                     })
                     message = None
                     msg_count += 1

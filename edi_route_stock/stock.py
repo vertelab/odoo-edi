@@ -26,7 +26,7 @@ _logger = logging.getLogger(__name__)
 
 class stock_picking(models.Model):
     _inherit = "stock.picking"
-
+    
     @api.one
     def _message_count(self):
         self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
@@ -37,8 +37,10 @@ class stock_picking(models.Model):
         orders = self.env['sale.order'].search([('picking_ids','in',self.id)])
         self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,route=orders and orders[0].route_id,check_double=False)
 
+
     def _get_route(self):
-        return [o.route_id for o in self.env['sale.order'].search([('picking_ids','in',self.id)])][0]
+        raise Warning(self.group_id)
+        return [o.route_id for o in self.env['sale.order'].search([('procurement_group_id','=',self.group_id.id)])][0]
 
     @api.model
     def create(self, vals):
