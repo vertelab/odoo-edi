@@ -33,9 +33,9 @@ class res_partner(models.Model):
     _inherit='res.partner'
 
     gs1_gln = fields.Char(string="Global Location Number",help="GS1 Global Location Number (GLN)", select=True)
-    role = fields.Char(string="Role",help="Chain or type of shop", select=True)
+    role = fields.Char(string="Role",help="Chain or type of shop", select=True) #move to crm_paolos
     customer_no = fields.Char(string="Customer No",help="The Customer No of the chain", select=True)
-    store_class = fields.Selection([('A', 'A'),('B', 'B'),('C', 'C'),('D', 'D'),('E', 'E')], string='Store Class')
+    store_class = fields.Selection([('A', 'A'),('B', 'B'),('C', 'C'),('D', 'D'),('E', 'E')], string='Store Class') #move to crm_paolos
     areg = fields.Selection([
     ('1', u'Stockholm'),
     ('2', u'Norrtälje'),
@@ -97,10 +97,10 @@ class res_partner(models.Model):
     ('68', u'Luleå/Boden'),
     ('69', u'Haparanda/Kalix'),
     ('70', u'Kiruna/Gällivare'),
-    ], string='Areg')
-    size = fields.Float(string='Size')
-    fsg_paolos = fields.Float(string='FSG PAOLOS')
-    fsg_leroy = fields.Float(string=u'FSG LERÖY')
+    ], string='Areg') #move to crm_paolos
+    size = fields.Float(string='Size') #move to crm_paolos
+    fsg_paolos = fields.Float(string='FSG PAOLOS') #move to crm_paolos
+    fsg_leroy = fields.Float(string=u'FSG LERÖY') #move to crm_paolos
 
     @api.model
     def ica_update_store_registry(self):
