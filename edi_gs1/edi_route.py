@@ -39,7 +39,7 @@ class edi_envelope(models.Model):
             date = fields.Datetime.now().split(' ')[0].replace('-','')[-6:]
             time = ''.join(fields.Datetime.now().split(' ')[1].split(':')[:2])
             UNA = "UNA:+.? '"
-            UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s%s'" % (route.partner_id.company_id.partner_id.gs1_gln, route.partner_id.gs1_gln, date, time, self.name,interchange_control_ref)
+            UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s%s'" % (envelope.sender.gs1_gln, envelope.recipient.gs1_gln, date, time, self.name,interchange_control_ref)
             body = ''.join([base64.b64decode(m.body) for m in envelope.edi_message_ids])
             UNZ = "UNZ+%s+%s'" % (len(envelope.edi_message_ids),self.name)
             envelope.body = base64.b64encode(UNA + UNB + body + UNZ)
@@ -55,8 +55,8 @@ class edi_envelope(models.Model):
             for segment in separate_segments(base64.b64decode(self.body)):
                 segment = separate_components(segment)
                 if segment[0] == 'UNB':
-                    sender = self._get_partner(segment[2],'sender')
-                    recipient = self._get_partner(segment[3],'recipent')
+                    self.sender = self._get_partner(segment[2],'sender')
+                    self.recipient = self._get_partner(segment[3],'recipent')
                     date = segment[4][0]
                     time = segment[4][1]
                 elif segment[0] == 'UNH':
@@ -73,8 +73,8 @@ class edi_envelope(models.Model):
                         'envelope_id': self.id,
                         'body': base64.b64encode(str(message)),
                         'edi_type': edi_type,
-                        'consignor_id': sender.id,
-                        'consignee_id': recipient.id,
+                        'consignor_id': self.sender.id,
+                        'consignee_id': self.recipient.id,
                         'route_type': self.route_type,
                         'route_id': self.route_id.id,
                     })
@@ -114,7 +114,6 @@ class edi_envelope(models.Model):
         """
             Creates an attachement with the envelope in readable form
         """
-
         if self and self.body:
             self.env['ir.attachment'].create({
                     'name': self.name,

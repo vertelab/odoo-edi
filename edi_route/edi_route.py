@@ -75,6 +75,9 @@ class edi_envelope(models.Model):
     @api.one
     def split(self):
         try:
+            if not self.state == "progress" or len(self.edi_message_ids)>0:
+                raise TypeError('Cant split an already splited envelope')
+
             res = self._split()
         except ValueError as e:
             id = self.env['mail.message'].create({
@@ -115,8 +118,9 @@ class edi_envelope(models.Model):
                     'model': self._name,
                     'type': 'notification',})
 
-        #~ finally:
-            #~ pass
+        finally:
+            self.state = "recieved"
+
 
 
     @api.one
@@ -137,6 +141,8 @@ class edi_envelope(models.Model):
         #for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
         #    m.envelope_id = self.id
         try:
+            if not self.state == "progress" or self.body:
+                raise TypeError('Cant fold an already folded envelope')
             res = self._fold(self.route_id)
         except ValueError as e:
             id = self.env['mail.message'].create({
@@ -146,22 +152,20 @@ class edi_envelope(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('EDI ValueError Route %s type %s #%s Error %s ' % (self.route_id.name,self.route_type,self.route_id.run_sequence,e))
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
         except TypeError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'body': _("Route %s type %s #%s Error %s\n" % (self.route_id.name,self.route_type,self.route_id.run_sequence,e)),
                     'subject': "TypeError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
-            raise
-            #raise Warning('EDI TypeError in split %s' % e)
+            _logger.error('EDI TypeError Route %s type %s #%s Error %s ' % (self.route_id.name,self.route_type,self.route_id.run_sequence,e))
         except IOError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'body': _("Route %s type %s Error #%s %s\n" % (self.route_id.name,self.route_type,self.route_id.run_sequence,e)),
                     'subject': "IOError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
@@ -171,7 +175,7 @@ class edi_envelope(models.Model):
             #raise Warning('EDI IOError in split %s' % e)
         else:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
+                    'body': _("Route %s type %s #%s %s messages crceated\n" % (self.route_id.name,self.route_type,self.route_id.run_sequence,'ok')), #len(self.edi_messages_ids))),
                     'subject': "Success",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
@@ -410,7 +414,9 @@ class edi_route(models.Model):
     def fold(self): # Folds messages in an envelope
         messages = self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',self.id)])
         if len(messages)>0:
+            _logger.error('EDI Fold Route %s Messages %s ' % (self.name,messages))
             for recipient in set(messages.mapped(lambda msg: msg.recipient)):
+                _logger.error('EDI Fold Route %s type %s Recipient %s ' % (self.name,self.route_type,recipient))
                 envelope = self.env['edi.envelope'].create({
                         'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
                         'route_id': self.id,
@@ -419,17 +425,65 @@ class edi_route(models.Model):
                         'sender': self.env.ref('base.main_partner').id,
                         })
                 for msg in messages.filtered(lambda msg: msg.recipient == recipient):
-                    m.pack()
-                    m.envelope_id = envelope.id
+                    msg.pack()
+                    msg.envelope_id = envelope.id
                 envelope.fold()
 
     @api.one
     def put_file(self,file):
         pass
 
+
+    @api.one
+    def _run(self):
+        pass
+
     @api.one
     def run(self):
-        self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
+        try:
+            res = self._run()
+        except ValueError as e:
+            id = self.env['mail.message'].create({
+                    'body': _("Route %s type %s Value Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "ValueError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
+        except TypeError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Type Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "TypeError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            raise Warning('EDI TypeError in split %s' % e)
+        except IOError as e:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s IOError %s\n" % (self.route_id.name,self.route_type,e)),
+                    'subject': "IOError",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            #raise Warning('EDI IOError in split %s' % e)
+        else:
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
+                    'subject': "Success",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+        finally:
+            self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
+
+
 
 
     def log(self,message):
@@ -458,7 +512,24 @@ class edi_route(models.Model):
                 _logger.info("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
                 action.run_action_code(kwargs)
         else:
-            raise Warning("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs))
+            #raise Warning(caller_name,kwargs)
+            self.env['mail.message'].create({
+                    'body': _("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs)),
+                    'subject': "EDI Error %s" % caller_name,
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            obj = kwargs.get('order') or kwargs.get('picking') or kwargs.get('invoice')
+            if obj:
+                self.env['mail.message'].create({
+                        'body': _("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs)),
+                        'subject': "EDI Error %s" % caller_name,
+                        'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                        'res_id': obj.id,
+                        'model': obj._name,
+                        'type': 'notification',})
+            _logger.info("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs))
 
 class edi_route_lines(models.Model):
     _name = 'edi.route.line'

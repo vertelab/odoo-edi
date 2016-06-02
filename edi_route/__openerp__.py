@@ -36,6 +36,10 @@ and mapping to Odoo-classes.
  |                           | Route is also responsible to run|
  |                           | the edi-flow.                   | 
  +---------------------------+---------------------------------+
+ | edi.route.caller          | Name of contexts that can       |
+ |                           | trigger actions (creation of    |
+ |                           | edi-message)                    |
+ +---------------------------+---------------------------------+ 
  | edi.envelope              | Package of one or many messages |
  |                           | organized in a format, with the |
  |                           | ability to split in messages    |
@@ -60,7 +64,8 @@ is a "context" defined by edi.route.lines that represents a stage in
 the workflow. For instance sale.order.action_invoice_create
 (the method action_invoice_create in sale.order class). Edi.route have
 rules to check if there is anything to do. Its possible to define rules
-for example ESAP20 edi-flow.
+for example ESAP20 edi-flow. Edi.route.caller holds a list of all
+possible context for edi-actions.
 
 Every envelope created internally identifies with an internal 
 sequence number. Incomming envelops identifies by identification given
@@ -70,10 +75,6 @@ Each edi.message created internally identifies with an internal
 sequence number. Incomming messages is identified by idenfication given
 by the part. Edi-type and Consignee are keys to find a proper route for
 outgoing messages.
-
-Flowchart over how to build the edi-flow.
-
-
 
 
 """,
