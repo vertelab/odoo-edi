@@ -28,37 +28,37 @@ class account_invoice(models.Model):
     _inherit = "account.invoice"
     
     @api.one
-    def _edi_message_create(self,edi_type):
+    def _edi_message_create(self,edi_type,check_double=False):
         orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
-        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,route=orders and orders[0].route_id,check_double=False)
+        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,route=orders and orders[0].route_id,check_double=check_double)
 
 
     @api.model
     def create(self, vals):
         invoice =  super(account_invoice,self).create(vals)
         if invoice and invoice.order_id and invoice.order_id.route_id:
-            invoice.order_id.route_id.edi_action('account_invoice.caller_create',order=order)
+            invoice.order_id.route_id.edi_action('account.invoice.create',order=order)
         return invoice
     @api.multi
     def action_cancel(self):
         res =  super(account_invoice,self).action_cancel()
         for invoice in self:
             if invoice.order_id and invoice.order_id.route_id:
-                invoice.order_id.route_id.edi_action('account_invoice.caller_action_cancel',invoice=invoice,res=res)
+                invoice.order_id.route_id.edi_action('account.invoice.action_cancel',invoice=invoice,res=res)
         return res
     @api.multi
     def action_draft(self):
         res =  super(account_invoice,self).action_draft()
         for invoice in self:
             if invoice.order_id and invoice.order_id.route_id:
-                invoice.order_id.route_id.edi_action('account_invoice.caller_action_draft',invoice=invoice,res=res)
+                invoice.order_id.route_id.edi_action('account.invoice.action_draft',invoice=invoice,res=res)
         return res
     @api.multi
     def action_create(self):
         res =  super(account_invoice,self).action_create()
         for invoice in self:
             if invoice.order_id and invoice.order_id.route_id:
-                invoice.order_id.route_id.edi_action('account_invoice.caller_action_create',invoice=invoice,res=res)
+                invoice.order_id.route_id.edi_action('account.invoice.action_create',invoice=invoice,res=res)
         return res
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

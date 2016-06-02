@@ -154,6 +154,8 @@ UNT		Avslutar ordermeddelandet.
                     _logger.warn(order_values)
                     #create order
                     order = self.env['sale.order'].create(order_values)
+
+                    _logger.warn('Order ready %r' % order)
                     self.model = order._name
                     self.res_id = order.id
     

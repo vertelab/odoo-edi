@@ -23,7 +23,9 @@
 <!--
 stock.move
 -->
-
+    <record model="edi.route.caller" id="caller_move_create">
+        <field name="name">stock.move.create</field>
+    </record>    
     <record model="edi.route.caller" id="caller_move_action_cancel">
         <field name="name">stock.move.action_cancel</field>
     </record>    

@@ -319,6 +319,8 @@
                             <field name="edi_type" />
                             <field name="route_type" />
                             <field name="envelope_id" />
+                            <field name="sender" />
+                            <field name="recipient" />
                             <field name="consignor_id" />
                             <field name="consignee_id" />
                             <field name="forwarder_id" />
@@ -416,6 +418,51 @@
 
 
     <menuitem id="menu_edi_message_configuration" name="EDI Message" parent="edi_route.menu_edi_configuration" action='action_edi_message' /> <!-- groups="base.group_no_one"/> -->
+
+
+
+   <!-- EDI edi.route.caller Form View -->
+
+    
+
+    <!-- EDI Caller Tree View  -->
+
+    <record model="ir.ui.view" id="view_edi_caller_tree">
+        <field name="name">EDI Route Caller</field>
+        <field name="model">edi.route.caller</field>
+        <field name="arch" type="xml">
+            <tree string="EDI Route Caller" >
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="action_edi_caller" model="ir.actions.act_window">
+        <field name="name">EDI Route Caller</field>
+        <field name="res_model">edi.route.caller</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_edi_caller_tree"/>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click to schedule a new EDI Route Caller.
+          </p><p>
+            The Caller in creates EDI-messages. 
+          </p>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="action_view_edi_caller_tree">
+        <field name="act_window_id" ref="action_edi_caller"/>
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_edi_caller_tree"/>
+    </record>
+    
+
+
+    <menuitem id="menu_edi_caller_configuration" name="EDI Caller" parent="edi_route.menu_edi_configuration" action='action_edi_caller' /> <!-- groups="base.group_no_one"/> -->
+
 
     
     </data>
