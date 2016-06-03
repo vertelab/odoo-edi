@@ -509,7 +509,7 @@ class edi_route(models.Model):
         _logger.info("Caller ID: %s kwargs %s" % (caller_name, kwargs))
         caller = self.env['edi.route.caller'].search([('name', '=', caller_name)])
         if caller:
-            for action in self.env['edi.route.line'].search([('caller_id', '=', caller.id), ('route_id', '=', self.id)]):
+            for action in self.env['edi.route.line'].search([('caller_id', '=', [c.id for c in caller][0]), ('route_id', '=', self.id)]):
                 _logger.info("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
                 action.run_action_code(kwargs)
         else:

@@ -28,10 +28,12 @@ _logger = logging.getLogger(__name__)
 class account_invoice(models.Model):
     _inherit = "account.invoice"
 
-#    picking_ids = fields.Many2many(string='Stock picking', comodel_name='stock.picking')
+    picking_ids = fields.Many2many(string='Stock picking', comodel_name='stock.picking')
 #    order_id = fields.Many2one(string='Sale order', comodel_name='sale.order')
 
     def _get_route(self): 
+        _logger.info("_get route account %s" % self)
+
         orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
         if len(orders)>0:
             return orders[0].route_id
@@ -45,8 +47,10 @@ class account_invoice(models.Model):
     @api.model
     def create(self, vals):
         invoice =  super(account_invoice,self).create(vals)
+        #raise Warning(invoice,invoice._get_route())
+        _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.create',invoice,invoice._get_route()))
         if invoice and invoice._get_route():
-            invoice._get_route().edi_action('account.invoice.create',order=order)
+            invoice._get_route().edi_action('account.invoice.create',invoice=invoice)
         return invoice
     @api.multi
     def action_cancel(self):
@@ -56,8 +60,18 @@ class account_invoice(models.Model):
                 invoice._get_route().edi_action('account.invoice.action_cancel',invoice=invoice,res=res)
         return res
     @api.multi
+    def action_move_create(self):
+        res =  super(account_invoice,self).action_move_create()
+        for invoice in self:
+            if invoice._get_route():
+                invoice._get_route().edi_action('account.invoice.action_move_create',invoice=invoice,res=res)
+        return res
+
+    @api.multi
     def action_draft(self):
         res =  super(account_invoice,self).action_draft()
+        _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.action_draft',invoice,invoice._get_route()))
+
         for invoice in self:
             if invoice._get_route():
                 invoice._get_route().edi_action('account.invoice.action_draft',invoice=invoice,res=res)
@@ -65,35 +79,10 @@ class account_invoice(models.Model):
     @api.multi
     def action_create(self):
         res =  super(account_invoice,self).action_create()
+        _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.action_create',invoice,invoice._get_route()))
         for invoice in self:
             if invoice._get_route():
                 invoice._get_route().edi_action('account.invoice.action_create',invoice=invoice,res=res)
         return res
-
-
-#~ class sale_order(models.Model):
-    #~ _inherit = 'sale.order'
-
-    #~ @api.model
-    #~ def _make_invoice(self, order, lines):
-        #~ inv_id = super(sale_order, self)._make_invoice(order, lines)
-        #~ self.env['account.invoice'].browse(inv_id).write({'order_id' : order.id})
-        #~ return inv_id
-
-#~ class stock_picking(models.Model):
-    #~ _inherit = 'stock.picking'
-    
-    #~ @api.multi
-    #~ def action_invoice_create(self,journal_id, group=False, type='out_invoice'):
-        #~ invoices = super(stock_picking, self).action_invoice_create(journal_id, group=group,type=type)
-        #~ if len(invoices) > 0:
-            #~ self.env['account.invoice'].browse(invoices[0]).write({
-                #~ 'picking_ids' : [(6, 0, [p.id for p in self])],
-                #~ 'order_id': [p.sale_id.id for p in self][0],
-            #~ })
-        #~ return invoices
-
-    
-    
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
