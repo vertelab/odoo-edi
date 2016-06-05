@@ -33,16 +33,23 @@ class account_invoice(models.Model):
 
     def _get_route(self): 
         _logger.info("_get route account %s" % self)
-
         orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
         if len(orders)>0:
             return orders[0].route_id
         return None
 
+    def _get_order(self): 
+        _logger.info("_get order account %s" % self)
+        orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
+        if len(orders)>0:
+            return orders[0]
+        return None
+
+
     @api.one
     def _edi_message_create(self,edi_type,check_double=False):
         orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
-        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,route=orders and orders[0].route_id,check_double=check_double)
+        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,consignee=self.partner_id,route=orders and orders[0].route_id,check_double=check_double)
         
     @api.model
     def create(self, vals):

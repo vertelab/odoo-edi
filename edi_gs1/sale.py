@@ -34,6 +34,15 @@ class sale_order_line(models.Model):
 class sale_order(models.Model):
     _inherit = "sale.order"
  
+    nad_by = fields.Many2one(comodel_name='res.partner',help="Byer, party to whom merchandise and/or service is sold.")
+    nad_su = fields.Many2one(comodel_name='res.partner',help="Supplier, party who supplies goods and/or services.")
+    nad_sn = fields.Many2one(comodel_name='res.partner',help="Store keeper,A party keeping a shop or store.")
+    nad_cn = fields.Many2one(comodel_name='res.partner',help="Consignee, party to which goods are consigned.")
+    nad_dp = fields.Many2one(comodel_name='res.partner',help="Delivery party, party to which goods should be delivered, if not identical with consignee.")
+    unb_sender = fields.Many2one(comodel_name='res.partner')
+    unb_recipient = fields.Many2one(comodel_name='res.partner')
+  
+
 
     #~ def _edi_message_create(self, edi_type):
         #~ self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, check_route=False, check_double=False)

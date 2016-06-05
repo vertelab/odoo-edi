@@ -35,12 +35,13 @@ class stock_picking(models.Model):
     @api.one
     def _edi_message_create(self,edi_type,check_double=False):
         orders = self.env['sale.order'].search([('picking_ids','in',self.id)])
-        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,partner=self.partner_id,route=orders and orders[0].route_id,check_double=check_double)
+        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,consignee=self.partner_id,route=orders and orders[0].route_id,check_double=check_double)
 
 
     def _get_route(self):
         #raise Warning(self.group_id)
-        return [o.route_id for o in self.env['sale.order'].search([('procurement_group_id','=',self.group_id.id)])][0]
+        routes = [o.route_id for o in self.env['sale.order'].search([('procurement_group_id','=',self.group_id.id)])]
+        return routes and routes[0] or None
 
     @api.model
     def create(self, vals):

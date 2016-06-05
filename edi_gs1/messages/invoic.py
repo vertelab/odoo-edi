@@ -144,13 +144,13 @@ UNT		Avslutar ordermeddelandet.
             #Pricelist
             #msg += ...
             #Contract reference
-            if invoice.order_id and invoice.order_id.project_id and invoice.order_id.project_id.code:
-                msg += self.RFF(invoice.order_id.project_id.code, 'CT')
+            if invoice._get_order() and invoice._get_order().project_id and invoice._get_order().project_id.code:
+                msg += self.RFF(invoice._get_order().project_id.code, 'CT')
             #Pricelist
             #msg += ...
             #Order reference
-            if invoice.order_id and invoice.order_id.client_order_ref:
-                msg += self.RFF(invoice.order_id.client_order_ref, 'ON')
+            if invoice._get_order() and invoice._get_order().client_order_ref:
+                msg += self.RFF(invoice._get_order().client_order_ref, 'ON')
             for picking in invoice.picking_ids:
                 if picking.carrier_tracking_ref:
                     msg += self.RFF(picking.carrier_tracking_ref, 'DQ')
@@ -190,7 +190,8 @@ UNT		Avslutar ordermeddelandet.
                 #Net unit price, and many more
                 msg += self.PRI(line.price_unit)
                 #Reference to invoice. Again?
-                msg += self.RFF(invoice.order_id.client_order_ref, 'ON', self._lin_count * 10)
+                if invoice._get_order():
+                    msg += self.RFF(invoice._get_order().client_order_ref, 'ON', self._lin_count * 10)
                 #Justification for tax exemption
                 #TAX
             msg += self.UNS()
@@ -217,7 +218,8 @@ UNT		Avslutar ordermeddelandet.
             #self.msg += self.MOA()
             #self.msg += self.MOA()
             #Tax subtotals
-            msg += self.TAX('%.2f' % (invoice.amount_tax / invoice.amount_total),category='M')
+            if invoice.amount_tax > 0 and invoice.amount_total > 0:
+                msg += self.TAX('%.2f' % (invoice.amount_tax / invoice.amount_total),category='M')
             #msg += self.MOA(invoice.amount_tax, 150)  # Value added tax 	[5490] Amount in national currency resulting from the application, at the appropriate rate, of value added tax (or similar tax) to the invoice amount subject to such tax.
             msg += self.MOA(sum([l.base_amount for l in invoice.tax_line]), 125)   # Taxable amount
             msg += self.MOA(invoice.amount_tax, 124)  # Tax amount . Tax imposed by government or other official authority related to the weight/volume charge or valuation charge.

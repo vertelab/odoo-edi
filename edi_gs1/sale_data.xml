@@ -75,6 +75,7 @@
     <record model="edi.route" id="route_esap20">
         <field name="name">ESAP20</field>
         <field name="partner_id" ref="base.main_partner"/>
+        <field name="route_type">esap20</field>
           <field name="active" eval="True"/>
     </record>
     <record model="edi.route.line" id="route_esap20_ordrsp">

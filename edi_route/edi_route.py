@@ -72,12 +72,16 @@ class edi_envelope(models.Model):
     #~ def transform(self):
         #~ pass
 
+
+    @api.one
+    def draft(self):
+        self.state = 'progress'
+
     @api.one
     def split(self):
         try:
             if not self.state == "progress" or len(self.edi_message_ids)>0:
                 raise TypeError('Cant split an already splited envelope')
-
             res = self._split()
         except ValueError as e:
             id = self.env['mail.message'].create({
@@ -117,11 +121,9 @@ class edi_envelope(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-
-        finally:
             self.state = "recieved"
 
-
+        #~ finally:
 
     @api.one
     def _split(self):
@@ -130,7 +132,9 @@ class edi_envelope(models.Model):
                 'name': 'plain',
                 'envelope_id': self.id,
                 'body': self.body,
-                'edi_type': 'none',
+                'route_type': self.route_type,
+                'sender': self.sender,
+                'recipient': self.recipient,
                 #~ 'consignor_id': sender.id,
                 #~ 'consignee_id': recipient.id,
             })
@@ -328,8 +332,8 @@ class edi_message(models.Model):
     def _cron_job_out(self,cr,uid, edi, context=None):
         edi.write({'to_export': False})
 
-    def _edi_message_create(self, edi_type=None,obj=None, partner=None, route=None, check_double=True):
-        if partner and obj and edi_type:
+    def _edi_message_create(self, edi_type=None,obj=None, sender=None,recipient=None,consignee=None,consignor=None, route=None, check_double=True):
+        if consignee and obj and edi_type:
             if check_double and len(self.env['edi.message'].search([('model','=',obj._name),('res_id','=',obj.id),('edi_type','=',edi_type)])) > 0:
                 return None
             message = self.env['edi.message'].create({
@@ -338,8 +342,13 @@ class edi_message(models.Model):
                     'model': obj._name,
                     'res_id': obj.id,
                     'route_id': route and route.id or self.env.ref('edi_route.main_route').id, #routes.get(edi_type,1),# self.env.ref('edi_route.main_route').id),
-                    'consignor_id': self.env.ref('base.main_partner').id,
-                    'consignee_id': partner.id,
+                    'route_type': route and route.route_type or self.env.ref('edi_route.main_route').route_type,
+                    # This is a reply, switch recipient/sender unless we got excplicit parties
+                    'sender': sender and sender.id or obj.unb_recipient.id,
+                    'recipient': recipient and recipient or obj.unb_sender.id,
+                    
+                    'consignor_id': consignor and consignor.id or self.env.ref('base.main_partner').id,
+                    'consignee_id': consignee.id,
             })
             message.pack()
             self.env['mail.message'].create({

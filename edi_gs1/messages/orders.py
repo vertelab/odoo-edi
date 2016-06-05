@@ -86,6 +86,8 @@ UNT		Avslutar ordermeddelandet.
             order_values = {
                 #'edi_type': 'esap20',
                 'order_line': [],
+                'unb_sender': self.sender.id,
+                'unb_recipient': self.recipient.id,
                 'route_id': self.route_id.id,
             }
             line = {}
@@ -108,20 +110,28 @@ UNT		Avslutar ordermeddelandet.
                         doc_dt = self._parse_date(segment[1])
                 elif segment[0] == 'NAD':
                     if segment[1] == 'BY':
-                        order_values['partner_id'] = self._get_partner(segment[2]).id
+                        order_values['nad_by'] = order_values['partner_id'] = self._get_partner(segment[2]).id
+                        self.consignee_id = self._get_partner(segment[2]).id
                     elif segment[1] == 'SU':
+                        order_values['nad_su'] =self._get_partner(segment[2]).id
                         supplier = self._get_partner(segment[2])
+                        if self.env.ref('base.main_partner').id != self._get_partner(segment[2]).id:
+                            raise ValueError('Supplier %s is not us (%s)' % (segment[2],self.env.ref('base.main_partner').gs1_gln)) 
                         _logger.warn('supplier: %s' % segment[2])
+                        self.consignor_id = self._get_partner(segment[2]).id
                     elif segment[1] == 'SN':
+                        order_values['nad_sn'] =self._get_partner(segment[2]).id
                         store_keeper = self._get_partner(segment[2])
                         #ICA Sverige AB
                         _logger.warn('store keeper: %s' % segment[2])
                     elif segment[1] == 'CN':
-                        self.consignee_id = self._get_partner(segment[2])
+                        order_values['nad_cn'] =self._get_partner(segment[2]).id
+                        self.consignee_id = self._get_partner(segment[2]).id
                         _logger.warn('consignee: %s' % segment[2])
                     #Delivery Party
                     elif segment[1] == 'DP':
-                        recipient = self._get_partner(segment[2])
+                        recipient = self._get_partner(segment[2]).id
+                        order_values['nad_dp'] =self._get_partner(segment[2]).id
                         _logger.warn('recipient: %s' % segment[2])
                 elif segment[0] == 'LIN':
                     if line:

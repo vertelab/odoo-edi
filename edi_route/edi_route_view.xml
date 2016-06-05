@@ -188,8 +188,9 @@
         <field name="arch" type="xml">
             <form string="EDI Envelope">
                 <header>
+                    <button name="draft" states="send,recieved,cancel" string="Draft" type="object" class="oe_highlight"/>
+                    <button name="split" string="Split" type="object" states="progress" icon="gtk-ok" />
                     <field name="state" widget="statusbar" statusbar_visible="progress,recieved,sent,canceled" />
-
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -216,9 +217,6 @@
                             <field name="route_type"/>
                             <field name="date" />
                             <field name="body" />
-                            <button name="send" string="Send" type="object" icon="gtk-ok" colspan="1"/>
-                            <button name="split" string="Split" type="object" icon="gtk-ok" colspan="1"/>
-                            <button name="fold" string="Fold" type="object" icon="gtk-ok" colspan="1"/>
                         </group>                    
                 </sheet>
                 <div class="oe_chatter">

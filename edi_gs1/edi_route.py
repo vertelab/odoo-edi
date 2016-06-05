@@ -73,9 +73,9 @@ class edi_envelope(models.Model):
                         'envelope_id': self.id,
                         'body': base64.b64encode(str(message)),
                         'edi_type': edi_type,
-                        'consignor_id': self.sender.id,
-                        'consignee_id': self.recipient.id,
-                        'route_type': self.route_type,
+                        'sender': self.sender.id,
+                        'recipient': self.recipient.id,
+                        'route_type': self.route_id.route_type,
                         'route_id': self.route_id.id,
                     })
                     message = None
