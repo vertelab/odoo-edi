@@ -72,9 +72,18 @@
                             <field name="protocol" />
                             <field name="route_type" />
                             <field name="active" />
+                            <group>
+                                <field name="frequency_quant"/>
+                                <field name="frequency_uom"/>
+                            </group>
+                            <field name="next_run"/>
+                            <field name="run_sequence"/>
+                            
                             <button name="check_connection" string="Check" type="object" icon="gtk-ok" colspan="1"/>
                             <button name="run" string="Run" type="object" icon="gtk-ok" colspan="1"/>
+<!--
                             <button name="fold" string="Fold" type="object" icon="gtk-ok" colspan="1"/>
+-->
                         </group>
                         <group name="protocol">
                         
@@ -236,8 +245,10 @@
         <field name="arch" type="xml">
             <tree string="EDI Envelope" >
                 <field name="name" />
-
                 <field name="route_id" />
+                <field name="sender" />
+                <field name="recipient" />
+                <field name="state" />
                 <field name="date" />
             </tree>
         </field>
