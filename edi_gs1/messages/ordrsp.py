@@ -80,14 +80,13 @@ QTY	Kvantitet.
 UNS		Avslutar orderrad.
 UNT		Avslutar ordermeddelandet.
 """ 
-    edi_type = fields.Selection(selection_add=[('ORDRSP','ORDRSP'),('ORDRSP-oerk','Ordererkännande')])
     
     @api.one
     def _pack(self):
         _logger.warn('pack ORDRSP')
         super(edi_message, self)._pack()
         msg = None
-        if self.edi_type == 'ORDRSP':
+        if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
             _logger.warn('mode_record: %s' % self.model_record)
             if self.model_record._name != 'sale.order':
                 raise ValueError("ORDRSP: Attached record is not a sale.order! {model}".format(model=self.model_record._name),self.model_record._name)
@@ -108,7 +107,7 @@ UNT		Avslutar ordermeddelandet.
                 msg += self.QTY(line)
             msg += self.UNS()
             msg += self.UNT()
-        elif self.edi_type == 'ORDRSP-oerk':
+        elif self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_orderk').id:
             _logger.warn('mode_record: %s' % self.model_record)
             if self.model_record._name != 'sale.order':
                 raise Warning("ORDRSP: Attached record is not a sale.order!")
@@ -128,7 +127,7 @@ UNT		Avslutar ordermeddelandet.
 
     @api.one
     def _unpack(self):
-        if self.edi_type == 'ORDRSP':
+        if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
             segment_count = 0
             delivery_dt = None
             #Delivered by?

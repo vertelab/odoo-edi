@@ -49,7 +49,14 @@ class account_invoice(models.Model):
     @api.one
     def _edi_message_create(self,edi_type,check_double=False):
         orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
-        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,consignee=self.partner_id,route=orders and orders[0].route_id,check_double=check_double)
+        self.env['edi.message']._edi_message_create(
+            edi_type=edi_type,
+            obj=self,
+            sender=orders and orders[0].unb_recipient or None,
+            recipient=orders and orders[0].unb_sender or None,
+            consignee=self.partner_id,
+            route=orders and orders[0].route_id,
+            check_double=check_double)
         
     @api.model
     def create(self, vals):

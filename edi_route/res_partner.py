@@ -27,7 +27,7 @@ _logger = logging.getLogger(__name__)
 class res_partner(models.Model):
     _inherit='res.partner'
     
-    route_ids = fields.Many2many(comodel_name='edi.route')
+    edi_type_ids = fields.Many2many(comodel_name='edi.message.type',help="OK to send EDI-messages of this type to this part")
     
     @api.one
     def _message_count(self):
@@ -38,19 +38,17 @@ class res_partner(models.Model):
         #raise Warning([(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])])
 #        self.message_ids = self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])
        # self.message_ids = [p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])]
-        self.message_ids = [(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])]
+        self.message_ids = [(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|','|','|',('sender','=',self.id),('recipient','=',self.id),('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])]
     message_ids = fields.Many2many(compute='_message_ids',comodel_name="edi.message",string="Messages")    
 
     @api.model
-    def get_routes(self,partner):  # own routes are of higher precedence than routes from parent
+    def get_edi_types(self,partner):  # Check in three levels if its ok to send edi-messages of this type to this part
+        types = [t.id for t in partner.edi_type_ids]
         if partner.parent_id:
-            routes = {r.edi_type: r.id for r in partner.parent_id.route_ids}
-        else:
-            routes = {}
-        for r in partner.parent_id.route_ids:
-            routes[r.edi_type] = r.id
-        #raise Warning(routes)
-        return routes
+            types += [t.id for t in partner.parent_id.edi_type_ids]
+            if partner.parent_id.parent_id:
+                types += [t.id for t in partner.parent_id.parent_id.edi_type_ids]
+        return set(types)
 
 
 from openerp import http

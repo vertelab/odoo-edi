@@ -25,6 +25,9 @@
             <field name="partner_id" ref="base.main_partner"/>
             <field name="active" eval="True"/>
         </record>
+        <record id="edi_message_type_plain" model="edi.message.type">
+            <field name="name">plain</field>
+        </record>
 
 
     </data>

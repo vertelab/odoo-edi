@@ -35,7 +35,14 @@ class stock_picking(models.Model):
     @api.one
     def _edi_message_create(self,edi_type,check_double=False):
         orders = self.env['sale.order'].search([('picking_ids','in',self.id)])
-        self.env['edi.message']._edi_message_create(edi_type=edi_type,obj=self,consignee=self.partner_id,route=orders and orders[0].route_id,check_double=check_double)
+        if orders and orders[0]:
+            self.env['edi.message']._edi_message_create(
+                edi_type=edi_type,
+                obj=self,
+                sender=orders[0].unb_recipient,
+                recipient=orders[0].unb_sender,
+                consignee=self.partner_id,route=orders and orders[0].route_id,
+                check_double=check_double)
 
 
     def _get_route(self):

@@ -29,7 +29,6 @@ _logger = logging.getLogger(__name__)
 class edi_message(models.Model):
     _inherit='edi.message'
     
-    edi_type = fields.Selection(selection_add=[('REPORD','REPORD')])
         
     """
 UNH+204853+DESADV:D:93A:UN:EDIT30'
@@ -80,13 +79,11 @@ UNT		Avslutar ordermeddelandet.
 """ 
 
     #TODO: replace with new selection_add (?) parameter
-    def _edi_type(self):
-        return [t for t in super(edi_message, self)._edi_type() + [('REPORD','REPORD')] if not t[0] == 'none']
     
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
-        if self.edi_type == 'REPORD':
+        if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_repord').id:
             if self.model_record._name != 'sale.order':
                 raise ValueError("DESADV: Attached record is not a sale.order! {model}".format(model=self.model_record._name),self.model_record._name)
             status = _check_order_status(self.model_record)

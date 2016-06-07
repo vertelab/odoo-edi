@@ -29,8 +29,6 @@ _logger = logging.getLogger(__name__)
 class edi_message(models.Model):
     _inherit='edi.message'
     
-    edi_type = fields.Selection(selection_add=[('ORDERS','ORDERS')]) 
-        
     """
 UNA:+.? '
 UNB+UNOC:3+7301002000009:14+7310000000040:14+110131:1720+627++ICARSP4'
@@ -76,7 +74,7 @@ UNT		Avslutar ordermeddelandet.
     def _unpack(self):
         _logger.warning('unpack (orders.py) %s %s' % (self.edi_type, self))
         super(edi_message, self)._unpack()
-        if self.edi_type == 'ORDERS':
+        if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_orders').id:
             segment_count = 0
             delivery_dt = None
             #Delivered by?

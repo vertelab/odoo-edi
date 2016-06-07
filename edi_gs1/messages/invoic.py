@@ -108,14 +108,13 @@ QTY	Kvantitet.
 UNS		Avslutar orderrad.
 UNT		Avslutar ordermeddelandet.
 """ 
-    edi_type = fields.Selection(selection_add = [('INVOIC','INVOIC')])
     
     _edi_lines_tot_qty = 0
     
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
-        if self.edi_type == 'INVOIC':
+        if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_invoic').id:
             if self.model_record._name != 'account.invoice':
                 raise ValueError("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record._name),self.model_record._name)
             invoice = self.model_record

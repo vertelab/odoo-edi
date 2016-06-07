@@ -77,12 +77,11 @@ QTY	Kvantitet.
 UNS		Avslutar orderrad.
 UNT		Avslutar ordermeddelandet.
 """ 
-    edi_type = fields.Selection(selection_add=[('DESADV','DESADV')])  
     
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
-        if self.edi_type == 'DESADV':
+        if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_desadv').id:
             if self.model_record._name != 'stock.picking':
                 raise ValueError("DESADV: Attached record is not a stock.pack! {model}".format(model=self.model_record._name),self.model_record._name)
             picking = self.model_record

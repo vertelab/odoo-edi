@@ -23,8 +23,8 @@
       <field name="inherit_id" ref="base.view_partner_form" />
       <field name="arch" type="xml">
         <page name="internal_notes" position="after">
-          <page name="EDI" string="EDI Routes">
-              <field name="route_ids" widget="many2many_tags" />
+          <page name="EDI" string="EDI Types">
+              <field name="edi_type_ids" widget="many2many_tags" />
           </page>
         </page>
         <div name="buttons" position="inside">
