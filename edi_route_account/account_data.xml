@@ -16,7 +16,5 @@
     <record model="edi.route.caller" id="caller_action_move_create">
         <field name="name">account.invoice.action_move_create</field>
     </record>
-    
-    
 </data>
 </openerp>
