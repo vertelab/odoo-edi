@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+        <record id="view_order_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.form.sale.stock</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <data>                
+                   <xpath expr="//button[@name='action_view_invoice']" position="after">
+                       <field name="purchase_ids" invisible="1"/>
+                       <button name="action_view_purchase" string="View Purchase Order" type="object" class="oe_highlight"
+                           attrs="{'invisible': ['|',('purchase_ids','=',False),('purchase_ids','=',[])]}" groups="base.group_user"/>
+                   </xpath>
+                </data>
+           </field>
+        </record>
+
+        <!-- On the customer/supplier form if "Allow a different address for
+        delivery and invoicing" is set add "Contact Details" in the more menu
+        showing the list of contact with their types -->
+<!--
+        <act_window
+            id="res_partner_rule_children"
+            name="Contact Details"
+            context="{'default_parent_id': active_id, 'hide_type': 0}"
+            domain="[('parent_id','=',active_id)]"
+            res_model="res.partner"
+            src_model="res.partner"
+            view_mode="tree,form,kanban"
+            view_type="form"
+            groups="sale.group_delivery_invoice_address"
+            />
+
+        <record id="view_picking_internal_search_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.search.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="before">
+                    <filter string="To Invoice" name="to_invoice" icon="terp-dolar" domain="[('invoice_state', '=', '2binvoiced')]"/>
+                </xpath>
+            </field>
+        </record>
+-->
+
+<!--
+
+        <record id="view_order_form_inherit2" model="ir.ui.view">
+            <field name="name">sale.order.line.form.sale.stock.location</field>
+            <field name="model">sale.order.line</field>
+            <field name="inherit_id" ref="sale.view_order_line_form2"/>
+            <field name="arch" type="xml">
+                <data>
+                   <xpath expr="//field[@name='price_unit']" position="before">
+                       <field name="route_id" groups="sale_stock.group_route_so_lines" />
+                   </xpath>
+                </data>
+           </field>
+        </record>
+        
+        <record id="view_order_line_tree_inherit" model="ir.ui.view">
+            <field name="name">sale.order.line.tree.sale.stock.location</field>
+            <field name="inherit_id" ref="sale.view_order_line_tree"/>
+            <field name="model">sale.order.line</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='price_subtotal']" position="before">
+                    <field name="route_id" groups="sale_stock.group_route_so_lines"/>
+                </xpath>
+            </field>
+        </record>
+-->
+    </data>
+</openerp>

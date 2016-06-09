@@ -23,7 +23,7 @@
     'name': 'Sales and Purshase Management',
     'version': '1.0',
     'category': 'Hidden',
-    'summary': 'Quotation, Sale Orders, Purshase & Invoicing Control',
+    'summary': 'Quotation, Sale Orders, Purchase & Invoicing Control',
     'description': """
 Manage sales quotations and orders
 ==================================
@@ -33,11 +33,9 @@ This module makes the link between the sales and purchase management application
 """,
     'author': 'Vertel AB',
     'website': 'https://www.vertel.se',
-    'depends': ['sale', 'purshase'],
+    'depends': ['sale', 'purchase'],
     'data': [
-        'sale_purshase_view.xml',
-        'sale_purshase_workflow.xml',
-        'purshase_view.xml',
+        'sale_view.xml',
     ],
     'installable': True,
     'auto_install': True,
