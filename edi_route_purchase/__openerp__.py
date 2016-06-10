@@ -20,17 +20,17 @@
 ##############################################################################
 
 {
-    'name': 'EDI Route Stock',
+    'name': 'EDI Route Purchase',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'Connects EDI Route with Stock',
+    'summary': 'Connects EDI Route with Purchase',
     'licence': 'AGPL-3',
     'description': """
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','stock'],
-    'data': ['stock_data.xml',],
+    'depends': ['edi_route','purchase','sale_purchase'],
+    'data': ['purchase_view.xml','purchase_data.xml',],
     'application': False,
     'installable': True,
     'auto_install': True,

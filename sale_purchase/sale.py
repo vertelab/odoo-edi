@@ -28,9 +28,22 @@ class sale_order(models.Model):
     
     @api.one
     def _get_purchase_orders(self):
-        self.purchase_ids = [(6,0,[p.id for p in set(self.env['purchase.order.line'].search([('order_id','=',self.id)]))])]
+        po=set([po.purchase_id.id for po in set([l.procurement_ids for l in self.order_line])])
+        if po:
+            self.purchase_ids = [(6,0,po)]
+        else:
+            self.purchase_ids = None
     purchase_ids = fields.Many2many(comodel_name="purchase.order",compute='_get_purchase_orders')
-    
+    @api.one
+    def _purchase_count(self):
+        #raise Warning(self.purchase_ids,len(self.purchase_ids))
+        if self.purchase_ids and self.purchase_ids[0] and self.purchase_ids[0].id:
+            self.purchase_count = len(self.purchase_ids)
+        else:
+            self.purchase_count = 0
+    purchase_count = fields.Integer(compute='_purchase_count',string="# purchases")
+
+
     
     def action_view_purchase(self, cr, uid, ids, context=None):
         '''
@@ -48,14 +61,15 @@ class sale_order(models.Model):
 
         #compute the number of purchase orders to display
         purchase_ids = []
-        for so in self.browse(cr, uid, ids, context=context):
-            purchase_ids += [p.id for p in so.purchase_ids]
+        pos = self.browse(cr, uid, ids, context=context)
+        for po in pos:
+            purchase_ids += [p.id for p in po.purchase_ids]
             
         #choose the view_mode accordingly
-        if len(self.purchase_ids) > 1:
+        if len(pos) > 0 and len(pos[0].purchase_ids) > 1:
             result['domain'] = "[('id','in',[" + ','.join(map(str, purchase_ids)) + "])]"
-        else:
-            res = mod_obj.get_object_reference(cr, uid, 'purchase', 'view_purchase_form')
+        elif len(pos) > 0 and len(pos[0].purchase_ids) == 1:
+            res = mod_obj.get_object_reference(cr, uid, 'purchase', 'purchase_order_form')
             result['views'] = [(res and res[1] or False, 'form')]
             result['res_id'] = purchase_ids and purchase_ids[0] or False
         return result

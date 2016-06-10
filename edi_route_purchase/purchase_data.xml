@@ -1,0 +1,33 @@
+<openerp>
+<!-- TODO: noupdate=1 -->
+<data>
+    
+    <record model="edi.route.caller" id="wkf_bid_received">
+        <field name="name">purchase.order.wkf_bid_received</field>
+    </record>
+    <record model="edi.route.caller" id="wkf_confirm_order">
+        <field name="name">purchase.order.wkf_confirm_order</field>
+    </record>
+    <record model="edi.route.caller" id="wkf_action_cancel">
+        <field name="name">purchase.order.wkf_action_cancel</field>
+    </record>
+    <record model="edi.route.caller" id="wkf_approve_order">
+        <field name="name">purchase.order.wkf_approve_order</field>
+    </record>
+    <record model="edi.route.caller" id="action_invoice_create">
+        <field name="name">purchase.order.action_invoice_create</field>
+    </record>
+    <record model="edi.route.caller" id="invoice_done">
+        <field name="name">purchase.action_picking_create</field>
+    </record>
+       
+<!--
+    <record model="edi.route.line" id="route_mail_purchase">
+        <field name="name">Mail Purchase order</field>
+        <field name="caller_id" ref="wkf_confirm_order"/>
+        <field name="route_id" ref="edi_route_mail.route_mail"/>
+    </record>
+-->
+    
+</data>
+</openerp>

@@ -58,5 +58,15 @@
             <field name="alias_parent_thread_id" ref="edi_route_mail.mail_route"/>
         </record>
         
+        
+
+    <record model="edi.route" id="route_mail">
+        <field name="name">Mail</field>
+        <field name="partner_id" ref="base.main_partner"/>
+        <field name="route_type">mail</field>
+          <field name="active" eval="True"/>
+    </record>
+
+        
     </data>
 </openerp>
