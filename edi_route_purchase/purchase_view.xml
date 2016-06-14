@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<openerp>
+  <data>
+    <record id="purchase_order_form" model="ir.ui.view">
+      <field name="name">purchase.order.form.edi</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="purchase.purchase_order_form" />
+      <field name="arch" type="xml">
+        <data>
+          <field name="origin" position="after">
+            <field name="route_id" />
+          </field>
+        </data>
+      </field>
+    </record>
+    <!-- res.partner -->
+    <record id="view_partner_form" model="ir.ui.view">
+      <field name="name">res.partner.edi_purchase</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form" />
+      <field name="arch" type="xml">
+        <field name="website" position="after">
+          <field name="purchase_route_id" attrs="{'invisible': [('supplier','=',False)]}" groups="base.group_user" />
+        </field>
+      </field>
+    </record>
+  </data>
+</openerp>
