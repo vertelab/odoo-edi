@@ -41,7 +41,7 @@ class sale_order(models.Model):
     nad_dp = fields.Many2one(comodel_name='res.partner',help="Delivery party, party to which goods should be delivered, if not identical with consignee.")
     unb_sender = fields.Many2one(comodel_name='res.partner')
     unb_recipient = fields.Many2one(comodel_name='res.partner')
-  
+    dtm_delivery = fields.Date('Delivery Date', help='Date from DTM with code 2.')
 
 
     #~ def _edi_message_create(self, edi_type):

@@ -31,6 +31,13 @@ class edi_envelope(models.Model):
     
     route_type = fields.Selection(selection_add=[('esap20','ESAP 20')])
     
+    @api.model
+    def _get_edi_type_id(self, edi_type):
+        t = self.env['edi.message.type'].search([('name', '=', edi_type)])
+        if not t:
+            t = self.env.ref('edi_route.edi_message_type_plain')
+        return t.id
+    
     @api.multi
     def _fold(self,route): # Folds messages in an envelope
         envelope = super(edi_envelope, self)._fold(route)
@@ -72,7 +79,7 @@ class edi_envelope(models.Model):
                         'name': edi_type,
                         'envelope_id': self.id,
                         'body': base64.b64encode(str(message)),
-                        'edi_type': edi_type,
+                        'edi_type': self._get_edi_type_id(edi_type),
                         'sender': self.sender.id,
                         'recipient': self.recipient.id,
                         'route_type': self.route_id.route_type,
@@ -147,6 +154,7 @@ class edi_message(models.Model):
     
     def _get_contract(self, ref):
         contract = self.env['account.analytic.account'].search([('code', '=', ref)])
+        _logger.warn('\n\n_get_contract %s %s' % (contract, contract.id))
         if contract:
             return contract.id
     
@@ -210,9 +218,9 @@ class edi_message(models.Model):
             dt = fields.Datetime.now()
         dt = fields.Datetime.from_string(dt)
         if format == 102:
-            dt = dt.strftime('%Y%M%d')
+            dt = dt.strftime('%Y%m%d')
         elif format == 203:
-            dt = dt.strftime('%Y%M%d%H%M')
+            dt = dt.strftime('%Y%m%d%H%M')
         return "DTM+%s:%s:%s'" % (func_code, dt, format)
 
     def FTX(self, msg1, msg2='', msg3='', msg4='', msg5='', subj='ZZZ', func=1, ref='001'):
@@ -230,6 +238,7 @@ class edi_message(models.Model):
         # CR    Customer reference
         # AAS   Transport document number, Reference assigned by the carrier or his agent to the transport document.
         # CT    Contract Number
+        # DQ 	Delivery note number
         self._seg_count += 1
         if line:
             return "RFF+%s:%s:%s'" % (qualifier, ref, line)

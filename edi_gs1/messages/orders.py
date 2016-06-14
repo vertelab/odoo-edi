@@ -76,10 +76,8 @@ UNT		Avslutar ordermeddelandet.
         super(edi_message, self)._unpack()
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_orders').id:
             segment_count = 0
-            delivery_dt = None
             #Delivered by?
             delivery_prom_dt = None
-            #Message sent date?
             doc_dt = None
             order_values = {
                 #'edi_type': 'esap20',
@@ -94,16 +92,12 @@ UNT		Avslutar ordermeddelandet.
                 _logger.warn('segment: %s' % segment)
                 #Begin Message
                 if segment[0] == 'BGM':
-                    self.name = segment[2]
                     order_values['client_order_ref'] = segment[2]
                 #Datetime
                 elif segment[0] == 'DTM':
                     function = segment[1][0]
                     if function == '2':
-                        delivery_dt = self._parse_date(segment[1])
-                    elif function == '69':
-                        #Is this the correct date to use???
-                        order_values['date_order'] = self._parse_date(segment[1])
+                        order_values['dtm_delivery'] = self._parse_date(segment[1])
                     elif function == '137':
                         doc_dt = self._parse_date(segment[1])
                 elif segment[0] == 'NAD':
@@ -148,8 +142,8 @@ UNT		Avslutar ordermeddelandet.
                     #GN Government Reference Number
                     #VA VAT registration number
                     # CT Contract number
-                    if segment[1] == 'CT':
-                        contract = self._get_contract(segment[2])
+                    if len(segment[1]) > 1 and segment[1][0] == 'CT':
+                        contract = self._get_contract(segment[1][1])
                         if contract:
                             order_values['project_id'] = contract
                 #End of message

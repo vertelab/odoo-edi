@@ -111,6 +111,14 @@ UNT		Avslutar ordermeddelandet.
     
     _edi_lines_tot_qty = 0
     
+    def _get_line_nr(self, order, inv_line):
+        line_nr = 0
+        for line in order.order_line:
+            line_nr += 10
+            if inv_line in line.invoice_lines:
+                return line_nr
+        raise ValueError("Invoice line (id: %s) not found in order %s." % (inv_line.id, order.name))
+    
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
@@ -118,10 +126,9 @@ UNT		Avslutar ordermeddelandet.
             if self.model_record._name != 'account.invoice':
                 raise ValueError("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record._name),self.model_record._name)
             invoice = self.model_record
-            msg = self.UNH(self.edi_type,ass_code='EAN008')
+            msg = self.UNH('INVOIC',ass_code='EAN008')
             #280 = 	Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
             #9 = Original - Initial transmission related to a given transaction.
-            _logger.warn(invoice.name)
             msg += self.BGM(380, invoice.name, 9)
             
             #Dates
@@ -163,7 +170,6 @@ UNT		Avslutar ordermeddelandet.
             msg += self.NAD_SU()
             if not self.consignor_id and not self.consignor_id.vat:
                 msg += self.RFF(self.consignor_id.vat, 'VA')
-            msg += self.RFF(self.consignor_id.company_registry, 'GN')
             
             msg += self.NAD_CN()
             #CUX Currency
@@ -190,7 +196,7 @@ UNT		Avslutar ordermeddelandet.
                 msg += self.PRI(line.price_unit)
                 #Reference to invoice. Again?
                 if invoice._get_order():
-                    msg += self.RFF(invoice._get_order().client_order_ref, 'ON', self._lin_count * 10)
+                    msg += self.RFF(invoice._get_order().client_order_ref, 'ON', self._get_line_nr(invoice._get_order(), line))
                 #Justification for tax exemption
                 #TAX
             msg += self.UNS()

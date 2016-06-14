@@ -47,21 +47,27 @@ class stock_picking(models.Model):
 
     def _get_route(self):
         #raise Warning(self.group_id)
-        routes = [o.route_id for o in self.env['sale.order'].search([('procurement_group_id','=',self.group_id.id)])]
+        routes = [o.route_id for o in self.env['sale.order'].search([('procurement_group_id', '=', self.group_id.id)])]
         return routes and routes[0] or None
-
+    
+    def _get_order(self):
+        orders = self.env['sale.order'].search([('procurement_group_id', '=', self.group_id.id)])
+        if len(orders)>0:
+            return orders[0]
+        return None
+    
     @api.model
     def create(self, vals):
         picking =  super(stock_picking,self).create(vals)
         if picking and picking._get_route():
-            picking._get_route().edi_action('stock.picking.create',picking=picking)
+            picking._get_route().edi_action('stock.picking.create', picking=picking)
         return picking
     @api.multi
     def action_cancel(self):
         res =  super(stock_picking,self).action_cancel()
         for picking in self:
             if picking._get_route():
-                picking._get_route().edi_action('stock.picking.action_cancel',picking=picking,res=res)
+                picking._get_route().edi_action('stock.picking.action_cancel', picking=picking,res=res)
         return res
     @api.multi
     def action_confirm(self):

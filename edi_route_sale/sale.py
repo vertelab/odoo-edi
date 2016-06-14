@@ -50,10 +50,12 @@ class sale_order(models.Model):
         return res
     @api.multi
     def action_button_confirm(self):
-        res = super(sale_order,self).action_button_confirm() 
+        res = super(sale_order,self).action_button_confirm()
+        _logger.warn("\n\naction_button_confirm begin: %s, %s\n\n" % (res, self.picking_ids))
         for order in self:
             if order.route_id:
                 order.route_id.edi_action('sale.order.action_button_confirm',order=order,res=res)
+        _logger.warn("\n\naction_button_confirm done!\n\n")
         return res
     @api.multi
     def action_wait(self):
@@ -72,9 +74,11 @@ class sale_order(models.Model):
     @api.multi
     def action_ship_create(self):
         res =  super(sale_order,self).action_ship_create()
+        _logger.warn("\n\naction_ship_create %s\n\n" % res)
         for order in self:
             if order.route_id:
                 order.route_id.edi_action('sale.order.action_ship_create',order=order,picking=[p for p in order.picking_ids][0],res=res)
+        _logger.warn("\n\naction_ship_create done\n\n")
         return res
     @api.multi
     def action_invoice_create(self, grouped=False, states=None, date_invoice = False):

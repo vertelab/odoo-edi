@@ -91,7 +91,7 @@ UNT		Avslutar ordermeddelandet.
             if self.model_record._name != 'sale.order':
                 raise ValueError("ORDRSP: Attached record is not a sale.order! {model}".format(model=self.model_record._name),self.model_record._name)
             status = _check_order_status(self.model_record)
-            msg = self.UNH(self.edi_type)
+            msg = self.UNH('ORDRSP')
             msg += self.BGM(231, self.model_record.name, status=status)
             msg += self.DTM(137,dt=self.model_record.date_order)  # sale.order date?
             #Another DTM?

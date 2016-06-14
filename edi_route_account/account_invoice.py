@@ -28,9 +28,6 @@ _logger = logging.getLogger(__name__)
 class account_invoice(models.Model):
     _inherit = "account.invoice"
 
-    picking_ids = fields.Many2many(string='Stock picking', comodel_name='stock.picking')
-#    order_id = fields.Many2one(string='Sale order', comodel_name='sale.order')
-
     def _get_route(self): 
         _logger.info("_get route account %s" % self)
         orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
@@ -38,7 +35,7 @@ class account_invoice(models.Model):
             return orders[0].route_id
         return None
 
-    def _get_order(self): 
+    def _get_order(self):
         _logger.info("_get order account %s" % self)
         orders = self.env['sale.order'].search([('invoice_ids','in',self.id)])
         if len(orders)>0:
