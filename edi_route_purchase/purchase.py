@@ -27,7 +27,7 @@ _logger = logging.getLogger(__name__)
 class purchase_order(models.Model):
     _inherit = "purchase.order"
     
-    route_id = fields.Many2one(comodel_name="edi.route")
+    purchase_route_id = fields.Many2one(comodel_name="edi.route")
     
     @api.one
     def _message_count(self):
@@ -48,13 +48,17 @@ class purchase_order(models.Model):
 
 
     def _get_route(self):
-        #raise Warning(self.group_id)
-        routes = [o.route_id for o in self.env['sale.order'].search([('procurement_group_id','=',self.group_id.id)])]
-        routes += [self.route_id]
-        return routes and routes or None
+        routes = []
+        for procurement in self.env['procurement.order'].search([('purchase_id', '=', self.id)]):
+            routes += [o.route_id for o in self.env['sale.order'].search([('procurement_group_id', '=', procurement.group_id.id)])]
+        if self.purchase_route_id:
+            routes += [self.purchase_route_id]
+        return routes and list(set(routes)) or []
 
     @api.model
     def create(self, vals):
+        if vals.get('date_order') and vals.get('date_order') < fields.Date.today():
+            vals['date_order'] = fields.Date.today()
         purchase = super(purchase_order,self).create(vals)
         if not purchase.purchase_route_id:
             if purchase.partner_id.purchase_route_id:

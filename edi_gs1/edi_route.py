@@ -415,5 +415,7 @@ class edi_message(models.Model):
     @api.model
     def _parse_date(self, l):
         if l[2] == '102':
-            return fields.Datetime.to_string(datetime.strptime(l[1], '%Y%m%d'))        
+            return fields.Datetime.to_string(datetime.strptime(l[1], '%Y%m%d'))
+        elif l[2] == '203':
+            return fields.Datetime.to_string(datetime.strptime(l[1], '%Y%m%d%H%M'))
 

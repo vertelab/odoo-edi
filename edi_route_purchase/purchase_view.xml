@@ -8,7 +8,7 @@
       <field name="arch" type="xml">
         <data>
           <field name="origin" position="after">
-            <field name="route_id" />
+            <field name="purchase_route_id" />
           </field>
         </data>
       </field>

@@ -6,7 +6,6 @@
       <field name="model">sale.order</field>
       <field name="inherit_id" ref="sale.view_order_form" />
       <field name="arch" type="xml">
-        <data>
 <!--
           <xpath expr="//button[@name='action_view_invoice']" position="after">
             <field name="purchase_ids" invisible="1" />
@@ -20,8 +19,18 @@
               </button>
             </div>
           </xpath>
-        </data>
       </field>
+    </record>
+    
+    <record id="view_purchase_order_tree_inherit" model="ir.ui.view">
+        <field name="name">purchase.order.tree.sale.stock</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_tree" />
+        <field name="arch" type="xml">
+            <tree position="attributes">
+                <attribute name="colors">grey:state=='cancel';blue:state in ('wait','confirmed','approved','done');red:state in ('except_invoice','except_picking')</attribute>
+            </tree>
+        </field>
     </record>
     <!-- On the customer/supplier form if "Allow a different address for
          delivery and invoicing" is set add "Contact Details" in the more menu

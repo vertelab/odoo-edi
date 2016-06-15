@@ -28,22 +28,25 @@ class sale_order(models.Model):
     
     @api.one
     def _get_purchase_orders(self):
-        po=set([po.purchase_id.id for po in set([l.procurement_ids for l in self.order_line])])
+        po = self.env['purchase.order']
+        for l in self.order_line:
+            for procurement in l.procurement_ids:
+                po = po | procurement.purchase_id
         if po:
-            self.purchase_ids = [(6,0,po)]
+            self.purchase_ids = po
         else:
             self.purchase_ids = None
-    purchase_ids = fields.Many2many(comodel_name="purchase.order",compute='_get_purchase_orders')
+    purchase_ids = fields.Many2many(comodel_name="purchase.order", compute='_get_purchase_orders')
+    
+    @api.depends('purchase_ids')
     @api.one
     def _purchase_count(self):
         #raise Warning(self.purchase_ids,len(self.purchase_ids))
-        if self.purchase_ids and self.purchase_ids[0] and self.purchase_ids[0].id:
+        if self.purchase_ids:
             self.purchase_count = len(self.purchase_ids)
         else:
             self.purchase_count = 0
-    purchase_count = fields.Integer(compute='_purchase_count',string="# purchases")
-
-
+    purchase_count = fields.Integer(compute='_purchase_count', string="# purchases")
     
     def action_view_purchase(self, cr, uid, ids, context=None):
         '''

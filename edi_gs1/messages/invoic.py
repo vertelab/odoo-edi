@@ -129,7 +129,7 @@ UNT		Avslutar ordermeddelandet.
             msg = self.UNH('INVOIC',ass_code='EAN008')
             #280 = 	Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
             #9 = Original - Initial transmission related to a given transaction.
-            msg += self.BGM(380, invoice.name, 9)
+            msg += self.BGM(380, invoice.number, 9)
             
             #Dates
             #Document date
