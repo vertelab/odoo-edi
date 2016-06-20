@@ -185,13 +185,13 @@ class edi_message(models.Model):
         # BGM+351+SO069412+9'
         self._seg_count += 1
         if doc_code == 220: # Resp agency = EAN/GS1 (9),
-            return "BGM+220::9+{doc_no}'".format(doc_no=_escape_string(doc_no))
+            return "BGM+220+{doc_no}'".format(doc_no=_escape_string(doc_no))
         elif doc_code == 231: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
-            return "BGM+231::9+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), status = status)
+            return "BGM+231+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), status = status)
         elif doc_code == 280: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
-            return "BGM+280::9+{doc_no}+9'".format(doc_no=_escape_string(doc_no)) 
+            return "BGM+280+{doc_no}+9'".format(doc_no=_escape_string(doc_no)) 
         elif doc_code == 380: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
-            return "BGM+380::9+{doc_no}+9'".format(doc_no=_escape_string(doc_no)) 
+            return "BGM+380+{doc_no}+9'".format(doc_no=_escape_string(doc_no)) 
         elif doc_code == 351:
             return "BGM+351+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
         #return "BGM+{code}::{}+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), code=doc_code, status=status)

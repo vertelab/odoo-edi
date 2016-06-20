@@ -168,7 +168,7 @@ UNT		Avslutar ordermeddelandet.
                 msg += self.RFF(self.consignee_id.vat, 'VA')
 
             msg += self.NAD_SU()
-            if not self.consignor_id and not self.consignor_id.vat:
+            if self.consignor_id and self.consignor_id.vat:
                 msg += self.RFF(self.consignor_id.vat, 'VA')
             
             msg += self.NAD_CN()
