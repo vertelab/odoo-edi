@@ -88,7 +88,7 @@ UNT		Avslutar ordermeddelandet.
             msg = self.UNH('ORDRSP')
             msg += self.BGM(231, order.name, status=status)
             msg += self.DTM(137, format=203)  # Order Response Date
-            msg += self.DTM(76, dt=order.date_order) # Planned Delivery Date
+            msg += self.DTM(76, dt=order.date_order, format=203) # Planned Delivery Date
             #FTX?
             msg += self.RFF(order.client_order_ref, 'ON')
             msg += self.NAD_BY()
@@ -102,16 +102,15 @@ UNT		Avslutar ordermeddelandet.
                     cnt_amount += line.product_uom_qty
                     msg += self.LIN(line)
                     msg += self.PIA(line.product_id, 'SA')
-                    # No quantity reported if line was refused
-                    if line.product_uom_qty != 0:
-                        msg += self.QTY(line)
+                    msg += self.QTY(line)
                     msg += self.QVR(line)
                     msg += self.RFF(order.client_order_ref, 'ON', self._lin_count * 10)
                 else:
                     self._lin_count += 1
             msg += self.UNS()
-            msg += self.CNT(1, cnt_amount)
-            msg += self.CNT(2, cnt_lines)
+            if cnt_lines > 0:
+                msg += self.CNT(1, cnt_amount)
+                msg += self.CNT(2, cnt_lines)
             msg += self.UNT()
         
         #Ordererkännande

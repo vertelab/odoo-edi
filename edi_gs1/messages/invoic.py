@@ -133,7 +133,7 @@ UNT		Avslutar ordermeddelandet.
             
             #Dates
             #Document date
-            msg += self.DTM(137)
+            msg += self.DTM(137, format=203)
             #Actual delivery date
             for picking in invoice.picking_ids:  # same as despatch-date
                 msg += self.DTM(35, picking.date_done)
@@ -144,11 +144,6 @@ UNT		Avslutar ordermeddelandet.
             #msg += self.DTM(167)
             #msg += self.DTM(168, invoice.date_due)
             
-            #Invoice reference
-            #Probably ref to another invoice. Credit invoice?
-            #msg += self.RFF(invoice.name, 'IV')
-            #Pricelist
-            #msg += ...
             #Contract reference
             if invoice._get_order() and invoice._get_order().project_id and invoice._get_order().project_id.code:
                 msg += self.RFF(invoice._get_order().project_id.code, 'CT')
@@ -171,7 +166,7 @@ UNT		Avslutar ordermeddelandet.
             if self.consignor_id and self.consignor_id.vat:
                 msg += self.RFF(self.consignor_id.vat, 'VA')
             
-            msg += self.NAD_CN()
+            #~ msg += self.NAD_CN()
             #CUX Currency
             msg += self.PAT()
             msg += self.DTM(13, invoice.date_due)

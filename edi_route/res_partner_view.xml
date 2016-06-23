@@ -26,9 +26,9 @@
           <page name="EDI" string="EDI Types">
               <field name="edi_type_ids" widget="many2many_tags" />
               <field name="edi_application_lines">
-                <tree>
+                <tree editable="1">
                     <field name="name" />
-                    <field name="edi_message_type_id" />
+                    <field name="edi_type" />
                 </tree>
               </field>
           </page>

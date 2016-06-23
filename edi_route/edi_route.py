@@ -22,7 +22,9 @@ from openerp import models, fields, api, _
 from pytz import timezone
 import base64
 from openerp.exceptions import except_orm, Warning, RedirectWarning
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
+import time
+import dateutil
 from time import strptime, mktime, strftime
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.tools.safe_eval import safe_eval as eval
@@ -445,7 +447,7 @@ class edi_route(models.Model):
                     #Sort by application if they exist
                     for app in recipient.edi_application_lines:
                         msg_ids = []
-                        for msg in messages.filtered(lambda msg: msg.edi_type == app.edi_message_id and msg.recipient == recipient):
+                        for msg in messages.filtered(lambda msg: msg.edi_type == app.edi_type and msg.recipient == recipient):
                             msg.pack()
                             msg_ids.append(msg.id)
                         if msg_ids:
@@ -463,8 +465,8 @@ class edi_route(models.Model):
                     
                     #Handle all messages not covered by applications
                     msg_ids = []
-                    app_msg_ids = [app.edi_message_id.id for app in recipient.edi_application_lines]
-                    for msg in messages.filtered(lambda msg: msg.recipient == recipient and msg.edi_type.id not in app_msg_ids):
+                    app_type_ids = [app.edi_type.id for app in recipient.edi_application_lines]
+                    for msg in messages.filtered(lambda msg: msg.recipient == recipient and msg.edi_type.id not in app_type_ids):
                         msg.pack()
                         msg_ids.append(msg.id)
                     if msg_ids:
@@ -667,9 +669,9 @@ class edi_route_lines(models.Model):
         import openerp
         values.update({
             # python libs
-            #~ 'time': time,
-            #~ 'datetime': datetime,
-            #~ 'dateutil': dateutil,
+            'time': time,
+            'datetime': datetime,
+            'dateutil': dateutil,
             #~ # NOTE: only `timezone` function. Do not provide the whole `pytz` module as users
             #~ #       will have access to `pytz.os` and `pytz.sys` to do nasty things...
             #~ 'timezone': pytz.timezone,
@@ -688,8 +690,8 @@ class edi_route_caller(models.Model):
 class edi_application_line(models.Model):
     _name = 'edi.application.line'
 
-    name = fields.Char('name')
-    edi_message_id = fields.Many2one('edi.message.type')
-    partner_id = fields.Many2one('res.partner')
+    name = fields.Char('Application Reference')
+    edi_type = fields.Many2one('edi.message.type', required=True)
+    partner_id = fields.Many2one('res.partner', required=True)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
