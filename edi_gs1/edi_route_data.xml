@@ -16,7 +16,9 @@
         <record id="edi_message_type_invoic" model="edi.message.type">
             <field name="name">INVOIC</field>
         </record>
-
+        <record id="edi_message_type_repord" model="edi.message.type">
+            <field name="name">REPORD</field>
+        </record>
 
 </data>
 </openerp>

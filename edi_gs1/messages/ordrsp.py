@@ -27,18 +27,10 @@ import logging
 _logger = logging.getLogger(__name__)
 
 def _check_order_status(order):
-    edited = 0
-    zeroed = 0
     for line in order.order_line:
-        if line.product_uom_qty == 0:
-            zeroed += 1
         if line.product_uom_qty != line.order_qty:
-            edited += 1
-    if zeroed == len(order.order_line):
-        return 27
-    elif edited + zeroed > 0:
-        return 4
-    return 0 #TODO: find correct code
+            return 4
+    return 29 #TODO: find correct code
 
 
 class edi_message(models.Model):
@@ -86,36 +78,52 @@ UNT		Avslutar ordermeddelandet.
         _logger.warn('pack ORDRSP')
         super(edi_message, self)._pack()
         msg = None
+        #Orderbekräftelse
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
             _logger.warn('mode_record: %s' % self.model_record)
             if self.model_record._name != 'sale.order':
                 raise ValueError("ORDRSP: Attached record is not a sale.order! {model}".format(model=self.model_record._name),self.model_record._name)
-            status = _check_order_status(self.model_record)
+            order = self.model_record
+            status = _check_order_status(order)
             msg = self.UNH('ORDRSP')
-            msg += self.BGM(231, self.model_record.name, status=status)
-            msg += self.DTM(137,dt=self.model_record.date_order)  # sale.order date?
-            #Another DTM?
+            msg += self.BGM(231, order.name, status=status)
+            msg += self.DTM(137, format=203)  # Order Response Date
+            msg += self.DTM(76, dt=order.date_order) # Planned Delivery Date
             #FTX?
-            msg += self.RFF(self.model_record.client_order_ref)
+            msg += self.RFF(order.client_order_ref, 'ON')
             msg += self.NAD_BY()
             msg += self.NAD_SU()
-            for line in self.model_record.order_line:
-                msg += self.LIN(line)
-                msg += self.PIA(line.product_id, 'SA')
-                #Required?
-                #msg += self._create_PIA_segment(line.product_id, 'BP')
-                msg += self.QTY(line)
+            cnt_lines = 0
+            cnt_amount = 0
+            for line in order.order_line:
+                # Only send lines that have changes
+                if line.product_uom_qty != line.order_qty:
+                    cnt_lines += 1
+                    cnt_amount += line.product_uom_qty
+                    msg += self.LIN(line)
+                    msg += self.PIA(line.product_id, 'SA')
+                    # No quantity reported if line was refused
+                    if line.product_uom_qty != 0:
+                        msg += self.QTY(line)
+                    msg += self.QVR(line)
+                    msg += self.RFF(order.client_order_ref, 'ON', self._lin_count * 10)
+                else:
+                    self._lin_count += 1
             msg += self.UNS()
+            msg += self.CNT(1, cnt_amount)
+            msg += self.CNT(2, cnt_lines)
             msg += self.UNT()
+        
+        #Ordererkännande
         elif self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_orderk').id:
             _logger.warn('mode_record: %s' % self.model_record)
             if self.model_record._name != 'sale.order':
                 raise Warning("ORDRSP: Attached record is not a sale.order!")
             msg =  self.UNH(edi_type='ORDRSP')
             msg += self.BGM(231, self.model_record.name, 12)
-            msg += self.DTM(137)
             msg += self.DTM(137,format=203)
-            msg += self.FTX('')
+            if self.model_record.note:
+                msg += self.FTX(self.model_record.note)
             msg += self.RFF(self.model_record.client_order_ref or '', 'ON')
             msg += self.NAD_BY()
             msg += self.NAD_SU()
@@ -199,6 +207,6 @@ UNT		Avslutar ordermeddelandet.
                     #create order
                     order = self.env['sale.order'].create(order_values)
                     self.model = order._name
-                    self.res_id = ordet.id
+                    self.res_id = order.id
         else:
             super(edi_message, self)._unpack()

@@ -49,7 +49,8 @@ class res_partner(models.Model):
             if partner.parent_id.parent_id:
                 types += [t.id for t in partner.parent_id.parent_id.edi_type_ids]
         return set(types)
-
+    
+    edi_application_lines = fields.One2many('edi.application.line', 'partner_id', 'EDI Applications')
 
 from openerp import http
 from openerp.http import request

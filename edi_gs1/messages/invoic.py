@@ -209,7 +209,7 @@ UNT		Avslutar ordermeddelandet.
             #Small change roundoff
             #self.msg += self.MOA()
             #Sum of all line items
-            msg += self.MOA(invoice.amount_total, 79)
+            msg += self.MOA(invoice.amount_untaxed, 79)
             #Total taxable amount
             msg += self.MOA(invoice.amount_untaxed, 125)
             #Total taxes
@@ -222,12 +222,12 @@ UNT		Avslutar ordermeddelandet.
             #self.msg += self.TAX()
             #self.msg += self.MOA()
             #self.msg += self.MOA()
-            #Tax subtotals
-            if invoice.amount_tax > 0 and invoice.amount_total > 0:
-                msg += self.TAX('%.2f' % (invoice.amount_tax / invoice.amount_total),category='M')
-            #msg += self.MOA(invoice.amount_tax, 150)  # Value added tax 	[5490] Amount in national currency resulting from the application, at the appropriate rate, of value added tax (or similar tax) to the invoice amount subject to such tax.
-            msg += self.MOA(sum([l.base_amount for l in invoice.tax_line]), 125)   # Taxable amount
-            msg += self.MOA(invoice.amount_tax, 124)  # Tax amount . Tax imposed by government or other official authority related to the weight/volume charge or valuation charge.
+            #TAX-MOA-MOAs
+            for tax_line in invoice.tax_line:
+                tax = self._get_account_tax(tax_line.name)
+                msg += self.TAX(tax.amount * 100, tax_type = tax.gs1_tax_type, category = tax.gs1_tax_category)
+                msg += self.MOA(tax_line.base_amount, 125)   # Taxable amount
+                msg += self.MOA(tax_line.tax_amount, 124)  # Tax amount . Tax imposed by government or other official authority related to the weight/volume charge or valuation charge.
             msg += self.UNT()
             self.body = base64.b64encode(msg.encode('utf-8'))
 

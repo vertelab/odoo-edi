@@ -104,6 +104,7 @@ and moved forward to related documents using rules in edi.route. (may be base.ac
         'account_invoice_data.xml',
         'stock_view.xml',
         'stock_data.xml',
+        'account_tax_view.xml',
     ],
     'application': False,
     'installable': True,

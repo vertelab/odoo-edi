@@ -99,7 +99,7 @@ UNT		Avslutar ordermeddelandet.
                     if function == '2':
                         order_values['date_order'] = self._parse_date(segment[1])
                         if segment[1][2] == '102':
-                            order_values['date_order'] = fields.Datetime.context_timestamp(order_values['date_order'][:11] + '15' + order_values['date_order'][13:])
+                            order_values['date_order'] = order_values['date_order'][:11] + '15' + order_values['date_order'][13:]
                     elif function == '137':
                         doc_dt = self._parse_date(segment[1])
                 elif segment[0] == 'NAD':

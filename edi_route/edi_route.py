@@ -36,6 +36,7 @@ class edi_envelope(models.Model):
     _inherit = ['mail.thread']
 
     name = fields.Char(string="Name",required=True)
+    application = fields.Char('Application')
     sender = fields.Many2one(comodel_name='res.partner', string='Interchange Sender')
     recipient = fields.Many2one(comodel_name='res.partner', string='Interchange Recipient')
     @api.model
@@ -215,21 +216,21 @@ class edi_message(models.Model):
     _inherit = ['mail.thread']
 
     name = fields.Char(string="Name",required=True)
-    envelope_id = fields.Many2one(comodel_name='edi.envelope',required=False)
-    consignor_id = fields.Many2one(comodel_name='res.partner',required=False,string="Consignor",help="Consignor - the party sending the goods.")
-    consignee_id = fields.Many2one(comodel_name='res.partner',required=False,string="Consignee",help="Consignee - the party receiving the goods.")
+    envelope_id = fields.Many2one(comodel_name='edi.envelope', required=False)
+    consignor_id = fields.Many2one(comodel_name='res.partner', required=False, string="Consignor", help="Consignor - the party sending the goods.")
+    consignee_id = fields.Many2one(comodel_name='res.partner', required=False, string="Consignee", help="Consignee - the party receiving the goods.")
     sender = fields.Many2one(comodel_name='res.partner', string='Interchange Sender')
     recipient = fields.Many2one(comodel_name='res.partner', string='Interchange Recipient')
-    forwarder_id = fields.Many2one(comodel_name='res.partner',string="Forwarder",help="Forwarder - the party planning the transport on behalf of the consignor or consignee.")
-    carrier_id = fields.Many2one(comodel_name='res.partner',string="Carrier",help="Carrier - the party transporting the goods between two points.")
+    forwarder_id = fields.Many2one(comodel_name='res.partner', string="Forwarder", help="Forwarder - the party planning the transport on behalf of the consignor or consignee.")
+    carrier_id = fields.Many2one(comodel_name='res.partner', string="Carrier", help="Carrier - the party transporting the goods between two points.")
     body = fields.Binary()
     model = fields.Char(string="Model")
     res_id = fields.Integer()
     to_import = fields.Boolean(default=False)
     to_export = fields.Boolean(default=False)
     route_id = fields.Many2one(comodel_name="edi.route")
-    route_type = fields.Selection(selection=[('plain','Plain')],default='plain')
-    edi_type = fields.Many2one(comodel_name='edi.message.type',string="Edi Type")
+    route_type = fields.Selection(selection=[('plain','Plain')], default='plain')
+    edi_type = fields.Many2one(comodel_name='edi.message.type', string="Edi Type")
 
     @api.one
     def unpack(self):
@@ -435,24 +436,48 @@ class edi_route(models.Model):
     def fold(self): # Folds messages in an envelope
         envelopes = []
         
-        for route in self:        
-            messages = self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)])
-            if len(messages)>0:
-                _logger.error('EDI Fold Route %s Messages %s ' % (route.name,messages))
+        for route in self:
+            messages = self.env['edi.message'].search([('envelope_id', '=', None), ('route_id', '=', route.id)])
+            if len(messages) > 0:
+                _logger.error('EDI Fold Route %s Messages %s ' % (route.name, messages))
                 for recipient in set(messages.mapped(lambda msg: msg.recipient)):
-                    _logger.error('EDI Fold Route %s type %s Recipient %s ' % (route.name,route.route_type,recipient))
-                    envelope = self.env['edi.envelope'].create({
+                    _logger.error('EDI Fold Route %s type %s Recipient %s ' % (route.name, route.route_type, recipient))
+                    #Sort by application if they exist
+                    for app in recipient.edi_application_lines:
+                        msg_ids = []
+                        for msg in messages.filtered(lambda msg: msg.edi_type == app.edi_message_id and msg.recipient == recipient):
+                            msg.pack()
+                            msg_ids.append(msg.id)
+                        if msg_ids:
+                            envelope = self.env['edi.envelope'].create({
+                                'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
+                                'route_id': route.id,
+                                'route_type': route.route_type,
+                                'recipient': recipient.id,
+                                'sender': self.env.ref('base.main_partner').id,
+                                'application': app.name,
+                                'edi_message_ids': [(6, 0, msg_ids)]
+                            })
+                            envelope.fold()
+                            envelopes.append(envelope)
+                    
+                    #Handle all messages not covered by applications
+                    msg_ids = []
+                    app_msg_ids = [app.edi_message_id.id for app in recipient.edi_application_lines]
+                    for msg in messages.filtered(lambda msg: msg.recipient == recipient and msg.edi_type.id not in app_msg_ids):
+                        msg.pack()
+                        msg_ids.append(msg.id)
+                    if msg_ids:
+                        envelope = self.env['edi.envelope'].create({
                             'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
                             'route_id': route.id,
                             'route_type': route.route_type,
                             'recipient': recipient.id,
                             'sender': self.env.ref('base.main_partner').id,
-                            })
-                    for msg in messages.filtered(lambda msg: msg.recipient == recipient):
-                        msg.pack()
-                        msg.envelope_id = envelope.id
-                    envelope.fold()
-                    envelopes.append(envelope)
+                            'edi_message_ids': [(6, 0, msg_ids)]
+                        })
+                        envelope.fold()
+                        envelopes.append(envelope)
         return envelopes
     @api.one
     def put_file(self,file):
@@ -480,37 +505,35 @@ class edi_route(models.Model):
                     envelope.state = 'canceled'
         except ValueError as e:
             id = self.env['mail.message'].create({
-                    'body': _("Route %s type %s Value Error %s\n" % (self.name,self.route_type,e)),
+                    'body': _("Route %s type %s Value Error %s\n" % (self.name, self.route_type, e)),
                     'subject': "ValueError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.name,self.route_type,e))
-            #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
+            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         except TypeError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s Type Error %s\n" % (self.name,self.route_type,e)),
+                    'body': _("Route %s type %s Type Error %s\n" % (self.name, self.route_type, e)),
                     'subject': "TypeError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.name,self.route_type,e))
+            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.name, self.route_type, e))
             raise Warning('EDI TypeError in split %s' % e)
         except IOError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s IOError %s\n" % (self.name,self.route_type,e)),
+                    'body': _("Route %s type %s IOError %s\n" % (self.name, self.route_type, e)),
                     'subject': "IOError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.name,self.route_type,e))
-            #raise Warning('EDI IOError in split %s' % e)
+            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         else:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s %s messages created\n" % (self.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
+                    'body': _("Route %s type %s %s messages created\n" % (self.name, self.route_type, 'ok')), #len(self.edi_messages_ids))),
                     'subject': "Success",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
@@ -524,37 +547,35 @@ class edi_route(models.Model):
             envelopes = self._run_in()
         except ValueError as e:
             id = self.env['mail.message'].create({
-                    'body': _("Route %s type %s Value Error %s\n" % (self.name,self.route_type,e)),
+                    'body': _("Route %s type %s Value Error %s\n" % (self.name, self.route_type, e)),
                     'subject': "ValueError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.name,self.route_type,e))
-            #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
+            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         except TypeError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s Type Error %s\n" % (self.name,self.route_type,e)),
+                    'body': _("Route %s type %s Type Error %s\n" % (self.name, self.route_type, e)),
                     'subject': "TypeError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.name,self.route_type,e))
+            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.name, self.route_type, e))
             raise Warning('EDI TypeError in split %s' % e)
         except IOError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s IOError %s\n" % (self.name,self.route_type,e)),
+                    'body': _("Route %s type %s IOError %s\n" % (self.name, self.route_type, e)),
                     'subject': "IOError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.name,self.route_type,e))
-            #raise Warning('EDI IOError in split %s' % e)
+            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         else:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s %s messages crceated\n" % (self.name,self.route_type,'ok')), #len(self.edi_messages_ids))),
+                    'body': _("Route %s type %s %s messages crceated\n" % (self.name, self.route_type, 'ok')), #len(self.edi_messages_ids),
                     'subject': "Success",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
@@ -664,5 +685,11 @@ class edi_route_caller(models.Model):
 
     name = fields.Char('name')
 
+class edi_application_line(models.Model):
+    _name = 'edi.application.line'
+
+    name = fields.Char('name')
+    edi_message_id = fields.Many2one('edi.message.type')
+    partner_id = fields.Many2one('res.partner')
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

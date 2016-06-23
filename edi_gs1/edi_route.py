@@ -39,14 +39,14 @@ class edi_envelope(models.Model):
         return t.id
     
     @api.multi
-    def _fold(self,route): # Folds messages in an envelope
+    def _fold(self, route): # Folds messages in an envelope
         envelope = super(edi_envelope, self)._fold(route)
         if self.route_type == 'esap20':
-            interchange_control_ref = '' # '+ICARSP4'
+            interchange_control_ref = self.application or ''
             date = fields.Datetime.now().split(' ')[0].replace('-','')[-6:]
             time = ''.join(fields.Datetime.now().split(' ')[1].split(':')[:2])
             UNA = "UNA:+.? '"
-            UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s%s'" % (envelope.sender.gs1_gln, envelope.recipient.gs1_gln, date, time, self.name,interchange_control_ref)
+            UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++%s'" % (envelope.sender.gs1_gln, envelope.recipient.gs1_gln, date, time, self.name,interchange_control_ref)
             body = ''.join([base64.b64decode(m.body) for m in envelope.edi_message_ids])
             UNZ = "UNZ+%s+%s'" % (len(envelope.edi_message_ids),self.name)
             envelope.body = base64.b64encode(UNA + UNB + body + UNZ)
@@ -244,11 +244,17 @@ class edi_message(models.Model):
             return "RFF+%s:%s:%s'" % (qualifier, ref, line)
         return "RFF+%s:%s'" % (qualifier, ref)
 
+    def _get_account_tax(self, name):
+        tax = self.env['account.tax'].search([('name', '=', name)])
+        if len(tax) == 1:
+            return tax[0]
+        raise Warning("Couldn't find tax with name '%s'." % name)
+    
     def TAX(self, rate, tax_type = 'VAT', qualifier = 7, category = 'S'):
         self._seg_count += 1
         #qualifier
         #   7 = tax
-        return "TAX+%s+%s+++:::%s+%s'" % (qualifier, tax_type, rate, category)
+        return "TAX+%s+%s+++:::%.4f+%s'" % (qualifier, tax_type, rate, category)
     
     def _NAD(self,role, partner, type='GLN'):
         self._seg_count += 1        
@@ -285,7 +291,7 @@ class edi_message(models.Model):
         elif line.product_uom_qty <= 0:
             code = 7 # Not accepted
         elif line.product_uom_qty != line.order_qty:
-            code = 12 # Quantity changed
+            code = 3 # Quantity changed
         else:
             code = 5 # Accepted without amendment
         return "LIN+%s+%s+%s:%s::%s'" %(self._lin_count, code, line.product_id.gs1_gtin14 or line.product_id.gs1_gtin13, item_nr_type, 9)
@@ -332,7 +338,7 @@ class edi_message(models.Model):
             prod_nr = self._get_customer_product_code(product, customer)
         if prod_nr:
             self._seg_count += 1
-            return "PIA+5+%s:%s'" % (prod_nr, code)
+            return "PIA+1+%s:%s'" % (prod_nr, code)
         return ""
         #raise Warning("PIA: couldn't find product code (%s) for %s (id: %s)" % (code, product.name, product.id))
 
@@ -356,13 +362,11 @@ class edi_message(models.Model):
          #~ if line.product_uom_qty != line.order_qty:
             #~ code = 12
         #~ else:
-        if code:
-            pass
-        else:
+        if not code:
             code = 21
         return "QTY+%s:%s'" % (code, qty)
     
-    def QVR(self):
+    def QVR(self, line):
         #AS 	Artikeln har utgått ur sortimentet
         #AUE 	Okänt artikelnummer
         #AV 	Artikeln slut i lager
@@ -378,7 +382,11 @@ class edi_message(models.Model):
         #Z8 	Beställningsvara
         #Z9 	Restnoterad från tillverkaren
         #ZZ 	Annan orsak
-        pass
+        self._seg_count += 1
+        diff = line.product_uom_qty - line.order_qty
+        # We only refuse because of stock shortage
+        return "QVR+%s:21+CP+AV::9SE'" % diff
+            
     
     def UNS(self):
         self._seg_count += 1
