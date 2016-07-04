@@ -133,7 +133,7 @@ UNT		Avslutar ordermeddelandet.
             
             #Dates
             #Document date
-            msg += self.DTM(137, format=203)
+            msg += self.DTM(137)
             #Actual delivery date
             for picking in invoice.picking_ids:  # same as despatch-date
                 msg += self.DTM(35, picking.date_done)

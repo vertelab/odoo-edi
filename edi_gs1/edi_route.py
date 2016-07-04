@@ -204,7 +204,7 @@ class edi_message(models.Model):
         self._seg_count += 1
         return "CNT+%s:%s'" % (qualifier, value)
     
-    def DTM(self,func_code, dt=False, format=102):
+    def DTM(self, func_code, dt=False, format=102):
         self._seg_count += 1
         #11	Despatch date and or time - (2170) Date/time on which the goods are or are expected to be despatched or shipped.
         #13 Terms net due date - Date by which payment must be made.
