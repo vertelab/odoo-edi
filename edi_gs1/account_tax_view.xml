@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+      
+        <record id="view_tax_form" model="ir.ui.view">
+            <field name="name">account.tax.gs1.inherit.form</field>
+            <field name="model">account.tax</field>
+            <field name="inherit_id" ref="account.view_tax_form" />
+            <field name="arch" type="xml">
+                <page string="Special Computation" position="after">
+                    <page string="GS1">
+                        <group>
+                            <field name="gs1_tax_type"/>
+                            <field name="gs1_tax_category"/>
+                        </group>
+                    </page>
+                </page>
+            </field>
+        </record>
+
+  </data>
+</openerp>
