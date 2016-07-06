@@ -87,7 +87,7 @@ UNT		Avslutar ordermeddelandet.
                 'route_id': self.route_id.id,
             }
             line = {}
-            for segment in eval(base64.b64decode(self.body)):
+            for segment in self._gs1_get_components():
                 segment_count += 1
                 _logger.warn('segment: %s' % segment)
                 #Begin Message

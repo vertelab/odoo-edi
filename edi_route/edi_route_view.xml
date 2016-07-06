@@ -9,7 +9,7 @@
       <field name="context">{'search_default_route_id': active_id}</field>
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Click to schedule a new EDI Message.</p>
-        <p>The Routes in delivers and recieves EDI-messages.</p>
+        <p>The Routes in delivers and receives EDI-messages.</p>
       </field>
     </record>
     <record id="action_edi_envelope_route" model="ir.actions.act_window">
@@ -19,7 +19,7 @@
       <field name="context">{'search_default_route_id': active_id}</field>
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Click to schedule a new EDI Envelope.</p>
-        <p>The Routes in delivers and recieves EDI-messages.</p>
+        <p>The Routes in delivers and receives EDI-messages.</p>
       </field>
     </record>
     <record model="ir.ui.view" id="view_edi_route_form">
@@ -124,7 +124,7 @@
       <field name="search_view_id" ref="view_edi_route_search" />
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Click to schedule a new EDI Route.</p>
-        <p>The Routes in delivers and recieves EDI-messages.</p>
+        <p>The Routes in delivers and receives EDI-messages.</p>
       </field>
     </record>
     <record model="ir.actions.act_window.view" id="action_view_edi_route_tree">
@@ -151,7 +151,7 @@
       <field name="context">{'search_default_envelope_id': active_id}</field>
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Click to schedule a new EDI Message.</p>
-        <p>The Routes in delivers and recieves EDI-messages.</p>
+        <p>The Routes in delivers and receives EDI-messages.</p>
       </field>
     </record>
     <record model="ir.ui.view" id="view_edi_envelope_form">
@@ -160,9 +160,9 @@
       <field name="arch" type="xml">
         <form string="EDI Envelope">
           <header>
-            <button name="draft" states="sent,recieved,canceled" string="Draft" type="object" class="oe_highlight" />
+            <button name="draft" states="sent,received,canceled" string="Draft" type="object" class="oe_highlight" />
             <button name="split" string="Split" type="object" states="progress" icon="gtk-ok" />
-            <field name="state" widget="statusbar" statusbar_visible="progress,recieved,sent,canceled" />
+            <field name="state" widget="statusbar" statusbar_visible="progress,received,sent,canceled" />
           </header>
           <sheet>
             <div class="oe_title">
@@ -179,6 +179,8 @@
               </button>
             </div>
             <group>
+              <field name="ref"/>
+              <field name="application"/>
               <field name="sender" />
               <field name="recipient" />
               <field name="route_type" />
@@ -198,7 +200,7 @@
       <field name="name">EDI Envelope</field>
       <field name="model">edi.envelope</field>
       <field name="arch" type="xml">
-        <tree string="EDI Envelope" colors="black:state in ('sent','recieved');blue:state=='progress';red:state=='canceled'">
+        <tree string="EDI Envelope" colors="black:state in ('sent','received');blue:state=='progress';red:state=='canceled'">
           <field name="name" />
           <field name="route_id" />
           <field name="sender" />
@@ -235,7 +237,7 @@
       <field name="search_view_id" ref="view_edi_envelope_search" />
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Click to schedule a new EDI Envelope.</p>
-        <p>The Routes in delivers and recieves EDI-messages.</p>
+        <p>The Routes in delivers and receives EDI-messages.</p>
       </field>
     </record>
     <record model="ir.actions.act_window.view" id="action_view_edi_envelope_tree">
@@ -350,7 +352,7 @@
       <field name="search_view_id" ref="view_edi_message_search" />
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Click to schedule a new EDI Message.</p>
-        <p>The Routes in delivers and recieves EDI-messages.</p>
+        <p>The Routes in delivers and receives EDI-messages.</p>
       </field>
     </record>
     <record model="ir.actions.act_window.view" id="action_view_edi_message_tree">

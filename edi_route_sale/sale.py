@@ -87,7 +87,7 @@ class sale_order(models.Model):
         invoices = [i for i in self[0].invoice_ids if i.state == 'draft']
         if len(invoices)>0:
             if self.route_id:
-                self.route_id.edi_action('sale.order.action_invoice_create',order=self[0],invoice=invoices[-1])
+                self.route_id.edi_action('sale.order.action_invoice_create',order=self[0], invoice=invoices[-1])
         return res
     @api.multi
     def action_invoice_cancel(self):

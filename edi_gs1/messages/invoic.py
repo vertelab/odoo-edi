@@ -224,5 +224,5 @@ UNT		Avslutar ordermeddelandet.
                 msg += self.MOA(tax_line.base_amount, 125)   # Taxable amount
                 msg += self.MOA(tax_line.tax_amount, 124)  # Tax amount . Tax imposed by government or other official authority related to the weight/volume charge or valuation charge.
             msg += self.UNT()
-            self.body = base64.b64encode(msg.encode('utf-8'))
+            self.body = base64.b64encode(self._gs1_encode_msg(msg))
 

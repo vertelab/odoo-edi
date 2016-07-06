@@ -116,4 +116,4 @@ UNT		Avslutar ordermeddelandet.
             msg += self.UNS()
             msg += self.CNT(2, self._lin_count)
             msg += self.UNT()
-            self.body = base64.b64encode(msg)
+            self.body = base64.b64encode(self._gs1_encode_msg(msg))

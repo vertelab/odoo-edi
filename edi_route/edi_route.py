@@ -53,7 +53,8 @@ class edi_envelope(models.Model):
     date = fields.Datetime(string='Date',default=fields.Datetime.now())
     body = fields.Binary()
     edi_message_ids = fields.One2many(comodel_name='edi.message',inverse_name='envelope_id')
-    state = fields.Selection([('progress','Progress'),('sent','Sent'),('recieved','Recieved'),('canceled','Canceled')],default='progress')
+    state = fields.Selection([('progress', 'Progress'), ('sent','Sent'), ('received','Received'), ('canceled','Canceled')], default='progress')
+    ref = fields.Char('Reference')
     @api.one
     def _message_count(self):
         self.message_count = self.env['edi.message'].search_count([('envelope_id','=',self.id)])
@@ -88,46 +89,57 @@ class edi_envelope(models.Model):
             res = self._split()
         except ValueError as e:
             id = self.env['mail.message'].create({
-                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id and self.route_id.name,self.route_type,e)),
                     'subject': "ValueError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             self.state = "canceled"
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
         except TypeError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id and self.route_id.name,self.route_type,e)),
                     'subject': "TypeError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
             self.state = "canceled"
-            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             #raise Warning('EDI TypeError in split %s' % e)
         except IOError as e:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s Error %s\n" % (self.route_id.name,self.route_type,e)),
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id and self.route_id.name,self.route_type,e)),
                     'subject': "IOError",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
             self.state = "canceled"
-            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
+        except Exception as e:
+            self._cr.rollback()
+            self.env['mail.message'].create({
+                    'body': _("Route %s type %s Error %s\n" % (self.route_id and self.route_id.name or 'None', self.route_type or 'None', e)),
+                    'subject': "Exception",
+                    'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
+                    'res_id': self.id,
+                    'model': self._name,
+                    'type': 'notification',})
+            self.state = "canceled"
+            _logger.error('Exception %s type %s Error %s ' % (self.route_id and self.route_id.name or 'None', self.route_type, e))
         else:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id.name,','.join(['%s(%s)' % (m.name,m.edi_type.name) for m in self.edi_message_ids]),'ok')), #len(self.edi_messages_ids))),
+                    'body': _("Route %s type %s %s messages crceated\n" % (self.route_id and self.route_id.name,','.join(['%s(%s)' % (m.name,m.edi_type.name) for m in self.edi_message_ids]),'ok')), #len(self.edi_messages_ids))),
                     'subject': "Success",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            self.state = "recieved"
+            self.state = "received"
 
         #~ finally:
 
@@ -145,7 +157,13 @@ class edi_envelope(models.Model):
                 #~ 'consignee_id': recipient.id,
             })
             msg.unpack()
-
+        self.envelope_opened()
+    
+    @api.one
+    def envelope_opened(self):
+        """Run when an envelope has been received and opened. Override to create control messages."""
+        pass
+    
     @api.one
     def fold(self):
         #for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
@@ -394,7 +412,7 @@ class edi_message(models.Model):
         return [(model.model, model.name)
                 for model in models
                 if not model.model.startswith('ir.')]
-    model_record = fields.Reference(string="Record",selection="_reference_models",compute="_model_record")
+    model_record = fields.Reference(string="Record", selection="_reference_models", compute="_model_record")
 
 class edi_message_type(models.Model):
     _name = 'edi.message.type'
@@ -488,23 +506,22 @@ class edi_route(models.Model):
 
 
     @api.multi
-    def _run_out(self,envelope):
-        return True
+    def _run_out(self, envelopes):
+        pass
+    
     @api.multi
     def _run_in(self):
-        return None
+        return []
 
     @api.one
     def run(self):
         # out
         try:
             # create outgoing envelopes
-            for envelope in self.fold():
-                #~ raise Warning(envelope)
-                if self._run_out(envelope):
-                    envelope.state = 'sent'
-                else:
-                    envelope.state = 'canceled'
+            self._run_out(self.fold())
+                    #~ envelope.state = 'sent'
+                #~ else:
+                    #~ envelope.state = 'canceled'
         except ValueError as e:
             id = self.env['mail.message'].create({
                     'body': _("Route %s type %s Value Error %s\n" % (self.name, self.route_type, e)),
@@ -584,17 +601,22 @@ class edi_route(models.Model):
                     'model': self._name,
                     'type': 'notification',})
         finally:
-            if envelopes:
-                for envelope in envelopes:
-                    if envelope.state == 'progress':
+            for envelope in envelopes:
+                if envelope.state == 'progress':
+                    try:
+                        self._cr.commit()
                         envelope.split()
+                    except Exception as e:
+                        self._cr.rollback()
+                        envelope.state = 'canceled'
+                        self.log('Error when processing envelope %s\n%s' % (envelope.name, e))
 
             self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
 
 
 
 
-    def log(self,message):
+    def log(self, message):
         user = self.env['res.users'].browse(self._uid)
         self.env['mail.message'].create({
                 'body': message,

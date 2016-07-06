@@ -130,7 +130,7 @@ UNT		Avslutar ordermeddelandet.
             msg += self.UNT()
         if msg:
             #TODO: What encoding should be used?
-            self.body = base64.b64encode(msg.encode('utf-8').decode('ascii', 'ignore'))
+            self.body = base64.b64encode(self._gs1_encode_msg(msg))
 
     @api.one
     def _unpack(self):
@@ -144,7 +144,7 @@ UNT		Avslutar ordermeddelandet.
             order_values = {}
             order_values['order_line'] = []
             line = {}
-            for segment in eval(base64.b64decode(self.body)):
+            for segment in self._gs1_get_components():
                 segment_count += 1
                 _logger.warn('segment: %s' % segment)
                 #Begin Message

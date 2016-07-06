@@ -21,6 +21,7 @@
 from openerp import models, fields, api, _
 from edifact.helpers import separate_segments, separate_components
 import base64
+import codecs
 from datetime import datetime
 
 import logging
@@ -49,68 +50,81 @@ class edi_envelope(models.Model):
             UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++%s'" % (envelope.sender.gs1_gln, envelope.recipient.gs1_gln, date, time, self.name,interchange_control_ref)
             body = ''.join([base64.b64decode(m.body) for m in envelope.edi_message_ids])
             UNZ = "UNZ+%s+%s'" % (len(envelope.edi_message_ids),self.name)
-            envelope.body = base64.b64encode(UNA + UNB + body + UNZ)
+            msg = self.env['edi.message']
+            envelope.body = base64.b64encode(msg._gs1_encode_msg(UNA + UNB) + body + msg._gs1_encode_msg(UNZ))
         return envelope
     
     @api.one
     def _split(self):
         if self.route_type == 'esap20':
-            message = None
+            message = ''
             _logger.warn('body: %s' % base64.b64decode(self.body))
             msg_count = 0
             msgs = []
-            for segment in separate_segments(base64.b64decode(self.body)):
-                segment = separate_components(segment)
+            segment_check = {}
+            msg_dict = {}
+            for segment_string in separate_segments(base64.b64decode(self.body)):
+                segment = separate_components(segment_string)
                 if segment[0] == 'UNB':
+                    segment_check['UNB'] = True
+                    self.ref = segment[5]
                     self.sender = self._get_partner(segment[2],'sender')
                     self.recipient = self._get_partner(segment[3],'recipent')
                     date = segment[4][0]
                     time = segment[4][1]
+                    if len(segment) > 7:
+                        self.application = segment[7]
                 elif segment[0] == 'UNH':
                     edi_type = segment[2][0]
-                    message = [segment]
+                    msg_name = segment[1]
+                    message = segment_string
                     segment_count = 1
                 elif segment[0] == 'UNT':
                     #skapa message
                     if segment_count + 1 != int(segment[1]):
-                        raise TypeError('Wrong number of segments! %s %s' % (segment_count, segment),segment)
-                    message.append(segment)
+                        raise TypeError('Wrong number of segments! %s %s' % (segment_count, segment), segment)
+                    message += segment_string
                     msgs.append({
-                        'name': edi_type,
+                        'name': msg_name,
                         'envelope_id': self.id,
-                        'body': base64.b64encode(str(message)),
+                        'body': base64.b64encode(message),
                         'edi_type': self._get_edi_type_id(edi_type),
                         'sender': self.sender.id,
                         'recipient': self.recipient.id,
                         'route_type': self.route_id.route_type,
                         'route_id': self.route_id.id,
                     })
-                    message = None
+                    message = ''
                     msg_count += 1
-                elif message:
-                    message.append(segment)
-                    segment_count += 1
                 elif segment[0] == 'UNZ':
+                    segment_check['UNZ'] = True
                     if msg_count != int(segment[1]):
                         raise TypeError('Wrong message count!')
-            
+                elif message:
+                    message += segment_string
+                    segment_count += 1
+                
+            if not segment_check.get('UNB'):
+                raise TypeError('UNB segment missing!')
+            elif not segment_check.get('UNZ'):
+                raise TypeError('UNZ segment missing!')
             for msg_dict in msgs:
                 msg = self.env['edi.message'].create(msg_dict)
                 msg.unpack()
-        
         super(edi_envelope, self)._split()
 
-    def _get_partner(self, l,part_type):
-        _logger.warn('get partner %s (%s)' % (l,part_type))
+    @api.model
+    def _get_partner(self, l, part_type):
+        _logger.warn('get partner %s (%s)' % (l, part_type))
         if l[1] == '14':
             partner = self.env['res.partner'].search([('gs1_gln', '=', l[0])])
             _logger.warn(partner)
             if len(partner) == 1:
                 return partner
             _logger.warn('Warning!')
-        raise ValueError("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"),l,part_type)
+        raise ValueError("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"), l, part_type)
     
-    def _create_UNB_segment(self,sender, recipient):
+    def _create_UNB_segment(self, sender, recipient):
         self._seg_count += 1
         interchange_control_ref = ''
         date = ''
@@ -151,6 +165,25 @@ class edi_message(models.Model):
     
     _seg_count = 0
     _lin_count = 0
+    
+    @api.multi
+    def _gs1_get_components(self):
+        self.ensure_one()
+        if self.body:
+            segments = []
+            for segment in separate_segments(base64.b64decode(self._gs1_decode_msg(self.body))):
+                segments.append(separate_components(segment))
+            return segments
+    
+    @api.model
+    def _gs1_encode_msg(self, msg):
+        """Encode a string in the format specified by the EDIFACT standard (iso8859-1)."""
+        return codecs.encode(msg, 'iso8859-1')
+    
+    @api.model
+    def _gs1_decode_msg(self, msg):
+        """Decode a string from the format specified by the EDIFACT standard (iso8859-1)."""
+        return unicode(msg, 'iso8859-1')
     
     def _get_contract(self, ref):
         contract = self.env['account.analytic.account'].search([('code', '=', ref)])
@@ -386,7 +419,10 @@ class edi_message(models.Model):
         diff = line.product_uom_qty - line.order_qty
         # We only refuse because of stock shortage
         return "QVR+%s:21+CP+AV::9SE'" % diff
-            
+        
+    def UCI(self, ref, sender, recipient, state=8):
+        self._seg_count += 1
+        return "UCI+{ref}+{sender}:14+{recipient}:14+{state}'".format(ref=ref, sender=sender.gs1_gln, recipient=recipient.gs1_gln, state=state)
     
     def UNS(self):
         self._seg_count += 1
@@ -419,6 +455,13 @@ class edi_message(models.Model):
         if product:
             return product
         raise ValueError('Product not found! EAN: %s' % l[0],l)
+    
+    def _find_envelope(self, ref, sender, recipient):
+        envelope = self.env['edi.envelope'].search([('ref', '=', ref), ('sender', '=', sender.id), ('recipient', '=', recipient.id)])
+        if len(envelope) == 1:
+            return envelope[0]
+        raise ValueError("Couldn't find envelope with reference '%s'")
+        
     
     @api.model
     def _parse_date(self, l):
