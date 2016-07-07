@@ -45,8 +45,9 @@ class edi_envelope(models.Model):
         envelope = super(edi_envelope, self)._fold(route)
         if self.route_type == 'esap20':
             interchange_control_ref = self.application or ''
-            date = fields.Datetime.now().split(' ')[0].replace('-','')[-6:]
-            time = ''.join(fields.Datetime.now().split(' ')[1].split(':')[:2])
+            dt = fields.Datetime.from_string(self.date)
+            date = dt.strftime("%y%m%d")
+            time = dt.strftime("%H%M")
             UNA = "UNA:+.? '"
             UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++%s'" % (envelope.sender.gs1_gln, envelope.recipient.gs1_gln, date, time, self.name,interchange_control_ref)
             body = ''.join([base64.b64decode(m.body) for m in envelope.edi_message_ids])
@@ -73,6 +74,7 @@ class edi_envelope(models.Model):
                     self.recipient = self._get_partner(segment[3],'recipent')
                     date = segment[4][0]
                     time = segment[4][1]
+                    self.date = "20%s-%s-%s %s:%s:00" % (date[:2], date[2:4], date[4:], time[:2], time[2:])
                     if len(segment) > 7:
                         self.application = segment[7]
                 elif segment[0] == 'UNH':
