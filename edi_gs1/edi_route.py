@@ -23,6 +23,7 @@ from edifact.helpers import separate_segments, separate_components
 import base64
 import codecs
 from datetime import datetime
+import sys
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -109,8 +110,17 @@ class edi_envelope(models.Model):
             elif not segment_check.get('UNZ'):
                 raise TypeError('UNZ segment missing!')
             for msg_dict in msgs:
-                msg = self.env['edi.message'].create(msg_dict)
-                msg.unpack()
+                #Large potential for transaction lock when unpacking messages.
+                #Commit for every message and rollback on error.
+                #Every working message is unpacked.
+                try:
+                    self._cr.commit()
+                    msg = self.env['edi.message'].create(msg_dict)
+                    msg.unpack()
+                except Exception as e:
+                    self._cr._rollback()
+                    self.route_id.log("Error when reading message '%s' of envelope '%s'" % (msg_dict.get('name'), self.name), sys.exc_info())
+                    self.state = 'canceled'
         super(edi_envelope, self)._split()
 
     @api.model
@@ -178,7 +188,7 @@ class edi_message(models.Model):
     @api.model
     def _gs1_encode_msg(self, msg):
         """Encode a string in the format specified by the EDIFACT standard (iso8859-1)."""
-        return codecs.encode(msg, 'iso8859-1')
+        return codecs.encode(msg, 'iso8859-1', 'ignore')
     
     @api.model
     def _gs1_decode_msg(self, msg):
