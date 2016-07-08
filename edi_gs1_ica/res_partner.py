@@ -24,18 +24,19 @@ import openerp.tools as tools
 from openerp.modules import get_module_path
 from cStringIO import StringIO
 import base64
-from openpyxl import load_workbook
 import os
-import urllib2, re
-import unicodecsv as csv
+import re
 import ssl
 
 import logging
 _logger = logging.getLogger(__name__)
 
-#~ try:
-    #~ import openpyxl
-#~ except ImportError:
+try:
+    from openpyxl import load_workbook
+    import urllib2
+    import unicodecsv as csv
+except ImportError:
+    pass
     #~ raise Warning('excel library missing, pip install openpyxl')
 
 
