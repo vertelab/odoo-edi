@@ -120,7 +120,7 @@ class edi_envelope(models.Model):
                     msg = self.env['edi.message'].create(msg_dict)
                     msg.unpack()
                 except Exception as e:
-                    self._cr._rollback()
+                    self._cr.rollback()
                     self.route_id.log("Error when reading message '%s' of envelope '%s'" % (msg_dict.get('name'), self.name), sys.exc_info())
                     self.state = 'canceled'
         super(edi_envelope, self)._split()
@@ -464,15 +464,17 @@ class edi_message(models.Model):
         product = None
         if l[1] == 'EN':
             product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
+        if l[1] == 'EU':  # Axfood ORDERS use this
+            product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
         if product:
             return product
-        raise ValueError('Product not found! EAN: %s' % l[0],l)
+        raise ValueError('Product not found! GTIN: %s' % l)
     
     def _find_envelope(self, ref, sender, recipient):
         envelope = self.env['edi.envelope'].search([('ref', '=', ref), ('sender', '=', sender.id), ('recipient', '=', recipient.id)])
         if len(envelope) == 1:
             return envelope[0]
-        raise ValueError("Couldn't find envelope with reference '%s'")
+        raise ValueError("Couldn't find envelope with reference '%s'" % ref)
         
     
     @api.model

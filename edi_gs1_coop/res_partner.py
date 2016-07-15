@@ -75,6 +75,8 @@ class import_res_partner_axfood(models.TransientModel):
                 if i < 6:
                     continue
                 l = {title[n]: r[n].value for n in range(len(r))}
+                if not l['Butiksnr']:
+                    break
                 partner = self.env['res.partner'].search([('customer_no', '=', l['Butiksnr']),('parent_id','=',self.env.ref('edi_gs1_coop.coop').id)])
                 record = {
                     'name': l['Butik'],

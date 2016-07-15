@@ -98,8 +98,10 @@ UNT		Avslutar ordermeddelandet.
                     function = segment[1][0]
                     if function == '2':
                         order_values['date_order'] = self._parse_date(segment[1])
+                        _logger.warn(order_values['date_order'])
                         if segment[1][2] == '102':
                             order_values['date_order'] = order_values['date_order'][:11] + '15' + order_values['date_order'][13:]
+                        _logger.warn(order_values['date_order'])
                     elif function == '137':
                         doc_dt = self._parse_date(segment[1])
                 elif segment[0] == 'NAD':
@@ -162,22 +164,3 @@ UNT		Avslutar ordermeddelandet.
                     _logger.warn('Order ready %r' % order)
                     self.model = order._name
                     self.res_id = order.id
-    
-    def _parse_quantity(self, l):
-        #if l[0] == '21':
-        return float(l[1])
-    
-    def _get_product(self, l):
-        product = None
-        if l[1] == 'EN':
-            product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
-        if l[1] == 'EU':  # Axfood 
-            product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
-        if product:
-            return product
-        raise ValueError('Product not found! EAN: %s' % l[0],l)
-    
-    @api.model
-    def _parse_date(self, l):
-        if l[2] == '102':
-            return fields.Datetime.to_string(datetime.strptime(l[1], '%Y%m%d'))

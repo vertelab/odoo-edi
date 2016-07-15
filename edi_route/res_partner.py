@@ -27,12 +27,13 @@ _logger = logging.getLogger(__name__)
 class res_partner(models.Model):
     _inherit='res.partner'
 
-    edi_type_ids = fields.Many2many(comodel_name='edi.message.type',help="OK to send EDI-messages of this type to this part")
+    #edi_type_ids = fields.Many2many(comodel_name='edi.message.type',help="OK to send EDI-messages of this type to this part")
 
     @api.one
     def _edi_message_count(self):
         self.edi_message_count = len(self.edi_message_ids)
     edi_message_count = fields.Integer(compute='_edi_message_count',string="# messages")
+    
     @api.one
     def _edi_message_ids(self):
         #raise Warning([(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])])
@@ -42,12 +43,11 @@ class res_partner(models.Model):
     edi_message_ids = fields.Many2many(compute='_edi_message_ids',comodel_name="edi.message",string="Messages")
 
     @api.model
-    def get_edi_types(self,partner):  # Check in three levels if its ok to send edi-messages of this type to this part
-        types = [t.id for t in partner.edi_type_ids]
+    def get_edi_types(self, partner):
+        """Check in n levels if its ok to send edi-messages of this type to this part."""
+        types = [l.edi_type.id for l in partner.edi_application_lines]
         if partner.parent_id:
-            types += [t.id for t in partner.parent_id.edi_type_ids]
-            if partner.parent_id.parent_id:
-                types += [t.id for t in partner.parent_id.parent_id.edi_type_ids]
+            types += self.get_edi_types(self.parent_id)
         return set(types)
     
     edi_application_lines = fields.One2many('edi.application.line', 'partner_id', 'EDI Applications')

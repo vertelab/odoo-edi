@@ -77,7 +77,7 @@ class sale_order(models.Model):
         _logger.warn("\n\naction_ship_create %s\n\n" % res)
         for order in self:
             if order.route_id:
-                order.route_id.edi_action('sale.order.action_ship_create',order=order,picking=[p for p in order.picking_ids][0],res=res)
+                order.route_id.edi_action('sale.order.action_ship_create', order=order, pickings=[p for p in order.picking_ids], res=res)
         _logger.warn("\n\naction_ship_create done\n\n")
         return res
     @api.multi
@@ -87,7 +87,7 @@ class sale_order(models.Model):
         invoices = [i for i in self[0].invoice_ids if i.state == 'draft']
         if len(invoices)>0:
             if self.route_id:
-                self.route_id.edi_action('sale.order.action_invoice_create',order=self[0], invoice=invoices[-1])
+                self.route_id.edi_action('sale.order.action_invoice_create', order=self[0], invoice=invoices[-1])
         return res
     @api.multi
     def action_invoice_cancel(self):

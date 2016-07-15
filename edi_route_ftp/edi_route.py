@@ -394,10 +394,15 @@ class edi_route(models.Model):
                     for envelope in envelopes:
                         try:
                             file_obj = StringIO(base64.b64decode(envelope.body))
-                            server.put_file(file_obj, envelope.name)
-                            envelope.state = 'sent'
-                            for msg in envelope.edi_message_ids:
-                                msg.state = 'sent'
+                            if server.put_file(file_obj, envelope.name):
+                                envelope.state = 'sent'
+                                for msg in envelope.edi_message_ids:
+                                    msg.state = 'sent'
+                            else:
+                                envelope.state = 'canceled'
+                                for msg in envelope.edi_message_ids:
+                                    msg.state = 'canceled'
+                                self.log('Error! Envelope %s already exists on server.' % envelope.name, sys.exc_info())
                         except Exception as e:
                             self.log('error when sending envelope %s' % envelope.name, sys.exc_info())    
                             envelope.state = 'canceled'

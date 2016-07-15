@@ -43,7 +43,6 @@ class sale_order(models.Model):
     unb_recipient = fields.Many2one(comodel_name='res.partner')
     dtm_delivery = fields.Date('Delivery Date', help='Date from DTM with code 2.')
 
-
     #~ def _edi_message_create(self, edi_type):
         #~ self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, check_route=False, check_double=False)
 #~ 

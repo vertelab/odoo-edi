@@ -73,9 +73,11 @@ class import_res_partner_axfood(models.TransientModel):
     @api.multi
     def send_form(self,):
         def _get_logo(img):
-            return open(os.path.join(get_module_path('edi_gs1_axfood'), 'static', 'img', img), 'rb').read().encode('base64')
-
-        
+            try:
+                return open(os.path.join(get_module_path('edi_gs1_axfood'), 'static', 'img', img), 'rb').read().encode('base64')
+            except:
+                _logger.debug("Image not found for Axfood Chain: '%s'" % img)
+                return None
         
         chart = self[0]
         #_logger.warning('data %s b64 %s ' % (account.data,base64.decodestring(account.data)))

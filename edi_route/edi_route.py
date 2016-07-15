@@ -124,7 +124,7 @@ class edi_envelope(models.Model):
             _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
         except Exception as e:
-            self._cr.rollback()
+            self.env.cr.rollback()
             self.env['mail.message'].create({
                     'body': _("Route %s type %s Error %s\n" % (self.route_id and self.route_id.name or 'None', self.route_type or 'None', e)),
                     'subject': "Exception",
@@ -135,14 +135,16 @@ class edi_envelope(models.Model):
             self.state = "canceled"
             _logger.error('Exception %s type %s Error %s ' % (self.route_id and self.route_id.name or 'None', self.route_type, e))
         else:
-            self.env['mail.message'].create({
+            if self.state == 'progress':
+                self.env['mail.message'].create({
                     'body': _("Route %s type %s %s messages created\n" % (self.route_id and self.route_id.name, ','.join(['%s(%s)' % (m.name, m.edi_type.name) for m in self.edi_message_ids]),'ok')),
                     'subject': "Success",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
-            self.state = "received"
+                    'type': 'notification',
+                })            
+                self.state = "received"
 
         #~ finally:
 
@@ -479,16 +481,20 @@ class edi_route(models.Model):
                 _logger.error('EDI Fold Route %s Messages %s ' % (route.name, messages))
                 for recipient in set(messages.mapped(lambda msg: msg.recipient)):
                     _logger.error('EDI Fold Route %s type %s Recipient %s ' % (route.name, route.route_type, recipient))
-                    #Sort by application if they exist
+                    #Sort by application
+                    no_app_msg_ids = []
                     for app in recipient.edi_application_lines:
                         msg_ids = []
                         for msg in messages.filtered(lambda msg: msg.edi_type == app.edi_type and msg.recipient == recipient):
                             try:
                                 msg.pack()
-                                msg_ids.append(msg.id)
+                                if app.name:
+                                    msg_ids.append(msg.id)
+                                else:
+                                    no_app_msg_ids.append(msg.id)
                             except Exception as e:
                                 msg.state = 'canceled'
-                        if msg_ids:
+                        if app.name and msg_ids:
                             envelope = self.env['edi.envelope'].create({
                                 'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
                                 'route_id': route.id,
@@ -500,25 +506,20 @@ class edi_route(models.Model):
                             })
                             envelope.fold()
                             envelopes.append(envelope)
-                    
-                    #Handle all messages not covered by applications
-                    msg_ids = []
-                    app_type_ids = [app.edi_type.id for app in recipient.edi_application_lines]
-                    for msg in messages.filtered(lambda msg: msg.recipient == recipient and msg.edi_type.id not in app_type_ids):
-                        msg.pack()
-                        msg_ids.append(msg.id)
-                    if msg_ids:
+                    #Handle all messages not covered by named applications
+                    if no_app_msg_ids:
                         envelope = self.env['edi.envelope'].create({
                             'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
                             'route_id': route.id,
                             'route_type': route.route_type,
                             'recipient': recipient.id,
                             'sender': self.env.ref('base.main_partner').id,
-                            'edi_message_ids': [(6, 0, msg_ids)]
+                            'edi_message_ids': [(6, 0, no_app_msg_ids)]
                         })
                         envelope.fold()
                         envelopes.append(envelope)
         return envelopes
+    
     @api.one
     def put_file(self,file):
         pass
