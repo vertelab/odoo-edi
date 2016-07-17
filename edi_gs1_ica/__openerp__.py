@@ -37,6 +37,7 @@ Wizard for load ICA shops and adresses
         'res_partner_view.xml',
         'ica_data.xml',
     ],
+    'externale_dependencies': {'python': ['unicodecsv','openpyxl','urllib2']},
     'application': False,
     'installable': True,
  #   'demo': ['calendar_ics_demo.xml',],
