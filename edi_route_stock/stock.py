@@ -33,18 +33,20 @@ class stock_picking(models.Model):
     message_count = fields.Integer(compute='_message_count',string="# messages")
    
     @api.one
-    def _edi_message_create(self,edi_type,check_double=False):
-        orders = self.env['sale.order'].search([('picking_ids','in',self.id)])
-        if orders and orders[0]:
+    def _edi_message_create(self, edi_type, check_double=False):
+        order = self._get_order()
+        _logger.warn(order)
+        if order:
             self.env['edi.message']._edi_message_create(
-                edi_type=edi_type,
-                obj=self,
-                sender=orders[0].unb_recipient,
-                recipient=orders[0].unb_sender,
-                consignee=self.partner_id,route=orders and orders[0].route_id,
-                check_double=check_double)
-
-
+                edi_type = edi_type,
+                obj = self,
+                sender = order.unb_recipient,
+                recipient = order.unb_sender,
+                consignee = order.partner_id,
+                route = order.route_id,
+                check_double = check_double
+            )
+    
     def _get_route(self):
         #raise Warning(self.group_id)
         routes = [o.route_id for o in self.env['sale.order'].search([('procurement_group_id', '=', self.group_id.id)])]
@@ -62,6 +64,16 @@ class stock_picking(models.Model):
         if picking and picking._get_route():
             picking._get_route().edi_action('stock.picking.create', picking=picking)
         return picking
+    
+    @api.cr_uid_ids_context
+    def do_transfer(self, cr, uid, picking_ids, context=None):
+        res =  super(stock_picking, self).do_transfer(cr, uid, picking_ids, context)
+        if res and picking_ids:
+            for picking in self.browse(cr, uid, picking_ids, context):
+                if picking._get_route():
+                    picking._get_route().edi_action('stock.picking.do_transfer', picking=picking)
+        return res
+    
     @api.multi
     def action_cancel(self):
         res =  super(stock_picking,self).action_cancel()

@@ -18,7 +18,10 @@
     </record>    
     <record model="edi.route.caller" id="caller_action_cancel">
         <field name="name">stock.picking.action_cancel</field>
-    </record>    
+    </record>
+    <record model="edi.route.caller" id="caller_do_transfer">
+        <field name="name">stock.picking.do_transfer</field>
+    </record>   
 
 <!--
 stock.move
