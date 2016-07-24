@@ -154,7 +154,7 @@ UNT		Avslutar ordermeddelandet.
                 msg += self.RFF(invoice._get_order().client_order_ref, 'ON')
             for picking in invoice.picking_ids:
                 if picking.carrier_tracking_ref:
-                    msg += self.RFF(picking.carrier_tracking_ref, 'DQ')
+                    msg += self.RFF(picking.name, 'DQ')
             #msg += self.RFF(foobar.desadv, 'AAK')
             
             

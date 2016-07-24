@@ -241,9 +241,11 @@ class edi_message(models.Model):
             return "BGM+351+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
         #return "BGM+{code}::{}+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), code=doc_code, status=status)
     
-    def CPS(self):
+    def CPS(self, level):
+        """To identify the sequence in which physical packing is presented in the consignment,
+        and optionally to identify the hierarchical relationship between packing layers."""
         self._seg_count += 1
-        return "CPS+%s'" % (self._lin_count + 1)
+        return "CPS+%s'" % (level)
     
     def CNT(self, qualifier, value):
         self._seg_count += 1
@@ -259,6 +261,7 @@ class edi_message(models.Model):
         #137 Document/message date/time, date/time when a document/message is issued. This may include authentication.
         #167 Charge period start date - The charge period's first date.
         #168 Charge period end date - The charge period's last date.
+        #361 Use by date.
         if not dt:
             dt = fields.Datetime.now()
         dt = fields.Datetime.from_string(dt)
@@ -272,10 +275,10 @@ class edi_message(models.Model):
         self._seg_count += 1        
         return "FTX+%s+%s+%s+%s:%s:%s:%s:%s'" % (subj, func, ref, _escape_string(msg1), _escape_string(msg2), _escape_string(msg3), _escape_string(msg4), _escape_string(msg5))
     
-    def GIN(self, sscc='373500310002299341'):
+    def GIN(self, sscc):
         self._seg_count += 1
         #BJ 		Serial shipping container code
-        return "GIN+SS+%s'" % sscc
+        return "GIN+BJ+%s'" % sscc
     
     #CR = Customer Reference
     def RFF(self, ref, qualifier='CR', line=None):
@@ -301,7 +304,7 @@ class edi_message(models.Model):
         #   7 = tax
         return "TAX+%s+%s+++:::%.4f+%s'" % (qualifier, tax_type, rate, category)
     
-    def _NAD(self,role, partner, type='GLN'):
+    def _NAD(self, role, partner, type='GLN'):
         self._seg_count += 1        
         if type == 'GLN':
             party_id = partner.gs1_gln
@@ -312,15 +315,15 @@ class edi_message(models.Model):
         return "NAD+%s+%s::%s'" % (role, party_id, code)
     
     def NAD_SU(self,type='GLN'):
-        return self._NAD('SU',self.consignor_id,type)
+        return self._NAD('SU', self.consignor_id, type)
     def NAD_BY(self,type='GLN'):
-        return self._NAD('BY',self.consignee_id,type)
+        return self._NAD('BY', self.consignee_id, type)
     def NAD_SH(self,type='GLN'):
-        return self._NAD('SH',self.forwarder_id,type)
+        return self._NAD('SH', self.forwarder_id, type)
     def NAD_DP(self,type='GLN'):
-        return sielf._NAD('DP',self.carrier_id,type)
+        return self._NAD('DP', self.carrier_id, type)
     def NAD_CN(self,type='GLN'):
-        return self._NAD('CN',self.consignee_id,type)  # ????
+        return self._NAD('CN', self.consignee_id, type)  # ????
     
     #code = error/status code
     def LIN(self, line, code=None):
@@ -345,14 +348,10 @@ class edi_message(models.Model):
         self._seg_count += 1
         return "MOA+%s:%s'" % (qualifier, amount)
     
-    def PAC(self):
+    def PAC(self, amount=1, packaging_type='PX'):
         self._seg_count += 1
-        #30 	½ EUR-pall
-        #34     EUR 2-pall
-        #35     EUR 3-pall
-        #36     EUR 6-pall
-        #37 	EUR-pall (EUR6)
-        return "PAC+1+:52+34:::7350000000269'"
+        #PX 	Pallet
+        return "PAC+%s+:52+%s'" % (amount, packaging_type)
     
     def PAT(self, pttq=3, ptr=66, tr=1):
         self._seg_count += 1
@@ -395,12 +394,15 @@ class edi_message(models.Model):
         self._seg_count += 1
         return "PRI+%s:%s:%s'" % (qualifier, amount, ptype)
         
-    def QTY(self,line, code = None):
+    def QTY(self, line, code = None):
         self._seg_count += 1
        
         if line._name == 'account.invoice.line':
             code = 47
             qty = line.quantity
+        elif line._name == 'stock.pack.operation':
+            code = 12
+            qty = line.product_qty
         else:
             qty = line.product_uom_qty
         
