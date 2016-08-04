@@ -29,17 +29,17 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class edi_envelope(models.Model):
-    _inherit = 'edi.envelope' 
-    
+    _inherit = 'edi.envelope'
+
     route_type = fields.Selection(selection_add=[('esap20','ESAP 20')])
-    
+
     @api.model
     def _get_edi_type_id(self, edi_type):
         t = self.env['edi.message.type'].search([('name', '=', edi_type)])
         if not t:
             t = self.env.ref('edi_route.edi_message_type_plain')
         return t.id
-    
+
     @api.multi
     def _fold(self, route): # Folds messages in an envelope
         envelope = super(edi_envelope, self)._fold(route)
@@ -55,7 +55,7 @@ class edi_envelope(models.Model):
             msg = self.env['edi.message']
             envelope.body = base64.b64encode(msg._gs1_encode_msg(UNA + UNB) + body + msg._gs1_encode_msg(UNZ))
         return envelope
-    
+
     @api.one
     def _split(self):
         if self.route_type == 'esap20':
@@ -106,7 +106,7 @@ class edi_envelope(models.Model):
                 elif message:
                     message += segment_string
                     segment_count += 1
-                
+
             if not segment_check.get('UNB'):
                 raise TypeError('UNB segment missing!')
             elif not segment_check.get('UNZ'):
@@ -135,14 +135,14 @@ class edi_envelope(models.Model):
                 return partner
             _logger.warn('Warning!')
         raise ValueError("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"), l, part_type)
-    
+
     def _create_UNB_segment(self, sender, recipient):
         self._seg_count += 1
         interchange_control_ref = ''
         date = ''
         time = ''
         return "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (sender.gs1_gln, recipient.gs1_gln, date, time, interchange_control_ref)
-        
+
     def edifact_read(self):
         """
             Creates an attachement with the envelope in readable form
@@ -156,10 +156,10 @@ class edi_envelope(models.Model):
                     'res_id': self.id,
                 })
 
-        
+
 class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    
+    _inherit = 'edi.route'
+
     route_type = fields.Selection(selection_add=[('esap20','ESAP 20')])
 
 
@@ -172,12 +172,12 @@ def _escape_string(s):
 
 class edi_message(models.Model):
     _inherit='edi.message'
-    
+
     route_type = fields.Selection(selection_add=[('esap20', 'ESAP 20')])
-    
+
     _seg_count = 0
     _lin_count = 0
-    
+
     @api.multi
     def _gs1_get_components(self):
         self.ensure_one()
@@ -186,23 +186,23 @@ class edi_message(models.Model):
             for segment in separate_segments(base64.b64decode(self._gs1_decode_msg(self.body))):
                 segments.append(separate_components(segment))
             return segments
-    
+
     @api.model
     def _gs1_encode_msg(self, msg):
         """Encode a string in the format specified by the EDIFACT standard (iso8859-1)."""
         return codecs.encode(msg, 'iso8859-1', 'ignore')
-    
+
     @api.model
     def _gs1_decode_msg(self, msg):
         """Decode a string from the format specified by the EDIFACT standard (iso8859-1)."""
         return unicode(msg, 'iso8859-1')
-    
+
     def _get_contract(self, ref):
         contract = self.env['account.analytic.account'].search([('code', '=', ref)])
         _logger.warn('\n\n_get_contract %s %s' % (contract, contract.id))
         if contract:
             return contract.id
-    
+
     def edifact_read(self):
         self.env['ir.attachment'].create({
                 'name': self.edi_type,
@@ -220,7 +220,7 @@ class edi_message(models.Model):
 
     def BGM(self,doc_code=False, doc_no=False, status=''):
         #TODO: look up test mode on route and add to BGM
-        
+
         # Beginning of message
         # doc_code = Order, Document/message by means of which a buyer initiates a transaction with a seller involving the supply of goods or services as specified, according to conditions set out in an offer, or otherwise known to the buyer.
         # BGM+220::9+20120215150105472'
@@ -234,28 +234,28 @@ class edi_message(models.Model):
         elif doc_code == 231: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
             return "BGM+231+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), status = status)
         elif doc_code == 280: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
-            return "BGM+280+{doc_no}+9'".format(doc_no=_escape_string(doc_no)) 
+            return "BGM+280+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
         elif doc_code == 380: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
-            return "BGM+380+{doc_no}+9'".format(doc_no=_escape_string(doc_no)) 
+            return "BGM+380+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
         elif doc_code == 351:
             return "BGM+351+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
         #return "BGM+{code}::{}+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), code=doc_code, status=status)
-    
+
     def CPS(self, level):
         """To identify the sequence in which physical packing is presented in the consignment,
         and optionally to identify the hierarchical relationship between packing layers."""
         self._seg_count += 1
         return "CPS+%s'" % (level)
-    
+
     def CNT(self, qualifier, value):
         self._seg_count += 1
         return "CNT+%s:%s'" % (qualifier, value)
-    
+
     def DTM(self, func_code, dt=False, format=102):
         self._seg_count += 1
-        #11	Despatch date and or time - (2170) Date/time on which the goods are or are expected to be despatched or shipped.
+        #11 Despatch date and or time - (2170) Date/time on which the goods are or are expected to be despatched or shipped.
         #13 Terms net due date - Date by which payment must be made.
-        #35	Delivery date/time, actual - Date/time on which goods or consignment are delivered at their destination.
+        #35 Delivery date/time, actual - Date/time on which goods or consignment are delivered at their destination.
         #50 Goods receipt date/time - Date/time upon which the goods were received by a given party.
         #132 Transport means arrival date/time, estimated
         #137 Document/message date/time, date/time when a document/message is issued. This may include authentication.
@@ -272,21 +272,21 @@ class edi_message(models.Model):
         return "DTM+%s:%s:%s'" % (func_code, dt, format)
 
     def FTX(self, msg1, msg2='', msg3='', msg4='', msg5='', subj='ZZZ', func=1, ref='001'):
-        self._seg_count += 1        
+        self._seg_count += 1
         return "FTX+%s+%s+%s+%s:%s:%s:%s:%s'" % (subj, func, ref, _escape_string(msg1), _escape_string(msg2), _escape_string(msg3), _escape_string(msg4), _escape_string(msg5))
-    
+
     def GIN(self, sscc):
         self._seg_count += 1
-        #BJ 		Serial shipping container code
+        #BJ         Serial shipping container code
         return "GIN+BJ+%s'" % sscc
-    
+
     #CR = Customer Reference
     def RFF(self, ref, qualifier='CR', line=None):
         # ON    Buyer Order Number
         # CR    Customer reference
         # AAS   Transport document number, Reference assigned by the carrier or his agent to the transport document.
         # CT    Contract Number
-        # DQ 	Delivery note number
+        # DQ    Delivery note number
         self._seg_count += 1
         if line:
             return "RFF+%s:%s:%s'" % (qualifier, ref, line)
@@ -297,15 +297,15 @@ class edi_message(models.Model):
         if len(tax) == 1:
             return tax[0]
         raise Warning("Couldn't find tax with name '%s'." % name)
-    
+
     def TAX(self, rate, tax_type = 'VAT', qualifier = 7, category = 'S'):
         self._seg_count += 1
         #qualifier
         #   7 = tax
         return "TAX+%s+%s+++:::%.4f+%s'" % (qualifier, tax_type, rate, category)
-    
+
     def _NAD(self, role, partner, type='GLN'):
-        self._seg_count += 1        
+        self._seg_count += 1
         if type == 'GLN':
             party_id = partner.gs1_gln
             if not party_id:
@@ -313,7 +313,7 @@ class edi_message(models.Model):
                 party_id = 1 # Jusr for test
             code = 9
         return "NAD+%s+%s::%s'" % (role, party_id, code)
-    
+
     def NAD_SU(self,type='GLN'):
         return self._NAD('SU', self.consignor_id, type)
     def NAD_BY(self,type='GLN'):
@@ -324,7 +324,7 @@ class edi_message(models.Model):
         return self._NAD('DP', self.carrier_id, type)
     def NAD_CN(self,type='GLN'):
         return self._NAD('CN', self.consignee_id, type)  # ????
-    
+
     #code = error/status code
     def LIN(self, line, code=None):
         self._seg_count += 1
@@ -343,36 +343,36 @@ class edi_message(models.Model):
         else:
             code = 5 # Accepted without amendment
         return "LIN+%s+%s+%s:%s::%s'" %(self._lin_count, code, line.product_id.gs1_gtin14 or line.product_id.gs1_gtin13, item_nr_type, 9)
-    
+
     def MOA(self, amount, qualifier = 203):
         self._seg_count += 1
         return "MOA+%s:%s'" % (qualifier, amount)
-    
+
     def PAC(self, amount=1, packaging_type='PX'):
         self._seg_count += 1
-        #PX 	Pallet
+        #PX     Pallet
         return "PAC+%s+:52+%s'" % (amount, packaging_type)
-    
+
     def PAT(self, pttq=3, ptr=66, tr=1):
         self._seg_count += 1
-        #pttq   4279 	Payment terms type qualifier
+        #pttq   4279    Payment terms type qualifier
             #3 Fixed date - Payments are due on the fixed date specified.
-        #ptr    2475 	Payment time reference, coded
-            #66	Specified date - Date specified elsewhere.
-		#tr     2009 	Time relation, coded
-            #1	Date of order - Payment time reference is date of order.
-        
+        #ptr    2475    Payment time reference, coded
+            #66 Specified date - Date specified elsewhere.
+        #tr     2009    Time relation, coded
+            #1  Date of order - Payment time reference is date of order.
+
         return "PAT+%s++%s:%s'" % (pttq, ptr, tr)
-    
+
     def PCI(self):
         self._seg_count += 1
-        #33E 		Marked with serial shipping container code (EAN Code)
+        #33E        Marked with serial shipping container code (EAN Code)
         return "PCI+33E'"
-    
+
     def _get_customer_product_code(self, product, customer):
         #TODO: Create module that hooks this up with product_customer_code
         return None
-    
+
     #SA = supplier code BP = buyer code
     def PIA(self, product, code, customer=None):
         prod_nr = None
@@ -380,6 +380,8 @@ class edi_message(models.Model):
             prod_nr = product.default_code
         elif code == 'BP':
             prod_nr = self._get_customer_product_code(product, customer)
+        elif code == 'NB':
+            prod_nr = product
         if prod_nr:
             self._seg_count += 1
             return "PIA+1+%s:%s'" % (prod_nr, code)
@@ -393,10 +395,10 @@ class edi_message(models.Model):
         #   AAA Calculation net
         self._seg_count += 1
         return "PRI+%s:%s:%s'" % (qualifier, amount, ptype)
-        
+
     def QTY(self, line, code = None):
         self._seg_count += 1
-       
+
         if line._name == 'account.invoice.line':
             code = 47
             qty = line.quantity
@@ -405,39 +407,39 @@ class edi_message(models.Model):
             qty = line.product_qty
         else:
             qty = line.product_uom_qty
-        
+
          #~ if line.product_uom_qty != line.order_qty:
             #~ code = 12
         #~ else:
         if not code:
             code = 21
         return "QTY+%s:%s'" % (code, qty)
-    
+
     def QVR(self, line):
-        #AS 	Artikeln har utgått ur sortimentet
-        #AUE 	Okänt artikelnummer
-        #AV 	Artikeln slut i lager
-        #PC 	Annan förpackningsstorlek
-        #X35 	Artikeln har dragits tillbaka
-        #Z1 	Slut för säsongen
-        #Z2 	Tillfälligt spärrad för försäljning (varan finns men kan ha karensdagar)
-        #Z3 	Nyhet, ej i lager
-        #Z4 	Tillfälligt spärrad på grund av konflikt
-        #Z5 	Restnoterad artikel från tillverkare och måste beställas på nytt
-        #Z6 	Produktionsproblem
-        #Z7 	Slut i lager hos tillverkaren
-        #Z8 	Beställningsvara
-        #Z9 	Restnoterad från tillverkaren
-        #ZZ 	Annan orsak
+        #AS     Artikeln har utgått ur sortimentet
+        #AUE    Okänt artikelnummer
+        #AV     Artikeln slut i lager
+        #PC     Annan förpackningsstorlek
+        #X35    Artikeln har dragits tillbaka
+        #Z1     Slut för säsongen
+        #Z2     Tillfälligt spärrad för försäljning (varan finns men kan ha karensdagar)
+        #Z3     Nyhet, ej i lager
+        #Z4     Tillfälligt spärrad på grund av konflikt
+        #Z5     Restnoterad artikel från tillverkare och måste beställas på nytt
+        #Z6     Produktionsproblem
+        #Z7     Slut i lager hos tillverkaren
+        #Z8     Beställningsvara
+        #Z9     Restnoterad från tillverkaren
+        #ZZ     Annan orsak
         self._seg_count += 1
         diff = line.product_uom_qty - line.order_qty
         # We only refuse because of stock shortage
         return "QVR+%s:21+CP+AV::9SE'" % diff
-        
+
     def UCI(self, ref, sender, recipient, state=8):
         self._seg_count += 1
         return "UCI+{ref}+{sender}:14+{recipient}:14+{state}'".format(ref=ref, sender=sender.gs1_gln, recipient=recipient.gs1_gln, state=state)
-    
+
     def UNS(self):
         self._seg_count += 1
         return "UNS+S'"
@@ -446,7 +448,7 @@ class edi_message(models.Model):
         self._seg_count += 1
         return "UNT+{count}+{ref}'".format(count=self._seg_count,ref=self.name)
 
-            
+
     def _get_partner(self, l):
         _logger.warn('get partner %s' % l)
         partner = None
@@ -457,11 +459,11 @@ class edi_message(models.Model):
             return partner[0]
         _logger.warn('Warning!')
         raise ValueError("Unknown part %s" % (len(l) >0 and l[0] or "[EMPTY LIST!]"),l[0],l[1])
-    
+
     def _parse_quantity(self, l):
         #if l[0] == '21':
         return float(l[1])
-    
+
     def _get_product(self, l):
         product = None
         if l[1] == 'EN':
@@ -471,14 +473,14 @@ class edi_message(models.Model):
         if product:
             return product
         raise ValueError('Product not found! GTIN: %s' % l)
-    
+
     def _find_envelope(self, ref, sender, recipient):
         envelope = self.env['edi.envelope'].search([('ref', '=', ref), ('sender', '=', sender.id), ('recipient', '=', recipient.id)])
         if len(envelope) == 1:
             return envelope[0]
         raise ValueError("Couldn't find envelope with reference '%s'" % ref)
-        
-    
+
+
     @api.model
     def _parse_date(self, l):
         if l[2] == '102':

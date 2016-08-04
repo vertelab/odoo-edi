@@ -28,7 +28,7 @@ _logger = logging.getLogger(__name__)
 
 class edi_message(models.Model):
     _inherit='edi.message'
-    
+
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
@@ -63,7 +63,7 @@ class edi_message(models.Model):
             #Ship from location. Used when buyer picks up the goods.
             #Not implemented
             #msg += self._NAD('SF', shipping_partner)
-            
+
             #Buyer identification
             msg += self.NAD_BY()
             #Consignee identification. Used if recipient is other than buyer.
@@ -102,7 +102,7 @@ class edi_message(models.Model):
                 msg += self.PIA(operation.product_id, 'SA')
                 #Batch number
                 if operation.lot_id and operation.lot_id.name:
-                    msg += self.PIA(operation.lot_id.name, 'BN')
+                    msg += self.PIA(operation.lot_id.name, 'NB')
                 msg += self.QTY(operation)
                 qty_total += operation.product_qty
                 #Use by date
