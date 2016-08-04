@@ -143,7 +143,7 @@ class edi_envelope(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',
-                })            
+                })
                 self.state = "received"
 
         #~ finally:
@@ -163,12 +163,12 @@ class edi_envelope(models.Model):
             })
             msg.unpack()
         self.envelope_opened()
-    
+
     @api.one
     def envelope_opened(self):
         """Run when an envelope has been received and opened. Override to create control messages."""
         pass
-    
+
     @api.one
     def fold(self):
         #for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
@@ -258,11 +258,11 @@ class edi_message(models.Model):
     route_type = fields.Selection(selection=[('plain','Plain')], default='plain')
     edi_type = fields.Many2one(comodel_name='edi.message.type', string="Edi Type")
     state = fields.Selection([('progress', 'Progress'), ('sent','Sent'), ('received','Received'), ('canceled','Canceled')], default='progress')
-    
+
     @api.one
     def draft(self):
         self.state = 'progress'
-    
+
     @api.one
     def unpack(self):
         try:
@@ -388,7 +388,7 @@ class edi_message(models.Model):
                     # This is a reply, switch recipient/sender unless we got excplicit parties
                     'sender': sender and sender.id or obj.unb_recipient.id,
                     'recipient': recipient and recipient.id or obj.unb_sender.id,
-                    
+
                     'consignor_id': consignor and consignor.id or self.env.ref('base.main_partner').id,
                     'consignee_id': consignee.id,
             })
@@ -432,7 +432,7 @@ class edi_message(models.Model):
 class edi_message_type(models.Model):
     _name = 'edi.message.type'
     _description = 'EDI Message Type'
-    
+
     name = fields.Char(string="Name",required=True)
 
 
@@ -474,7 +474,7 @@ class edi_route(models.Model):
     def fold(self):
         """Folds messages in an envelope"""
         envelopes = []
-        
+
         for route in self:
             messages = self.env['edi.message'].search([('envelope_id', '=', None), ('route_id', '=', route.id)])
             if len(messages) > 0:
@@ -519,7 +519,7 @@ class edi_route(models.Model):
                         envelope.fold()
                         envelopes.append(envelope)
         return envelopes
-    
+
     @api.one
     def put_file(self,file):
         pass
@@ -529,7 +529,7 @@ class edi_route(models.Model):
     @api.multi
     def _run_out(self, envelopes):
         pass
-    
+
     @api.multi
     def _run_in(self):
         return []
@@ -540,6 +540,7 @@ class edi_route(models.Model):
         try:
             # create outgoing envelopes
             self._run_out(self.fold())
+            self._run_out(self.env['edi.envelope'].search([('state', '=', 'progress'), ('route_id', '=', self.id)]))
                     #~ envelope.state = 'sent'
                 #~ else:
                     #~ envelope.state = 'canceled'
@@ -651,7 +652,7 @@ class edi_route(models.Model):
                 'res_id': self.id,
                 'model': self._name,
                 'type': 'notification',})
-    
+
     @api.v7
     def cron_job(self, cr, uid, context=None):
         for route in self.pool.get('edi.route').browse(cr, uid, self.pool.get('edi.route').search(cr, uid, [('active','=',True)])):
