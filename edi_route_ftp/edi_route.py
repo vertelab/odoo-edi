@@ -225,13 +225,6 @@ class ftp(_comsession):
 
 class sftp(_comsession):
     ''' SFTP: SSH File Transfer Protocol (SFTP is not FTP run over SSH, SFTP is not Simple File Transfer Protocol)
-        standard port to connect to is port 22.
-        requires paramiko and pycrypto to be installed
-        based on class ftp and ftps above with code from demo_sftp.py which is included with paramiko
-        Mike Griffin 16/10/2010
-        Henk-jan ebbers 20110802: when testing I found that the transport also needs to be closed. So changed transport ->self.transport, and close this in disconnect
-        henk-jan ebbers 20111019: disabled the host_key part for now (but is very interesting). Is not tested; keys should be integrated in bots also for other protocols.
-        henk-jan ebbers 20120522: hostkey and privatekey can now be handled in user exit.
     '''
     def connect(self):
         # check dependencies
@@ -245,26 +238,10 @@ class sftp(_comsession):
             raise ImportError(_(u'Dependency failure: communicationtype "sftp" requires python library "pycrypto".'))
 
         if self.debug:
-            log_file = 'sftp.log'
             # Convert ftpdebug to paramiko logging level (1=20=info, 2=10=debug)
             paramiko.util.log_to_file('/tmp/sftp.log', 30)
-
-      
-        #~ if self.userscript and hasattr(self.userscript,'hostkey'):
-            #~ hostkey = botslib.runscript(self.userscript,self.scriptname,'hostkey',channeldict=self.channeldict)
-        #~ else:
-            #~ hostkey = None
-        #~ if self.userscript and hasattr(self.userscript,'privatekey'):
-            #~ privatekeyfile,pkeytype,pkeypassword = botslib.runscript(self.userscript,self.scriptname,'privatekey',channeldict=self.channeldict)
-            #~ if pkeytype == 'RSA':
-                #~ pkey = paramiko.RSAKey.from_private_key_file(filename=privatekeyfile,password=pkeypassword)
-            #~ else:
-                #~ pkey = paramiko.DSSKey.from_private_key_file(filename=privatekeyfile,password=pkeypassword)
-        #~ else:
-            #~ pkey = None
         hostkey = None
         pkey = None
-
         # now, connect and use paramiko Transport to negotiate SSH2 across the connection
         self.transport = paramiko.Transport((self.host,self.port or 22))
         self.transport.connect(username=self.username,password=self.password,hostkey=hostkey,pkey=pkey)
@@ -326,7 +303,8 @@ class edi_route(models.Model):
         if self.protocol == 'ftp':
             pass
         elif self.protocol == 'sftp':
-            pass
+            self.connect()
+            self.disconnect()
         else:
             super(edi_route, self).check_connection()
     
@@ -369,7 +347,7 @@ class edi_route(models.Model):
                 self.log(log)
             return envelopes
         else:
-            super(edi_route, self)._run_out()
+            super(edi_route, self)._run_in()
     
     @api.multi
     def _run_out(self, envelopes):

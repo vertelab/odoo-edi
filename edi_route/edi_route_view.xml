@@ -44,39 +44,45 @@
                 <field string="Messages" name="message_count" widget="statinfo" />
               </button>
             </div>
-            <group cols="4">
-              <group>
-                <field name="partner_id" />
-                <field name="protocol" />
-                <field name="route_type" />
-                <field name="active" />
-                <group>
-                  <field name="frequency_quant" />
-                  <field name="frequency_uom" />
-                </group>
-                <field name="next_run" />
-                <field name="run_sequence" />
-                <button name="check_connection" string="Check" type="object" icon="gtk-ok" colspan="1" />
-                <button name="run" string="Run" type="object" icon="gtk-ok" colspan="1" />
-                <!--
-                     <button name="fold" string="Fold" type="object" icon="gtk-ok" colspan="1"/>
-                -->
-              </group>
-              <group name="protocol" />
+            <group>
+              <field name="partner_id" />
+              <field name="protocol" />
+              <field name="route_type" />
+              <field name="active" />
+              <button name="check_connection" string="Check" type="object" icon="gtk-ok" class="oe_inline" />
+              <button name="run" string="Run" type="object" icon="gtk-ok" class="oe_inline" />
             </group>
-            <field name="route_line_ids">
-              <tree>
-                <field name="name" />
-                <field name="caller_id" />
-              </tree>
-              <form>
+            <notebook>
+              <page string="Outgoing message types">
+                <field name="route_line_ids">
+                  <tree>
+                    <field name="name" />
+                    <field name="caller_id" />
+                  </tree>
+                  <form>
+                    <group>
+                      <field name="name" />
+                      <field name="caller_id" />
+                    </group>
+                    <field name="code" />
+                  </form>
+                </field>
+              </page>
+              <page string="Cron settings">
                 <group>
-                  <field name="name" />
-                  <field name="caller_id" />
+                  <label for="frequency_quant" />
+                  <group>
+                    <field name="frequency_quant" class="oe_inline" nolabel="1"/>
+                    <field name="frequency_uom" class="oe_inline" nolabel="1" />
+                  </group>
+                  <field name="next_run" />
+                  <field name="run_sequence" />
                 </group>
-                <field name="code" />
-              </form>
-            </field>
+              </page>
+              <page string="Protocol settings">
+                <group name="protocol" />
+              </page>
+            </notebook>
           </sheet>
           <div class="oe_chatter">
             <field name="message_follower_ids" widget="mail_followers" />
@@ -179,8 +185,8 @@
               </button>
             </div>
             <group>
-              <field name="ref"/>
-              <field name="application"/>
+              <field name="ref" />
+              <field name="application" />
               <field name="sender" />
               <field name="recipient" />
               <field name="route_type" />

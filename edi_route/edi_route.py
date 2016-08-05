@@ -378,13 +378,6 @@ class edi_message(models.Model):
                     'model': message._name,
                     'type': 'notification',})
 
-    @api.v7
-    def cron_job(self, cr, uid, context=None):
-        for edi in self.pool.get('edi.message').browse(cr, uid, self.pool.get('edi.message').search(cr, uid, [('to_import','=',True)])):
-            edi._cron_job_in(cr,uid,edi,context=context)
-        for edi in self.pool.get('edi.message').browse(cr, uid, self.pool.get('edi.message').search(cr, uid, [('to_export','=',True)])):
-            edi._cron_job_out(cr,uid,edi,context=context)
-
     @api.one
     def _model_record(self):
         if self.model and self.res_id and self.env[self.model].browse(self.res_id):
@@ -587,17 +580,22 @@ class edi_route(models.Model):
                     #~ 'type': 'notification',})
             pass
         finally:
-            for envelope in envelopes:
-                if envelope.state == 'progress':
-                    try:
-                        self._cr.commit()
-                        envelope.split()
-                    except Exception as e:
-                        self._cr.rollback()
-                        envelope.state = 'canceled'
-                        self.log('Error when processing envelope %s\n%s' % (envelope.name, e))
+            if envelopes:
+                for envelope in envelopes:
+                    if envelope.state == 'progress':
+                        try:
+                            self._cr.commit()
+                            envelope.split()
+                        except Exception as e:
+                            self._cr.rollback()
+                            envelope.state = 'canceled'
+                            self.log('Error when processing envelope %s\n%s' % (envelope.name, e))
 
-            self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
+                self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
+                if not self.next_run:
+                    self.next_run = fields.datetime.now()
+                self.next_run = datetime.fromtimestamp(mktime(strptime(self.next_run, DEFAULT_SERVER_DATETIME_FORMAT))) + timedelta(minutes=self.frequency_quant * int(self.frequency_uom))
+
 
     def log(self, message, error_info=None):
         #TODO: Mail errors and implement this on envelope and message as well.
@@ -615,6 +613,8 @@ class edi_route(models.Model):
     @api.v7
     def cron_job(self, cr, uid, context=None):
         for route in self.pool.get('edi.route').browse(cr, uid, self.pool.get('edi.route').search(cr, uid, [('active','=',True)])):
+            if not route.next_run:
+                route.next_run = fields.datetime.now()
             if (datetime.fromtimestamp(mktime(strptime(route.next_run, DEFAULT_SERVER_DATETIME_FORMAT))) < datetime.today()):
                 route.run()
                 route.next_run = datetime.fromtimestamp(mktime(strptime(route.next_run, DEFAULT_SERVER_DATETIME_FORMAT))) + timedelta(minutes=route.frequency_quant * int(route.frequency_uom))

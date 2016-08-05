@@ -34,10 +34,9 @@ Requires python libraries paramiko and pycrypto. http://www.paramiko.org/install
     'website': 'http://www.vertel.se',
     'depends': ['edi','mail'],
     'external_dependencies': {
-        'python': ['paramiko'],
+        'python': ['paramiko','Crypto'],
     },
     'data': [ 'edi_route_view.xml',
-    #'security/ir.model.access.csv',
     ],
     'application': False,
     'installable': True,
