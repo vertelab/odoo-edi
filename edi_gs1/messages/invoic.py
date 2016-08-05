@@ -28,7 +28,7 @@ _logger = logging.getLogger(__name__)
 
 class edi_message(models.Model):
     _inherit='edi.message'
-        
+
     """
 UNH+272+INVOIC:D:93A:UN:EDIT30'
 BGM+380+2010/024'
@@ -92,25 +92,25 @@ UNT+59+272'
 """
 
     """
-UNH				EDIFACT-styrinformation.
-BGM				Typ av Ordersvar.
-DTM		Bekräftat leveransdatum.
-FTX	Uppgifter för felanalys
-RFF- DTM	Referensnummer				
-NAD		Köparens identitet (EAN lokaliseringsnummer).
-		Leverantörens identitet (EAN lokaliseringsnummer).
+UNH             EDIFACT-styrinformation.
+BGM             Typ av Ordersvar.
+DTM     Bekräftat leveransdatum.
+FTX Uppgifter för felanalys
+RFF- DTM    Referensnummer
+NAD     Köparens identitet (EAN lokaliseringsnummer).
+        Leverantörens identitet (EAN lokaliseringsnummer).
 
-LIN		Radnummer.
-			EAN artikelnummer.
-PIA		Kompletterande artikelnummer.
-QTY	Kvantitet.
+LIN     Radnummer.
+            EAN artikelnummer.
+PIA     Kompletterande artikelnummer.
+QTY Kvantitet.
 
-UNS		Avslutar orderrad.
-UNT		Avslutar ordermeddelandet.
-""" 
-    
+UNS     Avslutar orderrad.
+UNT     Avslutar ordermeddelandet.
+"""
+
     _edi_lines_tot_qty = 0
-    
+
     def _get_line_nr(self, order, inv_line):
         line_nr = 0
         for line in order.order_line:
@@ -118,7 +118,7 @@ UNT		Avslutar ordermeddelandet.
             if inv_line in line.invoice_lines:
                 return line_nr
         raise ValueError("Invoice line (id: %s) not found in order %s." % (inv_line.id, order.name))
-    
+
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
@@ -127,23 +127,31 @@ UNT		Avslutar ordermeddelandet.
                 raise ValueError("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record._name),self.model_record._name)
             invoice = self.model_record
             msg = self.UNH('INVOIC',ass_code='EAN008')
-            #280 = 	Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
+            #280 =  Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
             #9 = Original - Initial transmission related to a given transaction.
             msg += self.BGM(380, invoice.number, 9)
-            
+
             #Dates
             #Document date
             msg += self.DTM(137)
             #Actual delivery date
+            act_date = None
             for picking in invoice.picking_ids:  # same as despatch-date
-                msg += self.DTM(35, picking.date_done)
+                if picking.date_done > act_date:
+                    act_date = picking.date_done
+            if act_date:
+                msg += self.DTM(35, act_date)
             #Despatch date
+            des_date = None
             for picking in invoice.picking_ids:
-                msg += self.DTM(11, picking.date_done)
+                if picking.date_done > des_date:
+                    des_date = picking.date_done
+            if des_date:
+                msg += self.DTM(11, des_date)
             #Invoice period
             #msg += self.DTM(167)
             #msg += self.DTM(168, invoice.date_due)
-            
+
             #Contract reference
             if invoice._get_order() and invoice._get_order().project_id and invoice._get_order().project_id.code:
                 msg += self.RFF(invoice._get_order().project_id.code, 'CT')
@@ -156,8 +164,8 @@ UNT		Avslutar ordermeddelandet.
                 if picking.carrier_tracking_ref:
                     msg += self.RFF(picking.name, 'DQ')
             #msg += self.RFF(foobar.desadv, 'AAK')
-            
-            
+
+
             msg += self.NAD_BY()
             if self.consignee_id and self.consignee_id.vat:
                 msg += self.RFF(self.consignee_id.vat, 'VA')
@@ -165,17 +173,17 @@ UNT		Avslutar ordermeddelandet.
             msg += self.NAD_SU()
             if self.consignor_id and self.consignor_id.vat:
                 msg += self.RFF(self.consignor_id.vat, 'VA')
-            
+
             #~ msg += self.NAD_CN()
             #CUX Currency
             msg += self.PAT()
             msg += self.DTM(13, invoice.date_due)
-            
-            #Shipping charge, discount, collection reduction, service charge, packing charge 
+
+            #Shipping charge, discount, collection reduction, service charge, packing charge
             #   ALC Freigt charge
             #   MOA Ammount
             #   TAX
-            
+
             for line in invoice.invoice_line:
                 self._edi_lines_tot_qty += line.quantity
                 msg += self.LIN(line)
@@ -200,7 +208,7 @@ UNT		Avslutar ordermeddelandet.
             #Amount due
             msg += self.MOA(invoice.amount_total, 9)
             msg += self.MOA(0.0, 165)  # Adjustment amount. Amount being the balance of the amount to be adjusted and the adjusted amount.
-            
+
             #Small change roundoff
             #self.msg += self.MOA()
             #Sum of all line items
