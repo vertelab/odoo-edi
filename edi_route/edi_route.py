@@ -73,13 +73,6 @@ class edi_envelope(models.Model):
             'plain'
     route_type = fields.Selection(selection=[('plain','Plain')],default=_route_type_default)
 
-
-
-    #~ @api.one
-    #~ def transform(self):
-        #~ pass
-
-
     @api.one
     def draft(self):
         self.state = 'progress'
@@ -145,8 +138,6 @@ class edi_envelope(models.Model):
                     'type': 'notification',
                 })
                 self.state = "received"
-
-        #~ finally:
 
     @api.one
     def _split(self):
@@ -218,23 +209,11 @@ class edi_envelope(models.Model):
                     'model': self._name,
                     'type': 'notification',})
 
-
     @api.multi
     def _fold(self,route): # Folds messages in an envelope
         if route.route_type == 'plain':
             self.body = base64.b64encode(''.join([base64.b64decode(m.body) for m in self.edi_message_ids]))
         return self
-
-    def _cron_job_in(self,cr,uid, edi, context=None):
-        edi.write({'to_import': False})
-
-    def _cron_job_out(self,cr,uid, edi, context=None):
-        edi.write({'to_export': False})
-
-    @api.v7
-    def cron_job(self, cr, uid, context=None):
-        for edi in self.pool.get('edi.message').browse(cr, uid, self.pool.get('edi.message').search(cr, uid, [('to_export','=',True)])):
-            edi._cron_job_out(cr,uid,edi,context=context)
 
 class edi_message(models.Model):
     _name = 'edi.message'
@@ -309,9 +288,6 @@ class edi_message(models.Model):
                     'model': self._name,
                     'type': 'notification',})
             self.state = 'received'
-        #~ finally:
-            #~ pass
-
 
     @api.one
     def _unpack(self):
@@ -367,12 +343,6 @@ class edi_message(models.Model):
     @api.one
     def _pack(self):
         pass
-
-    def _cron_job_in(self,cr,uid, edi, context=None):
-        edi.write({'to_import': False})
-
-    def _cron_job_out(self,cr,uid, edi, context=None):
-        edi.write({'to_export': False})
 
     def _edi_message_create(self, edi_type=None,obj=None, sender=None,recipient=None,consignee=None,consignor=None, route=None, check_double=True):
         if consignee and obj and edi_type:
@@ -434,8 +404,6 @@ class edi_message_type(models.Model):
     _description = 'EDI Message Type'
 
     name = fields.Char(string="Name",required=True)
-
-
 
 class edi_route(models.Model):
     _name = 'edi.route'
@@ -519,12 +487,6 @@ class edi_route(models.Model):
                         envelope.fold()
                         envelopes.append(envelope)
         return envelopes
-
-    @api.one
-    def put_file(self,file):
-        pass
-
-
 
     @api.multi
     def _run_out(self, envelopes):
@@ -637,9 +599,6 @@ class edi_route(models.Model):
 
             self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
 
-
-
-
     def log(self, message, error_info=None):
         #TODO: Mail errors and implement this on envelope and message as well.
         if error_info:
@@ -741,7 +700,7 @@ class edi_application_line(models.Model):
     _name = 'edi.application.line'
     _description = 'EDI Application Line'
 
-    name = fields.Char('Application Reference')
+    name = fields.Char('Application Reference',help="Used sometimes in envelop as Interchange Control Ref")
     edi_type = fields.Many2one('edi.message.type', required=True)
     partner_id = fields.Many2one('res.partner', required=True)
 

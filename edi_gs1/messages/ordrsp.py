@@ -75,7 +75,7 @@ UNT		Avslutar ordermeddelandet.
     
     @api.one
     def _pack(self):
-        _logger.warn('pack ORDRSP')
+        _logger.info('pack ORDRSP')
         super(edi_message, self)._pack()
         msg = None
         #Orderbekräftelse

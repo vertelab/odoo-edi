@@ -27,12 +27,15 @@
     'licence': 'AGPL-3',
     'description': """
 Add generic routes,envelopes and messages for EDI usage.
-Other modules will extend these classes with communication protocolls, edi-message formats
-and mapping to Odoo-classes.
+Other modules will extend these classes with communication protocols, 
+edi-message formats and mapping to Odoo-classes. Examples of mapping 
+to odoo-classes: edi_route_sale, edi_route_stock; 
+communication protocols: edi_route_ftp (ftp/sftp) edi_route_mail; 
+edi-message-formats: edi_gs1, edi_peppol
 
  +---------------------------+---------------------------------+
  | edi.route                 | Recieves and sends envelopes    |
- |                           | using a communication protocoll.|
+ |                           | using a communication protocol. |
  |                           | Route is also responsible to run|
  |                           | the edi-flow.                   | 
  +---------------------------+---------------------------------+
@@ -50,6 +53,10 @@ and mapping to Odoo-classes.
  |                           | the ability to pack or unpack   |
  |                           | and map to odoo-classes         |
  +---------------------------+---------------------------------+
+ | edi.application.line      | Interchange Control Ref in some |
+ |                           | Envelope types. Tied to a       |
+ |                           | Recipient.                      |
+ +---------------------------+---------------------------------+
 
 edi.route uses automation (ir.cron) to empty the mailbox when 
 recieving envelopes (edi-messages). Outgoing transfer initiates
@@ -64,8 +71,8 @@ is a "context" defined by edi.route.lines that represents a stage in
 the workflow. For instance sale.order.action_invoice_create
 (the method action_invoice_create in sale.order class). Edi.route have
 rules to check if there is anything to do. Its possible to define rules
-for example ESAP20 edi-flow. Edi.route.caller holds a list of all
-possible context for edi-actions.
+for example ESAP20 edi-flow (edi_gs1). Edi.route.caller holds a list of
+all possible contexts for edi-actions.
 
 Every envelope created internally identifies with an internal 
 sequence number. Incomming envelops identifies by identification given
@@ -75,6 +82,40 @@ Each edi.message created internally identifies with an internal
 sequence number. Incomming messages is identified by idenfication given
 by the part. Edi-type and Consignee are keys to find a proper route for
 outgoing messages.
+
+How to connect a context (edi.route.caller) to a message
+========================================================
+    
+    edi_route_sale:
+    <record model="edi.route.caller" id="edi_route_sale.caller_create">
+        <field name="name">sale.order.create</field>
+    </record>
+
+    @api.model
+    def create(self, vals):  # Overrides sale.order.create() 
+        order =  super(sale_order,self).create(vals)
+        if order:
+            order.route_id.edi_action('sale.order.create',order=order)
+        return order
+    
+    edi_gs1:
+    <record model="edi.route.line" id="route_esap20_ordrsp">
+        <field name="name">ESAP20 ORDRSP</field>
+        <field name="caller_id" ref="edi_route_sale.caller_create"/>
+        <field name="route_id" ref="edi_gs1.route_esap20"/>
+        <field name="code">order._edi_message_create('edi_gs1.edi_message_type_ordrsp')</field>
+    </record>
+
+    edi_gs1/messages/ordrsp.py:
+    
+    class edi_message(models.Model):
+        _inherit='edi.message'
+        
+        @api.one
+        def _pack(self):
+            super(edi_message, self)._pack()
+            if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
+            ...
 
 
 """,
