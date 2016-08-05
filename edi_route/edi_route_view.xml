@@ -145,9 +145,10 @@
       <field name="view_mode">form</field>
       <field name="view_id" ref="view_edi_route_form" />
     </record>
-    <menuitem id="menu_edi_configuration" name="EDI" parent="base.menu_custom" />
+    <menuitem id="menu_edi" name="EDI" parent="knowledge.menu_document" sequence="1"/>
+    <menuitem id="menu_edi_configuration" name="EDI" parent="knowledge.menu_document_configuration" />
     <!-- groups="base.group_no_one"/> -->
-    <menuitem id="menu_edi_route_configuration" name="EDI Route" parent="edi_route.menu_edi_configuration" action='action_edi_route' />
+    <menuitem id="menu_edi_route_configuration" name="EDI Route" parent="edi_route.menu_edi" action='action_edi_route' />
     <!-- groups="base.group_no_one"/> -->
     <!-- EDI Envelope Form View -->
     <record id="action_edi_message_envelope" model="ir.actions.act_window">
@@ -258,7 +259,7 @@
       <field name="view_mode">form</field>
       <field name="view_id" ref="view_edi_envelope_form" />
     </record>
-    <menuitem id="menu_edi_envelope_configuration" name="EDI Envelope" parent="edi_route.menu_edi_configuration" action='action_edi_envelope' />
+    <menuitem id="menu_edi_envelope_configuration" name="EDI Envelope" parent="edi_route.menu_edi" action='action_edi_envelope' />
     <!-- groups="base.group_no_one"/> -->
     <!-- EDI Message Form View -->
     <record model="ir.ui.view" id="view_edi_message_form">
@@ -378,7 +379,7 @@
       <field name="view_mode">form</field>
       <field name="view_id" ref="view_edi_message_form" />
     </record>
-    <menuitem id="menu_edi_message_configuration" name="EDI Message" parent="edi_route.menu_edi_configuration" action='action_edi_message' />
+    <menuitem id="menu_edi_message_configuration" name="EDI Message" parent="edi_route.menu_edi" action='action_edi_message' />
     <!-- groups="base.group_no_one"/> -->
     <!-- EDI edi.route.caller Form View -->
     <!-- EDI Caller Tree View  -->
