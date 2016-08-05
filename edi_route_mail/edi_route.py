@@ -33,10 +33,10 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class edi_envelope(models.Model):
-    _inherit = 'edi.envelope' 
-    
+    _inherit = 'edi.envelope'
+
     mail_id = fields.Many2one(comodel_name="mail.message")
-    
+
     @api.one
     def split(self):
         mail = self.env['mail.message'].search([('model','=','edi.envelope'),('res_id','=',self.id),('type','=','email')])
@@ -50,7 +50,7 @@ class edi_envelope(models.Model):
                     'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id),
                     'envelope_id': self.id,
                     'consignor_id': mail.author_id and mail.author_id.id or False,
-                    'edi_type': self.route_id.edi_type,
+                    'route_type': self.route_id.route_type,
                     'route_id': self.route_id.id,
                     })
                 message.unpack()  # Preserv the pdffile as an attachment
@@ -61,7 +61,7 @@ class edi_envelope(models.Model):
                     'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id),
                     'envelope_id': self.id,
                     'consignor_id': mail.author_id and mail.author_id.id or False,
-                    'edi_type': self.route_id.edi_type,
+                    'route_type': self.route_id.route_type,
                     'route_id': self.route_id.id,
                     'body':  attachments[0].datas,
                     })
@@ -72,19 +72,17 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})                
+                    'type': 'notification',})
         super(edi_envelope,self).split()
 
 class edi_message(models.Model):
     _inherit='edi.message'
-        
-    edi_type = fields.Selection(selection_add = [('invoice_pdf','Invoice-pdf')])
 
     @api.one
-    def unpack(self): 
-        _logger.warning('unpack (edi_route_mail) %s %s' % (self.edi_type, self))
-        if self.edi_type == 'invoice_pdf':
-            invoice = self.env['account.invoice'].create({            
+    def unpack(self):
+        _logger.warning('unpack (edi_route_mail) %s %s' % (self.edi_type.name, self))
+        if self.edi_type.id == self.env.ref('edi_route_mail.edi_message_type_invoice_pdf'):
+            invoice = self.env['account.invoice'].create({
                 'name': self.envelope_id.mail_id.subject,
                 'origin': _('mail'),
                 'type': 'in_invoice',
@@ -102,36 +100,36 @@ class edi_message(models.Model):
             })
             self.write({'model': 'account.invoice', 'res_id': invoice.id})
             self.env['mail.message'].create({
-                    'body': _("{type} <a href='/web#model={model}&id={id}'>{message}</a> created\n").format(type=self.edi_type,model=self._name,id=self.id,message=self.name),
-                    'subject': self.edi_type,
+                    'body': _("{type} <a href='/web#model={model}&id={id}'>{message}</a> created\n").format(type=self.edi_type.name,model=self._name,id=self.id,message=self.name),
+                    'subject': self.edi_type.name,
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': invoice.id,
                     'model': invoice._name,
-                    'type': 'notification',})                
+                    'type': 'notification',})
             self.env['mail.message'].create({
                     'body': _("{type} <a href='/web#model={model}&id={id}'>{message}</a> created\n").format(type='invoice_pdf',model=invoice._name,id=invoice.id,message=invoice.name),
-                    'subject': self.edi_type,
+                    'subject': self.edi_type.name,
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})                
+                    'type': 'notification',})
 
         else:
             super(edi_message, self).unpack()
 
-            
+
 class edi_route(models.Model):
-    _inherit = 'edi.route' 
+    _inherit = 'edi.route'
     _inherits = {"mail.alias": "alias_id"}
-    
+
     alias_id = fields.Many2one(comodel_name='mail.alias', string='Alias', ondelete="restrict", required=True,
                                     help="Internal email associated with this route. Incoming emails are automatically synchronized"
                                          "with messagesd.")
     alias_model = fields.Char(String="Alias Model",default='edi.envelope')
     mail_debug = fields.Boolean(string="Debug",required=False)
     protocol = fields.Selection(selection_add=[('mail','Mail')])
-    edi_type = fields.Selection(selection_add = [('invoice_pdf','Invoice-pdf')])
-        
+    route_type = fields.Selection(selection_add=[('mail','Mail')])
+
     @api.one
     def run(self):
         super(edi_route, self).run()

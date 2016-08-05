@@ -108,6 +108,5 @@ and moved forward to related documents using rules in edi.route. (may be base.ac
     ],
     'application': False,
     'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
 }
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:

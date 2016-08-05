@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-    <data noupdate="1">
-       
+    <data>
 
 
-      
+
+
         <!-- Message-related subtypes for messaging / Chatter -->
         <record id="mt_edi_message_new" model="mail.message.subtype">
             <field name="name">New edi message</field>
@@ -33,8 +33,8 @@
             <field name="subject">EDI Management application installed!</field>
             <field name="body"><![CDATA[<p>Manage inbound/outbound EDI messages. </p>]]></field>
         </record>
-        
-        <record model="mail.alias" id="alias_invoice">
+
+        <record model="mail.alias" id="edi_route_mail.alias_invoice">
             <field name="alias_name">invoice</field>
             <field name="alias_model_id" ref="edi_route.model_edi_envelope"/>
             <field name="alias_contact">everyone</field>
@@ -44,7 +44,7 @@
                     }</field>
             <field name="alias_parent_model_id" ref="edi_route.model_edi_route"/>
         </record>
-        
+
         <record model="edi.route" id="edi_route_mail.mail_route">
             <field name="name">Mail</field>
             <field name="partner_id" ref="base.main_partner"/>
@@ -53,12 +53,13 @@
             <field name="active" eval="True"/>
             <field name="route_type" >mail</field>
         </record>
-        
-        <record model="mail.alias" id="alias_invoice">
+
+        <record model="mail.alias" id="edi_route_mail.alias_invoice">
             <field name="alias_parent_thread_id" ref="edi_route_mail.mail_route"/>
+            <field name="alias_model_id" ref="edi_route.model_edi_envelope"/>
         </record>
-        
-        
+
+
 
     <record model="edi.route" id="route_mail">
         <field name="name">Mail</field>
@@ -67,6 +68,10 @@
           <field name="active" eval="True"/>
     </record>
 
-        
+    <record id="edi_message_type_invoice_pdf" model="edi.message.type">
+        <field name="name">Invoice PDF</field>
+    </record>
+
+
     </data>
 </openerp>
