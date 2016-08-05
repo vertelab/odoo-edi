@@ -4,8 +4,10 @@ access_edi_route_manager_line,edi.route.manager.access,model_edi_route_line,base
 access_edi_route_manager_caller,edi.route.manager.access,model_edi_route_caller,base.group_erp_manager,1,1,1,1
 access_edi_envelope_manager,edi.envelope.manager.access,model_edi_envelope,base.group_erp_manager,1,1,1,1
 access_edi_message_manager,edi.message.manager.access,model_edi_message,base.group_erp_manager,1,1,1,1
+access_edi_application_line_manager,edi.application.line.manager.access,model_edi_application_line,base.group_erp_manager,1,1,1,1
 access_edi_route_user,edi.route.user.access,model_edi_route,,1,0,0,0
 access_edi_route_user_line,edi.route.user.access,model_edi_route_line,,1,0,0,0
 access_edi_route_user_caller,edi.route.user.access,model_edi_route_caller,,1,0,0,0
 access_edi_envelope_user,edi.envelope.user.access,model_edi_envelope,,1,0,0,0
 access_edi_message_user,edi.message.user.access,model_edi_message,,1,0,0,0
+access_edi_application_line_user,edi.application.line.access,model_edi_application_line,,1,0,0,0
