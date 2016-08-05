@@ -27,7 +27,7 @@
     'licence': 'AGPL-3',
     'description': """
 
-Implementation of PEPPOL BIS 5A 2.0 (Invoice)  Sevfaktura BIS 5A 2.0
+Implementation of PEPPOL BIS 5A 2.0 (Invoice)  Svefaktura BIS 5A 2.0
 
 https://sfti.validex.net/en/login
 https://portal.gefeg.com/validationportal/
@@ -56,6 +56,9 @@ also recognised as important and is encouraged by the Association.
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['edi_route','account'],
+    'external_dependencies': {
+        'python': ['xmltodict'],
+    },
     'data': [
         'account_invoice_data.xml',
     ],

@@ -32,7 +32,7 @@ Requires python libraries paramiko and pycrypto. http://www.paramiko.org/install
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi','mail'],
+    'depends': ['edi_route',],
     'external_dependencies': {
         'python': ['paramiko','Crypto'],
     },

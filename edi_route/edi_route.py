@@ -52,7 +52,6 @@ class edi_envelope(models.Model):
         else:
             return self.env['edi.route'].search([])[0]
     route_id = fields.Many2one(comodel_name='edi.route',required=True,default=_route_default)
-    #partner_id = fields.Many2one(string="Partner",related='route_id.partner_id',readonly=True)
     date = fields.Datetime(string='Date',default=fields.Datetime.now())
     body = fields.Binary()
     edi_message_ids = fields.One2many(comodel_name='edi.message',inverse_name='envelope_id')
@@ -279,9 +278,12 @@ class edi_message(models.Model):
             _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
             self.state = 'canceled'
+        except Warning as e:
+            _logger.error('EDI Warning Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            self.state = 'canceled'
         else:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s %s messages created\n" % (self.route_id.name,self.route_type,'ok')),
+                    'body': _("Route %s type %s %s messages unpacked\n" % (self.route_id.name,self.route_type,self.edi_type.name)),
                     'subject': "Success",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
@@ -330,16 +332,13 @@ class edi_message(models.Model):
             #raise Warning('EDI IOError in split %s' % e)
         else:
             self.env['mail.message'].create({
-                    'body': _("Route %s type %s %s messages created\n" % (self.route_id.name, self.route_type, 'ok')),
+                    'body': _("Route %s type %s %s messages packed\n" % (self.route_id.name, self.route_type, self.edi_type.name)),
                     'subject': "Success",
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-        #~ finally:
-            #~ pass
-
-
+        
     @api.one
     def _pack(self):
         pass
@@ -404,7 +403,7 @@ class edi_route(models.Model):
     _description = 'EDI Route'
 
     name = fields.Char(string="Name",required=True)
-    partner_id = fields.Many2one(comodel_name='res.partner',required=True)
+    #partner_id = fields.Many2one(comodel_name='res.partner',required=True)
     active = fields.Boolean()
     protocol = fields.Selection(selection=[('none','None')])
     frequency_quant = fields.Integer(string="Frequency")
@@ -517,7 +516,7 @@ class edi_route(models.Model):
                     'model': self._name,
                     'type': 'notification',})
             _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.name, self.route_type, e))
-            raise Warning('EDI TypeError in split %s' % e)
+            raise Warning('EDI TypeError in run(out) %s' % e)
         except IOError as e:
             self.env['mail.message'].create({
                     'body': _("Route %s type %s IOError %s\n" % (self.name, self.route_type, e)),

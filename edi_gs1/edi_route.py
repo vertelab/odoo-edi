@@ -111,29 +111,29 @@ class edi_envelope(models.Model):
                 raise TypeError('UNB segment missing!')
             elif not segment_check.get('UNZ'):
                 raise TypeError('UNZ segment missing!')
+            _logger.warn('msgs to create: %s' % msgs)
             for msg_dict in msgs:
                 #Large potential for transaction lock when unpacking messages.
                 #Commit for every message and rollback on error.
                 #Every working message is unpacked.
                 try:
-                    self._cr.commit()
+                    #self._cr.commit()
                     msg = self.env['edi.message'].create(msg_dict)
+                    _logger.warn('msg created: %s' % msg)
                     msg.unpack()
                 except Exception as e:
-                    self._cr.rollback()
+                    #self._cr.rollback()
                     self.route_id.log("Error when reading message '%s' of envelope '%s'" % (msg_dict.get('name'), self.name), sys.exc_info())
                     self.state = 'canceled'
         super(edi_envelope, self)._split()
 
     @api.model
     def _get_partner(self, l, part_type):
-        _logger.warn('get partner %s (%s)' % (l, part_type))
+        _logger.info('get partner %s (%s)' % (l, part_type))
         if l[1] == '14':
             partner = self.env['res.partner'].search([('gs1_gln', '=', l[0])])
-            _logger.warn(partner)
             if len(partner) == 1:
                 return partner
-            _logger.warn('Warning!')
         raise ValueError("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"), l, part_type)
 
     def _create_UNB_segment(self, sender, recipient):

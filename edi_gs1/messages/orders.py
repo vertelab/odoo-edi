@@ -66,10 +66,6 @@ UNS		Avslutar orderrad.
 UNT		Avslutar ordermeddelandet.
 """ 
 
-    #TODO: replace with new selection_add (?) parameter
-    def _edi_type(self):
-        return [t for t in super(edi_message, self)._edi_type() + [('ORDERS','ORDERS')] if not t[0] == 'none']
-
     @api.one
     def _unpack(self):
         _logger.warning('unpack (orders.py) %s %s' % (self.edi_type, self))

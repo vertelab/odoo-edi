@@ -36,6 +36,9 @@
                 <tree string="Sales Order Lines" position="attributes">
                     <attribute name="colors">red: is_available == 'false'</attribute>
                 </tree>
+                 <tree string="Sales Order Lines" position="inside">
+                    <field name="is_available" invisible="1"/>
+                </tree>
             </field>
         </record>
 

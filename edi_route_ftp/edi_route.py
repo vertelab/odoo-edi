@@ -303,8 +303,9 @@ class edi_route(models.Model):
         if self.protocol == 'ftp':
             pass
         elif self.protocol == 'sftp':
-            self.connect()
-            self.disconnect()
+            server =  sftp(host=self.ftp_host, username=self.ftp_user, password=self.ftp_password, debug=self.ftp_debug)
+            server.connect()
+            server.disconnect()
         else:
             super(edi_route, self).check_connection()
     

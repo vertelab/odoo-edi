@@ -29,15 +29,9 @@ import re
 import logging
 _logger = logging.getLogger(__name__)
 
-class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    edi_type = fields.Selection(selection_add=[('invoice bis4a','Invoice BIS 4A')]) 
-
 class edi_message(models.Model):
     _inherit='edi.message'
-        
-    edi_type = fields.Selection(selection_add = [('invoice bis4a','Invoice BIS 4A')])
-    
+            
     def _peppol_build_invoice_diff_msg(self, total, untaxed, tax, lines, charges, allowances):
         msg = """
 \nCalculated invoice does not match received invoice!
@@ -61,16 +55,16 @@ Lines
     
     def _peppol_create_inv_line(self, line):
         res = (0, {
-           'name': ,
-           'quantity': ,
-           'price_unit': ,
+           'name': '',
+           'quantity': 0.0,
+           'price_unit': None,
         })
         
         res['product_id'] = None
     
     @api.one
     def unpack(self):
-        if self.edi_type == 'invoice bis4a':
+        if self.edi_type.id == self.env.ref('edi_peppol.edi_message_type_bis4a').id:
             msgd = xmltodict.parse(base64.b64decode(self.body))
             invd = msgd.get('Invoice')
             if not invd:
@@ -84,7 +78,7 @@ Lines
             ref = invd.get('cac:OrderReference') and invd.get('cac:OrderReference').get('cbc:ID')
             order = self.env['purchase.order'].search(['|', ('name', '=', ref), ('partner_ref', '=', ref)])
             if len(order) > 1:
-                raise Warning('Found multiple matching purchase orders! reference: %s. orders: %s' % (ref, [o.name for o in order]]))
+                raise Warning('Found multiple matching purchase orders! reference: %s. orders: %s' % (ref, [o.name for o in order]))
             elif len(order) != 1:
                 raise Warning("Couldn't find a purchase order matching reference '%s'!" % ref)
             else:
@@ -155,7 +149,7 @@ Lines
     @api.one
     def pack(self):
         super(edi_message, self).pack()
-        if self.edi_type == 'invoice bis4a':
+        if self.edi_type.id == self.env.ref('edi_peppol.edi_message_type_bis4a').id:
             if not self.model_record or self.model_record._name != 'account.invoice':
                 raise Warning("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record and self.model_record._name or None))
             invoice = self.model_record
@@ -175,7 +169,7 @@ Lines
             )
 
             raise Warning('Not implemented yet')
-            msg = self.UNH(self.edi_type)
+            msg = self.UNH(self.edi_type.name)
             #280 = 	Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
             #9 = Original - Initial transmission related to a given transaction.
             _logger.warn(invoice.name)

@@ -117,7 +117,7 @@ UNT		Avslutar ordermeddelandet.
         elif self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_orderk').id:
             _logger.warn('mode_record: %s' % self.model_record)
             if self.model_record._name != 'sale.order':
-                raise Warning("ORDRSP: Attached record is not a sale.order!")
+                raise ValueError("ORDRSP: Attached record is not a sale.order!")
             msg =  self.UNH(edi_type='ORDRSP')
             msg += self.BGM(231, self.model_record.name, 12)
             msg += self.DTM(137,format=203)
@@ -134,6 +134,7 @@ UNT		Avslutar ordermeddelandet.
 
     @api.one
     def _unpack(self):
+        _logger.info('unpack ORDRSP')
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
             segment_count = 0
             delivery_dt = None

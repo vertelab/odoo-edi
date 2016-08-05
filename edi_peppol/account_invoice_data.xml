@@ -17,6 +17,14 @@
         <field name="key2">client_action_multi</field>
         <field name="value" eval="'ir.actions.server,%d' % action_create_invoic"/>
     </record>
+    
+    <record id="edi_message_type_bis4a" model="edi.message.type">
+        <field name="name">Bis4a</field>
+    </record>
+    <record id="edi_message_type_bis5a" model="edi.message.type">
+        <field name="name">Bis5a</field>
+    </record>
+
 
 </data>
 </openerp>

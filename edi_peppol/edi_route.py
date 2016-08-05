@@ -53,7 +53,7 @@ class edi_envelope(models.Model):
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    edi_type = fields.Selection(selection_add=[('bis4a','Peppol BIS4A')])
+    route_type = fields.Selection(selection_add=[('bis4a','Peppol BIS4A')])
 
 class edi_message(models.Model):
     _inherit='edi.message'

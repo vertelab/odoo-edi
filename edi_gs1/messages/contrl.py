@@ -35,7 +35,7 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_contrl').id:
             _logger.warn('model_record: %s' % self.model_record)
             if self.model_record._name != 'edi.envelope':
-                raise Warning("CONTRL: Attached record is not an edi.envelope!")
+                raise ValueError("CONTRL: Attached record is not an edi.envelope!")
             envelope = self.model_record
             msg =  self.UNH(edi_type='CONTRL', ass_code='EAN002')
             msg += self.UCI(envelope.ref, envelope.sender, envelope.recipient)

@@ -45,7 +45,9 @@
               </button>
             </div>
             <group>
+<!--
               <field name="partner_id" />
+-->
               <field name="protocol" />
               <field name="route_type" />
               <field name="active" />
@@ -98,7 +100,9 @@
       <field name="arch" type="xml">
         <tree string="EDI Route">
           <field name="name" />
+<!--
           <field name="partner_id" />
+-->
           <field name="protocol" />
           <field name="active" />
         </tree>
@@ -110,13 +114,17 @@
       <field name="model">edi.route</field>
       <field name="arch" type="xml">
         <search string="Search EDI Route">
-          <field name="name" string="Route" filter_domain="[('name','ilike',self),('partner_id','ilike',self),('protocol','ilike',self)]" />
+          <field name="name" string="Route" filter_domain="[('name','ilike',self),('protocol','ilike',self)]" />
+<!--
           <field name="partner_id" />
+-->
           <filter icon="terp-go-today" string="Active" domain="[('active','=',True)]" help="Active" />
           <filter icon="terp-go-today" string="Inactive" domain="[('active','=',False)]" help="Inactive" />
           <separator />
           <group expand="0" string="Group By">
+<!--
             <filter string="Partner" icon="terp-personal" domain="[]" context="{'group_by':'partner_id'}" />
+-->
             <filter string="Type" icon="terp-personal" domain="[]" context="{'group_by':'protocol'}" />
           </group>
         </search>
@@ -212,6 +220,8 @@
           <field name="route_id" />
           <field name="sender" />
           <field name="recipient" />
+          <field name="ref" />
+          <field name="application" />
           <field name="state" />
           <field name="date" />
         </tree>
@@ -223,14 +233,17 @@
       <field name="model">edi.envelope</field>
       <field name="arch" type="xml">
         <search string="Search EDI Envelope">
-          <field name="name" string="Envelope" filter_domain="[('name','ilike',self),('sender','ilike',self),('recipient','ilike',self),('route_id','ilike',self)]" />
+          <field name="name" string="Envelope" filter_domain="[('name','ilike',self),('sender','ilike',self),('ref','ilike',self),('recipient','ilike',self),('route_id','ilike',self)]" />
           <field name="route_id" />
+          <field name="ref" />
+          <field name="application" />
           <filter icon="terp-go-today" string="Partner" domain="[('partner_id','=',uid)]" help="My Urls" />
           <separator />
           <group expand="0" string="Group By">
             <filter string="Recipient" icon="terp-personal" domain="[]" context="{'group_by':'recipient'}" />
             <filter string="Sender" icon="terp-personal" domain="[]" context="{'group_by':'sender'}" />
             <filter string="State" icon="terp-personal" domain="[]" context="{'group_by':'state'}" />
+            <filter string="Application" icon="terp-personal" domain="[]" context="{'group_by':'application'}" />
             <filter string="Route" icon="terp-personal" domain="[]" context="{'group_by':'route_id'}" />
           </group>
         </search>

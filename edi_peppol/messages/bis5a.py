@@ -26,25 +26,19 @@ from datetime import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
-class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    edi_type = fields.Selection(selection_add=[('INVOIC','INVOIC')]) 
 
 class edi_message(models.Model):
     _inherit='edi.message'
-        
-    edi_type = fields.Selection(selection_add = [('bis5a','bis5a')])
-    
     _edi_lines_tot_qty = 0
     
     @api.one
     def pack(self):
         super(edi_message, self).pack()
-        if self.edi_type == 'INVOIC':
+        if self.edi_type.id == self.env.ref('edi_peppol.edi_message_type_bis5a').id:
             if self.model_record._name != 'account.invoice':
                 raise Warning("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record._name))
             invoice = self.model_record
-            msg = self.UNH(self.edi_type)
+            msg = self.UNH(self.edi_type.name)
             #280 = 	Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
             #9 = Original - Initial transmission related to a given transaction.
             _logger.warn(invoice.name)
