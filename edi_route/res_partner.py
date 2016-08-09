@@ -33,7 +33,7 @@ class res_partner(models.Model):
     def _edi_message_count(self):
         self.edi_message_count = len(self.edi_message_ids)
     edi_message_count = fields.Integer(compute='_edi_message_count',string="# messages")
-    
+
     @api.one
     def _edi_message_ids(self):
         #raise Warning([(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])])
@@ -44,12 +44,15 @@ class res_partner(models.Model):
 
     @api.model
     def get_edi_types(self, partner):
-        """Check in n levels if its ok to send edi-messages of this type to this part."""
+        """
+            Check in n levels if its ok to send edi-messages of this type to this part.
+            Check in edi_message._edi_message_create()
+        """
         types = [l.edi_type.id for l in partner.edi_application_lines]
         if partner.parent_id:
             types += self.get_edi_types(self.parent_id)
         return set(types)
-    
+
     edi_application_lines = fields.One2many('edi.application.line', 'partner_id', 'EDI Applications')
 
 from openerp import http

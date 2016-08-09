@@ -338,13 +338,16 @@ class edi_message(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-        
+
     @api.one
     def _pack(self):
         pass
 
     def _edi_message_create(self, edi_type=None,obj=None, sender=None,recipient=None,consignee=None,consignor=None, route=None, check_double=True):
         if consignee and obj and edi_type:
+            #do not create message if edi type is not listed in consignee
+            if not self.env.ref(edi_type).id in consignee.get_edi_types():
+                return None
             if check_double and len(self.env['edi.message'].search([('model','=',obj._name),('res_id','=',obj.id),('edi_type','=',self.env.ref(edi_type).id)])) > 0:
                 return None
             message = self.env['edi.message'].create({

@@ -170,6 +170,14 @@ UNT     Avslutar ordermeddelandet.
             if self.consignee_id and self.consignee_id.vat:
                 msg += self.RFF(self.consignee_id.vat, 'VA')
 
+            if invoice._get_order() and invoice._get_order().nad_dp:
+                self.nad_dp = invoice._get_order().nad_dp.id
+                msg += self.NAD_DP()
+
+            if invoice._get_order() and invoice._get_order().nad_ito:
+                self.nad_ito = invoice._get_order().nad_ito.id
+                msg += self.NAD_ITO()
+
             msg += self.NAD_SU()
             if self.consignor_id and self.consignor_id.vat:
                 msg += self.RFF(self.consignor_id.vat, 'VA')

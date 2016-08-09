@@ -50,9 +50,11 @@ class sale_order(models.Model):
     nad_sn = fields.Many2one(comodel_name='res.partner',help="Store keeper,A party keeping a shop or store.")
     nad_cn = fields.Many2one(comodel_name='res.partner',help="Consignee, party to which goods are consigned.")
     nad_dp = fields.Many2one(comodel_name='res.partner',help="Delivery party, party to which goods should be delivered, if not identical with consignee.")
+    nad_ito = fields.Many2one(comodel_name='res.partner',help="Invoice party, party to which bill should be invoiced, if not identical with consignee.")
     unb_sender = fields.Many2one(comodel_name='res.partner')
     unb_recipient = fields.Many2one(comodel_name='res.partner')
     dtm_delivery = fields.Date('Delivery Date', help='Date from DTM with code 2.')
+    dtm_issue = fields.Date('Issued Date', help='Date from DTM with code 137.')
 
     #~ def _edi_message_create(self, edi_type):
         #~ self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, partner=self.partner_id, check_route=False, check_double=False)

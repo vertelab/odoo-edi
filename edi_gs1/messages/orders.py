@@ -25,10 +25,10 @@ from datetime import datetime
 
 import logging
 _logger = logging.getLogger(__name__)
-    
+
 class edi_message(models.Model):
     _inherit='edi.message'
-    
+
     """
 UNA:+.? '
 UNB+UNOC:3+7301002000009:14+7310000000040:14+110131:1720+627++ICARSP4'
@@ -49,22 +49,22 @@ UNZ+1+627'
 """
 
     """
-UNH				EDIFACT-styrinformation.
-BGM				Typ av Ordersvar.
-DTM		Bekräftat leveransdatum.
-FTX	Uppgifter för felanalys
-RFF- DTM	Referensnummer				
-NAD		Köparens identitet (EAN lokaliseringsnummer).
-		Leverantörens identitet (EAN lokaliseringsnummer).
+UNH             EDIFACT-styrinformation.
+BGM             Typ av Ordersvar.
+DTM     Bekräftat leveransdatum.
+FTX Uppgifter för felanalys
+RFF- DTM    Referensnummer
+NAD     Köparens identitet (EAN lokaliseringsnummer).
+        Leverantörens identitet (EAN lokaliseringsnummer).
 
-LIN		Radnummer.
-			EAN artikelnummer.
-PIA		Kompletterande artikelnummer.
-QTY	Kvantitet.
+LIN     Radnummer.
+            EAN artikelnummer.
+PIA     Kompletterande artikelnummer.
+QTY Kvantitet.
 
-UNS		Avslutar orderrad.
-UNT		Avslutar ordermeddelandet.
-""" 
+UNS     Avslutar orderrad.
+UNT     Avslutar ordermeddelandet.
+"""
 
     @api.one
     def _unpack(self):
@@ -93,13 +93,17 @@ UNT		Avslutar ordermeddelandet.
                 elif segment[0] == 'DTM':
                     function = segment[1][0]
                     if function == '2':
+                        order_values['dtm_delivery'] = self._parse_date(segment[1])
                         order_values['date_order'] = self._parse_date(segment[1])
                         _logger.warn(order_values['date_order'])
                         if segment[1][2] == '102':
                             order_values['date_order'] = order_values['date_order'][:11] + '15' + order_values['date_order'][13:]
+                            order_values['dtm_delivery'] = order_values['dtm_delivery'][:11] + '15' + order_values['dtm_delivery'][13:]
                         _logger.warn(order_values['date_order'])
                     elif function == '137':
-                        doc_dt = self._parse_date(segment[1])
+                        order_values['dtm_issue'] = self._parse_date(segment[1])
+                        if segment[1][2] == '102':
+                            order_values['dtm_issue'] = order_values['dtm_issue'][:11] + '15' + order_values['dtm_issue'][13:]
                 elif segment[0] == 'NAD':
                     if segment[1] == 'BY':
                         order_values['nad_by'] = order_values['partner_id'] = self._get_partner(segment[2]).id
@@ -108,7 +112,7 @@ UNT		Avslutar ordermeddelandet.
                         order_values['nad_su'] =self._get_partner(segment[2]).id
                         supplier = self._get_partner(segment[2])
                         if self.env.ref('base.main_partner').id != self._get_partner(segment[2]).id:
-                            raise ValueError('Supplier %s is not us (%s)' % (segment[2],self.env.ref('base.main_partner').gs1_gln)) 
+                            raise ValueError('Supplier %s is not us (%s)' % (segment[2],self.env.ref('base.main_partner').gs1_gln))
                         _logger.warn('supplier: %s' % segment[2])
                         self.consignor_id = self._get_partner(segment[2]).id
                     elif segment[1] == 'SN':
@@ -125,6 +129,11 @@ UNT		Avslutar ordermeddelandet.
                         recipient = self._get_partner(segment[2]).id
                         order_values['nad_dp'] =self._get_partner(segment[2]).id
                         _logger.warn('recipient: %s' % segment[2])
+                    #Invoice Party
+                    elif segment[1] == 'ITO':
+                        recipient = self._get_partner(segment[2]).id
+                        order_values['nad_ito'] =self._get_partner(segment[2]).id
+                        _logger.warn('invoice: %s' % segment[2])
                 elif segment[0] == 'LIN':
                     if line:
                         order_values['order_line'].append((0, 0, line))
@@ -156,6 +165,18 @@ UNT		Avslutar ordermeddelandet.
                     _logger.warn(order_values)
                     #create order
                     order = self.env['sale.order'].create(order_values)
+                    if order.nad_ito:
+                        self.nad_ito = order.nad_ito.id
+                        order.partner_invoice_id.id = order.nad_ito.id
+                    elif not order.partner_invoice_id.id == order.partner_id.id:
+                        self.nad_ito = order.partner_invoice_id.id
+                        order.nad_ito = order.partner_invoice_id.id
+                    if order.nad_dp:
+                        self.nad_dp = order.nad_dp.id
+                        order.partner_shipping_id.id = order.nad_dp.id
+                    elif not order.partner_shipping_id.id == order.partner_id.id:
+                        self.nad_dp = order.partner_shipping_id.id
+                        order.nad_dp = order.partner_shipping_id.id
 
                     _logger.warn('Order ready %r' % order)
                     self.model = order._name

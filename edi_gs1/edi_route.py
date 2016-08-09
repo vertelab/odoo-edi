@@ -174,6 +174,8 @@ class edi_message(models.Model):
     _inherit='edi.message'
 
     route_type = fields.Selection(selection_add=[('esap20', 'ESAP 20')])
+    nad_dp = fields.Many2one(comodel_name='res.partner',help="Delivery party, party to which goods should be delivered, if not identical with consignee.")
+    nad_ito = fields.Many2one(comodel_name='res.partner',help="Invoice party, party to which bill should be invoiced, if not identical with consignee.")
 
     _seg_count = 0
     _lin_count = 0
@@ -321,7 +323,9 @@ class edi_message(models.Model):
     def NAD_SH(self,type='GLN'):
         return self._NAD('SH', self.forwarder_id, type)
     def NAD_DP(self,type='GLN'):
-        return self._NAD('DP', self.carrier_id, type)
+        return self._NAD('DP', self.nad_dp, type)
+    def NAD_ITO(self,type='GLN'):
+        return self._NAD('ITO', self.nad_ito, type)
     def NAD_CN(self,type='GLN'):
         return self._NAD('CN', self.consignee_id, type)  # ????
 

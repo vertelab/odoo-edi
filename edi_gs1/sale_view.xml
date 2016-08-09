@@ -20,7 +20,9 @@
                                     <field name="nad_sn"/>
                                     <field name="nad_cn"/>
                                     <field name="nad_dp"/>
+                                    <field name="nad_ito"/>
                                     <field name="dtm_delivery"/>
+                                    <field name="dtm_issue"/>
                                 </group>
                             </group>
                         </page>
