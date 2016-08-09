@@ -35,7 +35,7 @@ def _check_order_status(order):
 
 class edi_message(models.Model):
     _inherit='edi.message'
-        
+
     """
 UNA:+.? '
 UNB+UNOC:3+7301002000009:14+7310000000040:14+110131:1720+627++ICARSP4'
@@ -56,23 +56,23 @@ UNZ+1+627'
 """
 
     """
-UNH				EDIFACT-styrinformation.
-BGM				Typ av Ordersvar.
-DTM		Bekräftat leveransdatum.
-FTX	Uppgifter för felanalys
-RFF- DTM	Referensnummer				
-NAD		Köparens identitet (EAN lokaliseringsnummer).
-		Leverantörens identitet (EAN lokaliseringsnummer).
+UNH             EDIFACT-styrinformation.
+BGM             Typ av Ordersvar.
+DTM     Bekräftat leveransdatum.
+FTX Uppgifter för felanalys
+RFF- DTM    Referensnummer
+NAD     Köparens identitet (EAN lokaliseringsnummer).
+        Leverantörens identitet (EAN lokaliseringsnummer).
 
-LIN		Radnummer.
-			EAN artikelnummer.
-PIA		Kompletterande artikelnummer.
-QTY	Kvantitet.
+LIN     Radnummer.
+            EAN artikelnummer.
+PIA     Kompletterande artikelnummer.
+QTY Kvantitet.
 
-UNS		Avslutar orderrad.
-UNT		Avslutar ordermeddelandet.
-""" 
-    
+UNS     Avslutar orderrad.
+UNT     Avslutar ordermeddelandet.
+"""
+
     @api.one
     def _pack(self):
         _logger.info('pack ORDRSP')
@@ -112,7 +112,7 @@ UNT		Avslutar ordermeddelandet.
                 msg += self.CNT(1, cnt_amount)
                 msg += self.CNT(2, cnt_lines)
             msg += self.UNT()
-        
+
         #Ordererkännande
         elif self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_orderk').id:
             _logger.warn('mode_record: %s' % self.model_record)

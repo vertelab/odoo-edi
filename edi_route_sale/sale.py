@@ -25,14 +25,14 @@ _logger = logging.getLogger(__name__)
 
 class sale_order(models.Model):
     _inherit = 'sale.order'
-    
+
     route_id = fields.Many2one(comodel_name="edi.route")
-    
+
     @api.one
     def _message_count(self):
         self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
     message_count = fields.Integer(compute='_message_count',string="# messages")
-    
+
 
     @api.model
     def create(self, vals):
@@ -83,7 +83,7 @@ class sale_order(models.Model):
     @api.multi
     def action_invoice_create(self, grouped=False, states=None, date_invoice = False):
         #TODO: Check if this works with multiple orders selected
-        res =  super(sale_order,self).action_invoice_create(grouped=grouped, states=states, date_invoice = date_invoice)        
+        res =  super(sale_order,self).action_invoice_create(grouped=grouped, states=states, date_invoice = date_invoice)
         invoices = [i for i in self[0].invoice_ids if i.state == 'draft']
         if len(invoices)>0:
             if self.route_id:
@@ -110,7 +110,7 @@ class sale_order(models.Model):
             if order.route_id:
                 order.route_id.edi_action('sale.order.action_ignore_delivery_exception',order=order,res=res)
         return res
-     
+
     def _edi_message_create(self, edi_type,check_double=False,):
         self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, consignee=self.partner_id, route=self.route_id, check_double=check_double)
 

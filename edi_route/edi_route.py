@@ -346,7 +346,7 @@ class edi_message(models.Model):
     def _edi_message_create(self, edi_type=None,obj=None, sender=None,recipient=None,consignee=None,consignor=None, route=None, check_double=True):
         if consignee and obj and edi_type:
             #do not create message if edi type is not listed in consignee
-            if not self.env.ref(edi_type).id in consignee.get_edi_types():
+            if not self.env.ref(edi_type).id in consignee.get_edi_types(consignee):
                 return None
             if check_double and len(self.env['edi.message'].search([('model','=',obj._name),('res_id','=',obj.id),('edi_type','=',self.env.ref(edi_type).id)])) > 0:
                 return None
@@ -360,7 +360,6 @@ class edi_message(models.Model):
                     # This is a reply, switch recipient/sender unless we got excplicit parties
                     'sender': sender and sender.id or obj.unb_recipient.id,
                     'recipient': recipient and recipient.id or obj.unb_sender.id,
-
                     'consignor_id': consignor and consignor.id or self.env.ref('base.main_partner').id,
                     'consignee_id': consignee.id,
             })
@@ -627,7 +626,8 @@ class edi_route(models.Model):
         _logger.info("Caller ID: %s kwargs %s" % (caller_name, kwargs))
         caller = self.env['edi.route.caller'].search([('name', '=', caller_name)])
         if caller:
-            for action in self.env['edi.route.line'].search([('caller_id', '=', [c.id for c in caller][0]), ('route_id', '=', self.id)]):
+            #~ _logger.info("Caller: %s; %s" % (caller[0].name, self.route_line_ids.filtered(lambda a: a.caller_id.id == caller[0].id)))
+            for action in self.route_line_ids.filtered(lambda a: a.caller_id.id == caller[0].id):
                 _logger.info("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
                 action.run_action_code(kwargs)
         else:
@@ -697,6 +697,10 @@ class edi_route_caller(models.Model):
     _description = 'EDI Route Caller'
 
     name = fields.Char('name')
+
+    _sql_constraints = [
+        ('name_uniq', 'unique(name)', 'Caller ID must be unique!'),
+    ]
 
 class edi_application_line(models.Model):
     _name = 'edi.application.line'

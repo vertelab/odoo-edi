@@ -1,40 +1,39 @@
 <openerp>
-<!-- TODO: noupdate=1 -->
-<data>
+<data noupdate="1">
     <record model="edi.route.caller" id="caller_create">
         <field name="name">stock.picking.create</field>
     </record>
     <record model="edi.route.caller" id="caller_action_confirm">
         <field name="name">stock.picking.action_confirm</field>
-    </record>    
+    </record>
     <record model="edi.route.caller" id="caller_action_assign">
         <field name="name">stock.picking.action_assign</field>
-    </record>    
+    </record>
     <record model="edi.route.caller" id="caller_action_done">
         <field name="name">stock.picking.action_done</field>
-    </record>    
+    </record>
     <record model="edi.route.caller" id="caller_action_pack">
         <field name="name">stock.picking.action_pack</field>
-    </record>    
+    </record>
     <record model="edi.route.caller" id="caller_action_cancel">
         <field name="name">stock.picking.action_cancel</field>
-    </record>    
+    </record>
 
 <!--
 stock.move
 -->
     <record model="edi.route.caller" id="caller_move_create">
         <field name="name">stock.move.create</field>
-    </record>    
+    </record>
     <record model="edi.route.caller" id="caller_move_action_cancel">
         <field name="name">stock.move.action_cancel</field>
-    </record>    
+    </record>
     <record model="edi.route.caller" id="caller_move_action_confirm">
         <field name="name">stock.move.action_confirm</field>
-    </record>    
+    </record>
     <record model="edi.route.caller" id="caller_move_action_done">
         <field name="name">stock.move.action_done</field>
-    </record>    
+    </record>
 
 </data>
 </openerp>

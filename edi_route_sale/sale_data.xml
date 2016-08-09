@@ -1,6 +1,5 @@
 <openerp>
-<!-- TODO: noupdate=1 -->
-<data>
+<data noupdate="1">
     <record model="edi.route.caller" id="edi_route_sale.caller_create">
         <field name="name">sale.order.create</field>
     </record>

@@ -1,30 +1,29 @@
 <openerp>
-<!-- TODO: noupdate=1 -->
-<data>
-    
+<data noupdate="1">
+
     <record model="edi.route.caller" id="caller_create">
         <field name="name">account.invoice.create</field>
     </record>
-    
+
     <record model="edi.route.caller" id="caller_action_draft">
         <field name="name">account.invoice.action_draft</field>
     </record>
-      
+
     <record model="edi.route.caller" id="caller_action_create">
         <field name="name">account.invoice.action_create</field>
-    </record>  
-      
+    </record>
+
     <record model="edi.route.caller" id="caller_action_cancel">
         <field name="name">account.invoice.action_cancel</field>
     </record>
-    
+
     <record model="edi.route.caller" id="caller_action_move_create">
         <field name="name">account.invoice.action_move_create</field>
     </record>
-    
+
     <record model="edi.route.caller" id="caller_invoice_validate">
         <field name="name">account.invoice.invoice_validate</field>
     </record>
-    
+
 </data>
 </openerp>
