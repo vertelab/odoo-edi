@@ -29,7 +29,7 @@ _logger = logging.getLogger(__name__)
 
 class edi_message(models.Model):
     _inherit='edi.message'
-        
+
     @api.one
     def _pack(self):
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_contrl').id:
@@ -41,7 +41,7 @@ class edi_message(models.Model):
             msg += self.UCI(envelope.ref, envelope.sender, envelope.recipient)
             msg += self.UNS()
             msg += self.UNT()
-            
+
             #TODO: What encoding should be used?
             self.body = base64.b64encode(self._gs1_encode_msg(msg))
         super(edi_message, self)._pack()
@@ -53,7 +53,7 @@ class edi_message(models.Model):
             for segment in self._gs1_get_components():
                 segment_count += 1
                 _logger.warn('segment: %s' % segment)
-                
+
                 if segment[0] == 'UCI':
                     envelope = self.env['edi.envelope']
                     sender = envelope._get_partner(segment[2], 'sender')
@@ -78,12 +78,3 @@ class edi_message(models.Model):
         #~ 'model': 'edi.envelope',
         #~ 'res_id': envelope.id,
     #~ })
-
-class edi_envelope(models.Model):
-    _inherit = 'edi.envelope'
-    
-    @api.one
-    def envelope_opened(self):
-        if self.route_id and self.route_id.route_type == 'esap20':
-            self.route_id.edi_action('edi.envelope.envelope_opened', envelope=self)
-        super(edi_envelope, self).envelope_opened()

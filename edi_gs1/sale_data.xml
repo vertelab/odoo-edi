@@ -1,6 +1,5 @@
 <openerp>
-<!-- TODO: noupdate=1 -->
-<data>
+<data noupdate="1">
     <record model="ir.actions.server" id="action_create_ordrsp">
         <field name="name">Create ORDRSP</field>
         <field name="state">code</field>
@@ -103,7 +102,7 @@
         <field name="caller_id" ref="edi_route_sale.caller_action_invoice_create"/>
         <field name="route_id" ref="edi_gs1.route_esap20"/>
     </record>
-    
+
 
 
 </data>

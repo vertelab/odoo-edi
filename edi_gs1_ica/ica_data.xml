@@ -1,6 +1,5 @@
 <openerp>
-<!-- TODO: noupdate=1 -->
-<data>
+<data noupdate="1">
     <record model="ir.actions.server" id="ica_update_partners">
         <field name="name">Uppdatera ICA-butiker</field>
         <field name="state">code</field>

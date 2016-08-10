@@ -157,7 +157,7 @@ class edi_envelope(models.Model):
     @api.one
     def envelope_opened(self):
         """Run when an envelope has been received and opened. Override to create control messages."""
-        pass
+        self.route_id.edi_action('edi.envelope.envelope_opened', envelope=self)
 
     @api.one
     def fold(self):

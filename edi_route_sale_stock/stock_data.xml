@@ -1,0 +1,7 @@
+<openerp>
+<data noupdate="1">
+    <record model="edi.route.caller" id="edi_route_sale_stock.action_invoice_create">
+        <field name="name">stock.picking.action_invoice_create</field>
+    </record>
+</data>
+</openerp>

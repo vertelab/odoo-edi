@@ -1,6 +1,5 @@
 <openerp>
-<!-- TODO: noupdate=1 -->
-<data>
+<data noupdate="1">
     <record model="ir.actions.server" id="action_create_invoic">
         <field name="name">Create INVOIC</field>
         <field name="state">code</field>
@@ -17,7 +16,7 @@
         <field name="key2">client_action_multi</field>
         <field name="value" eval="'ir.actions.server,%d' % action_create_invoic"/>
     </record>
-    
+
     <record id="edi_message_type_bis4a" model="edi.message.type">
         <field name="name">Bis4a</field>
     </record>

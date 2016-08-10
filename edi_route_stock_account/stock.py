@@ -28,8 +28,6 @@ _logger = logging.getLogger(__name__)
 class account_invoice(models.Model):
     _inherit = "account.invoice"
 
-    picking_ids = fields.Many2many(string='Stock picking', comodel_name='stock.picking')
-
     def _get_route(self):
         _logger.info("_get route srtock %s" % self)
 
@@ -42,9 +40,9 @@ class account_invoice(models.Model):
 
 class stock_picking(models.Model):
     _inherit = 'stock.picking'
-    
+
     @api.model
-    def _invoice_create_line(self, moves, journal_id, inv_type='out_invoice'):
+    def x_invoice_create_line(self, moves, journal_id, inv_type='out_invoice'):
         #Overridden to add picking_ids attribute to invoices
         invoice_obj = self.env['account.invoice']
         move_obj = self.env['stock.move']
@@ -62,10 +60,10 @@ class stock_picking(models.Model):
 
             key = (partner, currency_id, company.id, user_id)
             invoice_vals = self._get_invoice_vals(key, inv_type, journal_id, move)
-            
+
             if key not in invoices:
                 # Get account and payment terms
-                
+
                 #Add picking_ids
                 invoice_vals['picking_ids'] = [(6, 0, picking_ids)]
                 invoice_id = self._create_invoice_from_picking(move.picking_id, invoice_vals)
@@ -101,9 +99,9 @@ class stock_picking(models.Model):
 
             move_obj._create_invoice_line_from_vals(move, invoice_line_vals)
             move.write({'invoice_state': 'invoiced'})
-        
+
         invoice_obj = invoice_obj.browse(invoices.values())
         invoice_obj.button_compute(set_total=(inv_type in ('in_invoice', 'in_refund')))
         return invoices.values()
-        
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
