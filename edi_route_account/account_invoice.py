@@ -24,11 +24,11 @@ from openerp.exceptions import except_orm, Warning, RedirectWarning
 import logging
 _logger = logging.getLogger(__name__)
 
-    
+
 class account_invoice(models.Model):
     _inherit = "account.invoice"
 
-    def _get_route(self): 
+    def _get_route(self):
         _logger.info("_get route account %s" % self)
         orders = self.env['sale.order'].search([('invoice_ids', 'in', self.id)])
         if len(orders)>0:
@@ -50,11 +50,10 @@ class account_invoice(models.Model):
             obj=self,
             sender=orders and orders[0].unb_recipient or None,
             recipient=orders and orders[0].unb_sender or None,
-            consignee=self.partner_id,
+            consignee=orders and orders[0].nad_by or self.partner_id,
             route=orders and orders[0].route_id,
             check_double=check_double)
-        
-    
+
     @api.model
     def create(self, vals):
         invoice =  super(account_invoice, self).create(vals)
@@ -62,7 +61,7 @@ class account_invoice(models.Model):
             _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.create', invoice, invoice._get_route()))
             invoice._get_route().edi_action('account.invoice.create', invoice=invoice)
         return invoice
-    
+
     @api.multi
     def action_cancel(self):
         res =  super(account_invoice, self).action_cancel()
@@ -70,7 +69,7 @@ class account_invoice(models.Model):
             if invoice._get_route():
                 invoice._get_route().edi_action('account.invoice.action_cancel', invoice=invoice, res=res)
         return res
-    
+
     @api.multi
     def action_move_create(self):
         res =  super(account_invoice, self).action_move_create()
@@ -87,7 +86,7 @@ class account_invoice(models.Model):
             if invoice._get_route():
                 invoice._get_route().edi_action('account.invoice.action_draft', invoice=invoice, res=res)
         return res
-    
+
     @api.multi
     def action_create(self):
         res =  super(account_invoice, self).action_create()
@@ -96,7 +95,7 @@ class account_invoice(models.Model):
             if invoice._get_route():
                 invoice._get_route().edi_action('account.invoice.action_create', invoice=invoice, res=res)
         return res
-    
+
     @api.multi
     def invoice_validate(self):
         res =  super(account_invoice, self).invoice_validate()

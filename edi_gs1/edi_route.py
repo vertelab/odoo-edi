@@ -60,7 +60,7 @@ class edi_envelope(models.Model):
     def _split(self):
         if self.route_type == 'esap20':
             message = ''
-            _logger.warn('body: %s' % base64.b64decode(self.body))
+            #~ _logger.warn('body: %s' % base64.b64decode(self.body))
             msg_count = 0
             msgs = []
             segment_check = {}
@@ -111,7 +111,7 @@ class edi_envelope(models.Model):
                 raise TypeError('UNB segment missing!')
             elif not segment_check.get('UNZ'):
                 raise TypeError('UNZ segment missing!')
-            _logger.warn('msgs to create: %s' % msgs)
+            #~ _logger.warn('msgs to create: %s' % msgs)
             for msg_dict in msgs:
                 #Large potential for transaction lock when unpacking messages.
                 #Commit for every message and rollback on error.
@@ -119,7 +119,7 @@ class edi_envelope(models.Model):
                 try:
                     #self._cr.commit()
                     msg = self.env['edi.message'].create(msg_dict)
-                    _logger.warn('msg created: %s' % msg)
+                    #~ _logger.warn('msg created: %s' % msg)
                     msg.unpack()
                 except Exception as e:
                     #self._cr.rollback()
@@ -201,7 +201,7 @@ class edi_message(models.Model):
 
     def _get_contract(self, ref):
         contract = self.env['account.analytic.account'].search([('code', '=', ref)])
-        _logger.warn('\n\n_get_contract %s %s' % (contract, contract.id))
+        _logger.dinfo('_get_contract %s %s' % (contract, contract.id))
         if contract:
             return contract.id
 
@@ -454,14 +454,14 @@ class edi_message(models.Model):
 
 
     def _get_partner(self, l):
-        _logger.warn('get partner %s' % l)
+        #~ _logger.warn('get partner %s' % l)
         partner = None
         if l[2] == '9':
             partner = self.env['res.partner'].search([('gs1_gln', '=', l[0])])
-        _logger.warn(partner)
+        #~ _logger.warn(partner)
         if len(partner) == 1:
             return partner[0]
-        _logger.warn('Warning!')
+        #~ _logger.warn('Warning!')
         raise ValueError("Unknown part %s" % (len(l) >0 and l[0] or "[EMPTY LIST!]"),l[0],l[1])
 
     def _parse_quantity(self, l):

@@ -68,7 +68,7 @@ UNT     Avslutar ordermeddelandet.
 
     @api.one
     def _unpack(self):
-        _logger.warning('unpack (orders.py) %s %s' % (self.edi_type, self))
+        _logger.info('unpack (orders.py) %s %s' % (self.edi_type, self))
         super(edi_message, self)._unpack()
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_orders').id:
             segment_count = 0
@@ -85,7 +85,7 @@ UNT     Avslutar ordermeddelandet.
             line = {}
             for segment in self._gs1_get_components():
                 segment_count += 1
-                _logger.warn('segment: %s' % segment)
+                #~ _logger.warn('segment: %s' % segment)
                 #Begin Message
                 if segment[0] == 'BGM':
                     order_values['client_order_ref'] = segment[2]
@@ -95,11 +95,11 @@ UNT     Avslutar ordermeddelandet.
                     if function == '2':
                         order_values['dtm_delivery'] = self._parse_date(segment[1])
                         order_values['date_order'] = self._parse_date(segment[1])
-                        _logger.warn(order_values['date_order'])
+                        #~ _logger.warn(order_values['date_order'])
                         if segment[1][2] == '102':
                             order_values['date_order'] = order_values['date_order'][:11] + '15' + order_values['date_order'][13:]
                             order_values['dtm_delivery'] = order_values['dtm_delivery'][:11] + '15' + order_values['dtm_delivery'][13:]
-                        _logger.warn(order_values['date_order'])
+                        #~ _logger.warn(order_values['date_order'])
                     elif function == '137':
                         order_values['dtm_issue'] = self._parse_date(segment[1])
                         if segment[1][2] == '102':
@@ -113,27 +113,27 @@ UNT     Avslutar ordermeddelandet.
                         supplier = self._get_partner(segment[2])
                         if self.env.ref('base.main_partner').id != self._get_partner(segment[2]).id:
                             raise ValueError('Supplier %s is not us (%s)' % (segment[2],self.env.ref('base.main_partner').gs1_gln))
-                        _logger.warn('supplier: %s' % segment[2])
+                        #~ _logger.warn('supplier: %s' % segment[2])
                         self.consignor_id = self._get_partner(segment[2]).id
                     elif segment[1] == 'SN':
                         order_values['nad_sn'] =self._get_partner(segment[2]).id
                         store_keeper = self._get_partner(segment[2])
                         #ICA Sverige AB
-                        _logger.warn('store keeper: %s' % segment[2])
+                        #~ _logger.warn('store keeper: %s' % segment[2])
                     elif segment[1] == 'CN':
                         order_values['nad_cn'] =self._get_partner(segment[2]).id
                         self.consignee_id = self._get_partner(segment[2]).id
-                        _logger.warn('consignee: %s' % segment[2])
+                        #~ _logger.warn('consignee: %s' % segment[2])
                     #Delivery Party
                     elif segment[1] == 'DP':
                         recipient = self._get_partner(segment[2]).id
                         order_values['nad_dp'] =self._get_partner(segment[2]).id
-                        _logger.warn('recipient: %s' % segment[2])
+                        #~ _logger.warn('recipient: %s' % segment[2])
                     #Invoice Party
                     elif segment[1] == 'ITO':
                         recipient = self._get_partner(segment[2]).id
                         order_values['nad_ito'] =self._get_partner(segment[2]).id
-                        _logger.warn('invoice: %s' % segment[2])
+                        #~ _logger.warn('invoice: %s' % segment[2])
                 elif segment[0] == 'LIN':
                     if line:
                         order_values['order_line'].append((0, 0, line))
@@ -162,7 +162,7 @@ UNT     Avslutar ordermeddelandet.
                     #Add last line
                     if line:
                         order_values['order_line'].append((0, 0, line))
-                    _logger.warn(order_values)
+                    #~ _logger.warn(order_values)
                     #create order
                     order = self.env['sale.order'].create(order_values)
                     if order.nad_ito:
@@ -178,6 +178,6 @@ UNT     Avslutar ordermeddelandet.
                         self.nad_dp = order.partner_shipping_id.id
                         order.nad_dp = order.partner_shipping_id.id
 
-                    _logger.warn('Order ready %r' % order)
+                    _logger.info('Order ready %r' % order)
                     self.model = order._name
                     self.res_id = order.id

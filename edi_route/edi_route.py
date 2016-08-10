@@ -624,11 +624,11 @@ class edi_route(models.Model):
     @api.one
     def edi_action(self, caller_name, **kwargs):
         _logger.info("Caller ID: %s kwargs %s" % (caller_name, kwargs))
-        caller = self.env['edi.route.caller'].search([('name', '=', caller_name)])
+        caller = self.env['edi.route.caller'].search([('name', '=', caller_name)], limit=1)
         if caller:
-            #~ _logger.info("Caller: %s; %s" % (caller[0].name, self.route_line_ids.filtered(lambda a: a.caller_id.id == caller[0].id)))
-            for action in self.route_line_ids.filtered(lambda a: a.caller_id.id == caller[0].id):
-                _logger.info("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
+            _logger.info("Caller: %s; %s" % (caller.name, self.route_line_ids.filtered(lambda a: a.caller_id.id == caller.id)))
+            for action in self.route_line_ids.filtered(lambda a: a.caller_id.id == caller.id):
+                _logger.info("Caller ID: %s; liiiiiiiine %s kwargs %s" % (caller_name, action.name,kwargs))
                 action.run_action_code(kwargs)
         else:
             #raise Warning(caller_name,kwargs)
@@ -666,10 +666,13 @@ class edi_route_lines(models.Model):
 
     @api.one
     def run_action_code(self, values):
-        eval_context = self._get_eval_context(values)
-        eval(self.code.strip(), eval_context, mode="exec", nocopy=True)  # nocopy allows to return 'result'
-        if 'result' in eval_context:
-            return eval_context['result']
+        try:
+            eval_context = self._get_eval_context(values)
+            eval(self.code.strip(), eval_context, mode="exec", nocopy=True)  # nocopy allows to return 'result'
+            if 'result' in eval_context:
+                return eval_context['result']
+        except SyntaxError:
+            _logger.error('code %s values %s' %(self.code.strip(), self._get_eval_context(values)))
 
     @api.multi
     def _get_eval_context(self, values):

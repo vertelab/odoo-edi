@@ -39,7 +39,6 @@ class sale_order(models.Model):
         order =  super(sale_order,self).create(vals)
         if order:
             order.route_id.edi_action('sale.order.create',order=order)
-            #raise Warning(order)
         return order
     @api.multi
     def action_cancel(self):
