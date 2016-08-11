@@ -628,7 +628,7 @@ class edi_route(models.Model):
         if caller:
             _logger.info("Caller: %s; %s" % (caller.name, self.route_line_ids.filtered(lambda a: a.caller_id.id == caller.id)))
             for action in self.route_line_ids.filtered(lambda a: a.caller_id.id == caller.id):
-                _logger.info("Caller ID: %s; liiiiiiiine %s kwargs %s" % (caller_name, action.name,kwargs))
+                _logger.info("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
                 action.run_action_code(kwargs)
         else:
             #raise Warning(caller_name,kwargs)

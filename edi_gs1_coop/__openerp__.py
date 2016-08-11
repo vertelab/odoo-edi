@@ -26,7 +26,7 @@
     'summary': 'GS1 Coop ',
     'licence': 'AGPL-3',
     'description': """
-Wizard for load Axfood shops and adresses
+Wizard for load Coop shops and adresses
 
 
 """,

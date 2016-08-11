@@ -1,5 +1,5 @@
 <openerp>
-    <data noupdate="1">
+    <data>
         <record id="edi_message_type_contrl" model="edi.message.type">
             <field name="name">CONTRL</field>
         </record>
@@ -21,6 +21,8 @@
         <record id="edi_message_type_repord" model="edi.message.type">
             <field name="name">REPORD</field>
         </record>
+    </data>
+    <data noupdate="1">
         <record model="edi.route" id="route_esap20">
             <field name="name">ESAP20</field>
             <field name="partner_id" ref="base.main_partner" />
@@ -55,18 +57,19 @@ order._edi_message_create('edi_gs1.edi_message_type_orderk')
         </record>
         <record model="edi.route.line" id="route_esap20_desadv">
             <field name="name">ESAP20 DESADV</field>
-            <field name="caller_id" ref="stock.picking.do_transfer" />
+            <field name="caller_id" ref="edi_route_stock.caller_do_transfer" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
 #
 #env - Environment
 #Warning - Warning
+#
 picking._edi_message_create('edi_gs1.edi_message_type_desadv')
             </field>
         </record>
         <record model="edi.route.line" id="route_esap20_invoice">
             <field name="name">ESAP20 INVOIC</field>
-            <field name="caller_id" ref="account.invoice.invoice_validate" />
+            <field name="caller_id" ref="edi_route_account.caller_invoice_validate" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
 #
