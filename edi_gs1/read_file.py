@@ -31,7 +31,7 @@ def _get_id_from_gln(gs1_gln):
     p = odoo.env['res.partner'].read(odoo.env['res.partner'].search([('gs1_gln', '=', gs1_gln)]),['id'])
     return p[0]['id']
 
-for i in range(1, 2160):
+for i in range(1984, 2160):
     line = {}
     for column in range(len(row[0])):
         line[u'%s' %row[0][column].value] = u'%s' %row[i][column].value
@@ -56,7 +56,8 @@ for i in range(1, 2160):
             #~ 'fgs_paolos': int(line.get('FSG PAOLOS') if line.get('FSG PAOLOS') != 'None' else 0) * 1.0,
             #~ 'fgs_leroy': int(line.get('FSG LERÖY') if line.get('FSG LERÖY') != 'None' else 0) * 1.0,
         }
-
+        #~ for key in partner_values:
+            #~ print '%s:\t\t%s' % (key, partner_values[key])
         p = odoo.env['res.partner'].read(odoo.env['res.partner'].search([('gs1_gln', '=', gs1_gln)]),['gs1_gln'])
         if p:
             print 'Partner %s update' %p[0]['id']
