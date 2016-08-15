@@ -201,7 +201,7 @@ class edi_message(models.Model):
 
     def _get_contract(self, ref):
         contract = self.env['account.analytic.account'].search([('code', '=', ref)])
-        _logger.dinfo('_get_contract %s %s' % (contract, contract.id))
+        _logger.info('_get_contract %s %s' % (contract, contract.id))
         if contract:
             return contract.id
 
