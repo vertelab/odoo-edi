@@ -24,14 +24,14 @@ def _get_store_chef(chef, parent_id):
 def _get_salesman(salesman, parent_id):
     s = odoo.env['res.users'].search([('name', '=', salesman)])
     if len(s) == 0:
-        odoo.env['res.users'].create({'name': salesman, 'login': salesman, 'sel_groups_9_40_10': 9,})
+        odoo.env['res.users'].create({'name': salesman, 'login': salesman, 'sel_groups_9_40_10': 9, 'sel_groups_36_37': 36})
     odoo.env['res.partner'].write(parent_id, {'user_id': odoo.env['res.users'].search([('name', '=', salesman)])[0]})
 
 def _get_id_from_gln(gs1_gln):
     p = odoo.env['res.partner'].read(odoo.env['res.partner'].search([('gs1_gln', '=', gs1_gln)]),['id'])
     return p[0]['id']
 
-for i in range(1984, 2160):
+for i in range(1, 2160):
     line = {}
     for column in range(len(row[0])):
         line[u'%s' %row[0][column].value] = u'%s' %row[i][column].value
