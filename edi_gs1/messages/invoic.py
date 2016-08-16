@@ -112,11 +112,9 @@ UNT     Avslutar ordermeddelandet.
     _edi_lines_tot_qty = 0
 
     def _get_line_nr(self, order, inv_line):
-        line_nr = 0
         for line in order.order_line:
-            line_nr += 10
             if inv_line in line.invoice_lines:
-                return line_nr
+                return line.sequence
         raise ValueError("Invoice line (id: %s) not found in order %s." % (inv_line.id, order.name))
 
     @api.one

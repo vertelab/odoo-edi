@@ -137,7 +137,10 @@ UNT     Avslutar ordermeddelandet.
                 elif segment[0] == 'LIN':
                     if line:
                         order_values['order_line'].append((0, 0, line))
-                    line = {'product_id': self._get_product(segment[3]).id}
+                    line = {
+                        'product_id': self._get_product(segment[3]).id,
+                        'sequence': int(segment[1]),
+                    }
                 elif segment[0] == 'QTY':
                     line['product_uom_qty'] = line['order_qty'] = self._parse_quantity(segment[1])
                 #Alternative Product Identification

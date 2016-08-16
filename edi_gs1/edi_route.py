@@ -251,7 +251,7 @@ class edi_message(models.Model):
 
     def CNT(self, qualifier, value):
         self._seg_count += 1
-        return "CNT+%s:%s'" % (qualifier, value)
+        return "CNT+%s:%s'" % (qualifier, int(value))
 
     def DTM(self, func_code, dt=False, format=102):
         self._seg_count += 1
@@ -417,7 +417,7 @@ class edi_message(models.Model):
         #~ else:
         if not code:
             code = 21
-        return "QTY+%s:%s'" % (code, qty)
+        return "QTY+%s:%s'" % (code, int(qty))
 
     def QVR(self, line):
         #AS     Artikeln har utgått ur sortimentet

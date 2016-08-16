@@ -109,11 +109,9 @@ class edi_message(models.Model):
                 if operation.lot_id and operation.lot_id.life_date:
                     msg += self.DTM(361, operation.lot_id.life_date)
                 #Order reference with line nr
-                line_nr = 0
                 for line in so.order_line:
-                    line_nr += 1
                     if line.product_id == operation.product_id:
-                        msg += self.RFF(so.client_order_ref, 'ON', line_nr)
+                        msg += self.RFF(so.client_order_ref, 'ON', line.sequence)
                         break
             msg += self.CNT(1, qty_total)
             msg += self.CNT(2, self._lin_count)
