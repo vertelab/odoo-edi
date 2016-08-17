@@ -20,7 +20,6 @@
 ##############################################################################
 from openerp import models, fields, api, _
 from openerp.exceptions import except_orm, Warning, RedirectWarning
-from openerp.tools import float_compare
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -31,15 +30,6 @@ class sale_order_line(models.Model):
     _inherit = 'sale.order.line'
 
     order_qty = fields.Float(string='Original Order Quantity')
-    is_available = fields.Selection([('true', 'true'), ('false', 'false')], compute='_is_available')
-
-    @api.one
-    def _is_available(self):
-        self.is_available = 'true'
-        if not self._check_routing(self.product_id, self.order_id.warehouse_id.id):
-            compare_qty = float_compare(self.product_id.virtual_available, self.product_uom_qty, precision_rounding=self.product_id.uom_id and self.product_id.uom_id.rounding or 0.01)
-            if compare_qty == -1:
-                self.is_available = 'false'
 
 
 class sale_order(models.Model):

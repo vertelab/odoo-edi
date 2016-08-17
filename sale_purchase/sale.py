@@ -19,6 +19,8 @@
 #
 ##############################################################################
 from openerp import models, fields, api, _
+from openerp.tools import float_compare
+
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -77,5 +79,24 @@ class sale_order(models.Model):
             result['res_id'] = purchase_ids and purchase_ids[0] or False
         return result
         
-        
+class sale_order_line(models.Model):
+    _inherit = 'sale.order.line'
+
+    is_available = fields.Selection([('true', 'true'), ('false', 'false')], compute='_is_available')
+
+    @api.one
+    def _is_available(self):
+        self.is_available = 'true'
+        if not self._check_routing(self.product_id, self.order_id.warehouse_id.id):
+            if float_compare(self.product_id.virtual_available, self.product_uom_qty, precision_rounding=self.product_id.uom_id and self.product_id.uom_id.rounding or 0.01) == -1:
+                self.is_available = 'false'
+        elif self.order_id.purchase_ids:
+            pline = None
+            for p in self.order_id.purchase_ids:
+                for l in p.order_line:
+                    if l.product_id.id == self.product_id.id:
+                        pline = l
+            if pline and float_compare(pline.product_qty, self.product_uom_qty, precision_rounding=self.product_id.uom_id and self.product_id.uom_id.rounding or 0.01) == -1:
+                self.is_available = 'false'
+            
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
