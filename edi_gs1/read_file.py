@@ -84,16 +84,16 @@ for i in range(1, ws.max_row):
         p = odoo.env['res.partner'].read(odoo.env['res.partner'].search([('phone', '=', partner_values['phone'])]),['gs1_gln'])
     if len(p) != 1 and partner_values.get('vat'):
         p = odoo.env['res.partner'].read(odoo.env['res.partner'].search([('vat', '=', partner_values['vat'])]),['gs1_gln'])
-    #~ #Try to match Coop stores against zip
+    #Try to match Coop stores against zip or store number (baked into name in the export data)
     if len(p) != 1 and 'coop' in line.get(u'KEDJATXT', '').lower():
-        print partner_values.get('zip', '').replace(' ', '')
-        p = odoo.env['res.partner'].read(odoo.env['res.partner'].search(['&', ('parent_id', '=', coop_edi), ('zip', '=', partner_values.get('zip', '').replace(' ', ''))]),['gs1_gln'])
+        store_nr = ''.join([c for c in partner_values['name'] if c.isdigit()])
+        if len(store_nr) == 6:
+            p = odoo.env['res.partner'].read(odoo.env['res.partner'].search(['&', ('parent_id', '=', coop_edi), ('ref', '=', store_nr)]), ['gs1_gln'])
         if len(p) != 1:
-            print p
-            p = odoo.env['res.partner'].read(odoo.env['res.partner'].search(['&', ('parent_id', '=', coop_edi), ('zip', '=', partner_values.get('zip', ''))]),['gs1_gln'])
+            p = odoo.env['res.partner'].read(odoo.env['res.partner'].search(['&', ('parent_id', '=', coop_edi), ('zip', '=', partner_values.get('zip', '').replace(' ', ''))]),['gs1_gln'])
             if len(p) != 1:
-                print p
-                p = []
+                p = odoo.env['res.partner'].read(odoo.env['res.partner'].search(['&', ('parent_id', '=', coop_edi), ('zip', '=', partner_values.get('zip', ''))]),['gs1_gln'])
+
     #Update the found partner.
     if len(p) == 1:
         print 'Partner %s update' %p[0]['id']
