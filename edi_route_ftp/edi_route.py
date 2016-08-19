@@ -243,8 +243,8 @@ class sftp(_comsession):
         hostkey = None
         pkey = None
         # now, connect and use paramiko Transport to negotiate SSH2 across the connection
-        self.transport = paramiko.Transport((self.host,self.port or 22))
-        self.transport.connect(username=self.username,password=self.password,hostkey=hostkey,pkey=pkey)
+        self.transport = paramiko.Transport((self.host, self.port or 22))
+        self.transport.connect(username=self.username, password=self.password, hostkey=hostkey, pkey=pkey)
         self.session = paramiko.SFTPClient.from_transport(self.transport)
         #channel = self.session.get_channel()
         #channel.settimeout(10)
