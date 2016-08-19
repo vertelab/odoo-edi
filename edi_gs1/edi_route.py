@@ -130,7 +130,7 @@ class edi_envelope(models.Model):
     @api.model
     def _get_partner(self, l, part_type):
         _logger.info('get partner %s (%s)' % (l, part_type))
-        if l[1] == '14':
+        if l[1] == '14' or l[1] == 'ZZ':
             partner = self.env['res.partner'].search([('gs1_gln', '=', l[0])])
             if len(partner) == 1:
                 return partner
