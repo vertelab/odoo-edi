@@ -92,7 +92,6 @@ class sale_order_line(models.Model):
         elif not self._check_routing(self.product_id, self.order_id.warehouse_id.id):
             if float_compare(self.product_id.virtual_available, self.product_uom_qty, precision_rounding=self.product_id.uom_id and self.product_id.uom_id.rounding or 0.01) == -1:
                 self.is_available = 'false'
-            _logger.warn('we are here')
         elif self.order_id.purchase_ids:
             pline = None
             for p in self.order_id.purchase_ids:
