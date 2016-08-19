@@ -95,9 +95,9 @@ class edi_message(models.Model):
                 #Only supports pallets for now
                 msg += self.PAC()
                 #Use SSCC from lot/serial number
-                if operation.lot_id and operation.lot_id.sscc:
+                if operation.result_package_id and operation.result_package_id.sscc:
                     msg += self.PCI()
-                    msg += self.GIN(operation.lot_id.sscc)
+                    msg += self.GIN(operation.result_package_id.sscc)
                 msg += self.LIN(operation)
                 msg += self.PIA(operation.product_id, 'SA')
                 #Batch number

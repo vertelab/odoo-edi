@@ -25,8 +25,12 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class stock_production_lot(models.Model):
-    _inherit = 'stock.production.lot'
+#~ class stock_production_lot(models.Model):
+    #~ _inherit = 'stock.production.lot'
+
+    #~ sscc = fields.Char(String="SSCC#", help="SSCC-number on the pallet")    
+class stock_quant_package(models.Model):
+    _inherit = 'stock.quant.package'
 
     sscc = fields.Char(String="SSCC#", help="SSCC-number on the pallet")    
 
