@@ -590,7 +590,6 @@ class edi_route(models.Model):
                             self._cr.rollback()
                             envelope.state = 'canceled'
                             self.log('Error when processing envelope %s\n%s' % (envelope.name, e))
-                self.next_run = fields.Datetime.now() + timedelta(minutes=self.frequency_quant * int(self.frequency_uom))
         if run_performed:
             self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
 
@@ -611,10 +610,10 @@ class edi_route(models.Model):
     def cron_job(self, cr, uid, context=None):
         for route in self.pool.get('edi.route').browse(cr, uid, self.pool.get('edi.route').search(cr, uid, [('active','=',True)])):
             if not route.next_run:
-                route.next_run = fields.datetime.now()
-            if (datetime.fromtimestamp(mktime(strptime(route.next_run, DEFAULT_SERVER_DATETIME_FORMAT))) < datetime.today()):
+                route.next_run = fields.Datetime.now()
+            if (fields.Datetime.from_string(route.next_run) < fields.Datetime.now()):
                 route.run()
-                route.next_run = datetime.fromtimestamp(mktime(strptime(route.next_run, DEFAULT_SERVER_DATETIME_FORMAT))) + timedelta(minutes=route.frequency_quant * int(route.frequency_uom))
+                route.next_run = fields.Datetime.from_string(fields.Datetime.now()) + timedelta(minutes=self.frequency_quant * int(self.frequency_uom))
                 _logger.info('Cron job for %s done' % route.name)
 
     @api.one
