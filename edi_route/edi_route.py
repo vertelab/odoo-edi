@@ -496,7 +496,7 @@ class edi_route(models.Model):
         run_performed = False
         try:
             # create outgoing envelopes
-            envelopes = self.fold() | self.env['edi.envelope'].search([('state', '=', 'progress'), ('route_id', '=', self.id)])
+            envelopes = self.fold() + [e for e in self.env['edi.envelope'].search([('state', '=', 'progress'), ('route_id', '=', self.id)])]
             self._run_out(envelopes)
             if envelopes:
                 run_performed = True
