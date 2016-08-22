@@ -32,7 +32,7 @@ class account_invoice(models.Model):
         _logger.info("_get route account %s" % self)
         orders = self.env['sale.order'].search([('invoice_ids', 'in', self.id)])
         _logger.info("---------------- %s" % orders)
-        _logger.info("**************** %s" % orders[0].route_id)
+        _logger.info("**************** %s" % orders[0].route_id if orders and orders[0] else None)
         if len(orders)>0:
             return orders[0].route_id
         return None

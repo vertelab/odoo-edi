@@ -48,6 +48,7 @@ class stock_picking(models.Model):
     def action_invoice_create(self, journal_id, group=False, type='out_invoice'):
         invoices = super(stock_picking, self).action_invoice_create(journal_id, group, type)
         orders = self.env['sale.order'].search([('procurement_group_id', '=', self[0].group_id.id)])
+        _logger.warn('orders %s stock.picking: %s' %(orders, self))
         for inv in self.env['account.invoice'].browse(invoices):
             inv.order_ids = [(6, 0, [o.id for o in orders])]
             inv.picking_ids = [(6, 0, [p.id for p in o.picking_ids for o in orders])]
