@@ -613,7 +613,7 @@ class edi_route(models.Model):
                 route.next_run = fields.Datetime.now()
             if (route.next_run < fields.Datetime.now()):
                 route.run()
-                route.next_run = fields.Datetime.from_string(fields.Datetime.now()) + timedelta(minutes=self.frequency_quant * int(self.frequency_uom))
+                route.next_run = fields.Datetime.from_string(fields.Datetime.now()) + timedelta(minutes=route.frequency_quant * int(route.frequency_uom))
                 _logger.info('Cron job for %s done' % route.name)
 
     @api.one
