@@ -50,7 +50,7 @@ class res_partner(models.Model):
         """
         types = [l.edi_type.id for l in partner.edi_application_lines]
         if partner.parent_id:
-            types += self.get_edi_types(self.parent_id)
+            types += self.get_edi_types(partner.parent_id)
         return set(types)
 
     edi_application_lines = fields.One2many('edi.application.line', 'partner_id', 'EDI Applications')
