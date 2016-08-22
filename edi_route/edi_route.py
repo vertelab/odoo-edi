@@ -611,7 +611,7 @@ class edi_route(models.Model):
         for route in self.pool.get('edi.route').browse(cr, uid, self.pool.get('edi.route').search(cr, uid, [('active','=',True)])):
             if not route.next_run:
                 route.next_run = fields.Datetime.now()
-            if (fields.Datetime.from_string(route.next_run) < fields.Datetime.now()):
+            if (route.next_run < fields.Datetime.now()):
                 route.run()
                 route.next_run = fields.Datetime.from_string(fields.Datetime.now()) + timedelta(minutes=self.frequency_quant * int(self.frequency_uom))
                 _logger.info('Cron job for %s done' % route.name)
