@@ -493,13 +493,13 @@ class edi_route(models.Model):
     @api.one
     def run(self):
         # out
+        run_performed = False
         try:
             # create outgoing envelopes
-            self._run_out(self.fold())
-            self._run_out(self.env['edi.envelope'].search([('state', '=', 'progress'), ('route_id', '=', self.id)]))
-                    #~ envelope.state = 'sent'
-                #~ else:
-                    #~ envelope.state = 'canceled'
+            envelopes = self.fold() | self.env['edi.envelope'].search([('state', '=', 'progress'), ('route_id', '=', self.id)])
+            self._run_out(envelopes)
+            if envelopes:
+                run_performed = True
         except ValueError as e:
             id = self.env['mail.message'].create({
                     'body': _("Route %s type %s Value Error %s\n" % (self.name, self.route_type, e)),
@@ -537,8 +537,6 @@ class edi_route(models.Model):
                     #~ 'model': self._name,
                     #~ 'type': 'notification',})
             pass
-        finally:
-            self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
 
         # in
         try:
@@ -582,6 +580,7 @@ class edi_route(models.Model):
             pass
         finally:
             if envelopes:
+                run_performed = True
                 for envelope in envelopes:
                     if envelope.state == 'progress':
                         try:
@@ -591,12 +590,9 @@ class edi_route(models.Model):
                             self._cr.rollback()
                             envelope.state = 'canceled'
                             self.log('Error when processing envelope %s\n%s' % (envelope.name, e))
-
-                self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
-                if not self.next_run:
-                    self.next_run = fields.datetime.now()
-                self.next_run = datetime.fromtimestamp(mktime(strptime(self.next_run, DEFAULT_SERVER_DATETIME_FORMAT))) + timedelta(minutes=self.frequency_quant * int(self.frequency_uom))
-
+                self.next_run = fields.Datetime.now() + timedelta(minutes=self.frequency_quant * int(self.frequency_uom))
+        if run_performed:
+            self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
 
     def log(self, message, error_info=None):
         #TODO: Mail errors and implement this on envelope and message as well.
