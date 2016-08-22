@@ -27,7 +27,7 @@ _logger = logging.getLogger(__name__)
 
 class sale_order(models.Model):
     _inherit = 'sale.order'
-    
+
     @api.one
     def _get_purchase_orders(self):
         po = self.env['purchase.order']
@@ -39,7 +39,7 @@ class sale_order(models.Model):
         else:
             self.purchase_ids = None
     purchase_ids = fields.Many2many(comodel_name="purchase.order", compute='_get_purchase_orders')
-    
+
     @api.depends('purchase_ids')
     @api.one
     def _purchase_count(self):
@@ -49,14 +49,14 @@ class sale_order(models.Model):
         else:
             self.purchase_count = 0
     purchase_count = fields.Integer(compute='_purchase_count', string="# purchases")
-    
+
     def action_view_purchase(self, cr, uid, ids, context=None):
         '''
         This function returns an action that display existing purchase orders
         of given sales order ids. It can either be a in a list or in a form
         view, if there is only one delivery order to show.
         '''
-        
+
         mod_obj = self.pool.get('ir.model.data')
         act_obj = self.pool.get('ir.actions.act_window')
 
@@ -69,7 +69,7 @@ class sale_order(models.Model):
         pos = self.browse(cr, uid, ids, context=context)
         for po in pos:
             purchase_ids += [p.id for p in po.purchase_ids]
-            
+
         #choose the view_mode accordingly
         if len(pos) > 0 and len(pos[0].purchase_ids) > 1:
             result['domain'] = "[('id','in',[" + ','.join(map(str, purchase_ids)) + "])]"
@@ -78,7 +78,7 @@ class sale_order(models.Model):
             result['views'] = [(res and res[1] or False, 'form')]
             result['res_id'] = purchase_ids and purchase_ids[0] or False
         return result
-        
+
 class sale_order_line(models.Model):
     _inherit = 'sale.order.line'
 
@@ -87,7 +87,9 @@ class sale_order_line(models.Model):
     @api.one
     def _is_available(self):
         self.is_available = 'true'
-        if not self._check_routing(self.product_id, self.order_id.warehouse_id.id):
+        if self.order_id.state not in ['draft', 'sent']:
+            return
+        elif not self._check_routing(self.product_id, self.order_id.warehouse_id.id):
             if float_compare(self.product_id.virtual_available, self.product_uom_qty, precision_rounding=self.product_id.uom_id and self.product_id.uom_id.rounding or 0.01) == -1:
                 self.is_available = 'false'
         elif self.order_id.purchase_ids:
@@ -98,5 +100,5 @@ class sale_order_line(models.Model):
                         pline = l
             if pline and float_compare(pline.product_qty, self.product_uom_qty, precision_rounding=self.product_id.uom_id and self.product_id.uom_id.rounding or 0.01) == -1:
                 self.is_available = 'false'
-            
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
