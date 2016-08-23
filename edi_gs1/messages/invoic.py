@@ -151,16 +151,15 @@ UNT     Avslutar ordermeddelandet.
             #msg += self.DTM(168, invoice.date_due)
 
             #Contract reference
-            if invoice._get_order() and invoice._get_order().project_id and invoice._get_order().project_id.code:
-                msg += self.RFF(invoice._get_order().project_id.code, 'CT')
+            if invoice.order_ids and invoice.order_ids[0].project_id and invoice.order_ids[0].project_id.code:
+                msg += self.RFF(invoice.order_ids[0].project_id.code, 'CT')
             #Pricelist
             #msg += ...
             #Order reference
-            if invoice._get_order() and invoice._get_order().client_order_ref:
-                msg += self.RFF(invoice._get_order().client_order_ref, 'ON')
+            if invoice.order_ids and invoice.order_ids[0].client_order_ref:
+                msg += self.RFF(invoice.order_ids[0].client_order_ref, 'ON')
             for picking in invoice.picking_ids:
-                if picking.carrier_tracking_ref:
-                    msg += self.RFF(picking.name, 'DQ')
+                msg += self.RFF(picking.name, 'DQ')
             #msg += self.RFF(foobar.desadv, 'AAK')
 
 
@@ -168,12 +167,12 @@ UNT     Avslutar ordermeddelandet.
             if self.consignee_id and self.consignee_id.vat:
                 msg += self.RFF(self.consignee_id.vat, 'VA')
 
-            if invoice._get_order() and invoice._get_order().nad_dp:
-                self.nad_dp = invoice._get_order().nad_dp.id
+            if invoice.order_ids and invoice.order_ids[0].nad_dp:
+                self.nad_dp = invoice.order_ids[0].nad_dp.id
                 msg += self.NAD_DP()
 
-            if invoice._get_order() and invoice._get_order().nad_ito:
-                self.nad_ito = invoice._get_order().nad_ito.id
+            if invoice.order_ids and invoice.order_ids[0].nad_ito:
+                self.nad_ito = invoice.order_ids[0].nad_ito.id
                 msg += self.NAD_ITO()
 
             msg += self.NAD_SU()
@@ -204,8 +203,8 @@ UNT     Avslutar ordermeddelandet.
                 #Net unit price, and many more
                 msg += self.PRI(line.price_unit)
                 #Reference to invoice. Again?
-                if invoice._get_order():
-                    msg += self.RFF(invoice._get_order().client_order_ref, 'ON', self._get_line_nr(invoice._get_order(), line))
+                if invoice.order_ids:
+                    msg += self.RFF(invoice.order_ids[0].client_order_ref, 'ON', self._get_line_nr(invoice.order_ids[0], line))
                 #Justification for tax exemption
                 #TAX
             msg += self.UNS()

@@ -69,7 +69,7 @@ picking._edi_message_create('edi_gs1.edi_message_type_desadv')
         </record>
         <record model="edi.route.line" id="route_esap20_invoice">
             <field name="name">ESAP20 INVOIC</field>
-            <field name="caller_id" ref="edi_route_account.caller_invoice_validate" />
+            <field name="caller_id" ref="edi_route_sale.caller_invoice_validate" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
 #
