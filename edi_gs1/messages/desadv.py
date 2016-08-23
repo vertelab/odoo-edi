@@ -37,9 +37,9 @@ class edi_message(models.Model):
                 raise ValueError("DESADV: Attached record is not a stock.pack! {model}".format(model=self.model_record._name),self.model_record._name)
             picking = self.model_record
             #Find possible purchase and sale orders
-            so = self.env['sale.order'].search([('name', '=', picking.origin)])
+            #so = self.env['sale.order'].search([('name', '=', picking.origin)])
             po = None #Used to handle drop shipping
-            if not so:
+            if not picking.sale_id:
                 po = self.env['purchase.order'].search([('name', '=', picking.origin)])
                 if po:
                     so = self.env['sale.order'].search([('name', '=', po.origin)])
@@ -52,8 +52,8 @@ class edi_message(models.Model):
             #Estimated Delivery DT
             msg += self.DTM(17, picking.date_done)
             #Order reference
-            if so and so.client_order_ref:
-                msg += self.RFF(so.client_order_ref, qualifier='ON')
+            if picking.sale_id:
+                msg += self.RFF(picking.sale_id.name, qualifier='ON')
             msg += self.NAD_SU()
             #Godsavsändare
             #Not allowed by Coop.
@@ -70,7 +70,7 @@ class edi_message(models.Model):
             #msg += self.NAD_CN()
             #Delivery place. Used if delivered to other place than recipient adress.
             #Mandatory according to Coop
-            msg += self._NAD('DP', so.partner_id)
+            msg += self._NAD('DP', picking.sale_id.partner_id)
             #Mode of transport
             #Not implemented.
             #msg += self.TDT()
@@ -109,9 +109,9 @@ class edi_message(models.Model):
                 if operation.lot_id and operation.lot_id.life_date:
                     msg += self.DTM(361, operation.lot_id.life_date)
                 #Order reference with line nr
-                for line in so.order_line:
+                for line in picking.sale_id.order_line:
                     if line.product_id == operation.product_id:
-                        msg += self.RFF(so.client_order_ref, 'ON', line.sequence)
+                        msg += self.RFF(picking.sale_id.name, 'ON', line.sequence)
                         break
             msg += self.CNT(1, qty_total)
             msg += self.CNT(2, self._lin_count)
