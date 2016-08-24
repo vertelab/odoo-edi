@@ -90,7 +90,7 @@ class edi_envelope(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
+            _logger.error('edi.envelope.split(): EDI ValueError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             self.state = "canceled"
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
         except TypeError as e:
@@ -102,7 +102,7 @@ class edi_envelope(models.Model):
                     'model': self._name,
                     'type': 'notification',})
             self.state = "canceled"
-            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
+            _logger.error('edi.envelope.split(): EDI TypeError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             #raise Warning('EDI TypeError in split %s' % e)
         except IOError as e:
             self.env['mail.message'].create({
@@ -113,7 +113,7 @@ class edi_envelope(models.Model):
                     'model': self._name,
                     'type': 'notification',})
             self.state = "canceled"
-            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
+            _logger.error('edi.envelope.split(): EDI IOError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
         except Exception as e:
             self.env.cr.rollback()
@@ -125,7 +125,7 @@ class edi_envelope(models.Model):
                     'model': self._name,
                     'type': 'notification',})
             self.state = "canceled"
-            _logger.error('Exception %s type %s Error %s ' % (self.route_id and self.route_id.name or 'None', self.route_type, e))
+            _logger.error('edi.envelope.split(): Exception %s type %s Error %s ' % (self.route_id and self.route_id.name or 'None', self.route_type, e))
         else:
             if self.state == 'progress':
                 self.env['mail.message'].create({
@@ -176,7 +176,7 @@ class edi_envelope(models.Model):
                     'model': self._name,
                     'type': 'notification',})
             self.state = "canceled"
-            _logger.error('EDI ValueError Route %s type %s #%s Error %s ' % (self.route_id.name,self.route_type,self.route_id.run_sequence,e))
+            _logger.error('edi.envelope.fold(): EDI ValueError Route %s type %s #%s Error %s ' % (self.route_id.name,self.route_type,self.route_id.run_sequence,e))
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
         except TypeError as e:
             self.env['mail.message'].create({
@@ -187,7 +187,7 @@ class edi_envelope(models.Model):
                     'model': self._name,
                     'type': 'notification',})
             self.state = "canceled"
-            _logger.error('EDI TypeError Route %s type %s #%s Error %s ' % (self.route_id.name,self.route_type,self.route_id.run_sequence,e))
+            _logger.error('edi.envelope.fold(): EDI TypeError Route %s type %s #%s Error %s ' % (self.route_id.name,self.route_type,self.route_id.run_sequence,e))
         except IOError as e:
             self.env['mail.message'].create({
                     'body': _("Route %s type %s Error #%s %s\n" % (self.route_id.name,self.route_type,self.route_id.run_sequence,e)),
@@ -197,7 +197,7 @@ class edi_envelope(models.Model):
                     'model': self._name,
                     'type': 'notification',})
             self.state = "canceled"
-            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('edi.envelope.fold(): EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
         else:
             self.env['mail.message'].create({
@@ -253,7 +253,7 @@ class edi_message(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('edi.message.unpack(): EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
             self.state = 'canceled'
         except TypeError as e:
@@ -264,7 +264,7 @@ class edi_message(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('edi.message.unpack(): EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI TypeError in split %s' % e)
             self.state = 'canceled'
         except IOError as e:
@@ -275,11 +275,11 @@ class edi_message(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('edi.message.unpack(): EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
             self.state = 'canceled'
         except Warning as e:
-            _logger.error('EDI Warning Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('edi.message.unpack(): EDI Warning Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             self.state = 'canceled'
         else:
             self.env['mail.message'].create({
@@ -307,7 +307,7 @@ class edi_message(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('edi.message.pack(): EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
         except TypeError as e:
             self.env['mail.message'].create({
@@ -317,7 +317,7 @@ class edi_message(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('edi.message.pack(): EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             raise
             raise Warning('EDI TypeError in split %s' % e)
         except IOError as e:
@@ -328,7 +328,7 @@ class edi_message(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
+            _logger.error('edi.message.pack(): EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
         else:
             self.env['mail.message'].create({
@@ -496,7 +496,10 @@ class edi_route(models.Model):
         run_performed = False
         try:
             # create outgoing envelopes
-            envelopes = self.fold() + [e for e in self.env['edi.envelope'].search([('state', '=', 'progress'), ('route_id', '=', self.id)])]
+            envelopes = self.fold()
+            for e in self.env['edi.envelope'].search([('state', '=', 'progress'), ('route_id', '=', self.id)]):
+                if e not in envelopes:
+                    envelopes.append(e)
             self._run_out(envelopes)
             if envelopes:
                 run_performed = True
@@ -508,7 +511,7 @@ class edi_route(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.name, self.route_type, e))
+            _logger.error('edi.route.run() (out): EDI ValueError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         except TypeError as e:
             self.env['mail.message'].create({
                     'body': _("Route %s type %s Type Error %s\n" % (self.name, self.route_type, e)),
@@ -517,7 +520,7 @@ class edi_route(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.name, self.route_type, e))
+            _logger.error('edi.route.run() (out): EDI TypeError Route %s type %s Error %s ' % (self.name, self.route_type, e))
             raise Warning('EDI TypeError in run(out) %s' % e)
         except IOError as e:
             self.env['mail.message'].create({
@@ -527,7 +530,7 @@ class edi_route(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.name, self.route_type, e))
+            _logger.error('edi.route.run() (out): EDI IOError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         else:
             #~ self.env['mail.message'].create({
                     #~ 'body': _("Route %s type %s %s messages created\n" % (self.name, self.route_type, 'ok')),
@@ -549,7 +552,7 @@ class edi_route(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI ValueError Route %s type %s Error %s ' % (self.name, self.route_type, e))
+            _logger.error('edi.route.run() (in): EDI ValueError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         except TypeError as e:
             self.env['mail.message'].create({
                     'body': _("Route %s type %s Type Error %s\n" % (self.name, self.route_type, e)),
@@ -558,7 +561,7 @@ class edi_route(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI TypeError Route %s type %s Error %s ' % (self.name, self.route_type, e))
+            _logger.error('edi.route.run() (in): EDI TypeError Route %s type %s Error %s ' % (self.name, self.route_type, e))
             raise Warning('EDI TypeError in split %s' % e)
         except IOError as e:
             self.env['mail.message'].create({
@@ -568,7 +571,7 @@ class edi_route(models.Model):
                     'res_id': self.id,
                     'model': self._name,
                     'type': 'notification',})
-            _logger.error('EDI IOError Route %s type %s Error %s ' % (self.name, self.route_type, e))
+            _logger.error('edi.route.run() (in): EDI IOError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         else:
             #~ self.env['mail.message'].create({
                     #~ 'body': _("Route %s type %s %s messages created\n" % (self.name, self.route_type, 'ok')),

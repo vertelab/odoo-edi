@@ -51,6 +51,7 @@
               <field name="protocol" />
               <field name="route_type" />
               <field name="active" />
+              <field name="test_mode"/>
               <button name="check_connection" string="Check" type="object" icon="gtk-ok" class="oe_inline" />
               <button name="run" string="Run" type="object" icon="gtk-ok" class="oe_inline" />
             </group>
