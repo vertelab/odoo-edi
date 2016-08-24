@@ -101,4 +101,13 @@ class sale_order_line(models.Model):
             if pline and float_compare(pline.product_qty, self.product_uom_qty, precision_rounding=self.product_id.uom_id and self.product_id.uom_id.rounding or 0.01) == -1:
                 self.is_available = 'false'
 
+class stock_picking(models.Model):
+    _inherit = 'stock.picking'
+
+    @api.one
+    def _partner_to_invoice(self):
+        self.partner_to_invoice = self._get_partner_to_invoice(self) or None
+    partner_to_invoice = fields.Many2one(comodel_name='res.partner',compute='_partner_to_invoice')
+    
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
