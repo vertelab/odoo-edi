@@ -113,4 +113,80 @@ class sale_order(models.Model):
     def _edi_message_create(self, edi_type,check_double=False,):
         self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, consignee=self.partner_id, route=self.route_id, check_double=check_double)
 
+class account_invoice(models.Model):
+    _inherit = "account.invoice"
+
+    @api.one
+    def _order_ids(self):
+        self.order_ids = [(6, 0, [o.id for o in self.env['sale.order'].search([('invoice_ids', 'in', self.id)])])]
+    order_ids = fields.Many2many(string='Orders', comodel_name='sale.order',compute="_order_ids")
+
+    def _get_route(self):
+        if self.order_ids and self.order_ids[0].route_id:
+            return self.order_ids[0].route_id
+        return None
+
+    @api.one
+    def _edi_message_create(self, edi_type, check_double=False):
+        orders = self.env['sale.order'].search([('invoice_ids', 'in', self.id)])
+        self.env['edi.message']._edi_message_create(
+            edi_type=edi_type,
+            obj=self,
+            sender=orders and orders[0].unb_recipient or None,
+            recipient=orders and orders[0].unb_sender or None,
+            consignee=orders and orders[0].nad_by or self.partner_id,
+            route=orders and orders[0].route_id,
+            check_double=check_double)
+
+    @api.model
+    def create(self, vals):
+        invoice =  super(account_invoice, self).create(vals)
+        if invoice and invoice._get_route():
+            _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.create', invoice, invoice._get_route()))
+            invoice._get_route().edi_action('account.invoice.create', invoice=invoice)
+        return invoice
+
+    @api.multi
+    def action_cancel(self):
+        res =  super(account_invoice, self).action_cancel()
+        for invoice in self:
+            if invoice._get_route():
+                invoice._get_route().edi_action('account.invoice.action_cancel', invoice=invoice, res=res)
+        return res
+
+    @api.multi
+    def action_move_create(self):
+        res =  super(account_invoice, self).action_move_create()
+        for invoice in self:
+            if invoice._get_route():
+                invoice._get_route().edi_action('account.invoice.action_move_create', invoice=invoice,res=res)
+        return res
+
+    @api.multi
+    def action_draft(self):
+        res =  super(account_invoice, self).action_draft()
+        for invoice in self:
+            _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.action_draft', invoice, invoice._get_route()))
+            if invoice._get_route():
+                invoice._get_route().edi_action('account.invoice.action_draft', invoice=invoice, res=res)
+        return res
+
+    @api.multi
+    def action_create(self):
+        res =  super(account_invoice, self).action_create()
+        for invoice in self:
+            _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.action_create', invoice, invoice._get_route()))
+            if invoice._get_route():
+                invoice._get_route().edi_action('account.invoice.action_create', invoice=invoice, res=res)
+        return res
+
+    @api.multi
+    def invoice_validate(self):
+        res =  super(account_invoice, self).invoice_validate()
+        for invoice in self:
+            _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.invoice_validate', invoice, invoice._get_route()))
+            if invoice._get_route():
+                invoice._get_route().edi_action('account.invoice.invoice_validate', invoice=invoice)
+        return res
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -29,7 +29,7 @@
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route_sale', 'edi_route_stock_account'],
+    'depends': ['edi_route_sale',],
     'data': ['stock_data.xml'],
     'application': False,
     'installable': True,
