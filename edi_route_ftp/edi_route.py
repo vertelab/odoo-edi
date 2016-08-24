@@ -352,6 +352,7 @@ class edi_route(models.Model):
     
     @api.multi
     def _run_out(self, envelopes):
+        _logger.debug('edi_route._run_out (sftp): %s' % envelopes)
         if self.protocol == 'ftp':
             pass
         elif self.protocol == 'sftp':

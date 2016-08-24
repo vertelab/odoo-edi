@@ -170,13 +170,13 @@ UNT     Avslutar ordermeddelandet.
                     order = self.env['sale.order'].create(order_values)
                     if order.nad_ito:
                         self.nad_ito = order.nad_ito.id
-                        order.partner_invoice_id.id = order.nad_ito.id
+                        order.partner_invoice_id = order.nad_ito.id
                     elif not order.partner_invoice_id.id == order.partner_id.id:
                         self.nad_ito = order.partner_invoice_id.id
                         order.nad_ito = order.partner_invoice_id.id
                     if order.nad_dp:
                         self.nad_dp = order.nad_dp.id
-                        order.partner_shipping_id.id = order.nad_dp.id
+                        order.partner_shipping_id = order.nad_dp.id
                     elif not order.partner_shipping_id.id == order.partner_id.id:
                         self.nad_dp = order.partner_shipping_id.id
                         order.nad_dp = order.partner_shipping_id.id

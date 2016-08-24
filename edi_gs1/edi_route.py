@@ -49,7 +49,10 @@ class edi_envelope(models.Model):
             date = dt.strftime("%y%m%d")
             time = dt.strftime("%H%M")
             UNA = "UNA:+.? '"
-            UNB = "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++%s'" % (envelope.sender.gs1_gln, envelope.recipient.gs1_gln, date, time, self.name,interchange_control_ref)
+            UNB = "UNB+UNOC:3+{sender}:{qualifier}+{receiver}:14+{date}:{time}+{name}++{ref}'".format(
+                sender=envelope.sender.gs1_gln, receiver=envelope.recipient.gs1_gln,
+                date=date, time=time, name=self.name, ref=interchange_control_ref,
+                qualifier='ZZ' if self.route_id.test_mode else '14')
             body = ''.join([base64.b64decode(m.body) for m in envelope.edi_message_ids])
             UNZ = "UNZ+%s+%s'" % (len(envelope.edi_message_ids),self.name)
             msg = self.env['edi.message']
