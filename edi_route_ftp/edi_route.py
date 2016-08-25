@@ -278,7 +278,7 @@ class sftp(_comsession):
     
     def put_file(self, file_obj, name, force = False):
         if force or name not in self.list_files():
-            self.session.putfo(file_obj, name)
+            self.session.putfo(file_obj, name, confirm=False) #Delivered messages do not show up on Strålfors' server, so confirm will generate an error even on success. 
             return True
         return False
     

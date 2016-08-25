@@ -31,7 +31,7 @@
         </record>
         <record model="edi.route.line" id="route_esap20_ordrsp">
             <field name="name">ESAP20 ORDRSP</field>
-            <field name="caller_id" ref="edi_route_sale.caller_create" />
+            <field name="caller_id" ref="edi_route_sale.caller_action_button_confirm" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
 #
@@ -44,7 +44,7 @@ order._edi_message_create('edi_gs1.edi_message_type_ordrsp')
         </record>
         <record model="edi.route.line" id="route_esap20_orderk">
             <field name="name">ESAP20 ORDERK</field>
-            <field name="caller_id" ref="edi_route_sale.caller_action_button_confirm" />
+            <field name="caller_id" ref="edi_route_sale.caller_create" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
 #
