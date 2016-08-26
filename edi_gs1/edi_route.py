@@ -133,7 +133,7 @@ class edi_envelope(models.Model):
     @api.model
     def _get_partner(self, l, part_type):
         _logger.info('get partner %s (%s)' % (l, part_type))
-        if l[1] == '14' or l[1] == 'ZZ':
+        if l[1] == '14' or (l[1] == 'ZZ' and self.route_id.test_mode):
             partner = self.env['res.partner'].search([('gs1_gln', '=', l[0])])
             if len(partner) == 1:
                 return partner
@@ -256,7 +256,9 @@ class edi_message(models.Model):
 
     def CNT(self, qualifier, value):
         self._seg_count += 1
-        return "CNT+%s:%s'" % (qualifier, int(value))
+        if int(value) == value:
+            value = int(value)
+        return "CNT+%s:%s'" % (qualifier, value)
 
     def DTM(self, func_code, dt=False, format=102):
         self._seg_count += 1
@@ -420,9 +422,11 @@ class edi_message(models.Model):
          #~ if line.product_uom_qty != line.order_qty:
             #~ code = 12
         #~ else:
+        if int(qty) == qty:
+            qty = int(qty)
         if not code:
             code = 21
-        return "QTY+%s:%s'" % (code, int(qty))
+        return "QTY+%s:%s'" % (code, qty)
 
     def QVR(self, line):
         #AS     Artikeln har utgått ur sortimentet
