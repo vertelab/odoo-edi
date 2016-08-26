@@ -163,7 +163,7 @@ UNT     Avslutar ordermeddelandet.
             #msg += self.RFF(foobar.desadv, 'AAK')
 
 
-            msg += self.NAD_BY()
+            msg += self.NAD_BY(picking.sale_id.partner_id)
             if self.consignee_id and self.consignee_id.vat:
                 msg += self.RFF(self.consignee_id.vat, 'VA')
 

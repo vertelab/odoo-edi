@@ -91,7 +91,7 @@ UNT     Avslutar ordermeddelandet.
             msg += self.DTM(76, dt=order.date_order, format=203) # Planned Delivery Date
             #FTX?
             msg += self.RFF(order.client_order_ref, 'ON')
-            msg += self.NAD_BY()
+            msg += self.NAD_BY(order.partner_id)
             msg += self.NAD_SU()
             cnt_lines = 0
             cnt_amount = 0
@@ -118,13 +118,14 @@ UNT     Avslutar ordermeddelandet.
             _logger.debug('pack Ordererkännande. mode_record: %s' % self.model_record)
             if self.model_record._name != 'sale.order':
                 raise ValueError("ORDRSP: Attached record is not a sale.order!")
+            order = self.model_record
             msg =  self.UNH(edi_type='ORDRSP')
-            msg += self.BGM(231, self.model_record.name, 12)
+            msg += self.BGM(231, order.name, 12)
             msg += self.DTM(137,format=203)
-            if self.model_record.note:
-                msg += self.FTX(self.model_record.note)
-            msg += self.RFF(self.model_record.client_order_ref or '', 'ON')
-            msg += self.NAD_BY()
+            if order.note:
+                msg += self.FTX(order.note)
+            msg += self.RFF(order.client_order_ref or '', 'ON')
+            msg += self.NAD_BY(order.partner_id)
             msg += self.NAD_SU()
             msg += self.UNS()
             msg += self.UNT()

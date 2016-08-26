@@ -36,13 +36,6 @@ class edi_message(models.Model):
             if self.model_record._name != 'stock.picking':
                 raise ValueError("DESADV: Attached record is not a stock.pack! {model}".format(model=self.model_record._name),self.model_record._name)
             picking = self.model_record
-            #Find possible purchase and sale orders
-            #so = self.env['sale.order'].search([('name', '=', picking.origin)])
-            po = None #Used to handle drop shipping
-            if not picking.sale_id:
-                po = self.env['purchase.order'].search([('name', '=', picking.origin)])
-                if po:
-                    so = self.env['sale.order'].search([('name', '=', po.origin)])
             msg = self.UNH('DESADV')
             msg += self.BGM(doc_code=351, doc_no=picking.name) #Possibly should use GDTI, Global Document Type Identifier
             #Document date
@@ -65,7 +58,7 @@ class edi_message(models.Model):
             #msg += self._NAD('SF', shipping_partner)
 
             #Buyer identification
-            msg += self.NAD_BY()
+            msg += self.NAD_BY(picking.sale_id.partner_id)
             #Consignee identification. Used if recipient is other than buyer.
             #msg += self.NAD_CN()
             #Delivery place. Used if delivered to other place than recipient adress.

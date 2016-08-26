@@ -27,7 +27,7 @@ class edi_message(models.Model):
     _inherit = 'edi.message'
     
     def _get_customer_product_code(self, product, customer):
-        code = self.env['product.customer.code'].search([('product_id', '=', product.id)('partner_id', '=', customer.id)])
+        code = self.env['product.customer.code'].search([('product_id', '=', product.id), ('partner_id', '=', customer.id)])
         if code:
             return code.product_code
         return super(edi_message, self)._get_customer_product_code(product, customer)

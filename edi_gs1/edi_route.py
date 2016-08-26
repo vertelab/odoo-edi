@@ -218,7 +218,7 @@ class edi_message(models.Model):
             edi_type = self.edi_type
         return "UNH+{ref_no}+{msg_type}:{version}:{release}:UN:{ass_code}'".format(ref_no=self.name,msg_type=edi_type,version=version,release=release, ass_code=ass_code)
 
-    def BGM(self,doc_code=False, doc_no=False, status=''):
+    def BGM(self, doc_code=False, doc_no=False, status=''):
         #TODO: look up test mode on route and add to BGM
 
         # Beginning of message
@@ -229,17 +229,11 @@ class edi_message(models.Model):
         # doc_code 351 Despatch advice, Document/message by means of which the seller or consignor informs the consignee about the despatch of goods.
         # BGM+351+SO069412+9'
         self._seg_count += 1
-        if doc_code == 220: # Resp agency = EAN/GS1 (9),
-            return "BGM+220+{doc_no}'".format(doc_no=_escape_string(doc_no))
-        elif doc_code == 231: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
+        if not doc_code or not doc_no:
+            raise Warning("edi_message.BGM(doc_code=%s, doc_no=%s, status=%s): Missing required arguments." % (doc_code, doc_no, status))
+        if doc_code == 231: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
             return "BGM+231+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), status = status)
-        elif doc_code == 280: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
-            return "BGM+280+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
-        elif doc_code == 380: # Resp agency = EAN/GS1 (9), Message function code = Change (4)
-            return "BGM+380+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
-        elif doc_code == 351:
-            return "BGM+351+{doc_no}+9'".format(doc_no=_escape_string(doc_no))
-        #return "BGM+{code}::{}+{doc_no}+{status}'".format(doc_no=_escape_string(doc_no), code=doc_code, status=status)
+        return "BGM+{doc_code}+{doc_no}+9'".format(doc_code=doc_code, doc_no=_escape_string(doc_no))
 
     def CPS(self, level):
         """To identify the sequence in which physical packing is presented in the consignment,
@@ -318,8 +312,8 @@ class edi_message(models.Model):
 
     def NAD_SU(self, type='GLN'):
         return self._NAD('SU', self.consignor_id, type)
-    def NAD_BY(self, type='GLN'):
-        return self._NAD('BY', self.consignee_id, type)
+    def NAD_BY(self, partner, type='GLN'):
+        return self._NAD('BY', partner, type)
     def NAD_SH(self, type='GLN'):
         return self._NAD('SH', self.forwarder_id, type)
     def NAD_DP(self, type='GLN'):
