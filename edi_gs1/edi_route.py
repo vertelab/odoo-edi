@@ -139,13 +139,6 @@ class edi_envelope(models.Model):
                 return partner
         raise ValueError("Unknown part %s" % (len(l) > 0 and l[0] or "[EMPTY LIST!]"), l, part_type)
 
-    def _create_UNB_segment(self, sender, recipient):
-        self._seg_count += 1
-        interchange_control_ref = ''
-        date = ''
-        time = ''
-        return "UNB+UNOC:3+%s:14+%s:14+%s:%s+%s++ICARSP4'" % (sender.gs1_gln, recipient.gs1_gln, date, time, interchange_control_ref)
-
     def edifact_read(self):
         """
             Creates an attachement with the envelope in readable form
@@ -262,10 +255,11 @@ class edi_message(models.Model):
 
     def DTM(self, func_code, dt=False, format=102):
         self._seg_count += 1
-        #11 Despatch date and or time - (2170) Date/time on which the goods are or are expected to be despatched or shipped.
-        #13 Terms net due date - Date by which payment must be made.
-        #35 Delivery date/time, actual - Date/time on which goods or consignment are delivered at their destination.
-        #50 Goods receipt date/time - Date/time upon which the goods were received by a given party.
+        #2   Delivery date/time, requested
+        #11  Despatch date and or time - (2170) Date/time on which the goods are or are expected to be despatched or shipped.
+        #13  Terms net due date - Date by which payment must be made.
+        #35  Delivery date/time, actual - Date/time on which goods or consignment are delivered at their destination.
+        #50  Goods receipt date/time - Date/time upon which the goods were received by a given party.
         #132 Transport means arrival date/time, estimated
         #137 Document/message date/time, date/time when a document/message is issued. This may include authentication.
         #167 Charge period start date - The charge period's first date.
@@ -318,22 +312,21 @@ class edi_message(models.Model):
         if type == 'GLN':
             party_id = partner.gs1_gln
             if not party_id:
-                #raise Warning('NAD missing GLN role=%s partner=%s' % (role,partner.name))
-                party_id = 1 # Jusr for test
+                raise Warning('NAD missing GLN role=%s partner=%s' % (role, partner.name))
             code = 9
         return "NAD+%s+%s::%s'" % (role, party_id, code)
 
-    def NAD_SU(self,type='GLN'):
+    def NAD_SU(self, type='GLN'):
         return self._NAD('SU', self.consignor_id, type)
-    def NAD_BY(self,type='GLN'):
+    def NAD_BY(self, type='GLN'):
         return self._NAD('BY', self.consignee_id, type)
-    def NAD_SH(self,type='GLN'):
+    def NAD_SH(self, type='GLN'):
         return self._NAD('SH', self.forwarder_id, type)
-    def NAD_DP(self,type='GLN'):
+    def NAD_DP(self, type='GLN'):
         return self._NAD('DP', self.nad_dp, type)
-    def NAD_ITO(self,type='GLN'):
+    def NAD_ITO(self, type='GLN'):
         return self._NAD('ITO', self.nad_ito, type)
-    def NAD_CN(self,type='GLN'):
+    def NAD_CN(self, type='GLN'):
         return self._NAD('CN', self.consignee_id, type)  # ????
 
     #code = error/status code

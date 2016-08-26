@@ -1,5 +1,22 @@
 <openerp>
 <data noupdate="1">
+    <record model="ir.actions.server" id="action_create_repord">
+        <field name="name">Create REPORD</field>
+        <field name="state">code</field>
+        <field name="condition" eval="True"/>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="code">for o in object.browse(context.get('active_ids', [])):
+    o._edi_message_create('edi_gs1.edi_message_type_repord')
+        </field>
+    </record>
+
+    <record model="ir.values" id="action_create_repord_menu">
+        <field name="name">Create REPORD</field>
+        <field name="model">sale.order</field>
+        <field name="key2">client_action_multi</field>
+        <field name="value" eval="'ir.actions.server,%d' % action_create_repord"/>
+    </record>
+    
     <record model="ir.actions.server" id="action_create_ordrsp">
         <field name="name">Create ORDRSP</field>
         <field name="state">code</field>

@@ -85,25 +85,28 @@ UNT		Avslutar ordermeddelandet.
         super(edi_message, self)._pack()
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_repord').id:
             if self.model_record._name != 'sale.order':
-                raise ValueError("DESADV: Attached record is not a sale.order! {model}".format(model=self.model_record._name),self.model_record._name)
-            status = _check_order_status(self.model_record)
+                raise ValueError("REPORD: Attached record is not a sale.order! {model}".format(model=self.model_record._name),self.model_record._name)
+            order = self.model_record
             if status != 0:
-                msg = self.UNH('ORDERS')
-                msg += self.BGM(231, self.model_record.name, status)
-                dt = fields.Datetime.from_string(fields.Datetime.now())
-                msg += self._create_DTM_segment(137, dt)
-                #Another DTM?
-                #FNX?
-                msg += self._create_RFF_segment(self.model_record.client_order_ref)
+                msg = self.UNH('ORDERS', ass_code='EDIT30')
+                msg += self.BGM('22E', self.model_record.name)
+                msg += self.DTM(137)
+                msg += self.DTM(2, order.date_order)
                 msg += self.NAD_BY()
-                msg += self.NAD_SU()
-                line_index = 0
-                for line in self.model_record.order_line:
-                    line_index += 1
-                    msg += self._create_LIN_segment(line_index, line)
-                    msg += self._create_PIA_segment(line.product_id, 'SA')
-                    msg += self._create_PIA_segment(line.product_id, 'BP', self.model_record.partner_id)
-                    msg += self._create_QTY_segment(line)
+                #OB = client/supplier (Beställare, leverantör). Weird, but it's how ICA wants it.
+                msg += self.NAD('OB', order.company_id and order.company_id.partner_id or self.env.ref('base.main_partner'))
+                cnt_lines = 0
+                cnt_amount = 0.0
+                for line in order.order_line:
+                    cnt_lines += 1
+                    cnt_amount += line.product_uom_qty
+                    msg += self.LIN(line)
+                    msg += self.PIA(line.product_id, 'SA')
+                    msg += self.PIA(line.product_id, 'BP', self.model_record.partner_id)
+                    msg += self.QTY(line)
                 msg += self.UNS()
+                if cnt_lines > 0:
+                    msg += self.CNT(1, cnt_amount)
+                    msg += self.CNT(2, cnt_lines)
                 msg += self.UNT()
                 self.body = base64.b64encode(self._gs1_encode_msg(msg))

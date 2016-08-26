@@ -343,7 +343,7 @@ class edi_message(models.Model):
     def _pack(self):
         pass
 
-    def _edi_message_create(self, edi_type=None,obj=None, sender=None,recipient=None,consignee=None,consignor=None, route=None, check_double=True):
+    def _edi_message_create(self, edi_type=None, obj=None, sender=None, recipient=None, consignee=None, consignor=None, route=None, check_double=True):
         if consignee and obj and edi_type:
             #do not create message if edi type is not listed in consignee
             if not self.env.ref(edi_type).id in consignee.get_edi_types(consignee):
@@ -621,17 +621,17 @@ class edi_route(models.Model):
 
     @api.one
     def edi_action(self, caller_name, **kwargs):
-        _logger.info("Caller ID: %s kwargs %s" % (caller_name, kwargs))
+        _logger.debug("Caller ID: %s kwargs %s" % (caller_name, kwargs))
         caller = self.env['edi.route.caller'].search([('name', '=', caller_name)], limit=1)
         if caller:
-            _logger.info("Caller: %s; %s" % (caller.name, self.route_line_ids.filtered(lambda a: a.caller_id.id == caller.id)))
+            _logger.debug("Caller: %s; %s" % (caller.name, self.route_line_ids.filtered(lambda a: a.caller_id.id == caller.id)))
             for action in self.route_line_ids.filtered(lambda a: a.caller_id.id == caller.id):
-                _logger.info("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
+                _logger.debug("Caller ID: %s; line %s kwargs %s" % (caller_name, action.name,kwargs))
                 action.run_action_code(kwargs)
         else:
             #raise Warning(caller_name,kwargs)
             self.env['mail.message'].create({
-                    'body': _("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs)),
+                    'body': _("Caller ID not found: %s; kwargs %s" % (caller_name, kwargs)),
                     'subject': "EDI Error %s" % caller_name,
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
@@ -640,13 +640,13 @@ class edi_route(models.Model):
             obj = kwargs.get('order') or kwargs.get('picking') or kwargs.get('invoice')
             if obj:
                 self.env['mail.message'].create({
-                        'body': _("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs)),
+                        'body': _("Caller ID not found: %s; kwargs %s" % (caller_name, kwargs)),
                         'subject': "EDI Error %s" % caller_name,
                         'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                         'res_id': obj.id,
                         'model': obj._name,
                         'type': 'notification',})
-            _logger.info("Caller ID: %s; no matching line kwargs %s" % (caller_name, kwargs))
+            _logger.error("Caller ID not found: %s; kwargs %s" % (caller_name, kwargs))
 
 class edi_route_lines(models.Model):
     _name = 'edi.route.line'

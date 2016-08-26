@@ -110,8 +110,8 @@ class sale_order(models.Model):
                 order.route_id.edi_action('sale.order.action_ignore_delivery_exception',order=order,res=res)
         return res
 
-    def _edi_message_create(self, edi_type,check_double=False,):
-        self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, consignee=self.partner_id, route=self.route_id, check_double=check_double)
+    def _edi_message_create(self, edi_type, sender=None, recipient=None, check_double=False,):
+        self.env['edi.message']._edi_message_create(edi_type=edi_type, obj=self, consignee=self.partner_id, route=self.route_id, sender=sender, recipient=recipient, check_double=check_double)
 
 class account_invoice(models.Model):
     _inherit = "account.invoice"
