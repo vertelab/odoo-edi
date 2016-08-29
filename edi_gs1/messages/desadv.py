@@ -46,7 +46,7 @@ class edi_message(models.Model):
             msg += self.DTM(17, picking.date_done)
             #Order reference
             if picking.sale_id:
-                msg += self.RFF(picking.sale_id.name, qualifier='ON')
+                msg += self.RFF(picking.sale_id.client_order_ref or picking.sale_id.name, qualifier='ON')
             msg += self.NAD_SU()
             #Godsavsändare
             #Not allowed by Coop.
@@ -104,7 +104,7 @@ class edi_message(models.Model):
                 #Order reference with line nr
                 for line in picking.sale_id.order_line:
                     if line.product_id == operation.product_id:
-                        msg += self.RFF(picking.sale_id.name, 'ON', line.sequence)
+                        msg += self.RFF(picking.sale_id.client_order_ref or picking.sale_id.name, 'ON', line.sequence)
                         break
             msg += self.CNT(1, qty_total)
             msg += self.CNT(2, self._lin_count)

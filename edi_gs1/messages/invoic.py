@@ -149,15 +149,16 @@ UNT     Avslutar ordermeddelandet.
             #Invoice period
             #msg += self.DTM(167)
             #msg += self.DTM(168, invoice.date_due)
-
+            
+            order = invoice.order_ids and invoice.order_ids[0]
             #Contract reference
-            if invoice.order_ids and invoice.order_ids[0].project_id and invoice.order_ids[0].project_id.code:
-                msg += self.RFF(invoice.order_ids[0].project_id.code, 'CT')
+            if order and order.project_id and order.project_id.code:
+                msg += self.RFF(order.project_id.code, 'CT')
             #Pricelist
             #msg += ...
             #Order reference
-            if invoice.order_ids and invoice.order_ids[0].client_order_ref:
-                msg += self.RFF(invoice.order_ids[0].client_order_ref, 'ON')
+            if order:
+                msg += self.RFF(order.client_order_ref or order.name, 'ON')
             for picking in invoice.picking_ids:
                 msg += self.RFF(picking.name, 'DQ')
             #msg += self.RFF(foobar.desadv, 'AAK')
@@ -167,12 +168,12 @@ UNT     Avslutar ordermeddelandet.
             if self.consignee_id and self.consignee_id.vat:
                 msg += self.RFF(self.consignee_id.vat, 'VA')
 
-            if invoice.order_ids and invoice.order_ids[0].nad_dp:
-                self.nad_dp = invoice.order_ids[0].nad_dp.id
+            if order and order.nad_dp:
+                self.nad_dp = order.nad_dp.id
                 msg += self.NAD_DP()
 
-            if invoice.order_ids and invoice.order_ids[0].nad_ito:
-                self.nad_ito = invoice.order_ids[0].nad_ito.id
+            if order and order.nad_ito:
+                self.nad_ito = order.nad_ito.id
                 msg += self.NAD_ITO()
 
             msg += self.NAD_SU()
@@ -203,8 +204,8 @@ UNT     Avslutar ordermeddelandet.
                 #Net unit price, and many more
                 msg += self.PRI(line.price_unit)
                 #Reference to invoice. Again?
-                if invoice.order_ids:
-                    msg += self.RFF(invoice.order_ids[0].client_order_ref, 'ON', self._get_line_nr(invoice.order_ids[0], line))
+                if order:
+                    msg += self.RFF(order.client_order_ref or order.name, 'ON', self._get_line_nr(order, line))
                 #Justification for tax exemption
                 #TAX
             msg += self.UNS()

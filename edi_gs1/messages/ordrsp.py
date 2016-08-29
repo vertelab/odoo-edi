@@ -90,7 +90,7 @@ UNT     Avslutar ordermeddelandet.
             msg += self.DTM(137, format=203)  # Order Response Date
             msg += self.DTM(76, dt=order.date_order, format=203) # Planned Delivery Date
             #FTX?
-            msg += self.RFF(order.client_order_ref, 'ON')
+            msg += self.RFF(order.client_order_ref or order.name, 'ON')
             msg += self.NAD_BY(order.partner_id)
             msg += self.NAD_SU()
             cnt_lines = 0
@@ -104,7 +104,7 @@ UNT     Avslutar ordermeddelandet.
                     msg += self.PIA(line.product_id, 'SA')
                     msg += self.QTY(line)
                     msg += self.QVR(line)
-                    msg += self.RFF(order.client_order_ref, 'ON', line.sequence)
+                    msg += self.RFF(order.client_order_ref or order.name, 'ON', line.sequence)
                 else:
                     self._lin_count += 1
             msg += self.UNS()
@@ -124,7 +124,7 @@ UNT     Avslutar ordermeddelandet.
             msg += self.DTM(137,format=203)
             if order.note:
                 msg += self.FTX(order.note)
-            msg += self.RFF(order.client_order_ref or '', 'ON')
+            msg += self.RFF(order.client_order_ref or order.name, 'ON')
             msg += self.NAD_BY(order.partner_id)
             msg += self.NAD_SU()
             msg += self.UNS()
@@ -137,6 +137,7 @@ UNT     Avslutar ordermeddelandet.
     def _unpack(self):
         _logger.info('unpack ORDRSP')
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
+            Warning("ORDRSP is not implemented yet!")
             segment_count = 0
             delivery_dt = None
             #Delivered by?
