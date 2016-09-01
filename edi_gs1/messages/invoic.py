@@ -126,6 +126,12 @@ UNT     Avslutar ordermeddelandet.
             nr += 1
         raise ValueError("Invoice line (id: %s) not found in invoice %s." % (inv_line.id, order.name))
     
+    def _get_order_line_nr_compare_prod(self, order, inv_line):
+        for line in order.order_line:
+            if line.product_id == inv_line.product_id:
+                return line.sequence
+        raise ValueError("Invoice line (id: %s) not found in order %s." % (inv_line.id, order.name))
+    
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
@@ -232,8 +238,10 @@ UNT     Avslutar ordermeddelandet.
                 #Net unit price, and many more
                 msg += self.PRI(line.price_unit)
                 #Reference to invoice. Again?
-                if order:
+                if order and invoice.type != 'out_refund':
                     msg += self.RFF(order.client_order_ref or order.name, 'ON', self._get_line_nr(order, line))
+                if order and invoice.type == 'out_refund':
+                    msg += self.RFF(order.client_order_ref or order.name, 'ON', self._get_order_line_nr_compare_prod(order, line))
                 if invoice.invoice_id and invoice.type == 'out_refund':
                     msg += self.RFF(invoice.invoice_id.name, 'IV', self._get_inv_line_nr(invoice.invoice_id, line))
                 #Justification for tax exemption
