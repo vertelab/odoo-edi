@@ -116,13 +116,15 @@ class sale_order(models.Model):
 class account_invoice(models.Model):
     _inherit = "account.invoice"
 
-    @api.one
+    @api.depends('invoice_id', 'invoice_id.order_ids')
+    @api.multi
     def _order_ids(self):
-        if self.invoice_id:
-            self.order_ids = self.invoice_id.order_ids
-        else:
-            self.order_ids = [(6, 0, [o.id for o in self.env['sale.order'].search([('invoice_ids', 'in', self.id)])])]
-    order_ids = fields.Many2many(string='Orders', comodel_name='sale.order',compute="_order_ids")
+        for record in self:
+            if record.invoice_id:
+                record.order_ids = record.invoice_id.order_ids
+            else:
+                record.order_ids = self.env['sale.order'].search([('invoice_ids', '=', record.id)])
+    order_ids = fields.Many2many(string='Orders', comodel_name='sale.order', compute="_order_ids")
     invoice_id = fields.Many2one(comodel_name='account.invoice', string='Credited Invoice')
     
     @api.model

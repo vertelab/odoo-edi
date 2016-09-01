@@ -599,7 +599,11 @@ class edi_route(models.Model):
     def log(self, message, error_info=None):
         #TODO: Mail errors and implement this on envelope and message as well.
         if error_info:
-            message += '\n' + ''.join(traceback.format_exception(error_info[0], error_info[1], error_info[2]))
+            if type(error_info) == list:
+                for e in error_info:
+                    message += '\n' + ''.join(traceback.format_exception(e[0], e[1], e[2]))
+            else:
+                message += '\n' + ''.join(traceback.format_exception(error_info[0], error_info[1], error_info[2]))
         user = self.env['res.users'].browse(self._uid)
         self.env['mail.message'].create({
                 'body': message,

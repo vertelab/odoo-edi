@@ -182,7 +182,7 @@ UNT     Avslutar ordermeddelandet.
                 
                 #Invoice Reference
                 if invoice.invoice_id:
-                    msg += self.RFF(invoice.invoice_id.name, 'IV')
+                    msg += self.RFF(invoice.invoice_id.number, 'IV')
                     
             order = invoice.order_ids and invoice.order_ids[0]
             #Contract reference
@@ -237,13 +237,13 @@ UNT     Avslutar ordermeddelandet.
                 msg += self.MOA(line.price_subtotal)
                 #Net unit price, and many more
                 msg += self.PRI(line.price_unit)
-                #Reference to invoice. Again?
                 if order and invoice.type != 'out_refund':
                     msg += self.RFF(order.client_order_ref or order.name, 'ON', self._get_line_nr(order, line))
                 if order and invoice.type == 'out_refund':
                     msg += self.RFF(order.client_order_ref or order.name, 'ON', self._get_order_line_nr_compare_prod(order, line))
+                #Reference to invoice. Only if this is a refund invoice.
                 if invoice.invoice_id and invoice.type == 'out_refund':
-                    msg += self.RFF(invoice.invoice_id.name, 'IV', self._get_inv_line_nr(invoice.invoice_id, line))
+                    msg += self.RFF(invoice.invoice_id.number, 'IV', self._get_inv_line_nr(invoice.invoice_id, line))
                 #Justification for tax exemption
                 #TAX
             msg += self.UNS()

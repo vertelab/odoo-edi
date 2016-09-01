@@ -21,6 +21,7 @@
 from openerp import models, fields, api, _
 import base64
 from datetime import datetime
+import sys
 #https://www.stylusstudio.com/edifact/frames.htm
 
 import logging
@@ -146,7 +147,7 @@ UNT     Avslutar ordermeddelandet.
             order = None
             lines = []
             line = None
-            error = False
+            errors = []
             for segment in self._gs1_get_components():
                 segment_count += 1
                 for s in segment:
@@ -188,7 +189,7 @@ UNT     Avslutar ordermeddelandet.
                     elif segment[0] == 'UNS' and line:
                         lines.append[line]
                 except:
-                    error = True
+                    errors.append(sys.exc_info())
             
             res = 'status: ' + order_state
             res += '\ndelivery date: ' + delivery_date
@@ -202,12 +203,20 @@ UNT     Avslutar ordermeddelandet.
                         'Not accepted' if line.get('status', '') == '7' else line.get('status', 'Unknown'))
             res += '\n\noriginal message:\n' + msg
             
-            if error:
-                pass
-            elif not order:
-                pass
+            if errors:
+                errors.reverse()
+                self.route_id.log("%s error(s) when reading ORDRSP '%s'.\n%s" % (len(errors), self.name, res), errors)
+                self.state = 'canceled'
             else:
-                pass
+                user = self.env['res.users'].browse(self._uid)
+                self.env['mail.message'].create({
+                    'body': res,
+                    'subject': 'Order response received',
+                    'author_id': user.partner_id.id,
+                    'res_id': order.id,
+                    'model': order._name,
+                    'type': 'notification',
+                })
             
             raise Warning("ORDRSP is not implemented yet!")
         else:
