@@ -118,9 +118,23 @@ class account_invoice(models.Model):
 
     @api.one
     def _order_ids(self):
-        self.order_ids = [(6, 0, [o.id for o in self.env['sale.order'].search([('invoice_ids', 'in', self.id)])])]
+        if self.invoice_id:
+            self.order_ids = self.invoice_id.order_ids
+        else:
+            self.order_ids = [(6, 0, [o.id for o in self.env['sale.order'].search([('invoice_ids', 'in', self.id)])])]
     order_ids = fields.Many2many(string='Orders', comodel_name='sale.order',compute="_order_ids")
-
+    invoice_id = fields.Many2one(comodel_name='account.invoice', string='Credited Invoice')
+    
+    @api.model
+    def _prepare_refund(self, invoice, date=None, period_id=None, description=None, journal_id=None):
+        values = super(account_invoice, self)._prepare_refund(invoice, date, period_id, description, journal_id)
+        values.update({
+            'invoice_id': invoice.id,
+            'picking_ids': [(6, 0, [o.id for o in invoice.picking_ids])],
+        })
+        _logger.warn(values)
+        return values
+    
     def _get_route(self):
         if self.order_ids and self.order_ids[0].route_id:
             return self.order_ids[0].route_id
@@ -128,7 +142,7 @@ class account_invoice(models.Model):
 
     @api.one
     def _edi_message_create(self, edi_type, check_double=False):
-        orders = self.env['sale.order'].search([('invoice_ids', 'in', self.id)])
+        orders = self.order_ids
         self.env['edi.message']._edi_message_create(
             edi_type=edi_type,
             obj=self,
@@ -142,7 +156,7 @@ class account_invoice(models.Model):
     def create(self, vals):
         invoice =  super(account_invoice, self).create(vals)
         if invoice and invoice._get_route():
-            _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.create', invoice, invoice._get_route()))
+            _logger.info("create Caller ID: %s; (account) %s %s" % ('account.invoice.create', invoice, invoice._get_route()))
             invoice._get_route().edi_action('account.invoice.create', invoice=invoice)
         return invoice
 
@@ -166,7 +180,7 @@ class account_invoice(models.Model):
     def action_draft(self):
         res =  super(account_invoice, self).action_draft()
         for invoice in self:
-            _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.action_draft', invoice, invoice._get_route()))
+            _logger.info("action_draft Caller ID: %s; (account) %s %s" % ('account.invoice.action_draft', invoice, invoice._get_route()))
             if invoice._get_route():
                 invoice._get_route().edi_action('account.invoice.action_draft', invoice=invoice, res=res)
         return res
@@ -175,7 +189,7 @@ class account_invoice(models.Model):
     def action_create(self):
         res =  super(account_invoice, self).action_create()
         for invoice in self:
-            _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.action_create', invoice, invoice._get_route()))
+            _logger.info("action_create Caller ID: %s; (account) %s %s" % ('account.invoice.action_create', invoice, invoice._get_route()))
             if invoice._get_route():
                 invoice._get_route().edi_action('account.invoice.action_create', invoice=invoice, res=res)
         return res
@@ -184,7 +198,7 @@ class account_invoice(models.Model):
     def invoice_validate(self):
         res =  super(account_invoice, self).invoice_validate()
         for invoice in self:
-            _logger.info("Caller ID: %s; (account) %s %s" % ('account.invoice.invoice_validate', invoice, invoice._get_route()))
+            _logger.info("invoice_validate Caller ID: %s; (account) %s %s" % ('account.invoice.invoice_validate', invoice, invoice._get_route()))
             if invoice._get_route():
                 invoice._get_route().edi_action('account.invoice.invoice_validate', invoice=invoice)
         return res

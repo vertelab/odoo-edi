@@ -211,7 +211,11 @@ class edi_message(models.Model):
                 'res_model': 'edi.message',
                 'res_id': self.id,
             })
-
+    
+    def ALI(self, reason):
+        self._seg_count += 1
+        return "ALI+++%s'" % reason
+    
     def UNH(self,edi_type=False, version='D', release='96A', ass_code='EAN005'):
         self._seg_count += 1
         if not edi_type:

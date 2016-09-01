@@ -90,7 +90,7 @@ and moved forward to related documents using rules in edi.route. (may be base.ac
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route', 'crm', 'sale', 'product', 'stock', 'account', 'sale_purchase', 'email_template'],
+    'depends': ['edi_route', 'crm', 'sale', 'product', 'stock', 'account', 'sale_purchase', 'email_template', 'account_invoice_credit_reason'],
     'external_dependencies': {
         'python': ['regex'],
     },

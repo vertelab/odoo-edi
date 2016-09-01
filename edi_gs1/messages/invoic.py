@@ -19,6 +19,7 @@
 #
 ##############################################################################
 from openerp import models, fields, api, _
+from openerp.exceptions import except_orm, Warning, RedirectWarning
 import base64
 from datetime import datetime
 #https://www.stylusstudio.com/edifact/frames.htm
@@ -116,7 +117,15 @@ UNT     Avslutar ordermeddelandet.
             if inv_line in line.invoice_lines:
                 return line.sequence
         raise ValueError("Invoice line (id: %s) not found in order %s." % (inv_line.id, order.name))
-
+    
+    def _get_inv_line_nr(self, invoice, inv_line):
+        nr = 1
+        for line in invoice.invoice_line:
+            if line.product_id == inv_line.product_id:
+                return nr
+            nr += 1
+        raise ValueError("Invoice line (id: %s) not found in invoice %s." % (inv_line.id, order.name))
+    
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
@@ -124,10 +133,11 @@ UNT     Avslutar ordermeddelandet.
             if self.model_record._name != 'account.invoice':
                 raise ValueError("INVOIC: Attached record is not an account.invoice! {model}".format(model=self.model_record._name),self.model_record._name)
             invoice = self.model_record
-            msg = self.UNH('INVOIC',ass_code='EAN008')
-            #280 =  Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
+            msg = self.UNH('INVOIC', ass_code='EAN008')
+            #380 =  Commercial invoice - Document/message claiming payment for goods or services supplied under conditions agreed between seller and buyer.
+            #381 =  Credit note - Document/message for providing credit information to the relevant party.
             #9 = Original - Initial transmission related to a given transaction.
-            msg += self.BGM(380, invoice.number, 9)
+            msg += self.BGM(381 if invoice.type == 'out_refund' else 380, invoice.number, 9)
 
             #Dates
             #Document date
@@ -146,10 +156,28 @@ UNT     Avslutar ordermeddelandet.
                     des_date = picking.date_done
             if des_date:
                 msg += self.DTM(11, des_date)
-            #Invoice period
-            #msg += self.DTM(167)
-            #msg += self.DTM(168, invoice.date_due)
-            
+            if invoice.type == 'out_refund':
+                #Sanity checks
+                if invoice.invoice_id and (invoice.credited_period_start or invoice.credited_period_end):
+                    raise Warning("A credit invoice can not have both a Credited Invoice Reference and an Credited Invoice Period!")
+                elif not (invoice.invoice_id or (invoice.credited_period_start and invoice.credited_period_end)):
+                    raise Warning("A credit invoice must have either a Credited Invoice Reference or a Credited Invoice Period!")
+                
+                #Invoice Period
+                if not invoice.invoice_id:
+                    msg += self.DTM(167, invoice.credited_period_start)
+                    msg += self.DTM(168, invoice.credited_period_end)
+                
+                #Invoice Reason
+                if invoice.credit_reason:
+                    msg += self.ALI(invoice.credit_reason)
+                else:
+                    raise Warning("A credit invoice must have a Credit Reason!")
+                
+                #Invoice Reference
+                if invoice.invoice_id:
+                    msg += self.RFF(invoice.invoice_id.name, 'IV')
+                    
             order = invoice.order_ids and invoice.order_ids[0]
             #Contract reference
             if order and order.project_id and order.project_id.code:
@@ -204,8 +232,10 @@ UNT     Avslutar ordermeddelandet.
                 #Net unit price, and many more
                 msg += self.PRI(line.price_unit)
                 #Reference to invoice. Again?
-                if order:
+                if order and invoice.type != 'out_refund':
                     msg += self.RFF(order.client_order_ref or order.name, 'ON', self._get_line_nr(order, line))
+                if invoice.invoice_id and invoice.type == 'out_refund':
+                    msg += self.RFF(invoice.invoice_id.name, 'IV', self._get_inv_line_nr(invoice.invoice_id, line))
                 #Justification for tax exemption
                 #TAX
             msg += self.UNS()

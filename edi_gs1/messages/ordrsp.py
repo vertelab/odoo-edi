@@ -135,80 +135,76 @@ UNT     Avslutar ordermeddelandet.
 
     @api.one
     def _unpack(self):
-        _logger.info('unpack ORDRSP')
+        _logger.debug('unpack ORDRSP')
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
-            Warning("ORDRSP is not implemented yet!")
+            #Read ORDRSP corresponding to REPORD sent to ICA.
             segment_count = 0
-            delivery_dt = None
-            #Delivered by?
-            delivery_prom_dt = None
-            #Message sent date?
-            doc_dt = None
-            order_values = {}
-            order_values['order_line'] = []
-            line = {}
+            order_state = ''
+            delivery_date = ''
+            text = ''
+            msg = ''
+            order = None
+            lines = []
+            line = None
+            error = False
             for segment in self._gs1_get_components():
                 segment_count += 1
-                _logger.warn('segment: %s' % segment)
-                #Begin Message
-                if segment[0] == 'BGM':
-                    self.name = segment[2]
-                    order_values['client_order_ref'] = segment[2]
-                #Datetime
-                elif segment[0] == 'DTM':
-                    function = segment[1][0]
-                    if function == '2':
-                        delivery_dt = self._parse_date(segment[1])
-                    elif function == '69':
-                        #Is this the correct date to use???
-                        order_values['date_order'] = self._parse_date(segment[1])
-                    elif function == '137':
-                        doc_dt = self._parse_date(segment[1])
-                elif segment[0] == 'NAD':
-                    if segment[1] == 'BY':
-                        order_values['partner_id'] = self._get_partner(segment[2]).id
-                    elif segment[1] == 'SU':
-                        supplier = self._get_partner(segment[2])
-                        _logger.warn('supplier: %s' % segment[2])
-                    elif segment[1] == 'SN':
-                        store_keeper = self._get_partner(segment[2])
-                        #ICA Sverige AB
-                        _logger.warn('store keeper: %s' % segment[2])
-                    elif segment[1] == 'CN':
-                        consignee = self._get_partner(segment[2])
-                        _logger.warn('consignee: %s' % segment[2])
-                    #Delivery Party
-                    elif segment[1] == 'DP':
-                        recipient = self.env['edi.envelope']._get_partner(segment[2])
-                        _logger.warn('recipient: %s' % segment[2])
-                elif segment[0] == 'LIN':
-                    if line:
-                        order_values['order_line'].append((0, 0, line))
-                    line = {'product_id': self._get_product(segment[3]).id}
-                elif segment[0] == 'QTY':
-                    line['product_uom_qty'] = line['order_qty'] = self._parse_quantity(segment[1])
-                #Alternative Product Identification
-                elif segment[0] == 'PIA':
-                    pass
-                #Free text
-                #~ #elif segment[0] == 'FTX':
-                #~ #    pass
-                #~ #elif segment[0] == 'RFF':
-                    #~ #CR customer reference number
-                    #~ #GN Government Reference Number
-                    #~ #VA VAT registration number
-                #~ #    pass
-                #End of message
-                elif segment[0] == 'UNT':
-                    if segment_count != int(segment[1]):
-                        raise TypeError('Wrong number of segments! %s %s' % (segment_count, segment),segment)
-                    #Add last line
-                    if line:
-                        order_values['order_line'].append((0, 0, line))
-                    _logger.warn(order_values)
-                    #create order
-                    order = self.env['sale.order'].create(order_values)
-                    self.model = order._name
-                    self.res_id = order.id
+                for s in segment:
+                    msg += s
+                s += '\n'
+                try:
+                    if segment[0] == 'BGM':
+                        if len(segment) > 3:
+                            order_state = segment(3)
+                    elif segment[0] == 'DTM':
+                        if segment[1] == '2':
+                            delivery_date = segment[2]
+                    elif segment[0] == 'FTX':
+                        ftx = segment[4]
+                        #qualifier = ZZZ, function = 1, ref = 001
+                        #Build human readable message from FTX field
+                        header = ['Felmeddelande: ', 'Order skapad (ÅÅÅÅMMDDTTMM): ',
+                            'Framflyttad leveransdag (ÅÅÅÅMMDD): ', 'Felkod', 'Kundens butiksnummer']
+                        for i in range(len(ftx)):
+                            if i < len(header):
+                                text += header[i]
+                            text += ftx[i] + '\n'
+                    elif segment[0] == 'RFF' and segment[1] == 'CR':
+                        order = self.env['sale.order'].search([('name', '=', segment[2])])[0]
+                    elif segment[0] == 'NAD':
+                        pass
+                    elif segment[0] == 'LIN':
+                        if line:
+                            lines.append[line]
+                        line = {
+                            'sequence': segment[1],
+                            'status': segment[2],
+                        }
+                        line['product'] = self._get_product(segment[3]).name
+                    elif segment[0] == 'PIA' and line:
+                        pass
+                    elif segment[0] == 'QTY' and line:
+                        line['quantity'] = segment[2]
+                    elif segment[0] == 'UNS' and line:
+                        lines.append[line]
+                except:
+                    error = True
+            
+            if error or not order:
+                pass
+            res = 'status: ' + order_state
+            res += '\ndelivery date: ' + delivery_date
+            res += '\n' + text
+            res += '\n' + msg
+            if lines:
+                res += '\n' 
+                for line in lines:
+                    res += '\nline %s:\n\tproduct: %s\n\tquantity: %s\n\tstatus: %s\n' % (
+                        line.get('sequence', ''), line.get('product', 'not found'),
+                        line.get('quantity', ''),
+                        'Not accepted' if line.get('status', '') == '7' else 'Unknown')
+            res += '\n\noriginal message:\n' + msg
+            
+            raise Warning("ORDRSP is not implemented yet!")
         else:
             super(edi_message, self)._unpack()
