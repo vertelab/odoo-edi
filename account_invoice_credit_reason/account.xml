@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="invoice_credit_reason" model="ir.ui.view">
+            <field name="name">invoice.credit.reason.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <field name="account_id" position="after">
+                    <field attrs="{'invisible':[('type','not in',['out_refund', 'in_refund'])]}" name="credited_period_start"/>
+                    <field attrs="{'invisible':[('type','not in',['out_refund', 'in_refund'])]}" name="credited_period_end"/>
+                    <field attrs="{'invisible':[('type','not in',['out_refund', 'in_refund'])]}" name="credit_reason"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
