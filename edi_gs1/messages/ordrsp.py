@@ -190,12 +190,9 @@ UNT     Avslutar ordermeddelandet.
                 except:
                     error = True
             
-            if error or not order:
-                pass
             res = 'status: ' + order_state
             res += '\ndelivery date: ' + delivery_date
-            res += '\n' + text
-            res += '\n' + msg
+            res += '\nmessage: ' + text
             if lines:
                 res += '\n' 
                 for line in lines:
@@ -204,6 +201,13 @@ UNT     Avslutar ordermeddelandet.
                         line.get('quantity', ''),
                         'Not accepted' if line.get('status', '') == '7' else line.get('status', 'Unknown'))
             res += '\n\noriginal message:\n' + msg
+            
+            if error:
+                pass
+            elif not order:
+                pass
+            else:
+                pass
             
             raise Warning("ORDRSP is not implemented yet!")
         else:
