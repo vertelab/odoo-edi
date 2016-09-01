@@ -159,7 +159,7 @@ UNT     Avslutar ordermeddelandet.
             if invoice.type == 'out_refund':
                 #Sanity checks
                 if invoice.invoice_id and (invoice.credited_period_start or invoice.credited_period_end):
-                    raise Warning("A credit invoice can not have both a Credited Invoice Reference and an Credited Invoice Period!")
+                    raise Warning("A credit invoice can not have both a Credited Invoice Reference and a Credited Invoice Period!")
                 elif not (invoice.invoice_id or (invoice.credited_period_start and invoice.credited_period_end)):
                     raise Warning("A credit invoice must have either a Credited Invoice Reference or a Credited Invoice Period!")
                 
@@ -232,7 +232,7 @@ UNT     Avslutar ordermeddelandet.
                 #Net unit price, and many more
                 msg += self.PRI(line.price_unit)
                 #Reference to invoice. Again?
-                if order and invoice.type != 'out_refund':
+                if order:
                     msg += self.RFF(order.client_order_ref or order.name, 'ON', self._get_line_nr(order, line))
                 if invoice.invoice_id and invoice.type == 'out_refund':
                     msg += self.RFF(invoice.invoice_id.name, 'IV', self._get_inv_line_nr(invoice.invoice_id, line))

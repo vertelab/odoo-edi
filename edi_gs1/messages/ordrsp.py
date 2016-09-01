@@ -202,7 +202,7 @@ UNT     Avslutar ordermeddelandet.
                     res += '\nline %s:\n\tproduct: %s\n\tquantity: %s\n\tstatus: %s\n' % (
                         line.get('sequence', ''), line.get('product', 'not found'),
                         line.get('quantity', ''),
-                        'Not accepted' if line.get('status', '') == '7' else 'Unknown')
+                        'Not accepted' if line.get('status', '') == '7' else line.get('status', 'Unknown'))
             res += '\n\noriginal message:\n' + msg
             
             raise Warning("ORDRSP is not implemented yet!")
