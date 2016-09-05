@@ -28,7 +28,13 @@ _logger = logging.getLogger(__name__)
 
 class edi_message(models.Model):
     _inherit='edi.message'
-
+    
+    @api.multi
+    def _edi_get_move_for_product(self, product, picking):
+        for move in picking.move_lines:
+            if move.product_id == product:
+                return move
+        
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
@@ -80,32 +86,64 @@ class edi_message(models.Model):
             #~ Koden används för transport via t.ex. pipeline eller elledningar.
             #~ 100  Transport via bud (EAN-kod)
             #~ Koden används när en budtjänst har anlitats för att hämta och leverera en försändelse
-            level = 1
+            level = 0
             qty_total = 0
+            moves = picking.move_lines
+            
+            packages = self.env['stock.quant.package'].browse()
             for operation in picking.pack_operation_ids:
-                msg += self.CPS(level)
+                packages |= operation.result_package_id
+            
+            for package in packages:
                 level += 1
+                msg += self.CPS(level)
                 #Only supports pallets for now
                 msg += self.PAC()
                 #Use SSCC from lot/serial number
-                if operation.result_package_id and operation.result_package_id.sscc:
+                if package.sscc:
                     msg += self.PCI()
-                    msg += self.GIN(operation.result_package_id.sscc)
-                msg += self.LIN(operation)
-                msg += self.PIA(operation.product_id, 'SA')
-                #Batch number
-                if operation.lot_id and operation.lot_id.name:
-                    msg += self.PIA(operation.lot_id.name, 'NB')
-                msg += self.QTY(operation)
-                qty_total += operation.product_qty
-                #Use by date
-                if operation.lot_id and operation.lot_id.life_date:
-                    msg += self.DTM(361, operation.lot_id.life_date)
-                #Order reference with line nr
-                for line in picking.sale_id.order_line:
-                    if line.product_id == operation.product_id:
-                        msg += self.RFF(picking.sale_id.client_order_ref or picking.sale_id.name, 'ON', line.sequence)
-                        break
+                    msg += self.GIN(package.sscc)
+                for quant in package.quant_ids:
+                    msg += self.LIN(quant)
+                    msg += self.PIA(quant.product_id, 'SA')
+                    #Batch number
+                    if quant.lot_id and quant.lot_id.name:
+                        msg += self.PIA(quant.lot_id.name, 'NB')
+                    msg += self.QTY(quant)
+                    qty_total += quant.qty
+                    #Use by date
+                    if quant.lot_id and quant.lot_id.life_date:
+                        msg += self.DTM(361, quant.lot_id.life_date)
+                    #Order reference with line nr
+                    order_line = None
+                    for line in picking.sale_id.order_line:
+                        if line.product_id == quant.product_id:
+                            order_line = line
+                            break
+                    if order_line:
+                        #Order Reference
+                        msg += self.RFF(picking.sale_id.client_order_ref or picking.sale_id.name, 'ON', order_line.sequence)
+                        #Quantity Difference from ORDRSP
+                        move = self._edi_get_move_for_product(quant.product_id, picking)
+                        diff = move.product_uom_qty - order_line.product_uom_qty
+                        if diff != 0:
+                            msg += self.QVR(diff, move.qty_difference_reason or 'AV')
+                        moves -= move
+                #Undelivered Products are registered in last pallet.
+                if level == len(packages):
+                    order_line = None
+                    for move in moves:
+                        for line in picking.sale_id.order_line:
+                            if line.product_id == move.product_id:
+                                order_line = line
+                                break
+                        diff = move.product_uom_qty - order_line.product_uom_qty
+                        if diff != 0:
+                            msg += self.LIN(move)
+                            msg += self.PIA(move.product_id, 'SA')
+                            msg += self.QTY(move)
+                            msg += self.RFF(picking.sale_id.client_order_ref or picking.sale_id.name, 'ON', order_line.sequence)
+                            msg += self.QVR(diff, move.qty_difference_reason or 'AV')
             msg += self.CNT(1, qty_total)
             msg += self.CNT(2, self._lin_count)
             msg += self.UNT()

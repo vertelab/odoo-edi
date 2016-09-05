@@ -328,22 +328,17 @@ class edi_message(models.Model):
         return self._NAD('CN', self.consignee_id, type)  # ????
 
     #code = error/status code
-    def LIN(self, line, code=None):
+    def LIN(self, line, code=''):
         self._seg_count += 1
         self._lin_count += 1
         item_nr_type = 'EU'
-        if code != None:
-            pass
-        elif line._name == 'account.invoice.line':
-            code = ''
-        elif line._name == 'stock.pack.operation':
-            code = ''
-        elif line.product_uom_qty <= 0:
-            code = 7 # Not accepted
-        elif line.product_uom_qty != line.order_qty:
-            code = 3 # Quantity changed
-        else:
-            code = 5 # Accepted without amendment
+        if line._name == 'sale.order.line':
+            if line.product_uom_qty <= 0:
+                code = 7 # Not accepted
+            elif line.product_uom_qty != line.order_qty:
+                code = 3 # Quantity changed
+            else:
+                code = 5 # Accepted without amendment
         return "LIN+%s+%s+%s:%s::%s'" %(self._lin_count, code, line.product_id.gs1_gtin14 or line.product_id.gs1_gtin13, item_nr_type, 9)
 
     def MOA(self, amount, qualifier = 203):
@@ -404,9 +399,12 @@ class edi_message(models.Model):
         if line._name == 'account.invoice.line':
             code = 47
             qty = line.quantity
-        elif line._name == 'stock.pack.operation':
+        elif line._name == 'stock.quant':
             code = 12
-            qty = line.product_qty
+            qty = line.qty
+        elif line._name == 'stock.move':
+            code = 12
+            qty = line.product_uom_qty
         else:
             qty = line.product_uom_qty
 
@@ -419,7 +417,7 @@ class edi_message(models.Model):
             code = 21
         return "QTY+%s:%s'" % (code, qty)
 
-    def QVR(self, line):
+    def QVR(self, diff, reason = 'AV'):
         #AS     Artikeln har utgått ur sortimentet
         #AUE    Okänt artikelnummer
         #AV     Artikeln slut i lager
@@ -436,9 +434,7 @@ class edi_message(models.Model):
         #Z9     Restnoterad från tillverkaren
         #ZZ     Annan orsak
         self._seg_count += 1
-        diff = line.product_uom_qty - line.order_qty
-        # We only refuse because of stock shortage
-        return "QVR+%s:21+CP+AV::9SE'" % diff
+        return "QVR+%s:21+CP+%s::9SE'" % (diff, reason)
 
     def UCI(self, ref, sender, recipient, state=8):
         self._seg_count += 1

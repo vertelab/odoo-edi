@@ -34,5 +34,25 @@ class stock_quant_package(models.Model):
 
     sscc = fields.Char(String="SSCC#", help="SSCC-number on the pallet")    
 
+class stock_move(models.Model):
+    _inherit = 'stock.move'
+    
+    qty_difference_reason = fields.Selection(string = 'Qty Difference Reason', selection = [
+        ('AS', 'Artikeln har utgått ur sortimentet'),
+        ('AUE', 'Okänt artikelnummer'),
+        ('AV', 'Artikeln slut i lager'),
+        ('PC', 'Annan förpackningsstorlek'),
+        ('X35', 'Artikeln har dragits tillbaka'),
+        ('Z1', 'Slut för säsongen'),
+        ('Z2', 'Tillfälligt spärrad för försäljning (varan finns men kan ha karensdagar)'),
+        ('Z3', 'Nyhet, ej i lager'),
+        ('Z4', 'Tillfälligt spärrad på grund av konflikt'),
+        ('Z5', 'Restnoterad artikel från tillverkare och måste beställas på nytt'),
+        ('Z6', 'Produktionsproblem'),
+        ('Z7', 'Slut i lager hos tillverkaren'),
+        ('Z8', 'Beställningsvara'),
+        ('Z9', 'Restnoterad från tillverkaren'),
+        ('ZZ', 'Annan orsak'),
+    ])
     
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

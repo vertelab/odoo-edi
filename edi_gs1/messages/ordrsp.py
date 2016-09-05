@@ -104,7 +104,7 @@ UNT     Avslutar ordermeddelandet.
                     msg += self.LIN(line)
                     msg += self.PIA(line.product_id, 'SA')
                     msg += self.QTY(line)
-                    msg += self.QVR(line)
+                    msg += self.QVR(line.product_uom_qty - line.order_qty)
                     msg += self.RFF(order.client_order_ref or order.name, 'ON', line.sequence)
                 else:
                     self._lin_count += 1
