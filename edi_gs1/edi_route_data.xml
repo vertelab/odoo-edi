@@ -18,9 +18,6 @@
         <record id="edi_message_type_invoic" model="edi.message.type">
             <field name="name">INVOIC</field>
         </record>
-        <record id="edi_message_type_repord" model="edi.message.type">
-            <field name="name">REPORD</field>
-        </record>
     </data>
     <data noupdate="1">
         <record model="edi.route" id="route_esap20">
@@ -34,11 +31,8 @@
             <field name="caller_id" ref="edi_route_sale.caller_action_button_confirm" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
-#
 #env - Environment
 #Warning - Warning
-#invoice._edi_message_create('INVOIC',check_double=True)
-#
 order._edi_message_create('edi_gs1.edi_message_type_ordrsp')
             </field>
         </record>
@@ -47,11 +41,8 @@ order._edi_message_create('edi_gs1.edi_message_type_ordrsp')
             <field name="caller_id" ref="edi_route_sale.caller_create" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
-#
 #env - Environment
 #Warning - Warning
-#invoice._edi_message_create('INVOIC',check_double=True)
-#
 order._edi_message_create('edi_gs1.edi_message_type_orderk')
             </field>
         </record>
@@ -60,10 +51,8 @@ order._edi_message_create('edi_gs1.edi_message_type_orderk')
             <field name="caller_id" ref="edi_route_stock.caller_do_transfer" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
-#
 #env - Environment
 #Warning - Warning
-#
 picking._edi_message_create('edi_gs1.edi_message_type_desadv')
             </field>
         </record>
@@ -72,11 +61,8 @@ picking._edi_message_create('edi_gs1.edi_message_type_desadv')
             <field name="caller_id" ref="edi_route_sale.caller_invoice_validate" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
-#
 #env - Environment
 #Warning - Warning
-#invoice._edi_message_create('INVOIC',check_double=True)
-#
 invoice._edi_message_create('edi_gs1.edi_message_type_invoic')
             </field>
         </record>
@@ -85,11 +71,8 @@ invoice._edi_message_create('edi_gs1.edi_message_type_invoic')
             <field name="caller_id" ref="edi_route.caller_envelope_opened" />
             <field name="route_id" ref="edi_gs1.route_esap20" />
             <field name="code">
-#
 #env - Environment
 #Warning - Warning
-#invoice._edi_message_create('INVOIC',check_double=True)
-#
 msg = env['edi.message']._edi_message_create(edi_type='edi_gs1.edi_message_type_contrl', obj=envelope, sender = envelope.recipient, recipient = envelope.sender, route=envelope.route_id, check_double=True, consignee = envelope.sender)
             </field>
         </record>

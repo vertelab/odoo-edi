@@ -29,66 +29,16 @@ _logger = logging.getLogger(__name__)
 class edi_message(models.Model):
     _inherit='edi.message'
     
-        
-    """
-UNH+204853+DESADV:D:93A:UN:EDIT30'
-BGM+351+SO069412+9'
-DTM+137:20120314:102'
-DTM+132:20120315:102'
-RFF+AAS:229933'
-NAD+BY+7301005230007::9'
-NAD+SH+7350059980017::9'
-NAD+DP+7301005230007::9'
-CPS+1+1'
-PAC+1++34'
-PCI+30E'
-GIN+SS+373500310002299334'
-LIN+1'
-RFF+CR:039893091'
-LOC+83+7301005230007::9'
-LOC+7+7301004113585::9:63710'
-DTM+2:20120316:102'
-CPS+1+1'
-PAC+1++34'
-PCI+30E'
-GIN+SS+373500310002299341'
-LIN+1'
-RFF+CR:039893091'
-LOC+83+7301005230007::9'
-LOC+7+7301004113585::9:63710'
-DTM+2:20120316:102'
-UNT+27+204853'
-"""
-
-    """
-UNH				EDIFACT-styrinformation.
-BGM				Typ av Ordersvar.
-DTM		Bekräftat leveransdatum.
-FTX	Uppgifter för felanalys
-RFF- DTM	Referensnummer				
-NAD		Köparens identitet (EAN lokaliseringsnummer).
-		Leverantörens identitet (EAN lokaliseringsnummer).
-
-LIN		Radnummer.
-			EAN artikelnummer.
-PIA		Kompletterande artikelnummer.
-QTY	Kvantitet.
-
-UNS		Avslutar orderrad.
-UNT		Avslutar ordermeddelandet.
-""" 
-
-    #TODO: replace with new selection_add (?) parameter
-    
     @api.one
     def _pack(self):
         super(edi_message, self)._pack()
-        if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_repord').id:
+        if self.edi_type.id == self.env.ref('edi_gs1_repord.edi_message_type_repord').id:
             if self.model_record._name != 'rep.order':
                 raise ValueError("REPORD: Attached record is not a rep.order! {model}".format(model=self.model_record._name),self.model_record._name)
             order = self.model_record
-            msg = self.UNH('ORDERS', ass_code='EDIT30')
-            msg += self.BGM('22E', order.name)
+            order.client_order_ref = self.name_to_number(order.name)
+            msg = self.UNH('ORDERS', ass_code='EDIT30', release='93A')
+            msg += self.BGM('22E', order.client_order_ref)
             msg += self.DTM(137)
             msg += self.DTM(2, order.date_order)
             msg += self.NAD_BY(order.partner_id)
@@ -99,8 +49,11 @@ UNT		Avslutar ordermeddelandet.
             for line in order.order_line:
                 cnt_lines += 1
                 cnt_amount += line.product_uom_qty
-                msg += self.LIN(line)
-                msg += self.PIA(line.product_id, 'SA')
+                if order.order_type != '3rd_party':
+                    msg += self.LIN()
+                    msg += self.PIA(line.product_id, 'SA')
+                else:
+                    msg += self.LIN(line)
                 msg += self.PIA(line.product_id, 'BP', self.model_record.partner_id)
                 msg += self.QTY(line)
             msg += self.UNS()

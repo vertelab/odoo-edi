@@ -438,7 +438,7 @@ class edi_route(models.Model):
         envelopes = []
 
         for route in self:
-            messages = self.env['edi.message'].search([('envelope_id', '=', None), ('route_id', '=', route.id)])
+            messages = self.env['edi.message'].search([('envelope_id', '=', None), ('route_id', '=', route.id), ('body', '!=', None)])
             if len(messages) > 0:
                 _logger.error('EDI Fold Route %s Messages %s ' % (route.name, messages))
                 for recipient in set(messages.mapped(lambda msg: msg.recipient)):

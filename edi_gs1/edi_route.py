@@ -48,10 +48,12 @@ class edi_envelope(models.Model):
             dt = fields.Datetime.from_string(self.date)
             date = dt.strftime("%y%m%d")
             time = dt.strftime("%H%M")
+            if not self.ref:
+                self.ref = self.name
             UNA = "UNA:+.? '"
             UNB = "UNB+UNOC:3+{sender}:{qualifier}+{receiver}:14+{date}:{time}+{name}++{ref}'".format(
                 sender=envelope.sender.gs1_gln, receiver=envelope.recipient.gs1_gln,
-                date=date, time=time, name=self.name, ref=interchange_control_ref,
+                date=date, time=time, name=self.ref, ref=interchange_control_ref,
                 qualifier='ZZ' if self.route_id.test_mode else '14')
             body = ''.join([base64.b64decode(m.body) for m in envelope.edi_message_ids])
             UNZ = "UNZ+%s+%s'" % (len(envelope.edi_message_ids),self.name)
@@ -292,7 +294,15 @@ class edi_message(models.Model):
         if line:
             return "RFF+%s:%s:%s'" % (qualifier, ref, line)
         return "RFF+%s:%s'" % (qualifier, ref)
-
+    
+    @api.model
+    def name_to_number(self, name):
+        """I am not a number! I am a man!. And don't you eve... oh wait, I'm number 5. Haha. In your face, number 6!"""
+        number = ''
+        for c in name:
+            number += c if c.isdigit() else ''
+        return number
+    
     def _get_account_tax(self, name):
         tax = self.env['account.tax'].search([('name', '=', name)])
         if len(tax) == 1:
@@ -328,11 +338,13 @@ class edi_message(models.Model):
         return self._NAD('CN', self.consignee_id, type)  # ????
 
     #code = error/status code
-    def LIN(self, line, code=''):
+    def LIN(self, line=None, code=''):
         self._seg_count += 1
         self._lin_count += 1
         item_nr_type = 'EU'
-        if line._name == 'sale.order.line':
+        if not line:
+            return "LIN+%s'" % self._lin_count
+        elif line._name == 'sale.order.line':
             if line.product_uom_qty <= 0:
                 code = 7 # Not accepted
             elif line.product_uom_qty != line.order_qty:

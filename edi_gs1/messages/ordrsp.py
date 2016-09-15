@@ -37,43 +37,6 @@ def _check_order_status(order):
 class edi_message(models.Model):
     _inherit='edi.message'
 
-    """
-UNA:+.? '
-UNB+UNOC:3+7301002000009:14+7310000000040:14+110131:1720+627++ICARSP4'
-UNH+9+ORDRSP:D:93A:UN:EDIT30'
-BGM+231::9+201101311720471+4'
-DTM+137:20110131:102'
-DTM+2:20110207:102'
-FTX+ZZZ+1+001+Leveransdag framflyttad:201101311643:20110208:LD:64741'
-RFF+CR:1101310181'
-NAD+BY+7301004008461::9'
-NAD+SU+7310000000040::9'
-LIN+3+7'
-PIA+5+125339:BP'
-QTY+21:3'
-UNS+S'
-UNT+13+9'
-UNZ+1+627'
-"""
-
-    """
-UNH             EDIFACT-styrinformation.
-BGM             Typ av Ordersvar.
-DTM     Bekräftat leveransdatum.
-FTX Uppgifter för felanalys
-RFF- DTM    Referensnummer
-NAD     Köparens identitet (EAN lokaliseringsnummer).
-        Leverantörens identitet (EAN lokaliseringsnummer).
-
-LIN     Radnummer.
-            EAN artikelnummer.
-PIA     Kompletterande artikelnummer.
-QTY Kvantitet.
-
-UNS     Avslutar orderrad.
-UNT     Avslutar ordermeddelandet.
-"""
-
     @api.one
     def _pack(self):
         _logger.debug('pack ORDRSP')
@@ -131,93 +94,12 @@ UNT     Avslutar ordermeddelandet.
             msg += self.UNS()
             msg += self.UNT()
         if msg:
-            #TODO: What encoding should be used?
             self.body = base64.b64encode(self._gs1_encode_msg(msg))
 
     @api.one
     def _unpack(self):
         _logger.debug('unpack ORDRSP')
-        if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
-            #Read ORDRSP corresponding to REPORD sent to ICA.
-            segment_count = 0
-            order_state = ''
-            delivery_date = ''
-            text = ''
-            msg = ''
-            order = None
-            lines = []
-            line = None
-            errors = []
-            for segment in self._gs1_get_components():
-                segment_count += 1
-                for s in segment:
-                    msg += s
-                s += '\n'
-                try:
-                    if segment[0] == 'BGM':
-                        if len(segment) > 3:
-                            order_state = segment(3)
-                    elif segment[0] == 'DTM':
-                        if segment[1] == '2':
-                            delivery_date = segment[2]
-                    elif segment[0] == 'FTX':
-                        ftx = segment[4]
-                        #qualifier = ZZZ, function = 1, ref = 001
-                        #Build human readable message from FTX field
-                        header = ['Felmeddelande: ', 'Order skapad (ÅÅÅÅMMDDTTMM): ',
-                            'Framflyttad leveransdag (ÅÅÅÅMMDD): ', 'Felkod', 'Kundens butiksnummer']
-                        for i in range(len(ftx)):
-                            if i < len(header):
-                                text += header[i]
-                            text += ftx[i] + '\n'
-                    elif segment[0] == 'RFF' and segment[1] == 'CR':
-                        order = self.env['sale.order'].search([('name', '=', segment[2])])[0]
-                    elif segment[0] == 'NAD':
-                        pass
-                    elif segment[0] == 'LIN':
-                        if line:
-                            lines.append[line]
-                        line = {
-                            'sequence': segment[1],
-                            'status': segment[2],
-                        }
-                        line['product'] = self._get_product(segment[3]).name
-                    elif segment[0] == 'PIA' and line:
-                        pass
-                    elif segment[0] == 'QTY' and line:
-                        line['quantity'] = segment[2]
-                    elif segment[0] == 'UNS' and line:
-                        lines.append[line]
-                except:
-                    errors.append(sys.exc_info())
-            
-            res = 'status: ' + order_state
-            res += '\ndelivery date: ' + delivery_date
-            res += '\nmessage: ' + text
-            if lines:
-                res += '\n' 
-                for line in lines:
-                    res += '\nline %s:\n\tproduct: %s\n\tquantity: %s\n\tstatus: %s\n' % (
-                        line.get('sequence', ''), line.get('product', 'not found'),
-                        line.get('quantity', ''),
-                        'Not accepted' if line.get('status', '') == '7' else line.get('status', 'Unknown'))
-            res += '\n\noriginal message:\n' + msg
-            
-            if errors:
-                errors.reverse()
-                self.route_id.log("%s error(s) when reading ORDRSP '%s'.\n%s" % (len(errors), self.name, res), errors)
-                self.state = 'canceled'
-            else:
-                user = self.env['res.users'].browse(self._uid)
-                self.env['mail.message'].create({
-                    'body': res,
-                    'subject': 'Order response received',
-                    'author_id': user.partner_id.id,
-                    'res_id': order.id,
-                    'model': order._name,
-                    'type': 'notification',
-                })
-            
-            raise Warning("ORDRSP is not implemented yet!")
-        else:
-            super(edi_message, self)._unpack()
+        #~ if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
+            #~ #Do stuff
+        #~ 
+        super(edi_message, self)._unpack()

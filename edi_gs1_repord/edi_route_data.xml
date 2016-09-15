@@ -1,0 +1,28 @@
+<openerp>
+    <data>
+        
+        <record id="edi_message_type_repord" model="edi.message.type">
+            <field name="name">REPORD</field>
+        </record>
+        
+    </data>
+    
+    <data noupdate="1">
+        
+        <record model="edi.route.caller" id="caller_rep_order_converted">
+            <field name="name">rep.order.action_convert_to_sale_order</field>
+        </record>
+        
+        <record model="edi.route.line" id="route_esap20_repord">
+            <field name="name">ESAP20 REPORD</field>
+            <field name="caller_id" ref="caller_rep_order_converted" />
+            <field name="route_id" ref="edi_gs1.route_esap20" />
+            <field name="code">
+#env - Environment
+#Warning - Warning
+order._edi_message_create(edi_type='edi_gs1_repord.edi_message_type_repord')
+            </field>
+        </record>
+        
+    </data>
+</openerp>

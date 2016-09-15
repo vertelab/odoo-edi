@@ -117,7 +117,7 @@ class stock_move(models.Model):
     def action_cancel(self):
         res =  super(stock_move,self).action_cancel()
         for move in self:
-            if move.picking_id.saler_id and move.picking_id.sale_id.route_id:
+            if move.picking_id.sale_id and move.picking_id.sale_id.route_id:
                 move.picking_id.sale_id.route_id.edi_action('stock.move.action_cancel',move=move,res=res)
         return res
     @api.multi

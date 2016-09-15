@@ -18,22 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api, _
 
-import logging
-_logger = logging.getLogger(__name__)
-
-class edi_message(models.Model):
-    _inherit = 'edi.message'
-    
-    @api.model
-    def _get_customer_product_code(self, product, customer):
-        code = self.env['product.customer.code'].search([('product_id', '=', product.id), ('partner_id', '=', customer.id)])
-        if code:
-            return code.product_code
-        if customer.parent_id:
-            return self._get_customer_product_code(product, customer.parent_id)
-        return super(edi_message, self)._get_customer_product_code(product, customer)
-    
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+{
+    'name': 'EDI GS1 Reporder',
+    'version': '0.1',
+    'category': 'edi',
+    'summary': 'GS1 – Representative Order',
+    'licence': 'AGPL-3',
+    'description': """
+""",
+    'author': 'Vertel AB',
+    'website': 'http://www.vertel.se',
+    'depends': ['edi_gs1', 'crm_repord'],
+    'data': [
+        'edi_route_data.xml',
+        'crm_repord_view.xml',
+    ],
+    'application': False,
+    'installable': True,
+    'autoinstall': True,
+}
+# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
