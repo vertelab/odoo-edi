@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+          <record id="wizard_res_partner_bergendahls" model="ir.ui.view">
+            <field name="name">Import Bergendahls file</field>
+            <field name="model">res.partner.bergendahls</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Import">
+                    <field invisible="1" name="state"/>
+                            <group rowspan="4" string="Filebox">
+                                <field name="data"/><newline/>
+                                <div>
+                                    <p>File to upload</p>
+                                </div>
+                            </group>
+                    <footer>
+                        <button name="send_form" string="Import" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_wizard_res_partner_bergendahls" model="ir.actions.act_window">
+            <field name="name">import Bergendahls file</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner.bergendahls</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+        
+        <menuitem action="action_wizard_res_partner_bergendahls" id="menu_wizard_res_partner_bergendahl" parent="crm.root_menu" sequence="99" groups="base.group_sale_manager" />
+
+      
+      
+  </data>
+</openerp>

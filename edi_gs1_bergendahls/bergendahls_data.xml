@@ -1,8 +1,8 @@
 <openerp>
 <data noupdate="1">
 
-    <record model="res.partner" id="ica_gruppen">
-        <field name="name">ICA EDI</field>
+    <record model="res.partner" id="bergendahls">
+        <field name="name">Bergendahls</field>
         <field name="is_company" eval="True"/>
     </record>
 

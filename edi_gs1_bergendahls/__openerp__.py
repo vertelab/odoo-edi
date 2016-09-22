@@ -20,26 +20,24 @@
 ##############################################################################
 
 {
-    'name': 'EDI GS1 (ICA)',
+    'name': 'EDI GS1 (Bergendahls)',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'GS1 ICA additions ',
+    'summary': 'GS1 Bergendahls additions ',
     'licence': 'AGPL-3',
     'description': """
-Wizard for load ICA shops and adresses
-
-
+Dummy module only used to import data from a specific client's customer registry.
+Wizard for loading Bergendahls shops and adresses.
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_gs1',],
+    'depends': ['edi_gs1', 'partner_store_number'],
     'data': [
         'res_partner_view.xml',
-        'ica_data.xml',
+        'bergendahls_data.xml',
     ],
     'external_dependencies': {'python': ['unicodecsv','openpyxl','urllib2']},
     'application': False,
     'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
 }
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:

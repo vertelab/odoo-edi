@@ -1,0 +1,109 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* edi_gs1_bergendahls
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0-20160919\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-22 11:08+0000\n"
+"PO-Revision-Date: 2016-09-22 13:14+0100\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: sv\n"
+"X-Generator: Poedit 1.7.5\n"
+
+#. module: edi_gs1_bergendahls
+#: view:res.partner.bergendahls:edi_gs1_bergendahls.wizard_res_partner_bergendahls
+msgid "Cancel"
+msgstr "Avbryt"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,create_uid:0
+msgid "Created by"
+msgstr "Skapad av"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,create_date:0
+msgid "Created on"
+msgstr "Skapad"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,display_name:0
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,data:0
+msgid "File"
+msgstr "Fil"
+
+#. module: edi_gs1_bergendahls
+#: view:res.partner.bergendahls:edi_gs1_bergendahls.wizard_res_partner_bergendahls
+msgid "File to upload"
+msgstr "Fil att ladda upp"
+
+#. module: edi_gs1_bergendahls
+#: view:res.partner.bergendahls:edi_gs1_bergendahls.wizard_res_partner_bergendahls
+msgid "Filebox"
+msgstr "Fil"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: edi_gs1_bergendahls
+#: view:res.partner.bergendahls:edi_gs1_bergendahls.wizard_res_partner_bergendahls
+msgid "Import"
+msgstr "Importera"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,__last_update:0
+msgid "Last Modified on"
+msgstr "Senast ändrad"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,write_uid:0
+msgid "Last Updated by"
+msgstr "Senast uppdaterad av"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,write_date:0
+msgid "Last Updated on"
+msgstr "Senast uppdaterad"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,result:0
+msgid "Result"
+msgstr "Resultat"
+
+#. module: edi_gs1_bergendahls
+#: field:res.partner.bergendahls,state:0
+msgid "State"
+msgstr "Status"
+
+#. module: edi_gs1_bergendahls
+#: selection:res.partner.bergendahls,state:0
+msgid "choose"
+msgstr "välj"
+
+#. module: edi_gs1_bergendahls
+#: selection:res.partner.bergendahls,state:0
+msgid "get"
+msgstr ""
+
+#. module: edi_gs1_bergendahls
+#: model:ir.actions.act_window,name:edi_gs1_bergendahls.action_wizard_res_partner_bergendahls
+#: model:ir.ui.menu,name:edi_gs1_bergendahls.menu_wizard_res_partner_bergendahl
+msgid "import Bergendahls file"
+msgstr "Importera Bergendahls-fil"
+
+#. module: edi_gs1_bergendahls
+#: view:res.partner.bergendahls:edi_gs1_bergendahls.wizard_res_partner_bergendahls
+msgid "or"
+msgstr "eller"

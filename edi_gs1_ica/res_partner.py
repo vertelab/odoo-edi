@@ -59,7 +59,7 @@ class import_res_partner_ica(models.TransientModel):
         def _get_logo(img):
             return open(os.path.join(get_module_path('edi_gs1_ica'), 'static', 'img', img), 'rb').read().encode('base64')
 
-
+        raise Warning('This function is broken!')
 
         chart = self[0]
         #_logger.warning('data %s b64 %s ' % (account.data,base64.decodestring(account.data)))
