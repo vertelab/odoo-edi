@@ -8,6 +8,7 @@
                 <form string="Import">
                     <field invisible="1" name="state"/>
                             <group rowspan="4" string="Filebox">
+                                <field name="write_image"/>
                                 <field name="data"/><newline/>
                                 <div>
                                     <p>File to upload</p>

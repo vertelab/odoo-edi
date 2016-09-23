@@ -32,7 +32,7 @@ Wizard for load Coop shops and adresses
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_gs1',],
+    'depends': ['edi_gs1', 'partner_rangebox', 'partner_store_number'],
     'data': [
         'res_partner_view.xml',
         'coop_data.xml',

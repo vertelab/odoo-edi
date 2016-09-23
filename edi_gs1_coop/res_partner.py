@@ -31,23 +31,26 @@ import os
 import logging
 _logger = logging.getLogger(__name__)
 
-#~ try:
-    #~ import openpyxl
-#~ except ImportError:
-    #~ raise Warning('excel library missing, pip install openpyxl')
+def fix_zip(zip):
+    res = ''
+    for c in zip:
+        res += c if c.isdigit() else ''
+    if len(res) > 3:
+        return '%s %s' % (res[:3], res[3:])
+    return zip
 
-
+def fix_city(city):
+    if len(city) > 1:
+        return '%s%s' % (city[0], city[1:].lower())
+    return city
 
 class import_res_partner_axfood(models.TransientModel):
     _name = 'res.partner.coop'
 
     data = fields.Binary('File')
-    @api.one
-    def _data(self):
-        self.xml_file = self.data
-    xml_file = fields.Binary(compute='_data')
     state =  fields.Selection([('choose', 'choose'), ('get', 'get')],default="choose")
     result = fields.Text(string="Result",default='')
+    write_image = fields.Boolean('Overwrite logos')
 
 
    
@@ -55,16 +58,11 @@ class import_res_partner_axfood(models.TransientModel):
     def send_form(self,):
         def _get_logo(img):
             return open(os.path.join(get_module_path('edi_gs1_coop'), 'static', 'img', img), 'rb').read().encode('base64')
-
         
-        
-        chart = self[0]
-        #_logger.warning('data %s b64 %s ' % (account.data,base64.decodestring(account.data)))
-        #raise Warning('data %s b64 %s ' % (chart.data.encode('utf-8'),base64.decodestring(chart.data.encode('utf-8'))))
-        
-        if not chart.data == None:
+        self.ensure_one()
+        if not self.data == None:
             
-            wb = load_workbook(filename = StringIO(base64.b64decode(chart.data)), read_only=True)
+            wb = load_workbook(filename = StringIO(base64.b64decode(self.data)), read_only=True)
             ws = wb[wb.get_sheet_names()[0]]
             t = tuple(ws.rows)
             title = [p.value for p in list(t[4])]
@@ -77,19 +75,25 @@ class import_res_partner_axfood(models.TransientModel):
                 l = {title[n]: r[n].value for n in range(len(r))}
                 if not l['Butiksnr']:
                     break
-                partner = self.env['res.partner'].search([('customer_no', '=', l['Butiksnr']),('parent_id','=',self.env.ref('edi_gs1_coop.coop').id)])
+                partner = self.env['res.partner'].search([('ref', '=', l['Butiksnr']), ('parent_id', '=', self.env.ref('edi_gs1_coop.coop').id)])
                 record = {
                     'name': l['Butik'],
-                    'role': l['Rangebox'],
-                    'customer_no': l['Butiksnr'],
-                    'city': l['Postadress'],
-                    'zip': l['Postnummer'],
+                    'rangebox': l['Rangebox'],
+                    'store_number': l['Butiksnr'],
                     'country_id': self.env.ref('base.se').id,
                     'parent_id': self.env.ref('edi_gs1_coop.coop').id,
                     'is_company': True,
                     'customer': True,
-                    'image': _get_logo('%s.png' % l['Rangebox']),
+                    'ref': '',
                     }
+                city = fix_city(l['Postadress'])
+                zip = fix_zip(l['Postnummer'])
+                if city:
+                    record['city'] = city
+                if zip:
+                    record['zip'] = zip
+                if self.write_image:
+                    record['image'] = _get_logo('%s.png' % l['Rangebox'])
                 if partner:
                     partner[0].write(record)
                     parent_id = partner[0].id
@@ -97,13 +101,13 @@ class import_res_partner_axfood(models.TransientModel):
                     parent_id = self.env['res.partner'].create(record).id
                            
             return True
-        chart.write({'state': 'get','result': 'All well'})
+        self.write({'state': 'get','result': 'All well'})
         return {
             'type': 'ir.actions.act_window',
-            'res_model': 'import.chart.template',
+            'res_model': 'res.partner.coop',
             'view_mode': 'form',
             'view_type': 'form',
-            'res_id': chart.id,
+            'res_id': self.id,
             'views': [(False, 'form')],
             'target': 'new',
         }
