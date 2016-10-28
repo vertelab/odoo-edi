@@ -1,11 +1,5 @@
 # odoo-edi
 
-account_invoice_credit_reason  edi_peppol          edi_route_sale_stock
-edi_gs1                        edi_route           edi_route_stock
-edi_gs1_axfood                 edi_route_ftp       edi_sale
-edi_gs1_coop                   edi_route_mail      portal_edi
-edi_gs1_ica                    edi_route_purchase  README.md
-edi_gs1_product_customer_code  edi_route_sale      sale_purchase
 
 EDI-modules |Description
 --- | --- 
@@ -18,8 +12,10 @@ EDI-modules |Description
  edi_peppol| Implements PEPPOL
  
  Other modules |Description
+ --- | ---
  account_invoice_credit_reason|
- edi_sale|k
- sale_purchase|k
+ edi_sale|
+ sale_purchase|
+ portal_edi|
  
  
