@@ -47,6 +47,19 @@ class stock_picking(models.Model):
              if inv.order_ids and inv.order_ids[0].route_id:
                 inv.order_ids[0].route_id.edi_action('stock.picking.action_invoice_create', invoice=inv)
         return invoices
+    
+    @api.one
+    def _get_delivery_date_and_ref(self):
+        if self.sale_id:
+            self.customer_order_ref = self.sale_id.origin
+            if self.sale_id.dtm_delivery:
+                self.delivery_date = self.sale_id.dtm_delivery
+            else:
+                self.delivery_datetime = self.sale_id.date_order
+    
+    customer_order_ref = fields.Char('Customer Order Ref', compute='_get_delivery_date_and_ref')
+    delivery_date = fields.Date('Delivery Date', compute='_get_delivery_date_and_ref')
+    delivery_datetime = fields.Datetime('Delivery Time', compute='_get_delivery_date_and_ref')
 
 class stock_move(models.Model):
     _inherit = 'stock.move'
