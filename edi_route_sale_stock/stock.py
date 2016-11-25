@@ -52,12 +52,14 @@ class stock_picking(models.Model):
     def _get_delivery_date_and_ref(self):
         if self.sale_id:
             self.customer_order_ref = self.sale_id.client_order_ref
+            self.partner_shipping_id = self.sale_id.partner_shipping_id
             if self.sale_id.dtm_delivery:
                 self.delivery_date = self.sale_id.dtm_delivery
             else:
                 self.delivery_datetime = self.sale_id.date_order
     
     customer_order_ref = fields.Char('Customer Order Ref', compute='_get_delivery_date_and_ref')
+    partner_shipping_id = fields.Many2one('res.partner', 'Delivery Address', compute='_get_delivery_date_and_ref')
     delivery_date = fields.Date('Delivery Date', compute='_get_delivery_date_and_ref')
     delivery_datetime = fields.Datetime('Delivery Time', compute='_get_delivery_date_and_ref')
 

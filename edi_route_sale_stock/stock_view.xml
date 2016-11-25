@@ -8,6 +8,7 @@
             <field name="min_date" position="after">
                 <field name="delivery_date" attrs="{'invisible': [('delivery_date', '=', False)]}"/>
                 <field name="delivery_datetime" attrs="{'invisible': [('delivery_datetime', '=', False)]}"/>
+                <field name="partner_shipping_id"/>
                 <field name="customer_order_ref"/>
             </field>
         </field>
