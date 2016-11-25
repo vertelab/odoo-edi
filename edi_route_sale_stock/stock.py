@@ -51,7 +51,7 @@ class stock_picking(models.Model):
     @api.one
     def _get_delivery_date_and_ref(self):
         if self.sale_id:
-            self.customer_order_ref = self.sale_id.origin
+            self.customer_order_ref = self.sale_id.client_order_ref
             if self.sale_id.dtm_delivery:
                 self.delivery_date = self.sale_id.dtm_delivery
             else:
