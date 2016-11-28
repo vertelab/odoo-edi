@@ -50,7 +50,7 @@ class stock_picking(models.Model):
     
     @api.one
     def _get_delivery_date_and_ref(self):
-        if self.sale_id:
+        if self.sudo().sale_id:
             self.customer_order_ref = self.sale_id.client_order_ref
             self.partner_shipping_id = self.sale_id.partner_shipping_id
             if self.sale_id.dtm_delivery:

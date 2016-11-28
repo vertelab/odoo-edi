@@ -71,9 +71,9 @@ class sale_order(models.Model):
             purchase_ids += [p.id for p in po.purchase_ids]
 
         #choose the view_mode accordingly
-        if len(pos) > 0 and len(pos[0].purchase_ids) > 1:
+        if len(pos) > 0 and len(purchase_ids) != 1:
             result['domain'] = "[('id','in',[" + ','.join(map(str, purchase_ids)) + "])]"
-        elif len(pos) > 0 and len(pos[0].purchase_ids) == 1:
+        elif len(pos) > 0:
             res = mod_obj.get_object_reference(cr, uid, 'purchase', 'purchase_order_form')
             result['views'] = [(res and res[1] or False, 'form')]
             result['res_id'] = purchase_ids and purchase_ids[0] or False
