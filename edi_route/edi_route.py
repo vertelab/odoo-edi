@@ -613,7 +613,7 @@ class edi_route(models.Model):
                 'author_id': user.partner_id.id,
                 'res_id': self.id,
                 'model': self._name,
-                'type': 'email',})
+                'type': 'notification',})
 
     @api.v7
     def cron_job(self, cr, uid, context=None):

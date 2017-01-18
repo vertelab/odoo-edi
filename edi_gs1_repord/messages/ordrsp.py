@@ -118,7 +118,7 @@ class edi_message(models.Model):
                     'subject': 'Order response received',
                     'res_id': order.id,
                     'model': order._name,
-                    'type': 'email',
+                    'type': 'notification',
                 })
             
         else:
