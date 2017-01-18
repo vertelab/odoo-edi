@@ -49,11 +49,11 @@ class edi_message(models.Model):
             for line in order.order_line:
                 cnt_lines += 1
                 cnt_amount += line.product_uom_qty
-                if order.order_type != '3rd_party':
-                    msg += self.LIN()
-                    msg += self.PIA(line.product_id, 'SA')
-                else:
-                    msg += self.LIN(line)
+                #~ if order.order_type != '3rd_party':
+                    #~ msg += self.LIN()
+                    #~ msg += self.PIA(line.product_id, 'SA')
+                #~ else:
+                msg += self.LIN()
                 msg += self.PIA(line.product_id, 'BP', self.model_record.partner_id)
                 msg += self.QTY(line)
             msg += self.UNS()

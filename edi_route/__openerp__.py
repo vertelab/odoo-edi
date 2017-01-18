@@ -126,6 +126,7 @@ How to connect a context (edi.route.caller) to a message
         'edi_route_data.xml',
         'edi_route_view.xml',
         'res_partner_view.xml',
+        'security/edi_security.xml',
         'security/ir.model.access.csv',
     ],
     'application': False,

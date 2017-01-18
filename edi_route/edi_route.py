@@ -34,6 +34,8 @@ import traceback
 import logging
 _logger = logging.getLogger(__name__)
 
+def html_line_breaks(msg):
+    return msg.replace('\n', '<BR/>')
 
 class edi_envelope(models.Model):
     _name = 'edi.envelope'
@@ -599,19 +601,19 @@ class edi_route(models.Model):
     def log(self, message, error_info=None):
         #TODO: Mail errors and implement this on envelope and message as well.
         if error_info:
-            if type(error_info) == list:
+            if type(error_info) == type([]):
                 for e in error_info:
                     message += '\n' + ''.join(traceback.format_exception(e[0], e[1], e[2]))
             else:
                 message += '\n' + ''.join(traceback.format_exception(error_info[0], error_info[1], error_info[2]))
         user = self.env['res.users'].browse(self._uid)
         self.env['mail.message'].create({
-                'body': message,
+                'body': html_line_breaks(message),
                 'subject': '[%s] Debug EDI-route' % self.run_sequence,
                 'author_id': user.partner_id.id,
                 'res_id': self.id,
                 'model': self._name,
-                'type': 'notification',})
+                'type': 'email',})
 
     @api.v7
     def cron_job(self, cr, uid, context=None):

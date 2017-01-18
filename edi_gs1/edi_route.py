@@ -183,7 +183,7 @@ class edi_message(models.Model):
         self.ensure_one()
         if self.body:
             segments = []
-            for segment in separate_segments(base64.b64decode(self._gs1_decode_msg(self.body))):
+            for segment in separate_segments(self._gs1_decode_msg(base64.b64decode(self.body))):
                 segments.append(separate_components(segment))
             return segments
 

@@ -33,6 +33,8 @@ def _check_order_status(order):
             return 4
     return 29 #TODO: find correct code
 
+def html_line_breaks(msg):
+    return msg.replace('\n', '<BR/>')
 
 class edi_message(models.Model):
     _inherit='edi.message'
@@ -46,20 +48,17 @@ class edi_message(models.Model):
             order_state = ''
             delivery_date = ''
             text = ''
-            msg = ''
             order = None
             lines = []
             line = None
             errors = []
             for segment in self._gs1_get_components():
                 segment_count += 1
-                for s in segment:
-                    msg += s
-                s += '\n'
+                _logger.warn(segment)
                 try:
                     if segment[0] == 'BGM':
                         if len(segment) > 3:
-                            order_state = segment(3)
+                            order_state = segment[3]
                     elif segment[0] == 'DTM':
                         if segment[1] == '2':
                             delivery_date = segment[2]
@@ -67,33 +66,37 @@ class edi_message(models.Model):
                         ftx = segment[4]
                         #qualifier = ZZZ, function = 1, ref = 001
                         #Build human readable message from FTX field
-                        header = ['Felmeddelande: ', 'Order skapad (ÅÅÅÅMMDDTTMM): ',
-                            'Framflyttad leveransdag (ÅÅÅÅMMDD): ', 'Felkod', 'Kundens butiksnummer']
+                        header = ['Felmeddelande: ', 'Order skapad: ',
+                            'Framflyttad leveransdag: ', 'Felkod: ', 'Kundens butiksnummer: ']
                         for i in range(len(ftx)):
                             if i < len(header):
                                 text += header[i]
                             text += ftx[i] + '\n'
-                    elif segment[0] == 'RFF' and segment[1] == 'CR':
-                        order = self.env['rep.order'].search([('client_order_ref', '=', segment[2])])[0]
+                    elif segment[0] == 'RFF' and segment[1][0] == 'CR':
+                        ref = segment[1][1]
+                        if len(ref) < 3:
+                            ref = '0' + ref
+                        order = self.env['rep.order'].search([('client_order_ref', '=', ref)])[0]
+                        self.model = order._name
+                        self.res_id = order.id
                     elif segment[0] == 'NAD':
                         pass
                     elif segment[0] == 'LIN':
                         if line:
-                            lines.append[line]
+                            lines.append(line)
                         line = {
                             'sequence': segment[1],
                             'status': segment[2],
                         }
-                        line['product'] = self._get_product(segment[3]).name
                     elif segment[0] == 'PIA' and line:
                         pass
                     elif segment[0] == 'QTY' and line:
-                        line['quantity'] = segment[2]
+                        line['quantity'] = segment[1][1]
                     elif segment[0] == 'UNS' and line:
-                        lines.append[line]
+                        lines.append(line)
+                        line = None
                 except:
                     errors.append(sys.exc_info())
-            
             res = 'status: ' + order_state
             res += '\ndelivery date: ' + delivery_date
             res += '\nmessage: ' + text
@@ -104,21 +107,19 @@ class edi_message(models.Model):
                         line.get('sequence', ''), line.get('product', 'not found'),
                         line.get('quantity', ''),
                         'Not accepted' if line.get('status', '') == '7' else line.get('status', 'Unknown'))
-            res += '\n\noriginal message:\n' + msg
-            
+            res += '\n\noriginal message:\n' + self._gs1_decode_msg(base64.b64decode(self.body))
             if errors:
                 errors.reverse()
                 self.route_id.log("%s error(s) when reading ORDRSP '%s'.\n%s" % (len(errors), self.name, res), errors)
                 self.state = 'canceled'
             else:
-                user = self.env['res.users'].browse(self._uid)
                 self.env['mail.message'].create({
-                    'body': res,
+                    'body': html_line_breaks(res),
                     'subject': 'Order response received',
-                    'author_id': user.partner_id.id,
                     'res_id': order.id,
                     'model': order._name,
-                    'type': 'comment',
+                    'type': 'email',
                 })
+            
         else:
             super(edi_message, self)._unpack()
