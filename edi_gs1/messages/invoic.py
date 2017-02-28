@@ -36,7 +36,6 @@ class edi_message(models.Model):
         for line in order.order_line:
             if inv_line in line.invoice_lines:
                 return line.sequence
-        raise ValueError("Invoice line (id: %s) not found in order %s." % (inv_line.id, order.name))
     
     def _get_inv_line_nr(self, invoice, inv_line):
         nr = 1
@@ -50,7 +49,6 @@ class edi_message(models.Model):
         for line in order.order_line:
             if line.product_id == inv_line.product_id:
                 return line.sequence
-        raise ValueError("Invoice line (id: %s) not found in order %s." % (inv_line.id, order.name))
     
     @api.one
     def _pack(self):
@@ -158,9 +156,13 @@ class edi_message(models.Model):
                 #Net unit price, and many more
                 msg += self.PRI(line.price_unit)
                 if order and invoice.type != 'out_refund':
-                    msg += self.RFF(order.client_order_ref or order.name, 'ON', self._get_line_nr(order, line))
+                    order_line = self._get_line_nr(order, line)
+                    if order_line:
+                        msg += self.RFF(order.client_order_ref or order.name, 'ON', order_line)
                 if order and invoice.type == 'out_refund':
-                    msg += self.RFF(order.client_order_ref or order.name, 'ON', self._get_order_line_nr_compare_prod(order, line))
+                    order_line = self._get_order_line_nr_compare_prod(order, line)
+                    if order_line:
+                        msg += self.RFF(order.client_order_ref or order.name, 'ON', order_line)
                 #Reference to invoice. Only if this is a refund invoice.
                 if invoice.invoice_id and invoice.type == 'out_refund':
                     msg += self.RFF(invoice.invoice_id.number, 'IV', self._get_inv_line_nr(invoice.invoice_id, line))
