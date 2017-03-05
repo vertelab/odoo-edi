@@ -165,7 +165,7 @@ UNT     Avslutar ordermeddelandet.
                     #Add last line
                     if line:
                         order_values['order_line'].append((0, 0, line))
-                    #~ _logger.warn(order_values)
+                    _logger.warn(order_values)
                     #create order
                     order = self.env['sale.order'].create(order_values)
                     if order.nad_ito:

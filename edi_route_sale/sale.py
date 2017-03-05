@@ -19,7 +19,7 @@
 #
 ##############################################################################
 from openerp import models, fields, api, _
-
+from openerp.exceptions import Warning
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -27,7 +27,28 @@ class sale_order(models.Model):
     _inherit = 'sale.order'
 
     route_id = fields.Many2one(comodel_name="edi.route")
-
+    
+    @api.one
+    def _fix_broken_workflow(self):
+        """There is an issue where sale.order creation fails halfway through, causing the workflow to not be created. This function repairs the worflow."""
+        if self.env['workflow.instance'].search([('res_type', '=', self._name), ('res_id', '=', self.id)]):
+            raise Warning('Workflow already exists! No action taken.')
+        wkf_instance = self.env['workflow.instance'].create({
+            'res_type': self._name,
+            'uid': self.env.user.id,
+            'wkf_id': self.env.ref('sale.wkf_sale').id,
+            'state': 'active',
+            'res_id': self.id,
+        })
+        wkf_instance = self.env['workflow.workitem'].create({
+            'act_id': self.env.ref('sale.act_draft').id,
+            'inst_id': wkf_instance.id,
+            'subflow_id': None,
+            'state': 'complete',
+        })
+        #Send order response as well.
+        self._edi_message_create('edi_gs1.edi_message_type_orderk')
+        
     @api.one
     def _message_count(self):
         self.message_count = self.env['edi.message'].search_count([('model','=',self._name),('res_id','=',self.id)])
@@ -35,11 +56,14 @@ class sale_order(models.Model):
 
 
     @api.model
+    @api.returns('self', lambda value: value.id)
     def create(self, vals):
+        _logger.warn(vals)
         order =  super(sale_order,self).create(vals)
         if order:
             order.route_id.edi_action('sale.order.create',order=order)
         return order
+    
     @api.multi
     def action_cancel(self):
         res =  super(sale_order,self).action_cancel()
@@ -47,6 +71,7 @@ class sale_order(models.Model):
             if order.route_id:
                 order.route_id.edi_action('sale.order.action_cancel',order=order,res=res)
         return res
+    
     @api.multi
     def action_button_confirm(self):
         res = super(sale_order,self).action_button_confirm()
@@ -56,6 +81,7 @@ class sale_order(models.Model):
                 order.route_id.edi_action('sale.order.action_button_confirm',order=order,res=res)
         _logger.warn("\n\naction_button_confirm done!\n\n")
         return res
+    
     @api.multi
     def action_wait(self):
         res =  super(sale_order,self).action_wait()
@@ -63,6 +89,7 @@ class sale_order(models.Model):
             if order.route_id:
                 order.route_id.edi_action('sale.order.action_wait',order=order,res=res)
         return res
+    
     @api.multi
     def action_done(self):
         res =  super(sale_order,self).action_done()
@@ -70,6 +97,7 @@ class sale_order(models.Model):
             if order.route_id:
                 order.route_id.edi_action('sale.order.action_done',order=order,res=res)
         return res
+    
     @api.multi
     def action_ship_create(self):
         res =  super(sale_order,self).action_ship_create()
@@ -79,6 +107,7 @@ class sale_order(models.Model):
                 order.route_id.edi_action('sale.order.action_ship_create', order=order, pickings=[p for p in order.picking_ids], res=res)
         _logger.warn("\n\naction_ship_create done\n\n")
         return res
+    
     @api.multi
     def action_invoice_create(self, grouped=False, states=None, date_invoice = False):
         #TODO: Check if this works with multiple orders selected
@@ -88,6 +117,7 @@ class sale_order(models.Model):
             if self.route_id:
                 self.route_id.edi_action('sale.order.action_invoice_create', order=self[0], invoice=invoices[-1])
         return res
+    
     @api.multi
     def action_invoice_cancel(self):
         res =  super(sale_order,self).action_invoice_cancel()
@@ -95,6 +125,7 @@ class sale_order(models.Model):
             if order.route_id:
                 order.route_id.edi_action('sale.order.action_invoice_cancel',order=order,res=res)
         return res
+    
     @api.multi
     def action_invoice_end(self):
         res =  super(sale_order,self).action_invoice_end()
@@ -102,6 +133,7 @@ class sale_order(models.Model):
             if order.route_id:
                 order.route_id.edi_action('sale.order.action_invoice_end',order=order,res=res)
         return res
+    
     @api.multi
     def action_ignore_delivery_exception(self):
         res =  super(sale_order,self).action_ignore_delivery_exception()
@@ -155,6 +187,7 @@ class account_invoice(models.Model):
             check_double=check_double)
 
     @api.model
+    @api.returns('self', lambda value: value.id)
     def create(self, vals):
         invoice =  super(account_invoice, self).create(vals)
         if invoice and invoice._get_route():
