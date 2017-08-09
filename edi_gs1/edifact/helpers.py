@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 """Provides helper functions."""
 
-import regex
+import logging
+_logger = logging.getLogger(__name__)
+
+
+try:
+    import regex
+except ImportError as e:
+    _logger.error('regex missing, pip install regex (%s)' % e) 
 
 from exceptions import MissingSegmentAtPositionError
 
