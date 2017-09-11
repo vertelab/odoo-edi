@@ -1,24 +1,36 @@
 <?xml version="1.0"?>
 <openerp>
-    <data>
-
-
+  <data>
     <!-- EDI Route Form View -->
-
     <record model="ir.ui.view" id="view_edi_route_form">
-        <field name="name">EDI Route</field>
-        <field name="model">edi.route</field>
+      <field name="name">EDI Route</field>
+      <field name="model">edi.route</field>
       <field name="inherit_id" ref="edi_route.view_edi_route_form" />
-        <field name="arch" type="xml">
-            <group name="protocol" position="inside">
-                <field name="alias_id"    attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}"/>
-                <field name="mail_debug"    attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}"/>
-            </group>
-        </field>
+      <field name="arch" type="xml">
+        <group name="protocol" position="inside">
+          <field name="alias_id" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="alias_model" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="alias_force_thread_id" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="alias_defaults" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="alias_contact" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="alias_parent_model_id" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="alias_parent_thread_id" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="model_id" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="model_defaults" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="pattern" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+          <field name="mail_debug" attrs="{'invisible': [('route_type','not in',['mail'])], }" />
+        </group>
+      </field>
     </record>
-
-
-
-
-    </data>
+    <record model="ir.ui.view" id="view_edi_envelope_form">
+      <field name="name">EDI Envelope</field>
+      <field name="model">edi.envelope</field>
+      <field name="inherit_id" ref="edi_route.view_edi_envelope_form" />
+      <field name="arch" type="xml">
+        <field name="route_type" position="after">
+          <field name="mail_id" attrs="{'invisible': [('route_type','not in',['mail'])], 'required': [('route_type','in',['mail'])]}" />
+        </field>
+      </field>
+    </record>
+  </data>
 </openerp>

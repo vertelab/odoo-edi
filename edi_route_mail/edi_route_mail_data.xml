@@ -47,6 +47,7 @@
             <field name="alias_id" ref="alias_invoice"/>
             <field name="alias_model">edi.envelope</field>
             <field name="active" eval="True"/>
+            <field name="protocol" >mail</field>
             <field name="route_type" >mail</field>
         </record>
 
@@ -56,13 +57,6 @@
         </record>
 
 
-
-    <record model="edi.route" id="route_mail">
-        <field name="name">Mail</field>
-        <field name="partner_id" ref="base.main_partner"/>
-        <field name="route_type">mail</field>
-          <field name="active" eval="True"/>
-    </record>
 
     <record id="edi_message_type_invoice_pdf" model="edi.message.type">
         <field name="name">Invoice PDF</field>
