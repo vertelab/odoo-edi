@@ -20,20 +20,20 @@
 ##############################################################################
 
 {
-    'name': 'EDI Routes Mail',
-    'version': '0.2',
+    'name': 'EDI Routes Mail PDF2IMAGE',
+    'version': '0.1',
     'category': 'edi',
     'summary': 'Routes for EDI using Mail',
     'licence': 'AGPL-3',
     'description': """
 Add routes for EDI using Odoo Mail
+convert PDF-files to an image for easier control
 
-pip install filemagic
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','mail'],
-    'data': [ 'edi_route_view.xml',"edi_route_mail_data.xml",
+    'depends': ['edi_route_mail','attachmen_pdf2image'],
+    'data': [ 'edi_route_view.xml',
     #'security/ir.model.access.csv',
     ],
     'application': False,

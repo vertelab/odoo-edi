@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2017 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,26 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from openerp import models, fields, api, _
+from openerp.exceptions import except_orm, Warning, RedirectWarning
 
-{
-    'name': 'EDI Routes Mail',
-    'version': '0.2',
-    'category': 'edi',
-    'summary': 'Routes for EDI using Mail',
-    'licence': 'AGPL-3',
-    'description': """
-Add routes for EDI using Odoo Mail
+import base64
 
-pip install filemagic
-""",
-    'author': 'Vertel AB',
-    'website': 'http://www.vertel.se',
-    'depends': ['edi_route','mail'],
-    'data': [ 'edi_route_view.xml',"edi_route_mail_data.xml",
-    #'security/ir.model.access.csv',
-    ],
-    'application': False,
-    'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
-}
-# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
+import logging
+_logger = logging.getLogger(__name__)
+
+class edi_envelope(models.Model):
+    _inherit = 'edi.envelope'
+
+    image = fields.Binary()
+    
+    def _check_mail_attachments(self):
+        image = None
+        for attachment in self.mail_id.attachment_ids:
+            if attachment.mimetype == 'application/pdf':
+                if not attachment.image:
+                    attachment.pdf2image(800,1200)
+                image = attachment.image
+            elif attachment.mimetype in ['image/jpeg','image/png','image/gif'] and image == None:
+                image = attachment.datas
+        self.image = image
+    
+        
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

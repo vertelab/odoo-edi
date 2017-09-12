@@ -1,67 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-    <data noupdate="1">
-        <!-- Message-related subtypes for messaging / Chatter -->
-        <record id="mt_edi_message_new" model="mail.message.subtype">
-            <field name="name">New edi message</field>
-            <field name="res_model">edi.envelope</field>
-            <field name="default" eval="False"/>
-            <field name="hidden" eval="True"/>
-            <field name="description">EDI message created</field>
-        </record>
-
-        <!-- Route-related subtypes for messaging / Chatter -->
-        <record id="mt_edi_route_message_new" model="mail.message.subtype">
-            <field name="name">EDI Message created</field>
-            <field name="sequence">10</field>
-            <field name="res_model">edi.route</field>
-            <field name="default" eval="False"/>
-            <field name="parent_id" eval="ref('mt_edi_message_new')"/>
-            <field name="relation_field">route_id</field>
-        </record>
-
-        <!-- notify all employees of module installation -->
-        <record model="mail.message" id="module_install_notification">
-            <field name="model">mail.group</field>
-            <field name="res_id" ref="mail.group_all_employees"/>
-            <field name="type">notification</field>
-            <field name="subtype_id" ref="mail.mt_comment"/>
-            <field name="subject">EDI Management application installed!</field>
-            <field name="body"><![CDATA[<p>Manage inbound/outbound EDI messages. </p>]]></field>
-        </record>
-
-        <record model="mail.alias" id="edi_route_mail.alias_invoice">
-            <field name="alias_name">invoice</field>
-            <field name="alias_model_id" ref="edi_route.model_edi_envelope"/>
-            <field name="alias_contact">everyone</field>
-            <field name="alias_defaults">{
-'route_id': 1,
-'direction': 'in',
-                    }</field>
-            <field name="alias_parent_model_id" ref="edi_route.model_edi_route"/>
-        </record>
-
-        <record model="edi.route" id="edi_route_mail.mail_route">
-            <field name="name">Mail</field>
-            <field name="partner_id" ref="base.main_partner"/>
-            <field name="alias_id" ref="alias_invoice"/>
-            <field name="alias_model">edi.envelope</field>
-            <field name="active" eval="True"/>
-            <field name="protocol" >mail</field>
-            <field name="route_type" >mail</field>
-        </record>
-
-        <record model="mail.alias" id="edi_route_mail.alias_invoice">
-            <field name="alias_parent_thread_id" ref="edi_route_mail.mail_route"/>
-            <field name="alias_model_id" ref="edi_route.model_edi_envelope"/>
-        </record>
-
-
-
-    <record id="edi_message_type_invoice_pdf" model="edi.message.type">
-        <field name="name">Invoice PDF</field>
+  <data noupdate="1">
+    <!-- Message-related subtypes for messaging / Chatter -->
+    <record id="mt_edi_message_new" model="mail.message.subtype">
+      <field name="name">New edi message</field>
+      <field name="res_model">edi.envelope</field>
+      <field name="default" eval="False" />
+      <field name="hidden" eval="True" />
+      <field name="description">EDI message created</field>
     </record>
-
-
+    <!-- Route-related subtypes for messaging / Chatter -->
+    <record id="mt_edi_route_message_new" model="mail.message.subtype">
+      <field name="name">EDI Message created</field>
+      <field name="sequence">10</field>
+      <field name="res_model">edi.route</field>
+      <field name="default" eval="False" />
+      <field name="parent_id" eval="ref('mt_edi_message_new')" />
+      <field name="relation_field">route_id</field>
+    </record>
+    <!-- notify all employees of module installation -->
+    <record model="mail.message" id="module_install_notification">
+      <field name="model">mail.group</field>
+      <field name="res_id" ref="mail.group_all_employees" />
+      <field name="type">notification</field>
+      <field name="subtype_id" ref="mail.mt_comment" />
+      <field name="subject">EDI Management application installed!</field>
+      <field name="body"><![CDATA[<p>Manage inbound/outbound EDI messages. </p>]]></field>
+    </record>
+    <record model="mail.alias" id="edi_route_mail.alias_invoice">
+      <field name="alias_name">invoice</field>
+      <field name="alias_model_id" ref="edi_route.model_edi_envelope" />
+      <field name="alias_contact">everyone</field>
+      <field name="alias_defaults">
+        {}
+      </field>
+      <field name="alias_parent_model_id" ref="edi_route.model_edi_route" />
+    </record>
+    <record model="edi.route" id="edi_route_mail.mail_route">
+      <field name="name">Mail</field>
+      <field name="partner_id" ref="base.main_partner" />
+      <field name="alias_id" ref="alias_invoice" />
+      <field name="alias_model">edi.envelope</field>
+      <field name="model_id" ref="account.model_account_invoice"/>
+      <field name="model_defaults">{'type': 'in_invoice'}</field>
+      <field name="pattern">PO\d{5}</field>
+      <field name="active" eval="True" />
+      <field name="protocol">mail</field>
+      <field name="route_type">mail</field>
+    </record>
+    <record model="mail.alias" id="edi_route_mail.alias_invoice">
+      <field name="alias_parent_thread_id" ref="edi_route_mail.mail_route" />
+      <field name="alias_model_id" ref="edi_route.model_edi_envelope" />
+    </record>
+    <record id="edi_message_type_invoice_pdf" model="edi.message.type">
+      <field name="name">Invoice PDF</field>
+    </record>
     </data>
+     <data noupdate="0">
+    <record model="ir.actions.server" id="atachment2record">
+      <field name="name">Move Attachment</field>
+      <field name="state">code</field>
+      <field name="condition" eval="True" />
+      <field name="model_id" ref="edi_route.model_edi_envelope" />
+      <field name="code">
+for o in object.browse(context.get('active_ids', [])):
+    o.attachment2record()
+      </field>
+    </record>
+    <record model="ir.values" id="atachment2record_menu">
+      <field name="name">Move Attachment</field>
+      <field name="model">edi.envelope</field>
+      <field name="key2">client_action_multi</field>
+      <field name="value" eval="'ir.actions.server,%d' % atachment2record" />
+    </record>
+  </data>
 </openerp>
