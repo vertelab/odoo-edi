@@ -29,18 +29,16 @@ _logger = logging.getLogger(__name__)
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope'
 
-    image = fields.Binary()
-    
-    def _check_mail_attachments(self):
-        image = None
-        for attachment in self.mail_id.attachment_ids:
-            if attachment.mimetype == 'application/pdf':
-                if not attachment.image:
-                    attachment.pdf2image(800,1200)
-                image = attachment.image
-            elif attachment.mimetype in ['image/jpeg','image/png','image/gif'] and image == None:
-                image = attachment.datas
-        self.image = image
-    
+    def _check_mail_attachments_image(self,image=None):
+        if not image:
+            image = super(edi_envelope,self)._check_mail_attachments_image()
+        if not image:
+            for attachment in self.mail_id.attachment_ids:
+                if attachment.file_type == 'application/pdf':
+                    if not attachment.image:
+                        attachment.pdf2image(800,1200)
+                    image = attachment.image
+        return image
+
         
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

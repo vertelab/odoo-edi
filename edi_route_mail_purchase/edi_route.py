@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2017 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,25 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from openerp import models, fields, api, _
+from openerp.exceptions import except_orm, Warning, RedirectWarning
 
-{
-    'name': 'EDI Routes Mail',
-    'version': '0.3',
-    'category': 'edi',
-    'summary': 'Routes for EDI using Mail',
-    'licence': 'AGPL-3',
-    'description': """
-Add routes for EDI using Odoo Mail
+import logging
+_logger = logging.getLogger(__name__)
 
-""",
-    'author': 'Vertel AB',
-    'website': 'http://www.vertel.se',
-    'depends': ['edi_route','mail'],
-    'data': [ 'edi_route_view.xml',"edi_route_mail_data.xml",
-    #'security/ir.model.access.csv',
-    ],
-    'application': False,
-    'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
-}
-# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
+class edi_envelope(models.Model):
+    _inherit = 'edi.envelope'
+
+    def _get_record(self,record=None):
+        if not record and self.route_id.model_id.model == 'account.invoice':
+            return self.env['purchase.order'].search([('name','=',self.ref)]).mapped('invoice_ids')
+        return super(edi_envelope,self)._get_record(record)
+
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

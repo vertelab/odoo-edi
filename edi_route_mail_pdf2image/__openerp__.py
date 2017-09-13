@@ -32,7 +32,7 @@ convert PDF-files to an image for easier control
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route_mail','attachmen_pdf2image'],
+    'depends': ['edi_route_mail','attachment_pdf2image'],
     'data': [ 'edi_route_view.xml',
     #'security/ir.model.access.csv',
     ],

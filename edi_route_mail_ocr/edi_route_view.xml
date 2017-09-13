@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<openerp>
+  <data>
+    <!-- EDI Envelope Form View -->
+
+    <record model="ir.ui.view" id="view_edi_envelope_form">
+      <field name="name">EDI Envelope</field>
+      <field name="model">edi.envelope</field>
+      <field name="inherit_id" ref="edi_route.view_edi_envelope_form" />
+      <field name="arch" type="xml">
+        <notebook position="inside">
+          <page string="Image" groups="base.group_user" attrs="{'invisible':[('image','=',None)]}">
+            <group rows="20">
+              <field name="image" widget="image" class="oe_left oe_avatar" options="{&quot;preview_image&quot;: &quot;image&quot;,&quot;size&quot;: [800, 1200]}" nolabel="1" />
+            </group>
+          </page>
+        </notebook>
+      </field>
+    </record>
+  </data>
+</openerp>

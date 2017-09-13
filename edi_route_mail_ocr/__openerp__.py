@@ -20,23 +20,21 @@
 ##############################################################################
 
 {
-    'name': 'EDI Routes Mail',
-    'version': '0.3',
+    'name': 'EDI Routes Mail OCR',
+    'version': '0.2',
     'category': 'edi',
     'summary': 'Routes for EDI using Mail',
     'licence': 'AGPL-3',
     'description': """
 Add routes for EDI using Odoo Mail
+If the PDF or image does not got indexed, try OCR
 
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','mail'],
-    'data': [ 'edi_route_view.xml',"edi_route_mail_data.xml",
-    #'security/ir.model.access.csv',
-    ],
+    'depends': ['edi_route_mail','attachment_ocr'],
+    'data': [],
     'application': False,
     'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
 }
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:

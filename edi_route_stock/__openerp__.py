@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2017 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI Route Stock',
-    'version': '0.1',
+    'version': '0.2',
     'category': 'edi',
     'summary': 'Connects EDI Route with Stock',
     'licence': 'AGPL-3',
@@ -29,7 +29,7 @@
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','stock'],
+    'depends': ['edi_route','stock','sale'],
     'data': ['stock_data.xml',],
     'application': False,
     'installable': True,

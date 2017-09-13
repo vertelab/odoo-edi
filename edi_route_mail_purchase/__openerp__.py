@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2017 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,23 +20,21 @@
 ##############################################################################
 
 {
-    'name': 'EDI Routes Mail',
-    'version': '0.3',
+    'name': 'EDI Routes Mail Purchase',
+    'version': '0.1',
     'category': 'edi',
-    'summary': 'Routes for EDI using Mail',
+    'summary': 'A route for receiving invoices',
     'licence': 'AGPL-3',
     'description': """
-Add routes for EDI using Odoo Mail
+This module finds invoices using purchase orders even when there is a delivery order that have marked invoice with its origin
 
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','mail'],
-    'data': [ 'edi_route_view.xml',"edi_route_mail_data.xml",
-    #'security/ir.model.access.csv',
-    ],
+    'depends': ['edi_route_mail_invoice','purchase'],
+    'data': ['edi_route_mail_data.xml'],
     'application': False,
+    'auto_install': True,
     'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
 }
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
