@@ -34,6 +34,7 @@ This module installs automatically when you install portal and edi_route.
 
     """,
     'author': 'Vertel AB',
+    'license': 'AGPL-3',
     'depends': ['edi_route','portal'],
     'data': [
         'security/ir.model.access.csv',

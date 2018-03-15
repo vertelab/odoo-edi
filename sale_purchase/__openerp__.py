@@ -32,6 +32,7 @@ This module makes the link between the sales and purchase management application
 
 """,
     'author': 'Vertel AB',
+    'license': 'AGPL-3',
     'website': 'https://www.vertel.se',
     'depends': ['sale', 'purchase'],
     'data': [
