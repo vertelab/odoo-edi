@@ -72,6 +72,7 @@ UNT     Avslutar ordermeddelandet.
         super(edi_message, self)._unpack()
         if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_orders').id:
             segment_count = 0
+            warnings = ''
             #Delivered by?
             delivery_prom_dt = None
             doc_dt = None
@@ -137,15 +138,24 @@ UNT     Avslutar ordermeddelandet.
                 elif segment[0] == 'LIN':
                     if line:
                         order_values['order_line'].append((0, 0, line))
-                    line = {
-                        'product_id': self._get_product(segment[3]).id,
-                        'sequence': int(segment[1]),
-                    }
+                    line = {'sequence': int(segment[1])}
+                    try:
+                        line['product_id'] = self._get_product(segment[3]).id
+                    except:
+                        warnings += 'Product not found: %s' % l
                 elif segment[0] == 'QTY':
                     line['product_uom_qty'] = line['order_qty'] = self._parse_quantity(segment[1])
                 #Alternative Product Identification
                 elif segment[0] == 'PIA':
-                    pass
+                    try:
+                        product = self._get_product(segment[2])
+                        if product and line:
+                            if line.get('product_id', product.id) != product.id:
+                                warnings += "Found two products for one line: %s and %s. %s" % (line['product_id'], product.id, line)
+                            else:
+                                line['product_id'] = product.id
+                    except:
+                        warnings += 'Product not found: %s' % l
                 #Free text
                 #~ #elif segment[0] == 'FTX':
                 #~ #    pass
@@ -166,6 +176,9 @@ UNT     Avslutar ordermeddelandet.
                     if line:
                         order_values['order_line'].append((0, 0, line))
                     _logger.warn(order_values)
+                    for line in order_values['order_line']:
+                        if not line.get('product_id'):
+                            raise Warning(warnings)
                     #create order
                     order = self.env['sale.order'].create(order_values)
                     if order.nad_ito:
@@ -180,7 +193,8 @@ UNT     Avslutar ordermeddelandet.
                     elif not order.partner_shipping_id.id == order.partner_id.id:
                         self.nad_dp = order.partner_shipping_id.id
                         order.nad_dp = order.partner_shipping_id.id
-
+                    if warnings:
+                        self.log(warnings)
                     _logger.info('Order ready %r' % order)
                     self.model = order._name
                     self.res_id = order.id

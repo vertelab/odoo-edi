@@ -478,11 +478,11 @@ class edi_message(models.Model):
 
     def _get_product(self, l):
         product = None
-        if l[1] == 'EN':
-            product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
-        if l[1] == 'EU':  # Axfood ORDERS use this
-            product = self.env['product.product'].search([('gs1_gtin14', '=', l[0])])
-        if product:
+        if l[1] == 'EN' or l[1] == 'EU':  # Axfood ORDERS use EU
+            product = self.env['product.product'].search(['|', ('gs1_gtin13', '=', l[0]), ('gs1_gtin14', '=', l[0])])
+        elif l[1] == 'SA':
+            product = self.env['product.product'].search([('default_code', '=', l[0])])
+        if product and product.ensure_one():
             return product
         raise ValueError('Product not found! GTIN: %s' % l)
 

@@ -30,7 +30,7 @@ class account_invoice(models.Model):
 
     @api.one
     def _picking_ids(self):
-        self.picking_ids = [(6, 0, set([l.picking_id.id for l in self.invoice_line]))]
+        self.picking_ids = [(6, 0, set([l.picking_id.id for l in self.invoice_line if l.picking_id]))]
     picking_ids = fields.One2many(string='Stock picking', comodel_name='stock.picking',compute="_picking_ids")
     
 class account_invoice_line(models.Model):

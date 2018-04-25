@@ -155,6 +155,7 @@ class account_invoice(models.Model):
             if record.invoice_id:
                 record.order_ids = record.invoice_id.order_ids
             else:
+                #TODO: Breaks on create if field is shown in the view. Check record.id?
                 record.order_ids = self.env['sale.order'].search([('invoice_ids', '=', record.id)])
     order_ids = fields.Many2many(string='Orders', comodel_name='sale.order', compute="_order_ids")
     invoice_id = fields.Many2one(comodel_name='account.invoice', string='Credited Invoice')

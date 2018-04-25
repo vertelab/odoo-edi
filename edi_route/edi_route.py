@@ -238,7 +238,24 @@ class edi_message(models.Model):
     route_type = fields.Selection(selection=[('plain','Plain')], default='plain')
     edi_type = fields.Many2one(comodel_name='edi.message.type', string="Edi Type")
     state = fields.Selection([('progress', 'Progress'), ('sent','Sent'), ('received','Received'), ('canceled','Canceled')], default='progress')
-
+    
+    def log(self, message, error_info=None, subject = ''):
+        #TODO: Mail errors and implement this on envelope and message as well.
+        if error_info:
+            if type(error_info) == type([]):
+                for e in error_info:
+                    message += '\n' + ''.join(traceback.format_exception(e[0], e[1], e[2]))
+            else:
+                message += '\n' + ''.join(traceback.format_exception(error_info[0], error_info[1], error_info[2]))
+        user = self.env['res.users'].browse(self._uid)
+        self.env['mail.message'].create({
+                'body': html_line_breaks(message),
+                'subject': subject or '[%s] Debug EDI-message' % self.name,
+                'author_id': user.partner_id.id,
+                'res_id': self.id,
+                'model': self._name,
+                'type': 'notification',})
+    
     @api.one
     def draft(self):
         self.state = 'progress'
@@ -594,10 +611,11 @@ class edi_route(models.Model):
                         except Exception as e:
                             self._cr.rollback()
                             envelope.state = 'canceled'
+                            #TODO: Handle Warning
                             self.log('Error when processing envelope %s\n%s' % (envelope.name, e))
         if run_performed:
             self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
-
+    
     def log(self, message, error_info=None):
         #TODO: Mail errors and implement this on envelope and message as well.
         if error_info:
@@ -614,7 +632,7 @@ class edi_route(models.Model):
                 'res_id': self.id,
                 'model': self._name,
                 'type': 'notification',})
-
+    
     @api.v7
     def cron_job(self, cr, uid, context=None):
         for route in self.pool.get('edi.route').browse(cr, uid, self.pool.get('edi.route').search(cr, uid, [('active','=',True)])):

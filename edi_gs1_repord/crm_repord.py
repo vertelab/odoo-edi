@@ -31,7 +31,7 @@ import openerp.addons.decimal_precision as dp
 class rep_order(models.Model):
     _inherit = "rep.order"
     
-    nad_by = fields.Many2one(comodel_name='res.partner',help="Byer, party to whom merchandise and/or service is sold.")
+    nad_by = fields.Many2one(comodel_name='res.partner',help="Buyer, party to whom merchandise and/or service is sold.")
     nad_su = fields.Many2one(comodel_name='res.partner',help="Supplier, party who supplies goods and/or services.")
     nad_sn = fields.Many2one(comodel_name='res.partner',help="Store keeper,A party keeping a shop or store.")
     nad_cn = fields.Many2one(comodel_name='res.partner',help="Consignee, party to which goods are consigned.")
