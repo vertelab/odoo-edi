@@ -176,7 +176,7 @@ UNT     Avslutar ordermeddelandet.
                     if line:
                         order_values['order_line'].append((0, 0, line))
                     _logger.warn(order_values)
-                    for line in order_values['order_line']:
+                    for a, b, line in order_values['order_line']:
                         if not line.get('product_id'):
                             raise Warning(warnings)
                     #create order
