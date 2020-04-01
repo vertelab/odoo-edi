@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import xml.etree.ElementTree as ET
+from . import xml.etree.ElementTree as ET
 #~ from lxml import etree
 from lxml import etree
 from lxml import objectify

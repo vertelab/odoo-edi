@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api, _
+from odoo import models, fields, api, _
 import base64
 from datetime import datetime
 #https://www.stylusstudio.com/edifact/frames.htm

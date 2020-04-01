@@ -1,1 +1,1 @@
-import bis4a
+from . import bis4a
