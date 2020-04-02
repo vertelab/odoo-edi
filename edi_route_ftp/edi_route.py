@@ -19,8 +19,8 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api, _
-from openerp.exceptions import except_orm, Warning, RedirectWarning
+from odoo import models, fields, api, _
+from odoo.exceptions import except_orm, Warning, RedirectWarning
 
 import os
 import sys
@@ -33,7 +33,7 @@ import fnmatch
 import zipfile
 import ftplib
 import base64
-from cStringIO import StringIO
+from io import StringIO
 
 import logging
 _logger = logging.getLogger(__name__)
