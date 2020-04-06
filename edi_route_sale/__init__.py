@@ -1,1 +1,1 @@
-import sale
+from . import sale
