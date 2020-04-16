@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <!-- EDI Route Form View -->
+        <record model="ir.ui.view" id="view_edi_route_form">
+            <field name="name">EDI Route</field>
+            <field name="model">edi.route</field>
+        <field name="inherit_id" ref="edi_route.view_edi_route_form" />
+            <field name="arch" type="xml">
+                <group name="protocol" position="inside">
+                    <label for="af_ipf_url" string="IPF url" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <field name="af_ipf_url" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <label for="af_ipf_port" string="IPF port" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <field name="af_ipf_port" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <label for="af_client_id" string="Client ID" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <field name="af_client_id" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <label for="af_client_secret" string="Client Secret" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <field name="af_client_secret" password="True" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <label for="af_environment" string="AF-Environment" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <field name="af_environment" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <label for="af_system_id" string="AF-SystemId" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <field name="af_system_id" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                </group>
+            </field>
+        </record>
+    </data>
+</openerp>

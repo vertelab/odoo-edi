@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+    <!-- EDI Type Form View -->
+    <record model="ir.ui.view" id="view_edi_type_form">
+      <field name="name">EDI Type</field>
+      <field name="model">edi.message.type</field>
+      <field name="inherit_id" ref="edi_route.view_edi_type_form" />
+      <field name="arch" type="xml">
+        <group name="type_fields" position="inside">
+            <label for="type_target" string="Target" /> <!-- attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/> -->
+            <field name="type_target" nolabel="1" /> <!-- attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/> -->
+            <label for="type_mapping" string="Data mapping" /> <!-- attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/> -->
+            <field name="type_mapping" nolabel="1" /> <!-- attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/> -->
+        </group>
+      </field>
+    </record>
+
+    </data>
+</openerp>
+
+
