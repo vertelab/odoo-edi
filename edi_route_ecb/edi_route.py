@@ -31,7 +31,7 @@ _logger = logging.getLogger(__name__)
 
 class edi_route(models.Model):
     _inherit = 'edi.route' 
- 
+    # https://exchangeratesapi.io/
     protocol = fields.Selection(selection_add=[('ecb_rest', 'ECB Rest')])
     # Define base url
     # ex: https://ipfapi.arbetsformedlingen.se:443/appointments/v1/bookable-occasions?appointment_type=1&appointment_channel=SPD&from_date=2020-03-20&to_date=2020-03-21&client_id=da03472cd17e4ce4bb2d017156db7156&client_secret=B4BC32F21a314Cb9B48877989Cc1e3b8
