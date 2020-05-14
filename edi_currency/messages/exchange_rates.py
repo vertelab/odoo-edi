@@ -24,36 +24,38 @@ import json
 import logging
 _logger = logging.getLogger(__name__)
 
+# messages with bodies like this:
+#  {'currency': 'EUR', 'date': '2020-05-14', 'rate': '10.32' }
+#  {'currency': 'USD', 'date': '2020-05-14', 'rate': '10.32' }
+#  {'currency': 'GBP', 'date': '2020-05-14', 'rate': '10.32' }
+#
+
+
 class edi_message(models.Model):
     _inherit='edi.message'
             
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.edi_af_get_occasions').id:
-            pass
+        if self.edi_type.id == self.env.ref('edi_currency.get_echange_rates').id:
+            rec = json.loads(self.body)
+            currency = self.env['res.currency'].search([('name','=',rec.get('currency',None))])
+            self.env['res.currency.rate'].create({'currency_id': currency.id, 'name': rec.get('date'),'rate': rec.get('rate')})
            #  might not be needed
            # result = sel.body
            # result = json.loads(result)
-
+        else:
+            super(edi_message, self).unpack()
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.edi_af_get_occasions').id:
- #           if not self.model_record or self.model_record._name != 'account.invoice':
- #               raise Warning("Appointment: Attached record is not an account.invoice! {model}".format(model=self.model_record and self.model_record._name or None))
-            obj = self.model_record
-
-            params = self.edi_type.type_mapping.format(
-                from_date_str = obj.from_date.strftime("%Y-%m-%d"), # 2020-03-17
-                to_date_str = obj.to_date.strftime("%Y-%m-%d"), # 2020-03-25
-                appointment_channel_str = obj.appointment_channel, # 'SPD'
-                appointment_type_str = obj.appointment_type, # '1'
-                max_depth_str = ("&max_depth=%s" % obj.max_depth) if obj.max_depth else '',
-                appointment_length_str = ("&appointment_length=%s" % obj.appointment_length) if obj.appointment_length else '',
-                location_code_str = ("&location_code=%s" % obj.location_code) if obj.location_code else '',
-                profession_id_str = ("&profession_id=%s" % obj.profession_id) if obj.profession_id else '',
+        if self.edi_type.id == self.env.ref('edi_currency.get_echange_rates').id:
+            if not self.model_record or self.model_record._name != 'res.currency.rate':
+                raise Warning("Exchange Rates: Attached record is not an res.currency.rate! {model}".format(model=self.model_record and self.model_record._name or None))
+            currency_rate = self.model_record
+            self.body = self.edi_type.type_mapping.format(
+                date = obj.name.strftime("%Y-%m-%d"), 
+                rate = obj.rate, 
+                currency = obj.currency_id.name,
             )
-
-            self.body = params
         else:
             super(edi_message, self).pack()
 

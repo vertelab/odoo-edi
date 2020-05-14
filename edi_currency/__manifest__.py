@@ -18,18 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-# edi_message_type - Extension of edi.message.type for IPF REST and MQ
 
-from odoo import models, fields, api, _
-#from odoo.exceptions import except_orm, Warning, RedirectWarning
-
-import logging
-_logger = logging.getLogger(__name__)
-
-class edi_message_type(models.Model):
-    _inherit = 'edi.message.type' 
-    
-    type_target = fields.Char(string='Target',help="If you need help you shouldn't be changing this")
-    type_mapping = fields.Text(string='Data mapping',help="If you need help you shouldn't be changing this")
-
- # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+{
+    'name': 'EDI Currency',
+    'version': '0.1',
+    'category': 'edi',
+    'summary': 'EDI Currency - support for exchange rates ',
+    'licence': 'AGPL-3',
+    'description': """ """,
+    'author': 'Vertel AB',
+    'website': 'http://www.vertel.se',
+    'depends': ['edi_route'],
+    'external_dependencies': {
+#        'python': ['xmltodict'],
+    },
+    'data': [
+        'edi_route_data.xml',
+    ],
+    'application': False,
+    'installable': True,
+}
+# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:

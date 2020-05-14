@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2020 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,18 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-# edi_message_type - Extension of edi.message.type for IPF REST and MQ
 
-from odoo import models, fields, api, _
-#from odoo.exceptions import except_orm, Warning, RedirectWarning
+{
+    'name': 'EDI Routes ECB',
+    'version': '0.1',
+    'category': 'edi',
+    'summary': 'Routes for European Central Bank',
+    'licence': 'AGPL-3',
+    'description': """
+Add routes for EDI using European Central Bank.
 
-import logging
-_logger = logging.getLogger(__name__)
-
-class edi_message_type(models.Model):
-    _inherit = 'edi.message.type' 
-    
-    type_target = fields.Char(string='Target',help="If you need help you shouldn't be changing this")
-    type_mapping = fields.Text(string='Data mapping',help="If you need help you shouldn't be changing this")
-
- # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+""",
+    'author': 'Vertel AB',
+    'website': 'http://www.vertel.se',
+    'depends': ['edi_route',],
+#    'external_dependencies': {
+#        'python': ['paramiko','Crypto'],
+#    },
+    'data': [ 
+        'edi_route_view.xml', 
+        'edi_type_view.xml',
+    ],
+    'application': False,
+    'installable': True,
+ #   'demo': ['calendar_ics_demo.xml',],
+}
+# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:

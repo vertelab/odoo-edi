@@ -21,7 +21,7 @@
 # edi_route_ipf - Interface to AF's integration platform: IPF
 
 from odoo import models, fields, api, _
-from odoo.exceptions import except_orm, Warning, RedirectWarning
+from odoo.exceptions import Warning
 
 import json
 import sys
@@ -32,28 +32,7 @@ _logger = logging.getLogger(__name__)
 class edi_route(models.Model):
     _inherit = 'edi.route' 
  
-    ipf_debug = None
-
-    # address
-    af_ipf_url = fields.Char(string='IPF API URL',help="If you need help you shouldn't be changing this")
-    af_ipf_port = fields.Char(string='IPF API port',help="If you need help you shouldn't be changing this")
-    # id and secret
-    af_client_id = fields.Char(string='Client Id',help="If you need help you shouldn't be changing this")
-    af_client_secret = fields.Char(string='Client secret',help="If you need help you shouldn't be changing this")
-    # headers
-    af_environment = fields.Char(string='AF-Environment',help="If you need help you shouldn't be changing this")
-    af_system_id = fields.Char(string='AF-SystemId',help="If you need help you shouldn't be changing this")
-    # tracking_id is a unique id for each transaction. Not a good parameter to set.
-    # af_tracking_id = fields.Char(string='AF-TrackingId',help="If you need help you shouldn't be changing this")
-    
-
-    # TODO: add a table mapping T1 to URL + port
-    # 172.16.36.22 ipfapi.arbetsformedlingen.se #U1
-    # 164.135.40.182 ipfapi.arbetsformedlingen.se #I1
-    # 164.135.78.35 ipfapi.arbetsformedlingen.se #T1
-    # 164.135.93.48 ipfapi.arbetsformedlingen.se #T2
-    protocol = fields.Selection(selection_add=[('ipf', 'IPF')])
-
+    protocol = fields.Selection(selection_add=[('ecb_rest', 'ECB Rest')])
     # Define base url
     # ex: https://ipfapi.arbetsformedlingen.se:443/appointments/v1/bookable-occasions?appointment_type=1&appointment_channel=SPD&from_date=2020-03-20&to_date=2020-03-21&client_id=da03472cd17e4ce4bb2d017156db7156&client_secret=B4BC32F21a314Cb9B48877989Cc1e3b8
     base_url = "{url}:{port}/{path}?client_id={client}&client_secret={secret}&from_date={from_date_str}&to_date={to_date_str}&appointment_channel={appointment_channel_str}&appointment_type={appointment_type_str}{max_depth_str}{appointment_length_str}{location_code_str}{profession_id_str}"
@@ -61,7 +40,7 @@ class edi_route(models.Model):
     
     @api.multi
     def _run_in(self):
-        if self.protocol == 'ipf':
+        if self.protocol == 'ecb_rest':
             envelopes = []
 
             if self.ftp_debug:
@@ -153,6 +132,37 @@ class edi_route(models.Model):
                 self.log(log)
         else:
             super(edi_route, self)._run_out(envelopes)
-  
+
+
+class edi_envelope(models.Model):
+    _inherit = 'edi.envelope'
+
+
+    # ~ @api.model
+    # ~ def _route_default(self):
+        # ~ route = self.env['edi.route'].browse(self._context.get('default_route_id'))
+        # ~ if route:
+            # ~ return route.id
+        # ~ else:
+            # ~ return self.env['edi.route'].search([])[0]
+    # ~ route_id = fields.Many2one(comodel_name='edi.route',required=True,default=_route_default)
+    
+    route_type = fields.Selection(selection_add=[('ecb_rest','ECB Rest')])
+
+    @api.one
+    def _split(self):
+        if self.route_type == 'ecb_rest':
+            msg = self.env['edi.message'].create({
+                'name': 'plain',
+                'envelope_id': self.id,
+                'body': self.body,
+                'route_type': self.route_type,
+                'sender': self.sender,
+                'recipient': self.recipient,
+                #~ 'consignor_id': sender.id,
+                #~ 'consignee_id': recipient.id,
+            })
+            msg.unpack()
+        self.envelope_opened()
     
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

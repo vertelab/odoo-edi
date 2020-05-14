@@ -11,9 +11,6 @@
             </field>
         </record>
    
-        <record id="edi_af_get_occasions" model="edi.message.type">
-            <field name="name">AF Get occasions</field>
-        </record>
         <record id="exchange_rates" model="edi.message.type">
             <field name="name">Exchange Rates</field>
         </record>

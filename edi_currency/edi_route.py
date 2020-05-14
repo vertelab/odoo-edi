@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2020 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,18 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-# edi_message_type - Extension of edi.message.type for IPF REST and MQ
-
 from odoo import models, fields, api, _
-#from odoo.exceptions import except_orm, Warning, RedirectWarning
+import base64
+from datetime import datetime
 
 import logging
 _logger = logging.getLogger(__name__)
 
-class edi_message_type(models.Model):
-    _inherit = 'edi.message.type' 
+class edi_envelope(models.Model):
+    _inherit = 'edi.envelope' 
     
-    type_target = fields.Char(string='Target',help="If you need help you shouldn't be changing this")
-    type_mapping = fields.Text(string='Data mapping',help="If you need help you shouldn't be changing this")
+    @api.one
+    def fold(self,route): # Folds messages in an envelope
+        for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
+            m.envelope_id = self.id
+        envelope = super(edi_envelope,self).fold(route)
+        return envelope
 
- # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+class edi_route(models.Model):
+    _inherit = 'edi.route' 
+    
+    route_type = fields.Selection(selection_add=[('get exchange rate','Get Exchange Rate')])
+
+class edi_message(models.Model):
+    _inherit='edi.message'
+          
+
