@@ -23,8 +23,6 @@
       </field>
     </record>
 
-    
-
     <record model="ir.ui.view" id="view_edi_envelope_form">
       <field name="name">EDI Envelope</field>
       <field name="model">edi.envelope</field>

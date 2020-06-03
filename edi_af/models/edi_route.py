@@ -29,19 +29,39 @@ _logger = logging.getLogger(__name__)
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 
     
+    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules')])
+
     @api.one
     def fold(self,route): # Folds messages in an envelope
-        for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
-            m.envelope_id = self.id
+        # TODO: fix
+        # for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
+        #     m.envelope_id = self.id
         envelope = super(edi_envelope,self).fold(route)
         return envelope
+
+    @api.one
+    def _split(self):
+        if self.route_type == 'edi_af_schedules':
+            # TODO: Fix
+            msg = self.env['edi.message'].create({
+                'name': 'plain',
+                'envelope_id': self.id,
+                'body': self.body,
+                'route_type': self.route_type,
+                'sender': self.sender,
+                'recipient': self.recipient,
+                #~ 'consignor_id': sender.id,
+                #~ 'consignee_id': recipient.id,
+            })
+            msg.unpack()
+        self.envelope_opened()
 
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_get_occasions','Get Occasions')])
+    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules')])
 
 class edi_message(models.Model):
     _inherit='edi.message'
           
-
+    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules')])

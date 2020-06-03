@@ -40,9 +40,6 @@ class edi_message(models.Model):
             rec = json.loads(self.body)
             currency = self.env['res.currency'].search([('name','=',rec.get('currency',None))])
             self.env['res.currency.rate'].create({'currency_id': currency.id, 'name': rec.get('date'),'rate': rec.get('rate')})
-           #  might not be needed
-           # result = sel.body
-           # result = json.loads(result)
         else:
             super(edi_message, self).unpack()
     @api.one

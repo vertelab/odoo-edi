@@ -37,8 +37,8 @@ Requires python libraries paramiko and pycrypto. http://www.paramiko.org/install
 #        'python': ['paramiko','Crypto'],
 #    },
     'data': [ 
-        'edi_route_view.xml', 
-        'edi_type_view.xml',
+        'views/edi_route_view.xml', 
+        'views/edi_type_view.xml',
     ],
     'application': False,
     'installable': True,

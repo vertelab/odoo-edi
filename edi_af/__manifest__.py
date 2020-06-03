@@ -33,7 +33,7 @@
 #        'python': ['xmltodict'],
     },
     'data': [
-        'edi_route_data.xml',
+        'views/edi_route_data.xml',
     ],
     'application': False,
     'installable': True,

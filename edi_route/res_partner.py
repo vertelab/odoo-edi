@@ -55,8 +55,8 @@ class res_partner(models.Model):
 
     edi_application_lines = fields.One2many('edi.application.line', 'partner_id', 'EDI Applications')
 
-from openerp import http
-from openerp.http import request
+from odoo import http
+from odoo.http import request
 
 
 class res_partner_controller(http.Controller):
