@@ -36,7 +36,7 @@ class edi_message(models.Model):
     def unpack(self):
 
         _logger.warn("DAER: message: unpack: %s" % "Trying to unpack")
-        if self.edi_type.id == self.env.ref('edi_af.appointment_schedules').id:
+        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_schedules').id:
             # decode string and convert string to tuple 
             body = ast.literal_eval(self.body.decode("utf-8"))
             # convert tuple to dict
@@ -79,7 +79,7 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af.appointment_schedules').id:
+        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_schedules').id:
             if not self.model_record or self.model_record._name != 'calendar.schedule':
                 raise Warning("Appointment: Attached record is not an calendar.schedule! {model}".format(model=self.model_record and self.model_record._name or None))
 

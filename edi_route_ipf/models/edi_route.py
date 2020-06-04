@@ -59,9 +59,9 @@ class ipf_rest(_ipf):
         tracking_id = "%s-%s-%s" % (af_system_id.upper(), af_environment.upper(), tracking_number)
         return tracking_id
 
-    def _generate_ctx(self, is_remote):
+    def _generate_ctx(self, verify_ssl):
         ctx = ssl.create_default_context()
-        if is_remote:
+        if verify_ssl:
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
         else:
@@ -143,7 +143,7 @@ class ipf_rest(_ipf):
         _logger.warn("DAER: _run_out: get: res: %s" % res)
 
         # get list of occasions from res
-        if message.edi_type == message.env.ref('edi_af.appointment_schedules'):
+        if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
             _logger.warn("DAER: _run_out: get: res = %s" % "schedules")
             self._schedules(message, res)
         # elif res.get('appointments', False):
@@ -202,29 +202,28 @@ class edi_route(models.Model):
             if not (self.af_ipf_url or self.af_ipf_port or self.client_id or self.client_secret or self.af_environment or self.af_system_id):
                 raise Warning('Please setup AF IPF Information') # this code should be unreachable.
 
-            # try:
-            for envelope in envelopes:
-                # try:
-                envelope.state = 'sent'
-                _logger.warn("DAER: _run_out: %s" % "Looping envelopes")
-                for msg in envelope.edi_message_ids:
-                    endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id)
-                    _logger.warn("DAER: _run_out: %s" % "Trying to call IPF")
-                    res_messages = endpoint.get(msg)
-                    _logger.warn("DAER: _run_out: %s" % "Call to IPF completed, trying to read reply")
-                    _logger.warn("DAER: _run_out: reply %s" % res_messages)
+            try:
+                for envelope in envelopes:
+                    _logger.warn("DAER: _run_out: %s" % "Looping envelopes")
+                    for msg in envelope.edi_message_ids:
+                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id)
+                        _logger.warn("DAER: _run_out: %s" % "Trying to call IPF")
+                        res_messages = endpoint.get(msg)
+                        # endpoint.get(msg)
+                        _logger.warn("DAER: _run_out: %s" % "Call to IPF completed, trying to read reply")
+                        _logger.warn("DAER: _run_out: reply %s" % res_messages)
+                        msg.state = 'sent'
+                    
                     _logger.warn("DAER: _run_out: %s" % "updated status to sent")
-                    msg.state = 'sent'
-                    _logger.warn("DAER: _run_out: %s" % "updated status to sent")
+                    envelope.state = 'sent'
 
-                # except Exception as e:
-                #     self.log('error when sending envelope %s' % envelope.name, sys.exc_info())    
-                #     envelope.state = 'canceled'
-                #     for msg in envelope.edi_message_ids:
-                #         msg.state = 'canceled'
-                #         _logger.warn("DAER: %s" % "Canceled message at edi_route_ipf _run_out")
-            # except Exception as e:
-            #     pass
+            except Exception as e:
+                self.log('error when sending envelope %s' % envelope.name, sys.exc_info())    
+                envelope.state = 'canceled'
+                for msg in envelope.edi_message_ids:
+                    msg.state = 'canceled'
+                    _logger.warn("DAER: %s" % "Canceled message at edi_route_ipf _run_out")
+
         else:
             super(edi_route, self)._run_out(envelopes)
 
