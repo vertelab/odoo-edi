@@ -28,7 +28,7 @@
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','account'],
+    'depends': ['edi_route','account', 'calendar_af', 'edi_route_ipf'],
     'external_dependencies': {
 #        'python': ['xmltodict'],
     },
