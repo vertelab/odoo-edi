@@ -36,7 +36,7 @@ class edi_message(models.Model):
     def unpack(self):
 
         _logger.warn("DAER: message: unpack: %s" % "Trying to unpack")
-        if self.edi_type.id == self.env.ref('edi_af_employer.[type here]').id:
+        if self.edi_type.id == self.env.ref('edi_af_employer.employers').id:
             # decode string and convert string to tuple 
             body = ast.literal_eval(self.body.decode("utf-8"))
             # convert tuple to dict
@@ -85,14 +85,14 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_employer.').id:
+        if self.edi_type.id == self.env.ref('edi_af_employer.employers').id:
             if not self.model_record or self.model_record._name != 'res.partner':
                 raise Warning("Appointment: Attached record is not an res.partner! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record
             self.body = self.edi_type.type_mapping.format(
-                path = "appointments/v1/resource-planning/competencies/schedules", #replace with appropriate path
-                #orgnr = obj.orgnr, # nått orgnummer
+                path = "", #replace with appropriate path #appointments/v1/resource-planning/competencies/schedules
+                company_registry = obj.company_registry, # nått orgnummer
                 comp = obj.type_id.ipf_id, # ded72445-e5d3-4e21-a356-aad200dac83d
             )
 
