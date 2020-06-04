@@ -76,7 +76,7 @@ class edi_message(models.Model):
                     'channel': type_id.channel.id,
                 }
                 schedule_id = self.env['calendar.schedule'].create(vals)
-            #maybe move
+            # TODO: maybe move this
             schedule_id.create_occasions()
 
     @api.one
