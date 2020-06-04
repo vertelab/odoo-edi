@@ -36,13 +36,13 @@ class _ipf(object):
     ''' Abstract class for communication-session. Use only subclasses.
         Subclasses are called by dispatcher function 'run'
     '''
-    def __init__(self, host='localhost', username=None, password=None, port=None, env=None, sys_id=None, debug=False):
+    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, debug=False):
         self.host = host
         self.username = username
         self.password = password
         self.debug = debug
         self.port = port
-        self.env = env
+        self.environment = environment
         self.sys_id = sys_id
 
     def get(self, message):
@@ -76,35 +76,45 @@ class ipf_rest(_ipf):
         }
         return get_headers
 
-    def _schedules(self, res):
+    def _schedules(self, message, res):
         _logger.warn("DAER: _run_out: schedules: %s" % "We got here!")
         # Create calendar.schedule from res
         # res: list of dicts with list of schedules
         # schedules: list of dicts of schedules
-        for comp_day in res:
-            # assumes that there's only ever one competence
-            type_name = comp_day.get('competence').get('name')
-            type_id = self.env['calendar.appointment.type'].search([('ipf_id','=',comp_day.get('competence').get('id'))])
-            for schedule in comp_day.get('schedules'):
-                # Create messages from result
-                schedule['type_name'] = type_name
-                schedule['type_id'] = type_id
-                vals = {
-                    'name': "schedule test",
-                    'body': schedule,
-                    'edi_type': self.env.ref('edi_af.appointment_schedules').id,
-                    'route_type': self.route_type,
-                }
-                res_set |= self.env['edi.message'].create(vals)
+        res_set = message.env['edi.message']
 
-            # unpack messages
+        for comp_day in res:
+            _logger.warn("DAER: _run_out: schedules: %s" % "looping per day")
+            # assumes that there's only ever one competence
+            type_id = message.env['calendar.appointment.type'].search([('ipf_id','=',comp_day.get('competence').get('id'))]).id
+            for schedule in comp_day.get('schedules'):
+                _logger.warn("DAER: _run_out: schedules: %s" % "looping per schedule")
+                # Create messages from result
+                # schedule['type_name'] = type_name
+                schedule['type_id'] = type_id
+                body = tuple(sorted(schedule.items()))
+                # _logger.warn("DAER: _run_out: schedules: body: %s" % body)
+                vals = {
+                    'name': "Appointment schedule reply",
+                    'body': body,
+                    'edi_type': message.edi_type.id,
+                    'route_type': message.route_type,
+                }
+                _logger.warn("DAER: _run_out: schedules: %s" % "Trying to create message")
+                res_set |= message.env['edi.message'].create(vals)
+                _logger.warn("DAER: _run_out: schedules: %s" % "Succesfully created message")
+
+        _logger.warn("DAER: _run_out: schedules: %s" % "Trying to unpack")
+
+        # unpack messages
+        if res_set:
             res_set.unpack()
     
     def get(self, message):
         # Generate a unique tracking id
-        af_tracking_id = self._generate_tracking_id(self.sys_id, self.env)
+        af_tracking_id = self._generate_tracking_id(self.sys_id, self.environment)
         # Generate headers for our get
-        get_headers = self._generate_headers(self.env, self.sys_id, af_tracking_id)
+        get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
         if message.body: 
             base_url = message.body.decode("utf-8")
@@ -133,8 +143,9 @@ class ipf_rest(_ipf):
         _logger.warn("DAER: _run_out: get: res: %s" % res)
 
         # get list of occasions from res
-        if res.get('schedules', False):
-            self._schedules(res)
+        if message.edi_type == message.env.ref('edi_af.appointment_schedules'):
+            _logger.warn("DAER: _run_out: get: res = %s" % "schedules")
+            self._schedules(message, res)
         # elif res.get('appointments', False):
         #     _appointments(res)
         elif not res:
@@ -192,13 +203,12 @@ class edi_route(models.Model):
                 raise Warning('Please setup AF IPF Information') # this code should be unreachable.
 
             # try:
-        for envelope in envelopes:
-            # try:
+            for envelope in envelopes:
+                # try:
                 envelope.state = 'sent'
                 _logger.warn("DAER: _run_out: %s" % "Looping envelopes")
                 for msg in envelope.edi_message_ids:
-                    # Call rest API here
-                    endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, env=self.af_environment, sys_id=self.af_system_id)
+                    endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id)
                     _logger.warn("DAER: _run_out: %s" % "Trying to call IPF")
                     res_messages = endpoint.get(msg)
                     _logger.warn("DAER: _run_out: %s" % "Call to IPF completed, trying to read reply")
@@ -207,12 +217,12 @@ class edi_route(models.Model):
                     msg.state = 'sent'
                     _logger.warn("DAER: _run_out: %s" % "updated status to sent")
 
-                    # except Exception as e:
-                    #     self.log('error when sending envelope %s' % envelope.name, sys.exc_info())    
-                    #     envelope.state = 'canceled'
-                    #     for msg in envelope.edi_message_ids:
-                    #         msg.state = 'canceled'
-                    #         _logger.warn("DAER: %s" % "Canceled message at edi_route_ipf _run_out")
+                # except Exception as e:
+                #     self.log('error when sending envelope %s' % envelope.name, sys.exc_info())    
+                #     envelope.state = 'canceled'
+                #     for msg in envelope.edi_message_ids:
+                #         msg.state = 'canceled'
+                #         _logger.warn("DAER: %s" % "Canceled message at edi_route_ipf _run_out")
             # except Exception as e:
             #     pass
         else:

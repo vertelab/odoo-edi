@@ -33,7 +33,7 @@ class edi_envelope(models.Model):
 
     @api.one
     def fold(self,route): # Folds messages in an envelope
-        # TODO: fix
+        # TODO: do we need to do something here?
         # for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
         #     m.envelope_id = self.id
         envelope = super(edi_envelope,self).fold(route)
@@ -42,7 +42,7 @@ class edi_envelope(models.Model):
     @api.one
     def _split(self):
         if self.route_type == 'edi_af_schedules':
-            # TODO: Fix
+            # TODO: Do we need to do something more here?
             msg = self.env['edi.message'].create({
                 'name': 'plain',
                 'envelope_id': self.id,

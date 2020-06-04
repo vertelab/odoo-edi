@@ -22,6 +22,7 @@ from odoo import models, fields, api, _
 from datetime import datetime, timedelta
 import json
 import pytz
+import ast
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -33,14 +34,18 @@ class edi_message(models.Model):
             
     @api.one
     def unpack(self):
+
+        _logger.warn("DAER: message: unpack: %s" % "Trying to unpack")
         if self.edi_type.id == self.env.ref('edi_af.appointment_schedules').id:
-            obj = self.model_record
+            # decode string and convert string to tuple 
+            body = ast.literal_eval(self.body.decode("utf-8"))
+            # convert tuple to dict
+            body = dict(body)
             # schedule = self.body
-            _logger.warn("DAER: %s" % obj)
-            # start_time = datetime.strptime(schedule.get('start_time'), "%Y-%m-%dT%H:%M:%SZ")
-            start_time = obj.start
-            # stop_time = datetime.strptime(schedule.get('end_time'), "%Y-%m-%dT%H:%M:%SZ")
-            stop_time = obj.stop
+            _logger.warn("DAER: body: %s" % body)
+            # _logger.warn("DAER type(body): %s" % type(body))
+            start_time = datetime.strptime(body.get('start_time'), "%Y-%m-%dT%H:%M:%SZ")
+            stop_time = datetime.strptime(body.get('end_time'), "%Y-%m-%dT%H:%M:%SZ")
 
             # Integration gives us times in local (Europe/Stockholm) tz
             # Convert to UTC
@@ -49,26 +54,28 @@ class edi_message(models.Model):
 
             # schedules can exist every half hour from 09:00 to 16:00
             # check if calendar.schedule already exists 
-            schedule_id = self.env['calendar.schedule'].search([('type_id','=',obj.type_id.id), ('start','=',start_time_utc)])
+            type_id = self.env['calendar.appointment.type'].browse(body.get('type_id'))
+            schedule_id = self.env['calendar.schedule'].search([('type_id','=',type_id.id), ('start','=',start_time_utc)])
             if schedule_id:
                 # Update existing schedule only two values can change 
                 vals = {
-                    'scheduled_agents': int(obj.scheduled_agents), # number of agents supposed to be available for this
-                    'forecasted_agents': int(obj.forecasted_agents), # May be implemented at a later date.
+                    'scheduled_agents': int(body.get('scheduled_agents')), # number of agents supposed to be available for this
+                    'forecasted_agents': int(body.get('forecasted_agents')), # May be implemented at a later date.
                 }
                 schedule_id.update(vals)
             else:
                 # create new schedule
                 vals = {
-                    'name': obj.type_id.name,
+                    'name': type_id.name,
                     'start': start_time_utc,
                     'stop': stop_time_utc,
                     'duration': 30.0,
-                    'scheduled_agents': int(obj.scheduled_agents), # number of agents supposed to be available for this. Can sometimes be float.
-                    'forecasted_agents': int(obj.forecasted_agents), # May be implemented at a later date. Can sometimes be float.
-                    'type_id': obj.type_id.id,
-                    'channel': obj.type_id.channel.id,
+                    'scheduled_agents': int(body.get('scheduled_agents')), # number of agents supposed to be available for this. Can sometimes be float.
+                    'forecasted_agents': int(body.get('forecasted_agents')), # May be implemented at a later date. Can sometimes be float.
+                    'type_id': type_id.id,
+                    'channel': type_id.channel.id,
                 }
+                self.env['calendar.schedule'].create(vals)
 
     @api.one
     def pack(self):
@@ -85,7 +92,7 @@ class edi_message(models.Model):
             )
 
             envelope = self.env['edi.envelope'].create({
-                'name': 'DAER TEST ENVELOPE!',
+                'name': 'Appointment schedules request',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
                 # 'recipient': self.recipient.id,
