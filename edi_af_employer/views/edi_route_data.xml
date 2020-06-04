@@ -1,0 +1,21 @@
+<openerp>
+    <data noupdate="1">
+
+        <record id="action_create_invoic_menu" model="ir.actions.server">
+            <field name="name">Get Schedules</field>
+            <field name="model_id" ref="calendar_af.model_calendar_schedule" />
+            <field name="binding_model_id" ref="calendar_af.model_calendar_schedule" />
+            <field name="state">code</field>
+            <field name="code">for r in records:
+        r.edi_message.create('appointment_schedules')
+            </field>
+        </record>
+
+        <record id="appointment_schedules" model="edi.message.type">
+            <field name="name">AF appointment: Get schedules</field>
+            <field name="target">appointments/v1/resource-planning/competencies/schedules</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}&amp;from_date={from_date}&amp;to_date={to_date}&amp;competence_id={comp}</field>
+        </record>
+
+    </data>
+</openerp>
