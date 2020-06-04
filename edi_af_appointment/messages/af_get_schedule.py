@@ -75,7 +75,9 @@ class edi_message(models.Model):
                     'type_id': type_id.id,
                     'channel': type_id.channel.id,
                 }
-                self.env['calendar.schedule'].create(vals)
+                schedule_id = self.env['calendar.schedule'].create(vals)
+            #maybe move
+            schedule_id.create_occasions()
 
     @api.one
     def pack(self):
