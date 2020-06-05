@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api, _
-from openerp.exceptions import except_orm, Warning, RedirectWarning
+from odoo import models, fields, api, _
+from odoo.exceptions import except_orm, Warning, RedirectWarning
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -55,8 +55,8 @@ class res_partner(models.Model):
 
     edi_application_lines = fields.One2many('edi.application.line', 'partner_id', 'EDI Applications')
 
-from openerp import http
-from openerp.http import request
+from odoo import http
+from odoo.http import request
 
 
 class res_partner_controller(http.Controller):

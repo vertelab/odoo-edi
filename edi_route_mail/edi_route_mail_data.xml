@@ -54,8 +54,8 @@
       <field name="condition" eval="True" />
       <field name="model_id" ref="edi_route.model_edi_envelope" />
       <field name="code">
-        for o in object.browse(context.get('active_ids', [])):
-        o.attachment2record()
+        for r in records:
+          r.attachment2record()
       </field>
     </record>
     <record model="ir.values" id="atachment2record_menu">

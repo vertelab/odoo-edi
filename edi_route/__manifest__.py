@@ -121,7 +121,7 @@ How to connect a context (edi.route.caller) to a message
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi','mail','knowledge'],
+    'depends': ['mail'],
     'data': [
         'edi_route_data.xml',
         'edi_route_view.xml',

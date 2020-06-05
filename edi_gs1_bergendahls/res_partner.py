@@ -33,7 +33,7 @@ _logger = logging.getLogger(__name__)
 
 try:
     from openpyxl import load_workbook
-    import urllib2
+    import urllib
     import unicodecsv as csv
 except ImportError:
     pass

@@ -35,7 +35,7 @@
               </field>
           </page>
         </page>
-        <div name="buttons" position="inside">
+        <div name="button_box" position="inside">
           <button class="oe_inline oe_stat_button" type="action" name="%(edi_route.action_edi_message_partner)d" icon="fa-envelope-o">
             <field string="Messages" name="edi_message_count" widget="statinfo" />
           </button>

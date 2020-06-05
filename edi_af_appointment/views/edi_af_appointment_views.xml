@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="af_edi_schedule" model="ir.actions.server">
+        <field name="name">EDI AF Get schedule</field>
+        <field name="model_id" ref="base.model_ir_actions_server"/>
+        <field name="state">code</field>
+        <field name="code">start = datetime.datetime.now() + datetime.timedelta(days=30)
+stop = start + datetime.timedelta(days=7)
+type_ids = env['calendar.appointment.type'].search([('ipf_id','in',['ded72445-e5d3-4e21-a356-aad200dac83d', 'f203b91b-bdbe-46e8-b6ae-aad200df9884', '93557f15-d25a-4f40-8a6b-aad200e1d2a0'])])
+
+vals = {
+  'name': "IPF request",
+  'start': start,
+  'stop': stop,
+  'type_id': type_ids[0].id,
+}
+
+cal_schedule = env['calendar.schedule'].create(vals)
+vals = {
+  'name': 'DAER TEST!',
+  'edi_type': env.ref('edi_af_appointment.appointment_schedules').id,
+  'model': cal_schedule._name,
+  'res_id': cal_schedule.id,
+  'route_id': 2,
+  'route_type': 'edi_af_schedules',
+}
+
+msg = env['edi.message'].create(vals)
+msg.pack()
+cal_schedule.unlink</field>
+    </record>
+</odoo>

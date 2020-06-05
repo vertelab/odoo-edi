@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api, _
-from openerp.exceptions import except_orm, Warning, RedirectWarning
+from odoo import models, fields, api, _
+from odoo.exceptions import except_orm, Warning, RedirectWarning
 
 import base64
 import re
@@ -82,14 +82,14 @@ class edi_envelope(models.Model):
         if not record:
             return self.env[self.route_id.model_id.model].search(['|','|',('name','=',self.ref),('reference_type','=',self.ref),('origin','=',self.ref)])
         return record
-        
+
     @api.one
     def _split(self):
         if self.route_id.route_type == 'mail':
             self.mail_id = self.env['mail.message'].search([('model','=','edi.envelope'),('res_id','=',self.id),('type','=','email')])
             self.sender = self.mail_id.author_id.id if self.mail_id.author_id else None
             self.route_type = self.route_id.route_type
-            self._check_mail_attachments() 
+            self._check_mail_attachments()
             if not self.ref:
                 self.ref = self._check_mail_pattern()
 
@@ -113,10 +113,8 @@ class edi_envelope(models.Model):
                         'model': record._name,
                         'type': 'notification',})
                 self.attachment2record()
-            self.envelope_opened()       
+            self.envelope_opened()
         else:
             super(edi_envelope,self)._split()
-
-
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

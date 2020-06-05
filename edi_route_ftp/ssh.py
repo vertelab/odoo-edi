@@ -19,8 +19,8 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api, _
-from openerp.exceptions import except_orm, Warning, RedirectWarning
+from odoo import models, fields, api, _
+from odoo.exceptions import except_orm, Warning, RedirectWarning
 
 import os
 import sys
@@ -182,10 +182,10 @@ server =  sftp(host='localhost',username='aw',password='cQfy7dJE',debug=True)
 
 
 server.connect()
-print server.session
-print server.session.getcwd()
+print (server.session)
+print (server.session.getcwd())
 for f in server.list_files(path='Dokument',pattern='*.txt'):
-    print server.get_file(f)
+    print (server.get_file(f))
 server.disconnect()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

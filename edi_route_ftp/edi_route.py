@@ -19,8 +19,8 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api, _
-from openerp.exceptions import except_orm, Warning, RedirectWarning
+from odoo import models, fields, api, _
+from odoo.exceptions import except_orm, Warning, RedirectWarning
 
 import os
 import sys
@@ -33,7 +33,7 @@ import fnmatch
 import zipfile
 import ftplib
 import base64
-from cStringIO import StringIO
+from io import StringIO
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -261,15 +261,14 @@ class sftp(_comsession):
                 self.session.mkdir(wd)
                 self.session.chdir(wd)
         return wd
-        
+
     def disconnect(self):
         self.session.close()
         self.transport.close()
 
-  
     def list_files(self, path='.', pattern='*'):
         return fnmatch.filter(self.session.listdir(path), pattern)
-        
+
     def get_file(self, filename):
         f = self.session.open(filename, 'r')    # SSH treats all files as binary
         content = f.read()
@@ -287,7 +286,7 @@ class sftp(_comsession):
 
 class edi_route(models.Model):
     _inherit = 'edi.route' 
-    
+
     ftp_host = fields.Char(string="Host")
     ftp_user = fields.Char(string="User")
     ftp_password = fields.Char(string="Password")
@@ -296,7 +295,7 @@ class edi_route(models.Model):
     ftp_pattern = fields.Char(string="Pattern", help="File pattern eg *.edi")
     ftp_debug = fields.Boolean(string="Debug")
     protocol = fields.Selection(selection_add=[('ftp', 'Ftp'), ('sftp', 'Sftp')])
-    
+
     @api.one
     def check_connection(self):
         _logger.info('Check connection [%s:%s]' % (self.name, self.protocol))
@@ -308,7 +307,7 @@ class edi_route(models.Model):
             server.disconnect()
         else:
             super(edi_route, self).check_connection()
-    
+
     @api.multi
     def _run_in(self):
         if self.protocol == 'ftp':
@@ -321,7 +320,7 @@ class edi_route(models.Model):
                 server =  sftp(host=self.ftp_host, username=self.ftp_user, password=self.ftp_password, debug=self.ftp_debug)
                 server.connect()
             except Exception as e:
-                self.log('error in sftp', sys.exc_info())                   
+                self.log('error in sftp', sys.exc_info())
                 _logger.error('error in sftp')
             else:
                 try:
@@ -338,7 +337,7 @@ class edi_route(models.Model):
                         }))
                         server.rm(f)
                 except Exception as e:
-                    self.log('error in sftp', sys.exc_info())    
+                    self.log('error in sftp', sys.exc_info())
                     _logger.error('error in sftp READ')
                 finally:
                     server.disconnect()
@@ -349,7 +348,7 @@ class edi_route(models.Model):
             return envelopes
         else:
             super(edi_route, self)._run_in()
-    
+
     @api.multi
     def _run_out(self, envelopes):
         _logger.debug('edi_route._run_out (sftp): %s' % envelopes)
@@ -363,7 +362,7 @@ class edi_route(models.Model):
                 server.connect()
             except Exception as e:
                 if self.ftp_debug:
-                    self.log('error in sftp', sys.exc_info())                   
+                    self.log('error in sftp', sys.exc_info())
                 _logger.error('error in sftp')
             else:
                 try:
@@ -399,5 +398,5 @@ class edi_route(models.Model):
                 self.log(log)
         else:
             super(edi_route, self)._run_out(envelopes)
-    
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

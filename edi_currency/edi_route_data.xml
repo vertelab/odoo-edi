@@ -1,0 +1,20 @@
+<openerp>
+    <data noupdate="1">
+
+        <record id="action_create_invoic_menu" model="ir.actions.server">
+            <field name="name">Get Exchange Rates</field>
+            <field name="model_id" ref="base.model_res_currency" />
+            <field name="binding_model_id" ref="base.model_res_currency" />
+            <field name="state">code</field>
+            <field name="code">for r in records:
+        r.edi_message.create('exchange_rates')
+            </field>
+        </record>
+   
+        <record id="exchange_rates" model="edi.message.type">
+            <field name="name">Exchange Rates</field>
+        </record>
+        
+
+    </data>
+</openerp>

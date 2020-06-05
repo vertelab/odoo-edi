@@ -18,16 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api, _
+from odoo import models, fields, api, _
 from pytz import timezone
 import base64
-from openerp.exceptions import except_orm, Warning, RedirectWarning
+from odoo.exceptions import except_orm, Warning, RedirectWarning
 from datetime import datetime, timedelta
 import time
 import dateutil
 from time import strptime, mktime, strftime
-from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
-from openerp.tools.safe_eval import safe_eval as eval
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
+from odoo.tools.safe_eval import safe_eval as eval
 import sys
 import traceback
 
@@ -72,6 +72,7 @@ class edi_envelope(models.Model):
             return route.route_type
         else:
             'plain'
+
     route_type = fields.Selection(selection=[('plain','Plain')],default=_route_type_default)
 
     @api.one
@@ -91,7 +92,8 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.envelope.split(): EDI ValueError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             self.state = "canceled"
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
@@ -102,7 +104,8 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             self.state = "canceled"
             _logger.error('edi.envelope.split(): EDI TypeError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             #raise Warning('EDI TypeError in split %s' % e)
@@ -113,7 +116,8 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             self.state = "canceled"
             _logger.error('edi.envelope.split(): EDI IOError Route %s type %s Error %s ' % (self.route_id and self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
@@ -125,7 +129,8 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             self.state = "canceled"
             _logger.error('edi.envelope.split(): Exception %s type %s Error %s ' % (self.route_id and self.route_id.name or 'None', self.route_type, e))
         else:
@@ -136,7 +141,7 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',
+                    # 'type': 'notification',
                 })
                 self.state = "received"
 
@@ -176,7 +181,8 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             self.state = "canceled"
             _logger.error('edi.envelope.fold(): EDI ValueError Route %s type %s #%s Error %s ' % (self.route_id.name,self.route_type,self.route_id.run_sequence,e))
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
@@ -187,7 +193,8 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             self.state = "canceled"
             _logger.error('edi.envelope.fold(): EDI TypeError Route %s type %s #%s Error %s ' % (self.route_id.name,self.route_type,self.route_id.run_sequence,e))
         except IOError as e:
@@ -197,7 +204,8 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             self.state = "canceled"
             _logger.error('edi.envelope.fold(): EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
@@ -208,7 +216,8 @@ class edi_envelope(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
 
     @api.multi
     def _fold(self,route): # Folds messages in an envelope
@@ -254,7 +263,8 @@ class edi_message(models.Model):
                 'author_id': user.partner_id.id,
                 'res_id': self.id,
                 'model': self._name,
-                'type': 'notification',})
+                # 'type': 'notification',
+            })
     
     @api.one
     def draft(self):
@@ -271,7 +281,8 @@ class edi_message(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.message.unpack(): EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
             self.state = 'canceled'
@@ -282,7 +293,8 @@ class edi_message(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.message.unpack(): EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI TypeError in split %s' % e)
             self.state = 'canceled'
@@ -293,7 +305,8 @@ class edi_message(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.message.unpack(): EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
             self.state = 'canceled'
@@ -307,7 +320,8 @@ class edi_message(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             self.state = 'received'
 
     @api.one
@@ -325,7 +339,8 @@ class edi_message(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.message.pack(): EDI ValueError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI ValueError in split %s (%s) %s' % (e,id,d))
         except TypeError as e:
@@ -335,7 +350,8 @@ class edi_message(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.message.pack(): EDI TypeError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             raise
             raise Warning('EDI TypeError in split %s' % e)
@@ -346,7 +362,8 @@ class edi_message(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.message.pack(): EDI IOError Route %s type %s Error %s ' % (self.route_id.name,self.route_type,e))
             #raise Warning('EDI IOError in split %s' % e)
         else:
@@ -356,7 +373,8 @@ class edi_message(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
 
     @api.one
     def _pack(self):
@@ -370,7 +388,7 @@ class edi_message(models.Model):
             if check_double and len(self.env['edi.message'].search([('model','=',obj._name),('res_id','=',obj.id),('edi_type','=',self.env.ref(edi_type).id)])) > 0:
                 return None
             message = self.env['edi.message'].create({
-                    'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_message').id),
+                    'name': self.env.ref('edi_route.sequence_edi_message').next_by_id(),
                     'edi_type': self.env.ref(edi_type).id,
                     'model': obj._name,
                     'res_id': obj.id,
@@ -389,14 +407,16 @@ class edi_message(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': obj.id,
                     'model': obj._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             self.env['mail.message'].create({
                     'body': _("{type} <a href='/web#model={model}&id={id}'>{message}</a> created\n").format(type=self.env.ref(edi_type).name,model=obj._name,id=obj.id,message=obj.name),
                     'subject': self.env.ref(edi_type).name,
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': message.id,
                     'model': message._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
 
     @api.one
     def _model_record(self):
@@ -474,10 +494,12 @@ class edi_route(models.Model):
                                 else:
                                     no_app_msg_ids.append(msg.id)
                             except Exception as e:
+                                _logger.warn("DAER: %s" % "Canceled envelope at edi_route")
                                 msg.state = 'canceled'
                         if app.name and msg_ids:
                             envelope = self.env['edi.envelope'].create({
-                                'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
+                                # 'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
+                                'name': self.env.ref('edi_route.sequence_edi_envelope').next_by_id(),
                                 'route_id': route.id,
                                 'route_type': route.route_type,
                                 'recipient': recipient.id,
@@ -490,7 +512,7 @@ class edi_route(models.Model):
                     #Handle all messages not covered by named applications
                     if no_app_msg_ids:
                         envelope = self.env['edi.envelope'].create({
-                            'name': self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_envelope').id),
+                            'name': self.env.ref('edi_route.sequence_edi_envelope').next_by_id(),
                             'route_id': route.id,
                             'route_type': route.route_type,
                             'recipient': recipient.id,
@@ -529,7 +551,8 @@ class edi_route(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.route.run() (out): EDI ValueError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         except TypeError as e:
             self.env['mail.message'].create({
@@ -538,7 +561,8 @@ class edi_route(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.route.run() (out): EDI TypeError Route %s type %s Error %s ' % (self.name, self.route_type, e))
             raise Warning('EDI TypeError in run(out) %s' % e)
         except IOError as e:
@@ -548,7 +572,8 @@ class edi_route(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.route.run() (out): EDI IOError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         else:
             #~ self.env['mail.message'].create({
@@ -570,7 +595,8 @@ class edi_route(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.route.run() (in): EDI ValueError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         except TypeError as e:
             self.env['mail.message'].create({
@@ -579,7 +605,8 @@ class edi_route(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.route.run() (in): EDI TypeError Route %s type %s Error %s ' % (self.name, self.route_type, e))
             raise Warning('EDI TypeError in split %s' % e)
         except IOError as e:
@@ -589,7 +616,8 @@ class edi_route(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             _logger.error('edi.route.run() (in): EDI IOError Route %s type %s Error %s ' % (self.name, self.route_type, e))
         else:
             #~ self.env['mail.message'].create({
@@ -614,7 +642,7 @@ class edi_route(models.Model):
                             #TODO: Handle Warning
                             self.log('Error when processing envelope %s\n%s' % (envelope.name, e))
         if run_performed:
-            self.run_sequence = self.env['ir.sequence'].next_by_id(self.env.ref('edi_route.sequence_edi_run').id)
+            self.run_sequence = self.env.ref('edi_route.sequence_edi_run').next_by_id()
     
     def log(self, message, error_info=None):
         #TODO: Mail errors and implement this on envelope and message as well.
@@ -631,11 +659,22 @@ class edi_route(models.Model):
                 'author_id': user.partner_id.id,
                 'res_id': self.id,
                 'model': self._name,
-                'type': 'notification',})
+                # 'type': 'notification',
+            })
     
-    @api.v7
-    def cron_job(self, cr, uid, context=None):
-        for route in self.pool.get('edi.route').browse(cr, uid, self.pool.get('edi.route').search(cr, uid, [('active','=',True)])):
+    # @api.v7
+    # def cron_job(self, cr, uid, context=None):
+    #     for route in self.pool.get('edi.route').browse(cr, uid, self.pool.get('edi.route').search(cr, uid, [('active','=',True)])):
+    #         if not route.next_run:
+    #             route.next_run = fields.Datetime.now()
+    #         if (route.next_run < fields.Datetime.now()):
+    #             route.run()
+    #             route.next_run = fields.Datetime.from_string(fields.Datetime.now()) + timedelta(minutes=route.frequency_quant * int(route.frequency_uom))
+    #             _logger.info('Cron job for %s done' % route.name)
+
+    @api.one
+    def cron_job(self):
+        for route in self.pool.get('edi.route').browse(self.pool.get('edi.route').search([('active','=',True)])):
             if not route.next_run:
                 route.next_run = fields.Datetime.now()
             if (route.next_run < fields.Datetime.now()):
@@ -660,7 +699,8 @@ class edi_route(models.Model):
                     'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                     'res_id': self.id,
                     'model': self._name,
-                    'type': 'notification',})
+                    # 'type': 'notification',
+                })
             obj = kwargs.get('order') or kwargs.get('picking') or kwargs.get('invoice')
             if obj:
                 self.env['mail.message'].create({
@@ -669,7 +709,8 @@ class edi_route(models.Model):
                         'author_id': self.env['res.users'].browse(self.env.uid).partner_id.id,
                         'res_id': obj.id,
                         'model': obj._name,
-                        'type': 'notification',})
+                        # 'type': 'notification',
+                    })
             _logger.error("Caller ID not found: %s; kwargs %s" % (caller_name, kwargs))
 
 class edi_route_lines(models.Model):
@@ -701,7 +742,7 @@ class edi_route_lines(models.Model):
         """ Prepare the context used when evaluating python code.
 
         :returns: dict -- evaluation context given to (safe_)eval """
-        import openerp
+        import odoo
         values.update({
             # python libs
             'time': time,

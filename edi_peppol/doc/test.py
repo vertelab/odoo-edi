@@ -134,18 +134,18 @@ invoice = """<?xml version="1.0" encoding="UTF-8"?>
 </Invoice>"""
 
 root = ET.fromstring(invoice)
-print root.tag
+print (root.tag)
 
 d = xmltodict.parse(invoice)
-print d
+print (d)
 
 for k in d['Invoice'].keys():
-    print k
+    print (k)
     
     
-print d['Invoice'].get('cbc:Note')
-print d['Invoice'].get('cbc:InvoiceTypeCode').get('#text')
-print d['Invoice'].get('cbc:DocumentCurrencyCode').get('#text')
+print (d['Invoice'].get('cbc:Note'))
+print (d['Invoice'].get('cbc:InvoiceTypeCode').get('#text'))
+print (d['Invoice'].get('cbc:DocumentCurrencyCode').get('#text'))
 
 #~ for child in root:
     #~ print child.tag. child.attrib

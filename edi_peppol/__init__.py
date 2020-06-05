@@ -1,4 +1,4 @@
-import account_invoice
-import edi_route
-import messages
+from . import account_invoice
+from . import edi_route
+from . import messages
 
