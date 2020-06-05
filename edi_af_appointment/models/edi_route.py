@@ -21,7 +21,6 @@
 from odoo import models, fields, api, _
 import base64
 from datetime import datetime
-#https://www.stylusstudio.com/edifact/frames.htm
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -42,7 +41,6 @@ class edi_envelope(models.Model):
     @api.one
     def _split(self):
         if self.route_type == 'edi_af_schedules':
-            # TODO: Do we need to do something more here?
             msg = self.env['edi.message'].create({
                 'name': 'plain',
                 'envelope_id': self.id,

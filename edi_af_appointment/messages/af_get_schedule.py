@@ -34,16 +34,10 @@ class edi_message(models.Model):
             
     @api.one
     def unpack(self):
-
-        _logger.warn("DAER: message: unpack: %s" % "Trying to unpack")
         if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_schedules').id:
-            # decode string and convert string to tuple 
-            body = ast.literal_eval(self.body.decode("utf-8"))
-            # convert tuple to dict
-            body = dict(body)
-            # schedule = self.body
-            _logger.warn("DAER: body: %s" % body)
-            # _logger.warn("DAER type(body): %s" % type(body))
+            # decode string and convert string to tuple, convert tuple to dict
+            body = dict(ast.literal_eval(self.body.decode("utf-8")))
+            
             start_time = datetime.strptime(body.get('start_time'), "%Y-%m-%dT%H:%M:%SZ")
             stop_time = datetime.strptime(body.get('end_time'), "%Y-%m-%dT%H:%M:%SZ")
 
@@ -78,6 +72,9 @@ class edi_message(models.Model):
                 schedule_id = self.env['calendar.schedule'].create(vals)
             # TODO: maybe move this
             schedule_id.create_occasions()
+        
+        else:
+            super(edi_message, self).unpack()
 
     @api.one
     def pack(self):
@@ -104,8 +101,8 @@ class edi_message(models.Model):
                 'edi_message_ids': [(6, 0, [self.id])]
             })
 
+            # TODO: Decide if we want to fold here?
             # envelope.fold()
-            # TODO: finish
             
         else:
             super(edi_message, self).pack()
