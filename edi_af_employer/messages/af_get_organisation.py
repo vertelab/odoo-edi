@@ -46,25 +46,28 @@ class edi_message(models.Model):
             # _logger.warn("DAER type(body): %s" % type(body))
             
 
-            
-            #start_time = datetime.strptime(body.get('start_time'), "%Y-%m-%dT%H:%M:%SZ")
-            #stop_time = datetime.strptime(body.get('end_time'), "%Y-%m-%dT%H:%M:%SZ")
+            identity = body.get('identitet')
+            postal_address = body.get('utdelningsadress') 
+            visitation_address = body.get('besoksadress')
 
-            # Integration gives us times in local (Europe/Stockholm) tz
-            # Convert to UTC
-            #start_time_utc = pytz.timezone(LOCAL_TZ).localize(start_time).astimezone(pytz.utc)
-            #stop_time_utc = pytz.timezone(LOCAL_TZ).localize(stop_time).astimezone(pytz.utc)
+            visitation_address.update({
+                'street':visitation_address.pop('adress'),
+                'city':visitation_address.pop('postort'),
+                'zip':visitation_address.pop('postnr')
+            })
 
-            # schedules can exist every half hour from 09:00 to 16:00
-            # check if calendar.schedule already exists 
-            #type_id = self.env['calendar.appointment.type'].browse(body.get('type_id'))
+            #find address by external id, if it exists update, else create new, set parent_id to the organisation
             
-            customer_id = self.env['res.partner'].browse(body.get('customer_nr'))  
-            partner_id = self.env['calendar.schedule'].search([('customer_id', '=', customer_id)])
+            orgnr = self.env['res.partner'].browse(identity.get('orgnr10'))  
+            partner_id = self.env['res.partner'].search([('company_registry', '=', orgnr), ('cfar_number', '=', "")]) #if it doesn't have cfar it should only return a organisation
             if partner_id:
                 # Update existing schedule only two values can change 
                 vals = {
-                    'company_registry': int(body.get('company_registry')), # number of agents supposed to be available for this
+                    'name': identity.get('namn'),
+                    'city': postal_address.get('postort'),
+                    'street': postal_address.get('adress'),
+                    'zip': postal_address.get('postnr'),
+                    #'': int(body.get('')),
                 }
                 partner_id.update(vals)
             else:
@@ -91,13 +94,13 @@ class edi_message(models.Model):
 
             obj = self.model_record
             self.body = self.edi_type.type_mapping.format(
-                path = "", #replace with appropriate path #appointments/v1/resource-planning/competencies/schedules
+                path = "masterdata-organisation/organisation", #replace with appropriate path #appointments/v1/resource-planning/competencies/schedules
                 orgnr12 = obj.company_registry, # 
                 comp = obj.type_id.ipf_id, # ded72445-e5d3-4e21-a356-aad200dac83d
             )
 
             envelope = self.env['edi.envelope'].create({
-                'name': 'Organisation number request',
+                'name': 'Organisation request',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
                 # 'recipient': self.recipient.id,

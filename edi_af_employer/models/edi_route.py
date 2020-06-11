@@ -29,7 +29,7 @@ _logger = logging.getLogger(__name__)
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_employer_orgnr', 'AF AG Orgnr')])
+    route_type = fields.Selection(selection_add=[('edi_af_employer', 'AF AG Orgnr')])
 
     @api.one
     def fold(self,route): # Folds messages in an envelope
@@ -41,7 +41,7 @@ class edi_envelope(models.Model):
 
     @api.one
     def _split(self):
-        if self.route_type == 'edi_af_employer_orgnr':
+        if self.route_type == 'edi_af_employer':
             # TODO: Do we need to do something more here?
             msg = self.env['edi.message'].create({
                 'name': 'plain',
@@ -59,9 +59,9 @@ class edi_envelope(models.Model):
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_employer_orgnr', 'AF AG Orgnr')])
+    route_type = fields.Selection(selection_add=[('edi_af_employer', 'AF AG Orgnr')])
 
 class edi_message(models.Model):
     _inherit='edi.message'
           
-    route_type = fields.Selection(selection_add=[('edi_af_employer_orgnr', 'AF AG Orgnr')])
+    route_type = fields.Selection(selection_add=[('edi_af_employer', 'AF AG Orgnr')])
