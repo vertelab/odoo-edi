@@ -241,9 +241,9 @@ class AppointmentController(http.Controller):
             'start' : occasions[0].start,
             'stop' : occasions[-1].stop,
             'duration' : len(occasions) * BASE_DURATION,
-            'user_id' : 'sunea', # TODO: ska detta hårdkodas? NEJ?
+            'user_id' : 'sunea', # TODO: ska detta hårdkodas?
             'office' : '',  # TODO: hur sätter vi detta?
-            'office_code' : '0248', # TODO: ska detta hårdkodas? NEJ?
+            'office_code' : '0248', # TODO: ska detta hårdkodas?
             'partner_id' : partner, 
             'state' : 'confirmed',
             'type_id' : occasions[0].type_id.id,
