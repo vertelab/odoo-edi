@@ -37,8 +37,8 @@ class AppointmentController(http.Controller):
             return res
         else:
             return False
-        
-    @http.route('/bookable-occasions', type='http', auth="public", methods=['GET'])
+
+    @http.route('/v1/bookable-occasions', type='http', auth="public", methods=['GET'])
     def get_bookable_occasions(self, start=False, stop=False, duration=False, type_id=False, channel=False, location=False, max_depth=1, **kwargs):
         # if not ((type_id or channel) or (duration or stop) or start):
         if not (type_id and duration and stop and start):
@@ -84,7 +84,8 @@ class AppointmentController(http.Controller):
                     vals = {
                         # change occasions from recordsets to an 'external' ID
                         'id': self.encode_bookable_occasion_id(book_occ),
-                        'appointment_title': book_occ[0].name,
+                        # 'appointment_title': book_occ[0].name,
+                        'appointment_title': '%sm @ %s' % (int(len(book_occ) * BASE_DURATION), book_occ[0].start),
                         'appointment_channel': book_occ[0].channel.name,
                         'occasion_start': book_occ[0].start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                         'occasion_end': book_occ[-1].stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -103,7 +104,7 @@ class AppointmentController(http.Controller):
         res = json.dumps(res)
         return Response(res, mimetype='application/json', status=200)
 
-    @http.route('/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['POST'])
+    @http.route('/v1/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['POST'])
     def reserve_bookable_occasion(self, bookable_occasion_id=False, **kwargs):
         occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
         if not occasions:
@@ -116,7 +117,7 @@ class AppointmentController(http.Controller):
         else:
             return Response("ID not found", status=404)
 
-    @http.route('/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
+    @http.route('/v1/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
     def unreserve_bookable_occasion(self, bookable_occasion_id=False, **kwargs):
         # TODO: fix these error messages
         occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
@@ -130,7 +131,7 @@ class AppointmentController(http.Controller):
         except:
             return Response("ID not found", status=404)
 
-    @http.route('/appointments', type='http', auth="public", methods=['GET'])
+    @http.route('/v1/appointments', type='http', auth="public", methods=['GET'])
     def get_appointment(self, user_id=False, customer_nr=False, prn=False, appointment_types=False, status_list=False, start=False, stop=False, **kwargs):
         search_domain = []
         partner = False
@@ -205,7 +206,7 @@ class AppointmentController(http.Controller):
         res = json.dumps(res)
         return Response(res, mimetype='application/json', status=200)
 
-    @http.route('/appointments', type='http', csrf=False, auth="public", methods=['POST'])
+    @http.route('/v1/appointments', type='http', csrf=False, auth="public", methods=['POST'])
     def create_appointment(self, bookable_occasion_id=False, customer_nr=False, prn=False, **kwargs):
         if (not customer_nr and not prn):
             return Response("No customer nr. or prn.", status=400)
@@ -281,8 +282,7 @@ class AppointmentController(http.Controller):
         res = json.dumps(res)
         return Response(res, mimetype='application/json', status=201)
 
-
-    @http.route('/appointments/<appointment_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
+    @http.route('/v1/appointments/<appointment_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
     def delete_appointment(self, appointment_id, **kwargs):
         _logger.warn('delete_appointment: args: %s' % appointment_id)
         
@@ -298,7 +298,7 @@ class AppointmentController(http.Controller):
         else:
             return Response("Bad request: Invalid id", status=400)
 
-    @http.route('/appointments/<app_id>', type='http', auth="public", methods=['PUT'])
+    @http.route('/v1/appointments/<app_id>', type='http', auth="public", methods=['PUT'])
     def update_appointment(self, app_id=False, appointment_id=False, title=False, user_id=False, customer_nr=False, prn=False, appointment_type=False, status=False, start=False, stop=False, duration=False, office=False, **kwargs):
         values = {}
         app = request.env['calendar.appointment'].search([('id', '=', app_id)])
