@@ -27,6 +27,6 @@ vals = {
 
 msg = env['edi.message'].create(vals)
 msg.pack()
-cal_schedule.active = False</field>
+cal_schedule.inactivate()</field>
     </record>
 </odoo>
