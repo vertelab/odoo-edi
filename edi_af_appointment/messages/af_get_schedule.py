@@ -106,4 +106,3 @@ class edi_message(models.Model):
             
         else:
             super(edi_message, self).pack()
-

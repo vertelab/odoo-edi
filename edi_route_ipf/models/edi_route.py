@@ -101,6 +101,8 @@ class ipf_rest(_ipf):
         # unpack messages
         if res_set:
             res_set.unpack()
+
+        message.model_record.unlink()
     
     def get(self, message):
         # Generate a unique tracking id
