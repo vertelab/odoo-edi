@@ -49,16 +49,19 @@ class edi_message(models.Model):
             identity = body.get('identitet')
             postal_address = body.get('utdelningsadress') 
             visitation_address = body.get('besoksadress')
+            orgnr = self.env['res.partner'].browse(identity.get('orgnr10'))
+            partner_id = self.env['res.partner'].search([('company_registry', '=', orgnr), ('cfar_number', '=', "")]) #if it doesn't have cfar it should only return a organisation
 
             visitation_address.update({
                 'street':visitation_address.pop('adress'),
                 'city':visitation_address.pop('postort'),
                 'zip':visitation_address.pop('postnr')
             })
+            xmlid = "__ais_import__.part_org_adr_%s" % orgnr.replace("-","")
 
             #find address by external id, if it exists update, else create new, set parent_id to the organisation
             
-            orgnr = self.env['res.partner'].browse(identity.get('orgnr10'))  
+            
             partner_id = self.env['res.partner'].search([('company_registry', '=', orgnr), ('cfar_number', '=', "")]) #if it doesn't have cfar it should only return a organisation
             if partner_id:
                 # Update existing schedule only two values can change 
@@ -67,9 +70,10 @@ class edi_message(models.Model):
                     'city': postal_address.get('postort'),
                     'street': postal_address.get('adress'),
                     'zip': postal_address.get('postnr'),
-                    #'': int(body.get('')),
+                    #'': body.get(''),
                 }
                 partner_id.update(vals)
+
             else:
                 _logger.error("oh no the partner doesn't exist")
             # else:

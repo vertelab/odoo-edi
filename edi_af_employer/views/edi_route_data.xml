@@ -13,7 +13,7 @@
 
         <record id="employers" model="edi.message.type">
             <field name="name">AF Employer Get </field>
-            <field name="target">masterdata-organisation/organisation</field> <!--appointments/v1/resource-planning/competencies/schedules-->
+            <field name="target">masterdata-organisation/organisation</field> 
             <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}&amp;company_registry={company_registry}</field>
         </record>
 

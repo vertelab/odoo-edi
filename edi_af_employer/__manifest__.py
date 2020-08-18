@@ -20,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Appointment',
+    'name': 'EDI AF Employer',
     'version': '0.1',
     'category': 'edi',
     'summary': 'EDI AF Appointment - support for appointments ',

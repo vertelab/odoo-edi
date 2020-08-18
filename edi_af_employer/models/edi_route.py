@@ -27,7 +27,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class edi_envelope(models.Model):
-    _inherit = 'edi.envelope' 
+    _inherit = 'edi.envelope'
     
     route_type = fields.Selection(selection_add=[('edi_af_employer', 'AF AG Orgnr')])
 
