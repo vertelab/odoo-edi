@@ -21,15 +21,14 @@
 from odoo import models, fields, api, _
 import base64
 from datetime import datetime
-#https://www.stylusstudio.com/edifact/frames.htm
 
 import logging
 _logger = logging.getLogger(__name__)
 
 class edi_envelope(models.Model):
-    _inherit = 'edi.envelope'
+    _inherit = 'edi.envelope' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_employer', 'AF AG Orgnr')])
+    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules')])
 
     @api.one
     def fold(self,route): # Folds messages in an envelope
@@ -41,8 +40,7 @@ class edi_envelope(models.Model):
 
     @api.one
     def _split(self):
-        if self.route_type == 'edi_af_employer':
-            # TODO: Do we need to do something more here?
+        if self.route_type == 'edi_af_schedules':
             msg = self.env['edi.message'].create({
                 'name': 'plain',
                 'envelope_id': self.id,
@@ -59,9 +57,9 @@ class edi_envelope(models.Model):
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_employer', 'AF AG Orgnr')])
+    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules')])
 
 class edi_message(models.Model):
     _inherit='edi.message'
           
-    route_type = fields.Selection(selection_add=[('edi_af_employer', 'AF AG Orgnr')])
+    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules')])

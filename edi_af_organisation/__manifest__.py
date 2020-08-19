@@ -20,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Employer',
+    'name': 'EDI AF Appointment',
     'version': '0.1',
     'category': 'edi',
     'summary': 'EDI AF Appointment - support for appointments ',
@@ -28,12 +28,13 @@
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','account', 'calendar_af', 'edi_route_ipf'],
+    'depends': ['edi_route','calendar_af', 'edi_route_ipf'],
     'external_dependencies': {
 #        'python': ['xmltodict'],
     },
     'data': [
-        'views/edi_route_data.xml',
+        'data/edi_route_data.xml',
+        'views/edi_af_organisation_views.xml',
     ],
     'application': False,
     'installable': True,
