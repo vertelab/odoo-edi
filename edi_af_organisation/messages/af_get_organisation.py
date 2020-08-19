@@ -96,7 +96,7 @@ class edi_message(models.Model):
 
             obj = self.model_record
             self.body = self.edi_type.type_mapping.format( #takes url options, if no options are needed there will be a specific message size
-                path = "appointments/v1/resource-planning/competencies/schedules",
+                path = "masterdata-organisation/organisation",
             )
 
             envelope = self.env['edi.envelope'].create({
