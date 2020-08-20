@@ -8,8 +8,11 @@ import pytz
 import logging
 _logger = logging.getLogger(__name__)
 
+# DUPLICATES IN calendar_af
 LOCAL_TZ = 'Europe/Stockholm'
 BASE_DURATION = 30.0
+# RESERVED_TIMEOUT is the default time before a reservation times out.
+RESERVED_TIMEOUT = 300.0
 
 class AppointmentController(http.Controller):
 
@@ -110,10 +113,30 @@ class AppointmentController(http.Controller):
         if not occasions:
             return Response("Bad request: Invalid id", status=400)
 
-        res = request.env['calendar.occasion'].sudo().reserve_occasion(occasions)
+        app = request.env['calendar.occasion'].sudo().reserve_occasion(occasions)
 
-        if res:
-            return Response("OK, reservation created", status=201)
+        if app:
+            res = {
+                "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_length": int(app.duration),
+                "appointment_title": app.name,
+                "appointment_type": app.type_id.ipf_num,
+                "appointment_channel": app.channel.name,
+                "customer_nr": app.partner_id.customer_id or '',
+                "customer_name": app.partner_id.display_name or '',
+                "employee_name": app.user_id.display_name or '',
+                "employee_phone": app.user_id.phone or '',
+                "employee_signature": app.user_id.name or '',
+                "id": app.id,
+                "office_address": '', #"Stortorget Luleå",
+                "office_email": '', #"email.email@email.com",
+                "location_code": '',# 725535,
+                "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
+                "status": app.state,
+            }
+            res = json.dumps(res)
+            return Response(res, mimetype='application/json', status=201)
         else:
             return Response("ID not found", status=404)
 
@@ -147,7 +170,13 @@ class AppointmentController(http.Controller):
             partner = request.env['res.partner'].sudo().search([('customer_id', '=', customer_nr)])
             if not partner:
                 return Response("customer nr. not found", status=404)
-        
+        if user_id:
+            user = request.env['res.users'].sudo().search([('login', '=', user_id)])
+            if not user:
+                return Response("user_id not found", status=404)
+            user_domain = ('user_id', '=', user.id)
+            search_domain.append(user_domain)
+
         if partner:
             partner_domain = ('partner_id', '=', partner.id)
             search_domain.append(partner_domain)
@@ -188,7 +217,7 @@ class AppointmentController(http.Controller):
                 "appointment_title": app.name,
                 "appointment_type": app.type_id.ipf_num,
                 "appointment_channel": app.channel.name,
-                "customer_id": app.partner_id.id,
+                "customer_nr": app.partner_id.customer_id,
                 "customer_name": app.partner_id.display_name,
                 "employee_name": app.user_id.display_name,
                 "employee_phone": app.user_id.phone,
@@ -263,7 +292,7 @@ class AppointmentController(http.Controller):
             "appointment_title": app.name,
             "appointment_type": app.type_id.ipf_num,
             "appointment_channel": app.type_id.channel.name,
-            "customer_id": partner.id,
+            "customer_nr": partner.customer_id,
             "customer_name": partner.display_name,
             "employee_name": sunea.display_name,
             "employee_phone": sunea.phone,
@@ -275,7 +304,7 @@ class AppointmentController(http.Controller):
             "location_code": '', #725535,
             "office_code": "0248",
             "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
-            "status": '', #0,
+            "status": app.state, #0,
         }
         
         # convert to json format
@@ -298,10 +327,10 @@ class AppointmentController(http.Controller):
         else:
             return Response("Bad request: Invalid id", status=400)
 
-    @http.route('/v1/appointments/<app_id>', type='http', auth="public", methods=['PUT'])
-    def update_appointment(self, app_id=False, appointment_id=False, title=False, user_id=False, customer_nr=False, pnr=False, appointment_type=False, status=False, start=False, stop=False, duration=False, office=False, **kwargs):
+    @http.route('/v1/appointments/<app_id>', type='http', auth="public", methods=['PUT'], csrf=False)
+    def update_appointment(self, app_id=False, appointment_id=False, title=False, user_id=False, customer_nr=False, prn=False, appointment_type=False, status=False, start=False, stop=False, duration=False, office=False, **kwargs):
         values = {}
-        app = request.env['calendar.appointment'].search([('id', '=', app_id)])
+        app = request.env['calendar.appointment'].sudo().search([('id', '=', app_id)])
         if app:
             if appointment_id:
                 # TODO: implement
@@ -313,8 +342,8 @@ class AppointmentController(http.Controller):
                 values['title'] = title
 
             if user_id:
-                new_user = request.env['res.users'].search([('name', '=', user_id)])
-                values['user_id'] = new_user.id
+                new_user = request.env['res.users'].sudo().search([('login', '=', user_id)])
+                values['user_id'] = [(5, 0, 0), (4, new_user.id, 0)]
 
             if customer_nr:
                 new_customer = request.env['res.partner'].sudo().search([('customer_id', '=', customer_nr)])
@@ -325,11 +354,11 @@ class AppointmentController(http.Controller):
                 pass
 
             if appointment_type:
-                new_appointment_type = request.env['calendar.appointment.type'].search([('ipf_id', '=', appointment_type)])
+                new_appointment_type = request.env['calendar.appointment.type'].sudo().search([('ipf_id', '=', appointment_type)])
                 values['type_id'] = new_appointment_type.id
 
             if values:
-                app.write(values)
+                app.sudo().write(values)
             else:
                 return Response("Bad request", status=400)
         else:
