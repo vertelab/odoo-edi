@@ -110,10 +110,30 @@ class AppointmentController(http.Controller):
         if not occasions:
             return Response("Bad request: Invalid id", status=400)
 
-        res = request.env['calendar.occasion'].sudo().reserve_occasion(occasions)
+        app = request.env['calendar.occasion'].sudo().reserve_occasion(occasions)
 
-        if res:
-            return Response("OK, reservation created", status=201)
+        if app:
+            res = {
+                "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_length": int(app.duration),
+                "appointment_title": app.name,
+                "appointment_type": app.type_id.ipf_num,
+                "appointment_channel": app.channel.name,
+                "customer_id": app.partner_id.id or '',
+                "customer_name": app.partner_id.display_name or '',
+                "employee_name": app.user_id.display_name or '',
+                "employee_phone": app.user_id.phone or '',
+                "employee_signature": app.user_id.name or '',
+                "id": app.id,
+                "office_address": '', #"Stortorget Luleå",
+                "office_email": '', #"email.email@email.com",
+                "location_code": '',# 725535,
+                "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
+                "status": app.state,
+            }
+            res = json.dumps(res)
+            return Response(res, mimetype='application/json', status=201)
         else:
             return Response("ID not found", status=404)
 
