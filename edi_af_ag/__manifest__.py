@@ -20,6 +20,7 @@
 ##############################################################################
 
 {
+
     'name': 'EDI AF AG',
     'version': '0.1',
     'category': 'edi',
@@ -28,8 +29,14 @@
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['contacts'],
-    'data': [],
+    'depends': ['edi_route','calendar_af', 'edi_route_ipf', 'contacts'],
+    'external_dependencies': {
+#        'python': ['xmltodict'],
+    },
+    'data': [
+        'data/edi_route_data.xml',
+        'views/edi_af_organisation_views.xml',
+    ],
     'application': False,
     'installable': True,
 }
