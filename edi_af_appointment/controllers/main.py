@@ -155,17 +155,17 @@ class AppointmentController(http.Controller):
             return Response("ID not found", status=404)
 
     @http.route('/v1/appointments', type='http', auth="public", methods=['GET'])
-    def get_appointment(self, user_id=False, customer_nr=False, prn=False, appointment_types=False, status_list=False, start=False, stop=False, **kwargs):
+    def get_appointment(self, user_id=False, customer_nr=False, pnr=False, appointment_types=False, status_list=False, start=False, stop=False, **kwargs):
         search_domain = []
         partner = False
 
-        if not (user_id or customer_nr or prn or appointment_types or status_list or start or stop):
+        if not (user_id or customer_nr or pnr or appointment_types or status_list or start or stop):
             return Response("No arguments given.", status=400)
 
-        if prn:
-            partner = request.env['res.partner'].sudo().search([('company_registry', '=', prn)])
+        if pnr:
+            partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
             if not partner:
-                return Response("prn. not found", status=404)
+                return Response("pnr. not found", status=404)
         if customer_nr:
             partner = request.env['res.partner'].sudo().search([('customer_id', '=', customer_nr)])
             if not partner:
@@ -236,17 +236,17 @@ class AppointmentController(http.Controller):
         return Response(res, mimetype='application/json', status=200)
 
     @http.route('/v1/appointments', type='http', csrf=False, auth="public", methods=['POST'])
-    def create_appointment(self, bookable_occasion_id=False, customer_nr=False, prn=False, **kwargs):
-        if (not customer_nr and not prn):
-            return Response("No customer nr. or prn.", status=400)
+    def create_appointment(self, bookable_occasion_id=False, customer_nr=False, pnr=False, **kwargs):
+        if (not customer_nr and not pnr):
+            return Response("No customer nr. or pnr.", status=400)
         
         if not bookable_occasion_id:
             return Response("No bookable_occasion_id.", status=400)
 
-        if prn:
-            partner = request.env['res.partner'].sudo().search([('company_registry', '=', prn)])
+        if pnr:
+            partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
             if not partner:
-                return Response("prn. not found", status=404)
+                return Response("pnr. not found", status=404)
         if not partner and customer_nr:
             partner = request.env['res.partner'].sudo().search([('customer_id', '=', customer_nr)])
             if not partner:
