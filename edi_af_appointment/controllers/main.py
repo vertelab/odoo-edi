@@ -81,6 +81,8 @@ class AppointmentController(http.Controller):
         occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time_utc, stop_time_utc, duration, type_id, int(max_depth))
         res = {}
 
+        _logger.warn("occ_list: %s" % occ_list)
+
         for day in occ_list:
             for slot in day:
                 for book_occ in slot:
@@ -105,6 +107,7 @@ class AppointmentController(http.Controller):
 
         # convert to json format
         res = json.dumps(res)
+        _logger.warn("res: %s" % res)
         return Response(res, mimetype='application/json', status=200)
 
     @http.route('/v1/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['POST'])
@@ -320,7 +323,8 @@ class AppointmentController(http.Controller):
         if appointment_id and appointment_id > 0:
             appointment = request.env['calendar.appointment'].sudo().search([('id', '=', appointment_id)])
             if appointment:
-                appointment.sudo().unlink()
+                # appointment.sudo().unlink()
+                appointment.sudo().cancel(request.env.ref('calendar_cancel_reason.integration'))
                 return Response("OK, deleted", status=200)
             else:
                 return Response("ID not found", status=404)

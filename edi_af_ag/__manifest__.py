@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2020 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,15 +20,16 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Appointment',
+
+    'name': 'EDI AF AG',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'EDI AF Appointment - support for appointments ',
+    'summary': 'EDI AF AG - support for employers ',
     'licence': 'AGPL-3',
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','calendar_af', 'edi_route_ipf'],
+    'depends': ['edi_route','calendar_af', 'edi_route_ipf', 'contacts'],
     'external_dependencies': {
 #        'python': ['xmltodict'],
     },

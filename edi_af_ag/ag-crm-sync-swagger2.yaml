@@ -1,0 +1,659 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Arbetsgivare till CRM Sync
+  description: API för att hålla arbetsgivare synkroniserade mellan Odoo (CRM) och AIS-F.
+  contact:
+    email: patrik.edholm@arbetsformedlingen.se
+host: <odoo-non-ipf-server>
+basePath: /ag-crm-sync/v1
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /arbetsgivareMeddelande:
+    post:
+      description: Lägger till en ny arbetsgivare
+      summary: addArbetsgivare
+      tags:
+        - arbetsgivare
+      operationId: addArbetsgivare
+      deprecated: false
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: false
+          description: MeddelandeCRM
+          schema:
+            $ref: '#/definitions/MeddelandeCRM'
+      responses:
+        200:
+          description: Skapat arbetsgivare ok
+          schema:
+            $ref: '#/definitions/CrmArbetsgivareResponse'
+          headers: {}
+        400:
+          description: Fel på indata
+          schema:
+            $ref: '#/definitions/IpfErrorResponse'
+    put:
+      description: Uppdaterar en existerande arbetsgivare
+      summary: updateArbetsgivare
+      tags:
+        - arbetsgivare
+      operationId: updateArbetsgivare
+      deprecated: false
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: false
+          description: MeddelandeCRM
+          schema:
+            $ref: '#/definitions/MeddelandeCRM'
+      responses:
+        200:
+          description: Uppdaterat arbetsgivare ok
+          schema:
+            $ref: '#/definitions/CrmArbetsgivareResponse'
+          headers: {}
+        400:
+          description: Fel på indata
+          schema:
+            $ref: '#/definitions/IpfErrorResponse'
+definitions:
+  CrmArbetsgivareResponse:
+    title: CrmArbetsgivareResponse
+    type: object
+    properties:
+      meddelandeSvar:
+        description: Svar på hur anropet gick. OK om allt gått bra, om inte så någon form av felkod/felmeddelande. Är ett alternativt sätt att meddela fel istället för via reponse 400.
+        example: OK
+        type: string
+      error_id:
+        description: Unik felkod. Null om meddelandeSvar=OK.
+        example: 77506961-60e4-42be-aff6-123ca6d4eea3
+        type: string
+      message:
+        description: Felmeddelande. Null om meddelandeSvar=OK.
+        example: Datafel
+        type: string
+      cause:
+        description: Ytterligare beskrivning av fel. Null om meddelandeSvar=OK.
+        example: Ytterligare beskrivning av fel
+        type: string
+    required:
+      - meddelandeSvar
+  IpfErrorResponse:
+    title: IpfErrorResponse
+    type: object
+    properties:
+      error_id:
+        example: 77506961-60e4-42be-aff6-123ca6d4eea3
+        type: string
+      message:
+        example: Datafel
+        type: string
+      cause:
+        $ref: '#/definitions/IpfErrorResponseCause'
+    required:
+      - error_id
+      - message
+      - cause
+  IpfErrorResponseCause:
+    title: IpfErrorResponseCause
+    type: object
+    properties:
+      message:
+        example: Ytterligare beskrivning av fel
+        type: string
+    required:
+      - message
+  MeddelandeCRM:
+    title: MeddelandeCRM
+    type: object
+    properties:
+      meddelandeId:
+        example: 1
+        type: integer
+        format: int64
+      arbetsgivare:
+        $ref: '#/definitions/ArbetsgivareVO'
+    required:
+      - meddelandeId
+      - arbetsgivare
+  ArbetsgivareVO:
+    title: ArbetsgivareVO
+    type: object
+    properties:
+      kundnr:
+        description: Kundnummer
+        example: 1
+        type: integer
+        format: int64
+      tmstamp:
+        example: "2017-07-21T17:32:28Z"
+        type: string
+        format: date-time
+      regdatum:
+        example: "2017-07-21T17:32:28Z"
+        type: string
+        format: date-time
+      namn:
+        example: Företag X
+        type: string
+      cfar:
+        example: 0123-4567
+        type: string
+      antalAnstallda:
+        description: Antal anställda
+        example: 42
+        type: integer
+        format: int64
+      storlekklassKod:
+        $ref: '#/definitions/StorlekklassKod'
+        minLength: 2
+        maxLength: 2
+      storlekklassText:
+        $ref: '#/definitions/StorlekklassText'
+      senasteKontaktSign:
+        description: Signatur på den som senast varit i kontakt med arbetsgivaren.
+        example: edhpa
+        type: string
+        minLength: 5
+        maxLength: 5
+      verksamhetsbeskr:
+        description: Beskrivning av verksamheten
+        example: Öppen vårdcentral
+        type: string
+      internInformation:
+        description: Intern information i fritext.
+        example: AG kontroll genomförd 151111, godkänd
+        type: string
+      arbetsgivarklass:
+        $ref: '#/definitions/Arbetsgivarklass'
+      yrkesgrupperBeskr:
+        description: Beskrivning av yrkesgrupper
+        example: Försäljning av sportsaker och leksaker samt andra göromål som finns i en affär.
+        type: string
+      raderad:
+        $ref: '#/definitions/Raderad'
+      overenskOrderKod:
+        $ref: '#/definitions/OverenskOrderKod'
+      overenskOrderText:
+        description: Fritextbeskrivning av överenskommelse.
+        example: Arbetsgivaren tar kontakt med AF när det finns behov av stöd/hjälp eller frågor.
+        type: string
+      internetAg:
+        $ref: '#/definitions/InternetAg'
+      epost:
+        description: Epostadress.
+        example: info@foretag.se
+        type: string
+      hemsida:
+        description: Hemsida.
+        example: http://www.foretag.se
+        type: string
+      telnr:
+        description: Telefonnummer. Kan innehålla streck eller inte.
+        example: 08-12345678
+        type: string
+      faxnr:
+        description: Faxnummer. Kan innehålla streck eller inte.
+        example: 08-12345678
+        type: string
+      besoksadress:
+        description: Besöksadress - gatuadress.
+        example: Sturegatan 15, 10 tr
+        type: string
+      besoksadressPostnr:
+        description: Besöksadress - postnummer.
+        example: 17269
+        type: string
+      besoksadressPostort:
+        description: Besöksadress - postort. Både versaler och gemener kan förekomma.
+        example: SUNDBYBERG
+        type: string
+      besoksadressKommunKod:
+        description: Besöksadress - kommunkod.
+        example: 0183
+        type: string
+        minLength: 4
+        maxLength: 4
+      besoksadressLand:
+        description: Besöksadress - land. Null för svenska adresser.
+        example: Norge
+        type: string
+      utdelningsadress:
+        description: Utdelningsadress - gatuadress.
+        example: Sturegatan 15, 10 tr
+        type: string
+      utdelningsadressPostnr:
+        description: Utdelningsadress - postnummer.
+        example: 17269
+        type: string
+      utdelningsadressPostort:
+        description: Utdelningsadress - postort. Både versaler och gemener kan förekomma.
+        example: Sundbyberg
+        type: string
+      utdelningsadressKommunKod:
+        description: Utdelningsadress - kommunkod.
+        example: 0183
+        type: string
+        minLength: 4
+        maxLength: 4
+      utdelningsadressLand:
+        description: Utdelningsadress - land. Null för svenska adresser.
+        example: NORGE
+        type: string
+      kontorKod:
+        description: Kontorskod för kontor som arbetsgivare tillhör
+        example: 0162
+        type: string
+        minLength: 4
+        maxLength: 4
+      senasteKontaktdatum:
+        description: Datum för senaste kontakt
+        example: "2017-07-21"
+        type: string
+        format: date
+      senasteKontaktKontor:
+        description: Kontorskod för kontor vid senaste kontakt
+        example: 0162
+        type: string
+        minLength: 4
+        maxLength: 4
+      skapadAv:
+        description: System som skapat organisationen
+        example: AISF
+        type: string
+      aktiv:
+        $ref: '#/definitions/Aktiv'
+      kontaktPersonList:
+        type: array
+        items:
+          $ref: '#/definitions/KontaktpersonVO'
+      sniList:
+        type: array
+        items:
+          $ref: '#/definitions/ArbetsgivareSniVO'
+      yrkesgruppList:
+        type: array
+        items:
+          $ref: '#/definitions/YrkesgruppVO'
+      organisation:
+        type: array
+        items:
+          $ref: '#/definitions/OrganisationVO'
+    required:
+      - kundnr
+      - tmstamp
+      - regdatum
+      - namn
+      - cfar
+      - antalAnstallda
+      - skapadAv
+  OrganisationVO:
+    title: OrganisationVO
+    type: object
+    properties:
+      id:
+        example: 10800019
+        type: integer
+        format: int64
+      tmstamp:
+        example: "2017-07-21T17:32:28Z"
+        type: string
+        format: date-time
+      orgnr:
+        description: Kan även innehålla värdet TILLFÄLLIGT
+        example: 000101-1234
+        type: string
+      regdatum:
+        example: "2017-07-21T17:32:28Z"
+        type: string
+        format: date-time
+      orgnamn:
+        description: Namn på organisationen
+        example: Mårtens Radio & Fisk AB
+        type: string
+      orgtyp:
+        $ref: '#/definitions/Orgtyp'
+      skapadAv:
+        description: System som skapat organisationen
+        example: AISF
+        type: string
+      besoksadress:
+        description: Besöksadress - gatuadress.
+        example: Sturegatan 15, 10 tr
+        type: string
+      besoksadressPostnr:
+        description: Besöksadress - postnummer.
+        example: 17269
+        type: string
+      besoksadressPostort:
+        description: Besöksadress - postort. Både versaler och gemener kan förekomma.
+        example: SUNDBYBERG
+        type: string
+      besoksadressKommunKod:
+        description: Besöksadress - kommunkod.
+        example: 0183
+        type: string
+        minLength: 4
+        maxLength: 4
+      besoksadressLandKod:
+        description: Besöksadress - landskod. Antingen ISO 3166-1 alpha-2 (= 2 bokstäver) eller ISO 3166-1 alpha-3 (= 3 bokstäver). Null för svenska adresser.
+        example: DK
+        type: string
+      utdelningsadress:
+        description: Utdelningsadress - gatuadress.
+        example: Sturegatan 15, 10 tr
+        type: string
+      utdelningsadressPostnr:
+        description: Utdelningsadress - postnummer.
+        example: 17269
+        type: string
+      utdelningsadressPostort:
+        description: Utdelningsadress - postort. Både versaler och gemener kan förekomma.
+        example: Sundbyberg
+        type: string
+      utdelningsadressKommunKod:
+        description: Utdelningsadress - kommunkod.
+        example: 0183
+        type: string
+        minLength: 4
+        maxLength: 4
+      utdelningsadressLandKod:
+        description: Utdelningsadress - landskod. Antingen ISO 3166-1 alpha-2 (= 2 bokstäver) eller ISO 3166-1 alpha-3 (= 3 bokstäver). Null för svenska adresser.
+        example: DK
+        type: string
+      skapadAvPersona:
+        description: >-
+          Vem som skapat organisationen. Antingen:
+
+          - Handläggarens signatur: Om en handläggare manuellt skapat den.
+          - Organisationsnummer: Om arbetsgivaren skapat den i AG Konto.
+        example: edhpa
+        type: string
+      skapadAvEnhet:
+        description: >-
+          Olika beroende var organisationen skapats. Antingen:
+
+          - Kontorsnummer (fyrställigt): Om skapats i AIS-F.
+          - CFAR: Om skapats i AG Konto: Arbetsstället som först skapat en arbetsgivare i organisationen.
+        example: 0101
+        type: string
+      raderad:
+        $ref: '#/definitions/Raderad'
+      aktiv:
+        $ref: '#/definitions/Aktiv'
+      senastSynkad:
+        example: 2017-07-21T17:32:28Z
+        type: string
+        format: date-time
+      existerar:
+        $ref: '#/definitions/Existerar'
+      moms:
+        $ref: '#/definitions/Moms'
+      fskatt:
+        description: >-
+          Typ av F-skatt. Kända värden (finns andra):
+
+          - 2 = F-skattsedel finns
+          - U = F-Skattsedel indragen, näring upphör
+        example: 2
+        type: string
+        minLength: 1
+        maxLength: 1
+      arbetsgivare:
+        $ref: '#/definitions/Arbetsgivare'
+      sniList:
+        description: SNI-koder för organisationen
+        type: array
+        items:
+          $ref: '#/definitions/OrganisationSniVO'
+    required:
+      - tmstamp
+      - orgnr
+      - regdatum
+      - orgtyp
+      - skapadAv
+  KontaktpersonVO:
+    title: KontaktpersonVO
+    type: object
+    properties:
+      id:
+        description: Unik identifierare för just detta kontaktpersonsobjekt tillsammans med just denna arbetsgivare
+        example: 900000
+        type: integer
+        format: int64
+      fornamn:
+        description: Förnamn
+        example: Patrik
+        type: string
+      efternamn:
+        description: Efternamn
+        example: Edholm
+        type: string
+      befattning:
+        description: Fritextbeskrivning av befattning.
+        example: Personalchef
+        type: string
+      epost:
+        description: Epostadress
+        example: patrik.edholm@gmail.com
+        type: string
+      telefon:
+        description: Telefonnummer. Ingen speciell formatering - kan innehålla streck eller inte.
+        example: 08-50090510
+        type: string
+      mobil:
+        description: Mobiltelefonnummer. Ingen speciell formatering - kan innehålla streck eller inte.
+        example: 0739692392
+        type: string
+      beskrivning:
+        description: Fritextbeskrivning av kontaktpersonen.
+        example: Sköter personal- och ekonomifrågor
+        type: string
+      typ:
+        $ref: '#/definitions/Typ'
+    required:
+      - id
+      - typ
+  YrkesgruppVO:
+    title: YrkesgruppVO
+    type: object
+    properties:
+      id:
+        description: Unik identifierare för just detta yrkesgruppsobjekt tillsammans med just denna arbetsgivare
+        example: 900000
+        type: integer
+        format: int64
+      ssyk:
+        description: Standard för svensk yrkesklassificering (SSYK)
+        example: 7231
+        type: string
+    required:
+      - id
+      - ssyk
+  ArbetsgivareSniVO:
+    title: ArbetsgivareSniVO
+    type: object
+    properties:
+      id:
+        description: Unik identifierare för just detta SNI-objekt tillsammans med just denna arbetsgivare
+        example: 20
+        type: integer
+        format: int64
+      sniKod:
+        description: Kod för Svensk näringsgrensindelning (SNI)
+        example: 47242
+        type: string
+      sniText:
+        description: Textuell beskrivning av sniKod
+        example: Specialiserad butikshandel med konfektyrer
+        type: string
+    required:
+      - id
+      - sniKod
+      - sniText
+  OrganisationSniVO:
+    title: OrganisationSniVO
+    type: object
+    properties:
+      id:
+        description: Unik identifierare för just detta SNI-objekt tillsammans med just denna organisation
+        example: 20
+        type: integer
+        format: int64
+      sniKod:
+        description: Kod för Svensk näringsgrensindelning (SNI)
+        example: 47242
+        type: string
+      sniText:
+        description: Textuell beskrivning av sniKod
+        example: Specialiserad butikshandel med konfektyrer
+        type: string
+    required:
+      - id
+      - sniKod
+      - sniText
+  Aktiv:
+    title: Aktiv
+    description: Om aktiv
+    type: string
+    enum:
+      - J
+      - N
+  Arbetsgivare:
+    title: Arbetsgivare
+    description: Om arbetsgivare
+    type: string
+    enum:
+      - J
+      - N
+  Arbetsgivarklass:
+    title: Arbetsgivarklass
+    description: Arbetsgivarklass
+    example: 1
+    type: integer
+    format: int32
+    enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+  Existerar:
+    title: Existerar
+    description: Om existerar
+    type: string
+    enum:
+      - J
+      - N
+  InternetAg:
+    title: InternetAg
+    description: Om Internet AG
+    type: string
+    enum:
+      - J
+      - N
+  Moms:
+    title: Moms
+    description: Om momspliktigt
+    type: string
+    enum:
+      - J
+      - N
+  Orgtyp:
+    title: Orgtyp
+    description: >-
+      Organisationstyp.
+
+      - U = Utländsk organisation
+      - S = Svensk organisation
+      - X = Okänt, förmodligen är angivet orgnr ett personnummer som det inte finns en enskild firma för.
+            För att vara 100% säker skulle uppslag mot Skatteverket/Navet behöva göras vilket inte görs.
+    type: string
+    enum:
+      - U
+      - X
+      - S
+  OverenskOrderKod:
+    title: OverenskOrderKod
+    description: Överenskommelsekod
+    example: 0
+    type: integer
+    format: int32
+    enum:
+      - 0
+      - 1
+  Raderad:
+    title: Raderad
+    description: Om raderad
+    type: string
+    enum:
+      - J
+      - N
+  StorlekklassKod:
+    title: StorlekklassKod
+    description: Kod för storleksklass
+    type: string
+    enum:
+      - 00
+      - 01
+      - 02
+      - 03
+      - 04
+      - 05
+      - 06
+      - 07
+      - 08
+      - 09
+      - 10
+      - 11
+      - 12
+      - 13
+      - 14
+      - 15
+  StorlekklassText:
+    title: StorlekklassText
+    description: Textuell beskrivning av storleksklassen
+    type: string
+    enum:
+      - Uppgift saknas
+      - 0 anställda
+      - 1–4 anställda
+      - 5–9 anställda
+      - 10–19 anställda
+      - 20–49 anställda
+      - 50–99 anställda
+      - 100–199 anställda
+      - 200–499 anställda
+      - 500–999 anställda
+      - 1 000–1 499 anställda
+      - 1 500–1 999 anställda
+      - 2 000–2 999 anställda
+      - 3 000–3 999 anställda
+      - 4 000–4 999 anställda
+      - 5000–9 999 anställda
+      - 10 000– anställda
+  Typ:
+    title: Typ
+    type: string
+    enum:
+      - A
+      - F
+tags:
+  - name: arbetsgivare
+    description: Arbetsgivare
