@@ -81,8 +81,6 @@ class AppointmentController(http.Controller):
         occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time_utc, stop_time_utc, duration, type_id, int(max_depth))
         res = {}
 
-        _logger.warn("occ_list: %s" % occ_list)
-
         for day in occ_list:
             for slot in day:
                 for book_occ in slot:
@@ -107,7 +105,7 @@ class AppointmentController(http.Controller):
 
         # convert to json format
         res = json.dumps(res)
-        _logger.warn("res: %s" % res)
+        # _logger.warn("res: %s" % res)
         return Response(res, mimetype='application/json', status=200)
 
     @http.route('/v1/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['POST'])
@@ -268,16 +266,16 @@ class AppointmentController(http.Controller):
         if not free:
             return Response("Bookable occasion id not free", status=403)
 
-        sunea = request.env['res.partner'].sudo().search([('name', '=', 'sunea')])
+        sunea = request.env['res.users'].sudo().search([('login', '=', 'sunea')])
 
         vals = {
             'start' : occasions[0].start,
             'stop' : occasions[-1].stop,
             'duration' : len(occasions) * BASE_DURATION,
-            'user_id' : 'sunea', # TODO: ska detta hårdkodas?
+            'user_id' : sunea.id, # TODO: ska detta hårdkodas?
             'office' : '',  # TODO: hur sätter vi detta?
             'office_code' : '0248', # TODO: ska detta hårdkodas?
-            'partner_id' : partner, 
+            'partner_id' : partner.id, 
             'state' : 'confirmed',
             'type_id' : occasions[0].type_id.id,
             'channel' : occasions[0].type_id.channel.id,
@@ -297,9 +295,9 @@ class AppointmentController(http.Controller):
             "appointment_channel": app.type_id.channel.name,
             "customer_nr": partner.customer_id,
             "customer_name": partner.display_name,
-            "employee_name": sunea.display_name,
-            "employee_phone": sunea.phone,
-            "employee_signature": sunea.name,
+            "employee_name": sunea.partner_id.display_name,
+            "employee_phone": sunea.partner_id.phone,
+            "employee_signature": sunea.login,
             "id": app.id,
             # TODO: fix below here:
             "office_address": '', #"Adress 123",
@@ -316,7 +314,7 @@ class AppointmentController(http.Controller):
 
     @http.route('/v1/appointments/<appointment_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
     def delete_appointment(self, appointment_id, **kwargs):
-        _logger.warn('delete_appointment: args: %s' % appointment_id)
+        # _logger.warn('delete_appointment: args: %s' % appointment_id)
         
         appointment_id = self.is_int(appointment_id)
 
