@@ -29,4 +29,33 @@ msg = env['edi.message'].create(vals)
 msg.pack()
 cal_schedule.inactivate()</field>
     </record>
+
+    <record id="af_edi_ace_wi" model="ir.actions.server">
+        <field name="name">EDI AF ACE work item post</field>
+        <field name="model_id" ref="base.model_ir_actions_server"/>
+        <field name="state">code</field>
+        <field name="code">text = "Test-text"
+app = env['calendar.appointment'].search([('id', '=', '4')])
+queue = env.ref('edi_ace_queue.as_uppfstomw')
+
+vals = {
+  'name': "IPF request",
+  'text': text,
+  'appointment_id': app.id,
+  'queue': queue.id,
+}
+ace_wi = env['edi.ace_workitem'].create(vals)
+
+vals = {
+  'name': 'ACE TEST!',
+  'edi_type': env.ref('edi_af_appointment.appointment_ace_wi').id,
+  'model': ace_wi._name,
+  'res_id': ace_wi.id,
+  'route_id': 2,
+  'route_type': 'edi_af_ace_wi',
+}
+msg = env['edi.message'].create(vals)
+msg.pack()
+      </field>
+    </record>
 </odoo>

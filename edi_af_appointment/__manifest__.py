@@ -33,7 +33,9 @@
 #        'python': ['xmltodict'],
     },
     'data': [
+        'security/ir.model.access.csv',
         'data/edi_route_data.xml',
+        'data/edi.ace_queue.csv',
         'views/edi_af_appointment_views.xml',
     ],
     'application': False,

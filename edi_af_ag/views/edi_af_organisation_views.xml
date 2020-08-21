@@ -19,7 +19,7 @@ vals = {
 
 vals = {
   'name': 'DAER TEST!',
-  'edi_type': env.ref('edi_af_organisation.').id #appointment_schedules').id,
+  'edi_type': env.ref('edi_af_organisation.').id, #appointment_schedules').id,
   'model': test_org._name,
   'res_id': test_org.id,
   'route_id': 2,

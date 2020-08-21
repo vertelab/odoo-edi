@@ -28,6 +28,8 @@ from urllib.error import URLError, HTTPError
 import json
 import sys
 import ssl
+import uuid
+import ast
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -54,10 +56,9 @@ class _ipf(object):
 class ipf_rest(_ipf):
     ''' IPF: Class to communicate with IPF through REST '''
 
-    def _generate_tracking_id(self, af_system_id, af_environment):
-        tracking_number = datetime.now().strftime("%y%m%d%H%M%S")
-        tracking_id = "%s-%s-%s" % (af_system_id.upper(), af_environment.upper(), tracking_number)
-        return tracking_id
+    def _generate_tracking_id(self):
+        """ Returns an uuid as an unique tracking id"""
+        return str(uuid.uuid4())
 
     def _generate_ctx(self, verify_ssl):
         ctx = ssl.create_default_context()
@@ -104,28 +105,59 @@ class ipf_rest(_ipf):
 
         message.model_record.unlink()
     
+    def _ace_wi(self, message, res):
+        # Why does these not update?
+        message.state = "received"
+        message.envelope_id.state = "received"
+        
+        ace_wi = message.env['edi.ace_workitem'].search([('id', '=', message.res_id)])
+        app = message.env['calendar.appointment'].search([('id', '=', ace_wi.appointment_id.id)])
+        app.state = 'done'
+
     def get(self, message):
         # Generate a unique tracking id
-        af_tracking_id = self._generate_tracking_id(self.sys_id, self.environment)
+        af_tracking_id = self._generate_tracking_id()
         # Generate headers for our get
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
-        if message.body: 
-            base_url = message.body.decode("utf-8")
-
-            get_url = base_url.format(
-                url = self.host,
-                port = self.port,
-                client = self.username,
-                secret = self.password,
-            )
+        if message.body:
+            body = message.body.decode("utf-8")
+            # A dict will start with "(" here.
+            # Is there a prettier way to detect a dict here? 
+            if body[0] == "(":
+                body = dict(ast.literal_eval(body))
+                # data_vals = json.loads(body.get('data').encode("utf-8"))
+                data_vals = body.get('data')
+                base_url = body.get('base_url')
+                get_url = base_url.format(
+                    url = self.host,
+                    port = self.port,
+                    client = self.username,
+                    secret = self.password,
+                )
+                get_headers['Content-Type'] = 'application/json'
+            # Else it should be a string
+            # and begin with "http://"
+            else:
+                get_url = body.format(
+                    url = self.host,
+                    port = self.port,
+                    client = self.username,
+                    secret = self.password,
+                )
+                data_vals = False
         else:
             # TODO: throw error?
             pass
 
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
-        req = request.Request(url=get_url, headers=get_headers)
+        if data_vals:
+            # If we have data to send as a json, encode and attach it:
+            data_vals = json.dumps(data_vals).encode("utf-8")
+            req = request.Request(url=get_url, data=data_vals, headers=get_headers)
+        else:
+            req = request.Request(url=get_url, headers=get_headers)
         ctx = self._generate_ctx(True) # TODO: change to False
         # send GET and read result
         res_json = request.urlopen(req, context=ctx).read()
@@ -135,6 +167,8 @@ class ipf_rest(_ipf):
         # get list of occasions from res
         if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
             self._schedules(message, res)
+        elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
+            self._ace_wi(message, res)
         elif not res:
             # No result given. Not sure how to handle.
             pass
@@ -194,7 +228,6 @@ class edi_route(models.Model):
                     for msg in envelope.edi_message_ids:
                         endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id)
                         res_messages = endpoint.get(msg)
-                        # endpoint.get(msg)
                         msg.state = 'sent'
                     
                     envelope.state = 'sent'
