@@ -84,7 +84,7 @@ class edi_message(models.Model):
 
             obj = self.model_record
             self.body = self.edi_type.type_mapping.format(
-                path = "appointments/v1/resource-planning/competencies/schedules",
+                path = "appointments/v2/resource-planning/competencies/schedules",
                 from_date = obj.start.strftime("%Y-%m-%dT%H:%M:%SZ"), # 2020-03-17T00:00:00Z
                 to_date = obj.stop.strftime("%Y-%m-%dT%H:%M:%SZ"), # 2020-03-25T00:00:00Z
                 comp = obj.type_id.ipf_id, # ded72445-e5d3-4e21-a356-aad200dac83d
