@@ -41,9 +41,18 @@ class AppointmentController(http.Controller):
         else:
             return False
 
-    @http.route('/v1/appointments/bookable-occasions', type='http', auth="public", methods=['GET'])
-    def get_bookable_occasions(self, start=False, stop=False, duration=False, type_id=False, channel=False, location=False, max_depth=1, **kwargs):
-        # if not ((type_id or channel) or (duration or stop) or start):
+    @http.route('/v1/appointments/bookable-occasions', type='json', auth="public", methods=['GET'])
+    def get_bookable_occasions(self, **kwargs):
+        message = json.loads(request.httprequest.data)
+
+        start = message.get('start')
+        stop = message.get('stop')
+        duration = message.get('duration')
+        type_id = message.get('type_id')
+        channel = message.get('channel')
+        location = message.get('location')
+        max_depth = message.get('max_depth')
+
         if not (type_id and duration and stop and start):
             return Response("Bad request", status=400)
         
@@ -103,10 +112,7 @@ class AppointmentController(http.Controller):
                         # else, just append
                         res['bookable_occasions'].append(vals)
 
-        # convert to json format
-        res = json.dumps(res)
-        # _logger.warn("res: %s" % res)
-        return Response(res, mimetype='application/json', status=200)
+        return res
 
     @http.route('/v1/appointments/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['POST'])
     def reserve_bookable_occasion(self, bookable_occasion_id=False, **kwargs):
@@ -155,8 +161,18 @@ class AppointmentController(http.Controller):
         except:
             return Response("ID not found", status=404)
 
-    @http.route('/v1/appointments/appointments', type='http', auth="public", methods=['GET'])
-    def get_appointment(self, user_id=False, customer_nr=False, pnr=False, appointment_types=False, status_list=False, start=False, stop=False, **kwargs):
+    @http.route('/v1/appointments/appointments', type='json', auth="public", methods=['GET'])
+    def get_appointment(self, **kwargs):
+        message = json.loads(request.httprequest.data)
+
+        user_id = message.get('user_id') 
+        customer_nr = message.get('customer_nr') 
+        pnr = message.get('pnr') 
+        appointment_types = message.get('appointment_types') 
+        status_list = message.get('status_list') 
+        start = message.get('start') 
+        stop = message.get('stop')
+
         search_domain = []
         partner = False
 
@@ -233,11 +249,16 @@ class AppointmentController(http.Controller):
 
             res['appointments'].append(app_dict)
 
-        res = json.dumps(res)
-        return Response(res, mimetype='application/json', status=200)
+        return res
 
-    @http.route('/v1/appointments/appointments', type='http', csrf=False, auth="public", methods=['POST'])
-    def create_appointment(self, bookable_occasion_id=False, customer_nr=False, pnr=False, **kwargs):
+    @http.route('/v1/appointments/appointments', type='json', csrf=False, auth="public", methods=['POST'])
+    def create_appointment(self, **kwargs):
+        message = json.loads(request.httprequest.data)
+        
+        bookable_occasion_id = message.get('bookable_occasion_id') 
+        customer_nr = message.get('customer_nr') 
+        pnr = message.get('pnr') 
+
         if (not customer_nr and not pnr):
             return Response("No customer nr. or pnr.", status=400)
         
@@ -283,7 +304,6 @@ class AppointmentController(http.Controller):
             'name' : occasions[0].type_id.name,
         }
 
-        # _logger.warn('create_appointment: vals: %s' % vals)
         app = request.env['calendar.appointment'].sudo().create(vals)
 
         res = {
@@ -307,10 +327,45 @@ class AppointmentController(http.Controller):
             "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
             "status": app.state, #0,
         }
-        
-        # convert to json format
-        res = json.dumps(res)
-        return Response(res, mimetype='application/json', status=201)
+
+        return res
+
+    @http.route('/v1/appointments/appointments/<appointment_id>', type='http', auth="public", methods=['GET'])
+    def get_appointment_id(self, appointment_id=False, **kwargs):
+        appointment_id = self.is_int(appointment_id)
+
+        if appointment_id and appointment_id > 0:
+            app = request.env['calendar.appointment'].sudo().search([('id', '=', appointment_id)])
+            if app:
+                res = {
+                    "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "appointment_length": int(app.duration),
+                    "appointment_title": app.name,
+                    "appointment_type": app.type_id.ipf_num,
+                    "appointment_channel": app.type_id.channel.name,
+                    "customer_nr": app.partner_id.customer_id,
+                    "customer_name": app.partner_id.display_name,
+                    "employee_name": app.user_id.partner_id.display_name,
+                    "employee_phone": app.user_id.partner_id.phone,
+                    "employee_signature": app.user_id.login,
+                    "id": app.id,
+                    # TODO: fix below here:
+                    "office_address": '', #"Adress 123",
+                    "office_email": '', #"email.email@email.com",
+                    "location_code": '', #725535,
+                    "office_code": "0248",
+                    "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
+                    "status": app.state, #0,
+                }
+
+                # convert to json format
+                res = json.dumps(res)
+                return Response(res, mimetype='application/json', status=200)
+            else:
+                return Response("Bad request: id not found", status=404)
+        else:
+            return Response("Bad request: Invalid id", status=400)
 
     @http.route('/v1/appointments/appointments/<appointment_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
     def delete_appointment(self, appointment_id, **kwargs):
@@ -329,40 +384,99 @@ class AppointmentController(http.Controller):
         else:
             return Response("Bad request: Invalid id", status=400)
 
-    @http.route('/v1/appointments/appointments/<app_id>', type='http', auth="public", methods=['PUT'], csrf=False)
-    def update_appointment(self, app_id=False, appointment_id=False, title=False, user_id=False, customer_nr=False, prn=False, appointment_type=False, status=False, start=False, stop=False, duration=False, office=False, **kwargs):
+    @http.route('/v1/appointments/appointments/<app_id>', type='json', auth="public", methods=['PUT'], csrf=False)
+    def update_appointment(self, app_id=False, **kwargs):
+        message = json.loads(request.httprequest.data)
+        
+        bookable_occasion_id = message.get('bookable_occasion_id') 
+        # TODO: variables to be implemented:
+        # title = message.get('title') 
+        # user_id = message.get('user_id') 
+        # customer_nr = message.get('customer_nr') 
+        # prn = message.get('prn') 
+        # appointment_type = message.get('appointment_type')
+        # status = message.get('status') 
+        # start = message.get('start') 
+        # stop = message.get('stop') 
+        # duration = message.get('duration') 
+        # office = message.get('office')
+
         values = {}
         app = request.env['calendar.appointment'].sudo().search([('id', '=', app_id)])
         if app:
-            if appointment_id:
-                # TODO: implement
-                return Response("Reschedule not implemented yet.", status=501)
+            if bookable_occasion_id:
 
-            # TODO: Implement start, stop and duration. Considered part of "reschedule". 
+                occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
+                if not occasions:
+                    return Response("Bookable occasion id not found", status=404)
 
-            if title:
-                values['title'] = title
+                # check that occasions are free and unreserved
+                free = True
+                for occasion_id in occasions:
+                    if (occasion_id.appointment_id and occasion_id.appointment_id.state != 'reserved') or (occasion_id.appointment_id and occasion_id.appointment_id.state == 'reserved' and occasion_id.appointment_id.reserved > datetime.now() - timedelta(seconds=RESERVED_TIMEOUT)):
+                        free = False
 
-            if user_id:
-                new_user = request.env['res.users'].sudo().search([('login', '=', user_id)])
-                values['user_id'] = [(5, 0, 0), (4, new_user.id, 0)]
+                if not free:
+                    return Response("Bookable occasion id not free", status=403)
 
-            if customer_nr:
-                new_customer = request.env['res.partner'].sudo().search([('customer_id', '=', customer_nr)])
-                values['customer_nr'] = new_customer.customer_nr
+                vals = {
+                    'start' : occasions[0].start,
+                    'stop' : occasions[-1].stop,
+                    'duration' : len(occasions) * BASE_DURATION,
+                    'occasion_ids' : [(6,0, list(occasions.mapped('id')))],
+                    'name' : occasions[0].type_id.name,
+                }
 
-            if office:
-                #TODO. How to implement?
-                pass
+                app.sudo().write(vals)
 
-            if appointment_type:
-                new_appointment_type = request.env['calendar.appointment.type'].sudo().search([('ipf_id', '=', appointment_type)])
-                values['type_id'] = new_appointment_type.id
+                res = {
+                    "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "appointment_length": int(app.duration),
+                    "appointment_title": app.name,
+                    "appointment_type": app.type_id.ipf_num,
+                    "appointment_channel": app.type_id.channel.name,
+                    "customer_nr": app.partner_id.customer_id,
+                    "customer_name": app.partner_id.display_name,
+                    "employee_name": app.user_id.partner_id.display_name,
+                    "employee_phone": app.user_id.partner_id.phone,
+                    "employee_signature": app.user_id.login,
+                    "id": app.id,
+                    # TODO: fix below here:
+                    "office_address": '', #"Adress 123",
+                    "office_email": '', #"email.email@email.com",
+                    "location_code": '', #725535,
+                    "office_code": "0248",
+                    "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
+                    "status": app.state, #0,
+                }
+                
+                return res
 
-            if values:
-                app.sudo().write(values)
-            else:
-                return Response("Bad request", status=400)
+            # TODO: Implement remaining features.  
+            # if title:
+            #     values['title'] = title
+
+            # if user_id:
+            #     new_user = request.env['res.users'].sudo().search([('login', '=', user_id)])
+            #     # values['user_id'] = [(5, 0, 0), (4, new_user.id, 0)]
+            #     values['user_id'] = new_user.id
+
+            # if customer_nr:
+            #     new_customer = request.env['res.partner'].sudo().search([('customer_id', '=', customer_nr)])
+            #     values['customer_nr'] = new_customer.customer_nr
+
+            # if office:
+            #     pass
+
+            # if appointment_type:
+            #     new_appointment_type = request.env['calendar.appointment.type'].sudo().search([('ipf_id', '=', appointment_type)])
+            #     values['type_id'] = new_appointment_type.id
+
+            # if values:
+            #     app.sudo().write(values)
+            # else:
+            #     return Response("Bad request", status=400)
         else:
             return Response("Bad request: Invalid id", status=400)
 
