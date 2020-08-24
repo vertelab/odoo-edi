@@ -41,7 +41,7 @@ class AppointmentController(http.Controller):
         else:
             return False
 
-    @http.route('/v1/bookable-occasions', type='http', auth="public", methods=['GET'])
+    @http.route('/v1/appointments/bookable-occasions', type='http', auth="public", methods=['GET'])
     def get_bookable_occasions(self, start=False, stop=False, duration=False, type_id=False, channel=False, location=False, max_depth=1, **kwargs):
         # if not ((type_id or channel) or (duration or stop) or start):
         if not (type_id and duration and stop and start):
@@ -108,7 +108,7 @@ class AppointmentController(http.Controller):
         # _logger.warn("res: %s" % res)
         return Response(res, mimetype='application/json', status=200)
 
-    @http.route('/v1/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['POST'])
+    @http.route('/v1/appointments/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['POST'])
     def reserve_bookable_occasion(self, bookable_occasion_id=False, **kwargs):
         occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
         if not occasions:
@@ -141,7 +141,7 @@ class AppointmentController(http.Controller):
         else:
             return Response("ID not found", status=404)
 
-    @http.route('/v1/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
+    @http.route('/v1/appointments/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
     def unreserve_bookable_occasion(self, bookable_occasion_id=False, **kwargs):
         # TODO: fix these error messages
         occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
@@ -155,7 +155,7 @@ class AppointmentController(http.Controller):
         except:
             return Response("ID not found", status=404)
 
-    @http.route('/v1/appointments', type='http', auth="public", methods=['GET'])
+    @http.route('/v1/appointments/appointments', type='http', auth="public", methods=['GET'])
     def get_appointment(self, user_id=False, customer_nr=False, pnr=False, appointment_types=False, status_list=False, start=False, stop=False, **kwargs):
         search_domain = []
         partner = False
@@ -236,7 +236,7 @@ class AppointmentController(http.Controller):
         res = json.dumps(res)
         return Response(res, mimetype='application/json', status=200)
 
-    @http.route('/v1/appointments', type='http', csrf=False, auth="public", methods=['POST'])
+    @http.route('/v1/appointments/appointments', type='http', csrf=False, auth="public", methods=['POST'])
     def create_appointment(self, bookable_occasion_id=False, customer_nr=False, pnr=False, **kwargs):
         if (not customer_nr and not pnr):
             return Response("No customer nr. or pnr.", status=400)
@@ -312,7 +312,7 @@ class AppointmentController(http.Controller):
         res = json.dumps(res)
         return Response(res, mimetype='application/json', status=201)
 
-    @http.route('/v1/appointments/<appointment_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
+    @http.route('/v1/appointments/appointments/<appointment_id>', type='http', csrf=False, auth="public", methods=['DELETE'])
     def delete_appointment(self, appointment_id, **kwargs):
         # _logger.warn('delete_appointment: args: %s' % appointment_id)
         
@@ -329,7 +329,7 @@ class AppointmentController(http.Controller):
         else:
             return Response("Bad request: Invalid id", status=400)
 
-    @http.route('/v1/appointments/<app_id>', type='http', auth="public", methods=['PUT'], csrf=False)
+    @http.route('/v1/appointments/appointments/<app_id>', type='http', auth="public", methods=['PUT'], csrf=False)
     def update_appointment(self, app_id=False, appointment_id=False, title=False, user_id=False, customer_nr=False, prn=False, appointment_type=False, status=False, start=False, stop=False, duration=False, office=False, **kwargs):
         values = {}
         app = request.env['calendar.appointment'].sudo().search([('id', '=', app_id)])
