@@ -116,7 +116,7 @@ class ipf_rest(_ipf):
 
     def get(self, message):
         # Generate a unique tracking id
-        af_tracking_id = self._generate_tracking_id()
+        message.name = af_tracking_id = self._generate_tracking_id()
         # Generate headers for our get
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
