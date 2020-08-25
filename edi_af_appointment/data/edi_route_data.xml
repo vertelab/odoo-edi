@@ -7,5 +7,11 @@
             <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}&amp;from_date={from_date}&amp;to_date={to_date}&amp;competence_id={comp}</field>
         </record>
 
+        <record id="appointment_ace_wi" model="edi.message.type">
+            <field name="name">AF appointment: Post ACE WI</field>
+            <field name="target">appointments/v2/phone-appointments/queues/{queueId}/workitems</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record>
+
     </data>
 </openerp>
