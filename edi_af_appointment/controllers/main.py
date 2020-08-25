@@ -41,6 +41,10 @@ class AppointmentController(http.Controller):
         else:
             return False
 
+    @http.route(['/v1/appointments/health', '/v1/appointments/ping'], type='http', auth="public", methods=['GET'])
+    def health(self, **kwargs):
+        return Response("OK", status=200) 
+
     @http.route('/v1/appointments/bookable-occasions', type='json', auth="public", methods=['GET'])
     def get_bookable_occasions(self, **kwargs):
         message = json.loads(request.httprequest.data)
