@@ -20,6 +20,8 @@
 ##############################################################################
 from odoo import models, fields, api, _
 from odoo.exceptions import except_orm, Warning, RedirectWarning
+from odoo import http
+from odoo.http import request
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -27,20 +29,17 @@ _logger = logging.getLogger(__name__)
 class res_partner(models.Model):
     _inherit='res.partner'
 
-    #edi_type_ids = fields.Many2many(comodel_name='edi.message.type',help="OK to send EDI-messages of this type to this part")
+    edi_message_ids = fields.Many2many(compute='_edi_message_ids', comodel_name="edi.message", string="Messages", groups='edi_route.group_edi_user')
+    edi_message_count = fields.Integer(compute='_edi_message_count', string="# messages", groups='edi_route.group_edi_user')
+    edi_application_lines = fields.One2many('edi.application.line', 'partner_id', 'EDI Applications', groups='edi_route.group_edi_user')
 
     @api.one
     def _edi_message_count(self):
         self.edi_message_count = len(self.edi_message_ids)
-    edi_message_count = fields.Integer(compute='_edi_message_count',string="# messages")
 
     @api.one
     def _edi_message_ids(self):
-        #raise Warning([(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])])
-#        self.edi_message_ids = self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])
-       # self.edi_message_ids = [p.id for p in self.env['edi.message'].search(['|','|','|',('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])]
         self.edi_message_ids = [(6,0,[p.id for p in self.env['edi.message'].search(['|','|','|','|','|',('sender','=',self.id),('recipient','=',self.id),('consignor_id','=',self.id),('consignee_id','=',self.id),('forwarder_id','=',self.id),('carrier_id','=',self.id)])])]
-    edi_message_ids = fields.Many2many(compute='_edi_message_ids',comodel_name="edi.message",string="Messages")
 
     @api.model
     def get_edi_types(self, partner):
@@ -52,12 +51,6 @@ class res_partner(models.Model):
         if partner.parent_id:
             types += self.get_edi_types(partner.parent_id)
         return set(types)
-
-    edi_application_lines = fields.One2many('edi.application.line', 'partner_id', 'EDI Applications')
-
-from odoo import http
-from odoo.http import request
-
 
 class res_partner_controller(http.Controller):
 
