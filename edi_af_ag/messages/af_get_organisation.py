@@ -90,13 +90,14 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self): #ask about thing that needs update
-        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_schedules').id:
-            if not self.model_record or self.model_record._name != 'calendar.schedule':
-                raise Warning("Appointment: Attached record is not an calendar.schedule! {model}".format(model=self.model_record and self.model_record._name or None))
+        if self.edi_type.id == self.env.ref('edi_af_organisation.organisation').id:
+            if not self.model_record or self.model_record._name != 'res.partner':
+                raise Warning("Appointment: Attached record is not an res.partner! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record
             self.body = self.edi_type.type_mapping.format( #takes url options, if no options are needed there will be a specific message size
                 path = "masterdata-organisation/organisation",
+                orgnr = obj.company_registry
             )
 
             envelope = self.env['edi.envelope'].create({
