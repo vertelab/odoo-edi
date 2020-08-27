@@ -167,17 +167,25 @@ class AppointmentController(http.Controller):
         location_code = message.get('location_code')
         appointment_length = int(message.get('appointment_length'))
         appointment_type = message.get('appointment_type')
-        type_id = self.env['calendar.appointment.type'].search([('ipf_num', '=', appointment_type)])
+        type_id = request.env['calendar.appointment.type'].sudo().search([('ipf_num', '=', appointment_type)])
 
         if not desired_time:
             return Response("Bad request: No desired_time", status=400)
 
         # occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
-        occasions = self.env['calendar.occasion'].get_bookable_occasions(desired_time, desired_time + timedelta(appointment_length), appointment_length, type_id, 1)
-        if not occasions:
-            return Response("Bad request: Invalid id", status=400)
+        occasions = request.env['calendar.occasion'].sudo().get_bookable_occasions(desired_time, desired_time + timedelta(appointment_length), appointment_length, type_id, 1)
 
-        app = request.env['calendar.occasion'].sudo().reserve_occasion(occasions[0][0])
+        _logger.warn("occasions: %s" % occasions)
+        found = False
+        for book_occasion in occasions:
+            if book_occasion:
+                found = True
+                _logger.warn("book_occasion: %s" % book_occasion)
+                app = request.env['calendar.occasion'].sudo().reserve_occasion(book_occasion)
+                break
+
+        if not found:
+            return Response("Bad request: Invalid id", status=400)
 
         if app:
             res = {
