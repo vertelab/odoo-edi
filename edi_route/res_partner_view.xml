@@ -23,7 +23,7 @@
       <field name="inherit_id" ref="base.view_partner_form" />
       <field name="arch" type="xml">
         <page name="internal_notes" position="after">
-          <page name="EDI" string="EDI Types">
+          <page name="EDI" string="EDI Types" groups="edi_route.group_edi_user">
 <!--
               <field name="edi_type_ids" widget="many2many_tags" />
 -->
@@ -36,7 +36,7 @@
           </page>
         </page>
         <div name="button_box" position="inside">
-          <button class="oe_inline oe_stat_button" type="action" name="%(edi_route.action_edi_message_partner)d" icon="fa-envelope-o">
+          <button class="oe_inline oe_stat_button" type="action" name="%(edi_route.action_edi_message_partner)d" icon="fa-envelope-o" groups="edi_route.group_edi_user">
             <field string="Messages" name="edi_message_count" widget="statinfo" />
           </button>
         </div>
