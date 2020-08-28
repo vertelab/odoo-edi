@@ -103,7 +103,7 @@ class ipf_rest(_ipf):
         if res_set:
             res_set.unpack()
 
-        message.model_record.unlink()
+        message.model_record.inactivate()
     
     def _ace_wi(self, message, res):
         # Why does these not update?
