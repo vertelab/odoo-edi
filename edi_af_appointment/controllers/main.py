@@ -160,7 +160,7 @@ class AppointmentController(http.Controller):
     @http.route('/v1/appointments/bookable-occasions/reservation', type='json', csrf=False, auth="public", methods=['POST'])
     def reserve_bookable_occasion_json(self, bookable_occasion_id=False, **kwargs):
         message = json.loads(request.httprequest.data)
-        # { "desired_time": "2019-09-30T11:00:00", "location_code": "71928", "appointment_length": 30, "appointment_type": 21 }
+        # { "desired_time": "2019-09-30T11:00:00Z", "location_code": "71928", "appointment_length": 30, "appointment_type": 21 }
 
         desired_time = datetime.strptime(message.get('desired_time'), "%Y-%m-%dT%H:%M:%SZ")
         # location_code needs to be taken into consideration

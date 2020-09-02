@@ -29,6 +29,14 @@ _logger = logging.getLogger(__name__)
 
 LOCAL_TZ = 'Europe/Stockholm'
 
+# TODO: This crashes for some reason, fix later.
+# class calendar_appointment_type(models.Model):
+#     _inherit='calendar.appointment.type'
+
+#     ace_queue_id = fields.One2many(comodel_name='edi.ace_queue', inverse_name='app_type_id', string='ACE queue')
+#     ace_queue_name = fields.Char(string='ACE queue name', related='ace_queue_ids.name')
+#     ace_queue_errand = fields.Char(string='ACE queue errand', related='ace_queue_ids.errand')
+
 class edi_ace_workitem(models.Model):
     _name='edi.ace_workitem'
 
@@ -52,7 +60,6 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id: 
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
-            _logger.warn("ACE WI reply: %s" % body)
         else:
             super(edi_message, self).unpack()
 
@@ -75,12 +82,13 @@ class edi_message(models.Model):
                 'errand': obj.queue.errand,
                 'customer': {
                     'id': {
-                        'pnr': obj.appointment_id.partner_id.company_registry.replace('-','')
+                        'pnr': obj.appointment_id.partner_id.company_registry.replace('-', '')
                     },
-                    'phone_mobile': obj.appointment_id.partner_id.mobile or obj.appointment_id.partner_id.phone,
-                    'phone_home': obj.appointment_id.partner_id.phone
+                    'phone_mobile': (obj.appointment_id.partner_id.mobile or obj.appointment_id.partner_id.phone).replace(' ', ''),
+                    'phone_home': obj.appointment_id.partner_id.phone.replace(' ', '')
                 }
             }
+            _logger.warn("body_dict: %s" % body_dict)
             self.body = tuple(sorted(body_dict.items()))
 
             envelope = self.env['edi.envelope'].create({
