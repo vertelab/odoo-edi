@@ -78,22 +78,17 @@ class AppointmentController(http.Controller):
         start_time = datetime.strptime(start, "%Y-%m-%dT%H:%M:%SZ")
         stop_time = datetime.strptime(stop, "%Y-%m-%dT%H:%M:%SZ")
 
-        # Integration gives us times in local (Europe/Stockholm) tz
-        # Convert to UTC
-        start_time_utc = pytz.timezone(LOCAL_TZ).localize(start_time).astimezone(pytz.utc)
-        stop_time_utc = pytz.timezone(LOCAL_TZ).localize(stop_time).astimezone(pytz.utc)
-
         if not duration:
-            duration = start_time_utc.minute - stop_time_utc.minute
+            duration = start_time.minute - stop_time.minute
         else:
             duration = self.is_int(duration)
 
         if not stop:
-            stop = start_time_utc + timedelta(minutes=duration)
+            stop = start_time + timedelta(minutes=duration)
 
         # TODO: if local meeting, check location arg.
 
-        occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time_utc, stop_time_utc, duration, type_id, int(max_depth))
+        occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time, stop_time, duration, type_id, int(max_depth))
         res = {}
 
         for day in occ_list:
