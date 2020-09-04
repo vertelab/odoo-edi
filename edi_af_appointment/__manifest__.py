@@ -28,7 +28,7 @@
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','calendar_af', 'edi_route_ipf'],
+    'depends': ['edi_route','calendar_af', 'edi_route_ipf', 'af_data_ais-f_loader'],
     'external_dependencies': {
 #        'python': ['xmltodict'],
     },
@@ -37,6 +37,7 @@
         'data/edi_route_data.xml',
         'data/edi.ace_queue.csv',
         'views/edi_af_appointment_views.xml',
+        'data/res_users.xml'
     ],
     'application': False,
     'installable': True,
