@@ -32,9 +32,6 @@ class edi_envelope(models.Model):
 
     @api.one
     def fold(self,route): # Folds messages in an envelope
-        # TODO: do we need to do something here?
-        # for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
-        #     m.envelope_id = self.id
         envelope = super(edi_envelope,self).fold(route)
         return envelope
 
@@ -48,8 +45,6 @@ class edi_envelope(models.Model):
                 'route_type': self.route_type,
                 'sender': self.sender,
                 'recipient': self.recipient,
-                #~ 'consignor_id': sender.id,
-                #~ 'consignee_id': recipient.id,
             })
             msg.unpack()
         self.envelope_opened()

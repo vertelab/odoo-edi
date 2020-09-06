@@ -29,29 +29,6 @@ _logger = logging.getLogger(__name__)
 
 LOCAL_TZ = 'Europe/Stockholm'
 
-# TODO: This crashes for some reason, fix later.
-# class calendar_appointment_type(models.Model):
-#     _inherit='calendar.appointment.type'
-
-#     ace_queue_id = fields.One2many(comodel_name='edi.ace_queue', inverse_name='app_type_id', string='ACE queue')
-#     ace_queue_name = fields.Char(string='ACE queue name', related='ace_queue_ids.name')
-#     ace_queue_errand = fields.Char(string='ACE queue errand', related='ace_queue_ids.errand')
-
-class edi_ace_workitem(models.Model):
-    _name='edi.ace_workitem'
-
-    name = fields.Char(string='Name')
-    text = fields.Char(string='Text')
-    appointment_id = fields.Many2one(comodel_name='calendar.appointment', string='Appointment')
-    queue = fields.Many2one(comodel_name='edi.ace_queue', string='ACE queue')
-
-class edi_ace_queue(models.Model):
-    _name='edi.ace_queue'
-    
-    name = fields.Char(string='Name')
-    errand = fields.Char(string='Errand')
-    app_type_id = fields.Many2one(comodel_name='calendar.appointment.type', string='Meeting type')
-    
 class edi_message(models.Model):
     _inherit='edi.message'
             
@@ -95,15 +72,8 @@ class edi_message(models.Model):
                 'name': 'Appointment ACE WI post',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
-                # 'recipient': self.recipient.id,
-                # 'sender': self.env.ref('base.main_partner').id,
-                # 'application': app.name,
-                # 'edi_message_ids': [(6, 0, msg_ids)]
                 'edi_message_ids': [(6, 0, [self.id])]
             })
-
-            # TODO: Decide if we want to fold here?
-            # envelope.fold()
             
         else:
             super(edi_message, self).pack()
