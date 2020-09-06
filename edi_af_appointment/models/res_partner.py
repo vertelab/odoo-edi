@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Odoo, Open Source Management Solution, third party addon
+#    Copyright (C) 2004-2015 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -19,26 +19,15 @@
 #
 ##############################################################################
 
-{
-    'name': 'EDI AF Appointment',
-    'version': '0.1',
-    'category': 'edi',
-    'summary': 'EDI AF Appointment - support for appointments ',
-    'licence': 'AGPL-3',
-    'description': """ """,
-    'author': 'Vertel AB',
-    'website': 'http://www.vertel.se',
-    'depends': ['edi_route','calendar_af', 'edi_route_ipf'],
-    'external_dependencies': {
-    },
-    'data': [
-        'security/ir.model.access.csv',
-        'data/edi_route_data.xml',
-        'data/edi.ace_queue.csv',
-        'data/edi.ace_errand.csv',
-        'views/edi_af_appointment_views.xml',
-    ],
-    'application': False,
-    'installable': True,
-}
-# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
+from odoo import models, fields, api, _
+import logging
+
+_logger = logging.getLogger(__name__)
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+    
+    @api.one
+    def set_user(self):
+        """Updates the responsible officer of a res.partner from an AF-signature """
+        self.user_id = self.env.user.id

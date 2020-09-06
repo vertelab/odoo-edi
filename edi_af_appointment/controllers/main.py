@@ -45,18 +45,6 @@ class AppointmentController(http.Controller):
     def health(self, **kwargs):
         return Response("OK", status=200) 
 
-    # @http.route('/v1/appointments/bookable-occasions', type='json', auth="public", methods=['GET'])
-    # def get_bookable_occasions(self, **kwargs):
-    #     message = json.loads(request.httprequest.data)
-
-    #     start = message.get('start')
-    #     stop = message.get('stop')
-    #     duration = message.get('duration')
-    #     type_id = message.get('type_id')
-    #     channel = message.get('channel')
-    #     location = message.get('location')
-    #     max_depth = message.get('max_depth')
-
     @http.route('/v1/appointments/bookable-occasions', type='http', auth="public", methods=['GET'])
     def get_bookable_occasions(self, start=False, stop=False, duration=False, type_id=False, channel=False, location=False, max_depth=1, **kwargs):
         if not (type_id and duration and stop and start):
@@ -97,7 +85,6 @@ class AppointmentController(http.Controller):
                     vals = {
                         # change occasions from recordsets to an 'external' ID
                         'id': self.encode_bookable_occasion_id(book_occ),
-                        # 'appointment_title': book_occ[0].name,
                         'appointment_title': '%sm @ %s' % (int(len(book_occ) * BASE_DURATION), book_occ[0].start),
                         'appointment_channel': book_occ[0].channel.name,
                         'occasion_start': book_occ[0].start.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -113,10 +100,8 @@ class AppointmentController(http.Controller):
                         # else, just append
                         res['bookable_occasions'].append(vals)
 
-        # return res
         # convert to json format
         res = json.dumps(res)
-        # _logger.warn("res: %s" % res)
         return Response(res, mimetype='application/json', status=200)
 
     @http.route('/v1/appointments/bookable-occasions/reservation/<bookable_occasion_id>', type='http', csrf=False, auth="public", methods=['POST'])
@@ -141,10 +126,11 @@ class AppointmentController(http.Controller):
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
                 "id": app.id,
-                "office_address": '', #"Stortorget Luleå",
-                "office_email": '', #"email.email@email.com",
-                "location_code": '',# 725535,
-                "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
+                "office_address": app.office.contact_address,
+                "office_email": app.office.email,
+                "location_code": app.location_code,
+                "office_code": app.office.office_code,
+                "office_name": app.office.display_name,
                 "status": app.state,
             }
             res = json.dumps(res)
@@ -167,7 +153,6 @@ class AppointmentController(http.Controller):
         if not desired_time:
             return Response("Bad request: No desired_time", status=400)
 
-        # occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
         occasions = request.env['calendar.occasion'].sudo().get_bookable_occasions(desired_time, desired_time + timedelta(appointment_length), appointment_length, type_id, 1)
 
         _logger.warn("occasions: %s" % occasions)
@@ -196,10 +181,11 @@ class AppointmentController(http.Controller):
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
                 "id": app.id,
-                "office_address": '', #"Stortorget Luleå",
-                "office_email": '', #"email.email@email.com",
-                "location_code": '',# 725535,
-                "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
+                "office_address": app.office.contact_address,
+                "office_email": app.office.email,
+                "location_code": app.location_code,
+                "office_code": app.office.office_code,
+                "office_name": app.office.display_name,
                 "status": app.state,
             }
             return res
@@ -220,17 +206,6 @@ class AppointmentController(http.Controller):
         except:
             return Response("ID not found", status=404)
 
-    # @http.route('/v1/appointments/appointments', type='json', auth="public", methods=['GET'])
-    # def get_appointment(self, **kwargs):
-    #     message = json.loads(request.httprequest.data)
-
-    #     user_id = message.get('user_id') 
-    #     customer_nr = message.get('customer_nr') 
-    #     pnr = message.get('pnr') 
-    #     appointment_types = message.get('appointment_types') 
-    #     status_list = message.get('status_list') 
-    #     start = message.get('start') 
-    #     stop = message.get('stop')
     @http.route('/v1/appointments/appointments', type='http', auth="public", methods=['GET'])
     def get_appointment(self, user_id=False, customer_nr=False, pnr=False, appointment_types=False, status_list=False, start=False, stop=False, **kwargs):
         search_domain = []
@@ -268,8 +243,6 @@ class AppointmentController(http.Controller):
                 
         if status_list:
             status_list_list = status_list.split(',')
-            # if len(status_list) != len(status_list_list):
-            #     return Response("Invalid status list", status=400)
             status_list_domain = ('state', 'in', status_list_list)
             search_domain.append(status_list_domain)
         
@@ -300,16 +273,16 @@ class AppointmentController(http.Controller):
                 "employee_phone": app.user_id.phone,
                 "employee_signature": app.user_id.name,
                 "id": app.id,
-                "office_address": '', #"Stortorget Luleå",
-                "office_email": '', #"email.email@email.com",
-                "location_code": '',# 725535,
-                "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
+                "office_address": app.office.contact_address,
+                "office_email": app.office.email,
+                "location_code": app.location_code,
+                "office_code": app.office.office_code,
+                "office_name": app.office.display_name,
                 "status": app.state,
             }
 
             res['appointments'].append(app_dict)
 
-        # return res
         res = json.dumps(res)
         return Response(res, mimetype='application/json', status=200)
 
@@ -355,9 +328,9 @@ class AppointmentController(http.Controller):
             'start' : occasions[0].start,
             'stop' : occasions[-1].stop,
             'duration' : len(occasions) * BASE_DURATION,
-            'user_id' : sunea.id, # TODO: ska detta hårdkodas?
-            'office' : '',  # TODO: hur sätter vi detta?
-            'office_code' : '0248', # TODO: ska detta hårdkodas?
+            'user_id' : sunea.id, # SUNEA
+            'office' : sunea.office.id, 
+            # 'office_code' : sunea.office.office_code, # 0248
             'partner_id' : partner.id, 
             'state' : 'confirmed',
             'type_id' : occasions[0].type_id.id,
@@ -381,13 +354,12 @@ class AppointmentController(http.Controller):
             "employee_phone": sunea.partner_id.phone,
             "employee_signature": sunea.login,
             "id": app.id,
-            # TODO: fix below here:
-            "office_address": '', #"Adress 123",
-            "office_email": '', #"email.email@email.com",
-            "location_code": '', #725535,
-            "office_code": "0248",
-            "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
-            "status": app.state, #0,
+            "office_address": sunea.office.contact_address,
+            "office_email": sunea.office.email,
+            "location_code": app.location_code,
+            "office_code": sunea.office.office_code,
+            "office_name": sunea.office.display_name,
+            "status": app.state,
         }
 
         return res
@@ -412,13 +384,12 @@ class AppointmentController(http.Controller):
                     "employee_phone": app.user_id.partner_id.phone,
                     "employee_signature": app.user_id.login,
                     "id": app.id,
-                    # TODO: fix below here:
-                    "office_address": '', #"Adress 123",
-                    "office_email": '', #"email.email@email.com",
-                    "location_code": '', #725535,
-                    "office_code": "0248",
-                    "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
-                    "status": app.state, #0,
+                    "office_address": app.office.contact_address,
+                    "office_email": app.office.email,
+                    "location_code": app.location_code,
+                    "office_code": app.office.office_code,
+                    "office_name": app.office.display_name,
+                    "status": app.state,
                 }
 
                 # convert to json format
@@ -504,13 +475,12 @@ class AppointmentController(http.Controller):
                     "employee_phone": app.user_id.partner_id.phone,
                     "employee_signature": app.user_id.login,
                     "id": app.id,
-                    # TODO: fix below here:
-                    "office_address": '', #"Adress 123",
-                    "office_email": '', #"email.email@email.com",
-                    "location_code": '', #725535,
-                    "office_code": "0248",
-                    "office_name": '', #"Arbetsförmedlingen Kundtjänst Luleå",
-                    "status": app.state, #0,
+                    "office_address": app.office.contact_address,
+                    "office_email": app.office.email,
+                    "location_code": app.location_code,
+                    "office_code": app.office.office_code,
+                    "office_name": app.office.display_name,
+                    "status": app.state,
                 }
                 
                 return res
