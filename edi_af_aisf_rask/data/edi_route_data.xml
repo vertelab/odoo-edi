@@ -5,5 +5,11 @@
             <field name="target">arbetssokande/rest/v1/arbetssokande/{sokande_id}/anpassad?resurser=alla</field>
             <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
         </record>
+
+        <record id="rask_route" model="edi.route">
+            <field name="name">EDI RASK Route</field>
+            <field name="partner_id" ref="base.main_partner"/>
+            <field name="active" eval="True"/>
+        </record>
     </data>
 </openerp>

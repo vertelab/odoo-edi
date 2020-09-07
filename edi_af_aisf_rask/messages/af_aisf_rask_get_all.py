@@ -18,10 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from odoo import models, fields, api, _
-from datetime import datetime, timedelta
-import json
-import pytz
+from odoo import models, api, _
 import ast
 
 import logging
@@ -35,42 +32,36 @@ class edi_message(models.Model):
 
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_as.arbetssokande_kontor').id:
+        if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
 
-            office = body.get('kontor')
-            if office:
-                office_obj = self.env['res.partner'].search([('office_code', '=', office.get('kontorsKod'))])
-                if office_obj:
-                    vals = {
-                        'office': office_obj.id,
-                    }
-                    self.res_id.write(vals)
+            res_partner_obj = self.env['res.partner'].search([('customer_id', '=', self.customerId)])
+            if res_partner_obj:
+                if (self.messageType == "AnsvarigtKontor"):
+                    office = body.get('kontor')
+                    if office:
+                        office_obj = self.env['res.partner'].search([('office_code', '=', office.get('kontorsKod'))])
+                        if office_obj:
+                            res_partner_obj.office = office_obj
                 else:
                     pass
+            else:
+                # Skapa res_partner-objekt för den sökande
+                anka = "pelle"
         else:
             super(edi_message, self).unpack()
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_as.arbetssokande_kontor').id:
-            if not self.model_record or self.model_record._name != 'res.partner':
-                raise Warning("Appointment: Attached record is not an calendar.schedule! {model}".format(
-                    model=self.model_record and self.model_record._name or None))
-
-            obj = self.model_record  # res.partner
+        if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             self.body = self.edi_type.type_mapping.format(
-                path="arbetssokande/rest/v1/arbetssokande/{sokande_id}/kontor".format(sokande_id=obj.external_id)
+                path="arbetssokande/rest/v1/arbetssokande/{sokande_id}/anpassad?resurser=alla".format(sokande_id=self.sokandeId)
             )
             envelope = self.env['edi.envelope'].create({
-                'name': 'arbetssokande kontor request',
+                'name': 'RASK all information request',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
-                # 'recipient': self.recipient.id,
-                # 'sender': self.env.ref('base.main_partner').id,
-                # 'application': app.name,
-                # 'edi_message_ids': [(6, 0, msg_ids)]
                 'edi_message_ids': [(6, 0, [self.id])]
             })
         else:
