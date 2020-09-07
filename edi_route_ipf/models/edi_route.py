@@ -38,7 +38,8 @@ class _ipf(object):
     ''' Abstract class for communication-session. Use only subclasses.
         Subclasses are called by dispatcher function 'run'
     '''
-    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, debug=False):
+    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None,
+                 debug=False):
         self.host = host
         self.username = username
         self.password = password
@@ -74,6 +75,7 @@ class ipf_rest(_ipf):
             'AF-Environment': af_environment,
             'AF-SystemId': af_system_id,
             'AF-TrackingId': af_tracking_id,
+            'AF-EndUserId': 'AFCRM',
         }
         return get_headers
 
@@ -85,7 +87,8 @@ class ipf_rest(_ipf):
 
         for comp_day in res:
             # assumes that there's only ever one competence
-            type_id = message.env['calendar.appointment.type'].search([('ipf_id','=',comp_day.get('competence').get('id'))]).id
+            type_id = message.env['calendar.appointment.type'].search(
+                [('ipf_id','=',comp_day.get('competence').get('id'))]).id
             for schedule in comp_day.get('schedules'):
                 # Create messages from result
                 schedule['type_id'] = type_id
@@ -104,7 +107,25 @@ class ipf_rest(_ipf):
             res_set.unpack()
 
         message.model_record.unlink()
-    
+
+    def _as_kontor(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+
+        body = tuple(sorted(res))
+        vals = {
+            'name': "AS kontor reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id.id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+
     def _ace_wi(self, message, res):
         # Why does these not update?
         message.state = "received"
@@ -169,6 +190,8 @@ class ipf_rest(_ipf):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as.arbetssokande_kontor'):
+            self._as_kontor(message, res)
         elif not res:
             # No result given. Not sure how to handle.
             pass
@@ -220,13 +243,16 @@ class edi_route(models.Model):
     @api.multi
     def _run_out(self, envelopes):
         if self.protocol == 'ipf':
-            if not (self.af_ipf_url or self.af_ipf_port or self.client_id or self.client_secret or self.af_environment or self.af_system_id):
+            if not (
+                    self.af_ipf_url or self.af_ipf_port or self.client_id or self.client_secret or self.af_environment or self.af_system_id):
                 raise Warning('Please setup AF IPF Information') # this code should be unreachable.
 
             try:
                 for envelope in envelopes:
                     for msg in envelope.edi_message_ids:
-                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id)
+                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id,
+                                            password=self.af_client_secret, port=self.af_ipf_port,
+                                            environment=self.af_environment, sys_id=self.af_system_id)
                         res_messages = endpoint.get(msg)
                         msg.state = 'sent'
                     

@@ -1,0 +1,9 @@
+<openerp>
+    <data noupdate="1">
+        <record id="arbetssokande_kontor" model="edi.message.type">
+            <field name="name">AF AIS-F RASK: Get all</field>
+            <field name="target">arbetssokande/rest/v1/arbetssokande/{sokande_id}/anpassad?resurser=alla</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record>
+    </data>
+</openerp>
