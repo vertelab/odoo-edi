@@ -175,8 +175,6 @@ class ipf_rest(_ipf):
         # Generate headers for our get
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
-        if message.edi_type == 'edi_af_as_notes.asok_daily_note_post':
-            get_headers.update({'':''}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         if message.body:
             body = message.body.decode("utf-8")
             # A dict will start with "(" here.
@@ -192,6 +190,9 @@ class ipf_rest(_ipf):
                     client = self.username,
                     secret = self.password,
                 )
+                if message.edi_type == 'edi_af_as_notes.asok_daily_note_post':
+                    get_headers.update({'Authorization':'', 'PISA_ID':''}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+
                 get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
             # and begin with "http://"

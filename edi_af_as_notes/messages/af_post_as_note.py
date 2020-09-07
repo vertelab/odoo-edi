@@ -42,7 +42,7 @@ class edi_message(models.Model):
     @api.one
     def pack(self):
         if self.edi_type.id == self.env.ref('edi_af_asok_notes.asok_daily_note_post').id:
-            if not self.model_record or self.model_record._name != 'res.partner.note':
+            if not self.model_record or self.model_record._name != 'res.partner.note' or not self.model_record.partner_id.is_jobseeker:
                 raise Warning("Appointment: Attached record is not an daily note! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record
@@ -51,12 +51,12 @@ class edi_message(models.Model):
                 path = "ais-f-daganteckningar/v1/anteckning",
             )
             body_dict['data'] = {
-                "entitetsId": , #sökande id
+                "entitetsId": obj.partner_id.customer_id, 
                 "anteckningtypId": obj.note_type,
                 "handelsetidpunkt": obj.note_date,
                 "ansvarKontor": obj.office.office_code,
                 "ansvarSignatur": obj.administrative_officer.login,
-                "avsandandeSystem": "AISF", #TODO: AFCRM kommer i framtiden, byt ut när det finns som alternativ
+                "avsandandeSystem": "CRM", 
                 "avsandandeSystemReferens": "null",
                 "lank": "null",
                 "text": obj.note,
