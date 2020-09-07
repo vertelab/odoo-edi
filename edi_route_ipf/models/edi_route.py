@@ -74,6 +74,7 @@ class ipf_rest(_ipf):
             'AF-Environment': af_environment,
             'AF-SystemId': af_system_id,
             'AF-TrackingId': af_tracking_id,
+            'AF-EndUserId': 'AFCRM',
         }
         return get_headers
 
@@ -104,6 +105,24 @@ class ipf_rest(_ipf):
             res_set.unpack()
 
         message.model_record.inactivate()
+
+    def _as_kontor(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+
+        body = tuple(sorted(res))
+        vals = {
+            'name': "AS kontor reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id.id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
     
     def _ace_wi(self, message, res):
         # Why does these not update?
@@ -169,6 +188,10 @@ class ipf_rest(_ipf):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as.arbetssokande_kontor'):
+            self._as_kontor(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as_notes.asok_daily_note_post'):
+            self._as_note(message, res)
         elif not res:
             # No result given. Not sure how to handle.
             pass
