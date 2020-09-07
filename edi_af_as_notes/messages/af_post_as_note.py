@@ -56,7 +56,7 @@ class edi_message(models.Model):
                 "handelsetidpunkt": obj.note_date,
                 "ansvarKontor": obj.office.office_code,
                 "ansvarSignatur": obj.administrative_officer.login,
-                "avsandandeSystem": "AISF", #AFCRM?
+                "avsandandeSystem": "AISF", #TODO: AFCRM kommer i framtiden, byt ut när det finns som alternativ
                 "avsandandeSystemReferens": "null",
                 "lank": "null",
                 "text": obj.note,

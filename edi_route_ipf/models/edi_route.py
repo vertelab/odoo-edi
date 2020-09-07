@@ -123,6 +123,42 @@ class ipf_rest(_ipf):
         res_message = message.env['edi.message'].create(vals)
         # unpack messages
         res_message.unpack()
+
+    def _as_notes(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+
+        body = tuple(sorted(res))
+        vals = {
+            'name': "AS Note reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id.id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+    
+    def _ag_org(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+
+        body = tuple(sorted(res))
+        vals = {
+            'name': "AS Org reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id.id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
     
     def _ace_wi(self, message, res):
         # Why does these not update?
@@ -139,6 +175,8 @@ class ipf_rest(_ipf):
         # Generate headers for our get
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
+        if message.edi_type == 'edi_af_as_notes.asok_daily_note_post':
+            get_headers.update({'':''}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         if message.body:
             body = message.body.decode("utf-8")
             # A dict will start with "(" here.
@@ -192,6 +230,8 @@ class ipf_rest(_ipf):
             self._as_kontor(message, res)
         elif message.edi_type == message.env.ref('edi_af_as_notes.asok_daily_note_post'):
             self._as_note(message, res)
+        elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):
+            self._ag_org(message, res)
         elif not res:
             # No result given. Not sure how to handle.
             pass
