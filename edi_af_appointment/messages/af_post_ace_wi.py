@@ -56,7 +56,7 @@ class edi_message(models.Model):
                 'subject': 'AFCRM %s' % obj.queue.name,
                 'text': obj.text,
                 'label': 'BokaMote',
-                'errand': obj.queue.errand,
+                'errand': obj.errand.code,
                 'customer': {
                     'id': {
                         'pnr': obj.appointment_id.partner_id.company_registry.replace('-', '')

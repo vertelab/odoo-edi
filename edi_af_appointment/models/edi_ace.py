@@ -32,6 +32,7 @@ class edi_ace_workitem(models.Model):
     text = fields.Char(string='Text')
     appointment_id = fields.Many2one(comodel_name='calendar.appointment', string='Appointment')
     queue = fields.Many2one(comodel_name='edi.ace_queue', string='ACE queue')
+    errand = fields.Many2one(comodel_name='edi.ace_errand', string='ACE errand')
 
 class edi_ace_queue(models.Model):
     _name='edi.ace_queue'
