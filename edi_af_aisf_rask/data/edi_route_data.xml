@@ -8,6 +8,8 @@
 
         <record id="rask_route" model="edi.route">
             <field name="name">EDI RASK Route</field>
+            <field name="protocol">ipf</field>
+            <field name="route_type">edi_af_as_rask</field>
             <field name="partner_id" ref="base.main_partner"/>
             <field name="active" eval="True"/>
         </record>

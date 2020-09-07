@@ -36,7 +36,7 @@ class edi_message(models.Model):
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
 
-            res_partner_obj = self.env['res.partner'].search([('customer_id', '=', self.customerId)])
+            res_partner_obj = self.env['res.partner'].search([('customer_id', '=', body.customerId)])
             if res_partner_obj:
                 if (self.messageType == "AnsvarigtKontor"):
                     office = body.get('kontor')

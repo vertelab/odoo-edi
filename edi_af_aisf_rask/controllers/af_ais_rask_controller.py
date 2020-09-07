@@ -19,6 +19,8 @@ class ais_as_rask_controller(models.Model):
         else:
             # Här ska RASK anropas via IPF enligt konstens alla regler :)
             _logger.info("ais_as_rask_controller.rask_controller(): messageType %s" % messageType)
+            record = self.env['res.partner'].create({ 'name': "dummy"})
+            route = self.env.ref("edi_af_aisf_rask.<externt_id>")
             vals = {
                 'name': 'EDI AF AIS-F RASK Get all message',
                 'edi_type': env.ref('edi_af_iasf_rask.rask_get_all').id,
@@ -29,7 +31,7 @@ class ais_as_rask_controller(models.Model):
                 'messageType': messageType,
                 'customerId': customerId,
             }
-            message = env['edi.message'].create(vals)
+            message = self.env['edi.message'].create(vals)
             message.pack()
             route.run()
 
