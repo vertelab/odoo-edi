@@ -32,9 +32,9 @@ class AGController(http.Controller):
         
         org_dict = mapping(message.get('arbetsgivare').get('organisation'))
 
-        ag = request.env['res.partner'].sudo().create(vals)
+        ag = request.env['res.partner'].sudo().create(ag_dict)
         org_dict.update({'child_ids': [(0,0,ag.id)]})
-        ag = request.env['res.partner'].sudo().create(vals)
+        ag = request.env['res.partner'].sudo().create(org_dict)
 
         _logger.warn('edi_af_ag: ag: %s' % ag)
         return Response("OK!", status=200)
@@ -69,7 +69,7 @@ class AGController(http.Controller):
         request.env['res.partner'].browse(org_id).write(org_dict)
 
 
-        _logger.warn('edi_af_ag: ag: %s' % ag)
+        _logger.warn('edi_af_ag: ag: %s org: %s' % (ag_dict, org_dict))
         return Response("OK!", status=200)
 
     def mapping(request, unmapped_dict):

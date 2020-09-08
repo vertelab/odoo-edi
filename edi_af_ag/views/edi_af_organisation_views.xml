@@ -15,7 +15,7 @@ vals = {
   'type_id': type_ids[0].id,
 }
 
-#test_org = create test organisation res.partner here
+test_org = self.env[res.partner].search('orgnr','=','') #behöver data med orgnr från T2
 
 vals = {
   'name': 'DAER TEST!',
@@ -23,11 +23,12 @@ vals = {
   'model': test_org._name,
   'res_id': test_org.id,
   'route_id': 2,
-  'route_type': '', #'edi_af_schedules',
+  'route_type': 'edi_af_organisation', #'edi_af_schedules',
 }
 
 msg = env['edi.message'].create(vals)
 msg.pack()
-cal_schedule.inactivate()</field>
+
+</field>
     </record>
 </odoo>

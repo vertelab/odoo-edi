@@ -38,7 +38,7 @@ class _ipf(object):
     ''' Abstract class for communication-session. Use only subclasses.
         Subclasses are called by dispatcher function 'run'
     '''
-    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, debug=False):
+    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, authorization=None, debug=False):
         self.host = host
         self.username = username
         self.password = password
@@ -46,6 +46,7 @@ class _ipf(object):
         self.port = port
         self.environment = environment
         self.sys_id = sys_id
+        self.authorization = authorization
 
     def get(self, message):
         pass
@@ -74,6 +75,7 @@ class ipf_rest(_ipf):
             'AF-Environment': af_environment,
             'AF-SystemId': af_system_id,
             'AF-TrackingId': af_tracking_id,
+            'AF-EndUserId': 'AFCRM',
         }
         return get_headers
 
@@ -104,6 +106,66 @@ class ipf_rest(_ipf):
             res_set.unpack()
 
         message.model_record.inactivate()
+
+    def _as_office(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+
+        path = message.body.get('path')
+        path_arr = path.split('/')
+        _logger.info('path from message: %s' % path)
+        _logger.info('path_arr[4]: %s' % path_arr[4])
+        #"arbetssokande/rest/v1/arbetssokande/{sokande_id}/office"
+        res.update({'sokande_id': path_arr[3]})
+        body = tuple(sorted(res))
+        vals = {
+            'name': "AS office reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id.id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+
+    def _as_notes(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+
+        body = tuple(sorted(res))
+        vals = {
+            'name': "AS Note reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id.id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+    
+    def _ag_org(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+
+        body = tuple(sorted(res))
+        vals = {
+            'name': "AS Org reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id.id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
     
     def _ace_wi(self, message, res):
         # Why does these not update?
@@ -135,6 +197,10 @@ class ipf_rest(_ipf):
                     client = self.username,
                     secret = self.password,
                 )
+                if message.edi_type == 'edi_af_as_notes.asok_daily_note_post':
+                    get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+                elif message.edi_type == 'edi_af_as.asok_office':
+                    get_headers.update({'Authorization': self.authorization, 'PISA_ID': 'sys'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
                 get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
             # and begin with "http://"
@@ -169,6 +235,12 @@ class ipf_rest(_ipf):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+            self._as_office(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as_notes.asok_daily_note_post'):
+            self._as_note(message, res)
+        elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):
+            self._ag_org(message, res)
         elif not res:
             # No result given. Not sure how to handle.
             pass
