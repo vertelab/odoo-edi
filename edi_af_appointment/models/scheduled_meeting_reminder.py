@@ -28,34 +28,29 @@ class ScheduledMeeting(models.Model):
 
     def send_out_message(self):
         # self.env['calendar.appointment'].search([('state', '=', 'confirmed')])
-        appointment_ids = self.env['calendar.appointment'].search([])
+        appointment_ids = self.env['calendar.appointment'].search([('state', '=', 'confirmed')])
         for record in appointment_ids:
             before_start_time = record.start - datetime.timedelta(minutes=10)
             if before_start_time.strftime('%H:%M') == datetime.datetime.now().strftime('%H:%M'):
-                pass
-                #TODO: fix this...
-                # template = self.env.ref('edi_af_appointment.email_template_calendar_schedule_reminder')
-                # self.env['mail.template'].browse(template.id).send_mail(record.id, force_send=True)
-
                 text = "Test-text"
-                app = record
-                queue = self.env.ref('edi_ace_queue.as_uppfstomw')
-                errand = app.type_id
+                queue = record.type_id.ace_queue_id
+                errand = record.type_id.ace_errand_id
 
                 vals = {
                 'name': "IPF request",
                 'text': text,
-                'appointment_id': app.id,
+                'appointment_id': record.id,
                 'queue': queue.id,
+                'errand': errand.id,
                 }
                 ace_wi = self.env['edi.ace_workitem'].create(vals)
 
                 vals = {
-                'name': 'ACE TEST!',
+                'name': 'ACE post',
                 'edi_type': self.env.ref('edi_af_appointment.appointment_ace_wi').id,
                 'model': ace_wi._name,
                 'res_id': ace_wi.id,
-                'route_id': 2,
+                'route_id': self.env.ref("edi_af_appointment.ace_wi").id,
                 'route_type': 'edi_af_ace_wi',
                 }
                 msg = self.env['edi.message'].create(vals)
