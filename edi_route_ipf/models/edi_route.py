@@ -199,7 +199,8 @@ class ipf_rest(_ipf):
                 )
                 if message.edi_type == 'edi_af_as_notes.asok_daily_note_post':
                     get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
-
+                elif message.edi_type == 'edi_af_as.asok_office':
+                    get_headers.update({'Authorization': self.authorization, 'PISA_ID': 'sys'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
                 get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
             # and begin with "http://"
@@ -234,7 +235,7 @@ class ipf_rest(_ipf):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as.arbetssokande_office'):
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
             self._as_office(message, res)
         elif message.edi_type == message.env.ref('edi_af_as_notes.asok_daily_note_post'):
             self._as_note(message, res)
