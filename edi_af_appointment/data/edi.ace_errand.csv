@@ -72,10 +72,10 @@ edi_ace_errand.errand_m3",m3","My Växel","Stark",,1
 edi_ace_errand.errand_ml1,"ml1","ML Teknisk Supp","Stark",,1
 edi_ace_errand.errand_ml2,"ml2","ML Växel","Stark",,1
 edi_ace_errand.errand_n10,"n10","Dokumentstyrning",,,
-edi_ace_errand.errand_P92,"P92","Första Planering","",True,
+edi_ace_errand.errand_P92,"P92","Första Planering","Mycket Stark",True,365
 edi_ace_errand.errand_P93,"P93","Uppföljande Plan","Mycket Stark",,1
 edi_ace_errand.errand_P94,"P94","Fördjupat Plan","Mycket Stark",,1
-edi_ace_errand.errand_P95,"P95","Första Plan KROM","",True,
+edi_ace_errand.errand_P95,"P95","Första Plan KROM","Mycket Stark",True,365
 edi_ace_errand.errand_P96,"P96","Bedöm åter JOB","Mycket Stark",,1
 edi_ace_errand.errand_P97,"P97","Bedöm åter UGA","Mycket Stark",,1
 edi_ace_errand.errand_P98,"P98","Beslut åter JOB","Mycket Stark",,1
@@ -158,7 +158,7 @@ edi_ace_errand.errand_v24,"v24","Utbildning24",,,
 edi_ace_errand.errand_W24,"W24","Bed åt UGA STOM","Mycket Stark",,1
 edi_ace_errand.errand_W25,"W25","Besl åt JOB STOM","Mycket Stark",,1
 edi_ace_errand.errand_W26,"W26","Besl åt UGA STOM","Mycket Stark",,1
-edi_ace_errand.errand_W27,"W27","Första Plan STOM","",True,
+edi_ace_errand.errand_W27,"W27","Första Plan STOM","Mycket Stark",True,365
 edi_ace_errand.errand_W28,"W28","Uppföl Plan STOM","Mycket Stark",,1
 edi_ace_errand.errand_W29,"W29","Val AF STOM","Mycket Stark",,1
 edi_ace_errand.errand_W30,"W30","Val FA KROM Klar","Mycket Stark",,1
