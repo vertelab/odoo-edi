@@ -112,15 +112,15 @@ class ipf_rest(_ipf):
         # Get the answer from the call to AIS-F RASK
         res_set = message.env['edi.message']
 
-        body = tuple(sorted(res))
+        _logger.warn("_rask_get_all res: %s" % res)
+        # TODO: continue here... i think the structure of res somehow breaks this conversion.
+        body = tuple(sorted(res.items()))
         vals = {
             'name': "RASK get all reply",
             'body': body,
             'edi_type': message.edi_type.id,
-            'res_id': message.res_id.id,
+            'res_id': message.res_id,
             'route_type': message.route_type,
-            'messageType': message.messageType,
-            'customerId': message.customerId,
         }
         res_message = message.env['edi.message'].create(vals)
         # unpack messages
@@ -141,8 +141,13 @@ class ipf_rest(_ipf):
         # Generate headers for our get
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
+        _logger.warn("message.body: %s" % message.body)
+
         if message.body:
-            body = message.body.decode("utf-8")
+            if type(message.body) == bytes:
+                body = message.body.decode("utf-8")
+            else:
+                body = message.body
             # A dict will start with "(" here.
             # Is there a prettier way to detect a dict here? 
             if body[0] == "(":
@@ -159,7 +164,7 @@ class ipf_rest(_ipf):
                 _logger.warn("edi_route.get(): url: %s " % get_url)
                 get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
-            # and begin with "http://"
+            # and begin with "{url}"
             else:
                 get_url = body.format(
                     url = self.host,
@@ -172,6 +177,8 @@ class ipf_rest(_ipf):
         else:
             # TODO: throw error?
             pass
+
+        _logger.warn("edi_route.get(): url: %s " % get_url)
 
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)

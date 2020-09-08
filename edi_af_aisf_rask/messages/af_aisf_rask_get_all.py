@@ -34,11 +34,12 @@ class edi_message(models.Model):
     @api.one
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
+            _logger.warn("unpack self.body: %s" % self.body.decode("utf-8"))
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
+            pnr = body.get('arbetssokande').get('personnummer')
 
-            #res_partner_obj = self.env['res.partner'].search([('customer_id', '=', body.customer_id)])
-            res_partner_obj = self.model_record
+            res_partner_obj = self.env['res.partner'].search([('company_registry', '=', pnr)])
             _logger.info("edi_af_aisf_rask.edit_message.unpack() has been called, customer_id: %s" % res_partner_obj.customer_id);
             #if res_partner_obj:
              #   if (self.messageType == "AnsvarigtKontor"):
@@ -64,9 +65,9 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self):
-        obj = self.model_record
-        _logger.info("edi_af_aisf_rask.edit_message.pack() has been called, customer_id: %s" % obj.customer_id);
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
+            obj = self.model_record
+            _logger.info("edi_af_aisf_rask.edit_message.pack() has been called, customer_id: %s" % obj.customer_id);
             self.body = self.edi_type.type_mapping.format(
                 path="ais-f-arbetssokande/v1/arbetssokande/{customer_id}/anpassad?resurser=alla".format(
                     customer_id=obj.customer_id)
