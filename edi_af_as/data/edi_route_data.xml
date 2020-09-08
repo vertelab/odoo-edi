@@ -1,8 +1,16 @@
 <openerp>
     <data noupdate="1">
 
-        <record id="arbetssokande_kontor" model="edi.message.type">
-            <field name="name">AF arbetssokande: Get kontor</field>
+        <record id="asok_office_route" model="edi.route">
+            <field name="name">AF Asok: Get office route</field>
+            <field name="partner_id" ref="base.main_partner"/>
+            <field name="active" eval="True"/>
+            <field name="protocol">ipf</field>
+            <field name="route_type">edi_af_as_office</field>
+        </record>
+
+        <record id="asok_office" model="edi.message.type">
+            <field name="name">AF Asok: Get office</field>
             <field name="target">arbetssokande/rest/v1/arbetssokande/{sokande_id}/kontor</field>
             <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
         </record>

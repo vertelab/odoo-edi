@@ -106,7 +106,7 @@ class ipf_rest(_ipf):
 
         message.model_record.inactivate()
 
-    def _as_kontor(self, message, res):
+    def _as_office(self, message, res):
         # Create calendar.schedule from res
         # res: list of dicts with list of schedules
         # schedules: list of dicts of schedules
@@ -116,11 +116,11 @@ class ipf_rest(_ipf):
         path_arr = path.split('/')
         _logger.info('path from message: %s' % path)
         _logger.info('path_arr[4]: %s' % path_arr[4])
-        #"arbetssokande/rest/v1/arbetssokande/{sokande_id}/kontor"
+        #"arbetssokande/rest/v1/arbetssokande/{sokande_id}/office"
         res.update({'sokande_id': path_arr[3]})
         body = tuple(sorted(res))
         vals = {
-            'name': "AS kontor reply",
+            'name': "AS office reply",
             'body': body,
             'edi_type': message.edi_type.id,
             'res_id': message.res_id.id,
@@ -197,7 +197,7 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 if message.edi_type == 'edi_af_as_notes.asok_daily_note_post':
-                    get_headers.update({'Authorization':'', 'PISA_ID': data_vals.get('ansvarSignatur')}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+                    get_headers.update({'Authorization':self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
 
                 get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
@@ -233,8 +233,8 @@ class ipf_rest(_ipf):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as.arbetssokande_kontor'):
-            self._as_kontor(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as.arbetssokande_office'):
+            self._as_office(message, res)
         elif message.edi_type == message.env.ref('edi_af_as_notes.asok_daily_note_post'):
             self._as_note(message, res)
         elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):

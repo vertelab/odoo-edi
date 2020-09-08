@@ -34,7 +34,7 @@ class edi_message(models.Model):
 
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_as.arbetssokande_kontor').id:
+        if self.edi_type.id == self.env.ref('edi_af_as.asok_office').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
             
@@ -54,16 +54,16 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_as.arbetssokande_kontor').id:
-            if not self.model_record or self.model_record._name != 'res.partner':
-                raise Warning("Appointment: Attached record is not an calendar.schedule! {model}".format(model=self.model_record and self.model_record._name or None))
+        if self.edi_type.id == self.env.ref('edi_af_as.asok_office').id:
+            if not self.model_record or self.model_record._name != 'res.partner' or not self.model_record.is_jobseeker:
+                raise Warning("Appointment: Attached record is not a res.partner or not a jobseeker! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record #res.partner 
             self.body = self.edi_type.type_mapping.format(
                 path = "arbetssokande/rest/v1/arbetssokande/{sokande_id}/kontor".format(sokande_id = obj.customer_id)
             )
             envelope = self.env['edi.envelope'].create({
-                'name': 'arbetssokande kontor request',
+                'name': 'asok office request',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
                 # 'recipient': self.recipient.id,
