@@ -51,6 +51,7 @@ class AppointmentController(http.Controller):
             return Response("Bad request", status=400)
         
         type_id = self.is_int(type_id)
+        office = False
         
         if not type_id:
             return Response("Bad request: Invalid type_id", status=400)
@@ -76,7 +77,7 @@ class AppointmentController(http.Controller):
 
         # TODO: if local meeting, check location arg.
 
-        occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time, stop_time, duration, type_id, int(max_depth))
+        occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time, stop_time, duration, type_id, office, int(max_depth))
         res = {}
 
         for day in occ_list:
