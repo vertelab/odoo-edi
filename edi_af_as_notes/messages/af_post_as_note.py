@@ -51,7 +51,7 @@ class edi_message(models.Model):
                 path = "ais-f-daganteckningar/v1/anteckning",
             )
             body_dict['data'] = {
-                "entitetsId": obj.partner_id.customer_id, 
+                "entitetsId": obj.customer_id, 
                 "anteckningtypId": obj.note_type,
                 "handelsetidpunkt": obj.note_date,
                 "ansvarKontor": obj.office.office_code,

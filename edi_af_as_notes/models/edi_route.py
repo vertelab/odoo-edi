@@ -57,9 +57,9 @@ class edi_envelope(models.Model):
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules'), ('edi_af_ace_wi', 'AF ACE WI')])
+    route_type = fields.Selection(selection_add=[('edi_af_as_notes_post', 'AF asok notes post')])
 
 class edi_message(models.Model):
     _inherit='edi.message'
           
-    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules'), ('edi_af_ace_wi', 'AF ACE WI')])
+    route_type = fields.Selection(selection_add=[('edi_af_as_notes_post', 'AF asok notes post')])

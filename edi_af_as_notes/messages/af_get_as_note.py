@@ -38,9 +38,9 @@ class edi_message(models.Model):
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
             
+            #NOT IMPLEMENTED
 
-
-            daily_note_id = #self.env['calendar.schedule'].search([('type_id','=',type_id.id), ('start','=',start_time_utc)])
+            daily_note_id = False#self.env['calendar.schedule'].search([('type_id','=',type_id.id), ('start','=',start_time_utc)])
             if daily_note_id:
                 # Update existing schedule only two values can change 
                 vals = {
