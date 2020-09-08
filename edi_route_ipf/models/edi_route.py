@@ -108,19 +108,19 @@ class ipf_rest(_ipf):
 
         message.model_record.unlink()
 
-    def _as_kontor(self, message, res):
-        # Create calendar.schedule from res
-        # res: list of dicts with list of schedules
-        # schedules: list of dicts of schedules
+    def _rask_get_all(self, message, res):
+        # Get the answer from the call to AIS-F RASK
         res_set = message.env['edi.message']
 
         body = tuple(sorted(res))
         vals = {
-            'name': "AS kontor reply",
+            'name': "RASK get all reply",
             'body': body,
             'edi_type': message.edi_type.id,
             'res_id': message.res_id.id,
             'route_type': message.route_type,
+            'messageType': message.messageType,
+            'customerId': message.customerId,
         }
         res_message = message.env['edi.message'].create(vals)
         # unpack messages
@@ -156,6 +156,7 @@ class ipf_rest(_ipf):
                     client = self.username,
                     secret = self.password,
                 )
+                _logger.warn("edi_route.get(): url: %s " % get_url)
                 get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
             # and begin with "http://"
@@ -167,6 +168,7 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 data_vals = False
+                _logger.warn("edi_route.get(): url: %s " % get_url)
         else:
             # TODO: throw error?
             pass
@@ -186,12 +188,13 @@ class ipf_rest(_ipf):
         res = json.loads(res_json)
 
         # get list of occasions from res
+        _logger.info("ipf_rest.get() message.edi_type: %s" % message.edi_type)
         if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as.arbetssokande_kontor'):
-            self._as_kontor(message, res)
+        elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all'):
+            self._rask_get_all(message, res)
         elif not res:
             # No result given. Not sure how to handle.
             pass

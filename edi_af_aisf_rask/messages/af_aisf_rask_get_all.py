@@ -27,6 +27,7 @@ _logger = logging.getLogger(__name__)
 
 LOCAL_TZ = 'Europe/Stockholm'
 
+
 class edi_message(models.Model):
     _inherit = 'edi.message'
 
@@ -36,27 +37,39 @@ class edi_message(models.Model):
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
 
-            res_partner_obj = self.env['res.partner'].search([('customer_id', '=', body.customerId)])
-            if res_partner_obj:
-                if (self.messageType == "AnsvarigtKontor"):
-                    office = body.get('kontor')
-                    if office:
-                        office_obj = self.env['res.partner'].search([('office_code', '=', office.get('kontorsKod'))])
-                        if office_obj:
-                            res_partner_obj.office = office_obj
-                else:
-                    pass
-            else:
+            #res_partner_obj = self.env['res.partner'].search([('customer_id', '=', body.customer_id)])
+            res_partner_obj = self.model_record
+            _logger.info("edi_af_aisf_rask.edit_message.unpack() has been called, customer_id: %s" % res_partner_obj.customer_id);
+            #if res_partner_obj:
+             #   if (self.messageType == "AnsvarigtKontor"):
+              #      office = body.get('kontor')
+               #     if office:
+                #        office_obj = self.env['res.partner'].search([('office_code', '=', office.get('kontorsKod'))])
+                 #       if office_obj:
+                 #           res_partner_obj.office = office_obj
+                #elif (self.messageType == "Personuppgift"):
+                 #   res_partner_obj.lastname = body.get('arbetssokande').get('efternamn')
+                #elif (self.messageType == "Sokandekategori"):
+                 #   res_partner_obj.jobseeker_category = body.get('kontakt').get('sokandekategoriKod')
+                #elif (self.messageType == "Avaktualisering"):
+                 #   res_partner_obj.deactualization_date = body.get('processStatus').get('avaktualiseringsDatum')
+                  #  res_partner_obj.deactualization_date = body.get('processStatus').get('deactualization_reason')
+                #else:
+                 #   pass
+            #else:
                 # Skapa res_partner-objekt för den sökande
-                anka = "pelle"
-        else:
-            super(edi_message, self).unpack()
+                #anka = "pelle"
+        #else:
+            #super(edi_message, self).unpack()
 
     @api.one
     def pack(self):
+        obj = self.model_record
+        _logger.info("edi_af_aisf_rask.edit_message.pack() has been called, customer_id: %s" % obj.customer_id);
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             self.body = self.edi_type.type_mapping.format(
-                path="arbetssokande/rest/v1/arbetssokande/{sokande_id}/anpassad?resurser=alla".format(sokande_id=self.sokandeId)
+                path="ais-f-arbetssokande/v1/arbetssokande/{customer_id}/anpassad?resurser=alla".format(
+                    customer_id=obj.customer_id)
             )
             envelope = self.env['edi.envelope'].create({
                 'name': 'RASK all information request',
