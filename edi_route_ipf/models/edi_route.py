@@ -112,6 +112,12 @@ class ipf_rest(_ipf):
         # schedules: list of dicts of schedules
         res_set = message.env['edi.message']
 
+        path = message.body.get('path')
+        path_arr = path.split('/')
+        _logger.info('path from message: %s' % path)
+        _logger.info('path_arr[4]: %s' % path_arr[4])
+        #"arbetssokande/rest/v1/arbetssokande/{sokande_id}/kontor"
+        res.update({'sokande_id': path_arr[3]})
         body = tuple(sorted(res))
         vals = {
             'name': "AS kontor reply",

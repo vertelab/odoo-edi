@@ -1,0 +1,11 @@
+<openerp>
+    <data noupdate="1">
+
+        <record id="arbetssokande_kontor" model="edi.message.type">
+            <field name="name">AF arbetssokande: Get kontor</field>
+            <field name="target">arbetssokande/rest/v1/arbetssokande/{sokande_id}/kontor</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record>
+
+    </data>
+</openerp>
