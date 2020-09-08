@@ -1,3 +1,3 @@
 # import messages here
-from . import af_get_schedule
-from . import af_post_ace_wi
+from . import af_get_as_note
+from . import af_post_as_note
