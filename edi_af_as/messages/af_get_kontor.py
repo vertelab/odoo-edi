@@ -39,6 +39,7 @@ class edi_message(models.Model):
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
             
             office = body.get('kontor')
+            
             if office:
                 jobseeker = self.env['res.partner'].search('customer_id', '=', self.body.get('sokande_id'))
                 office_obj = self.env['res.partner'].search([('office_code', '=', office.get('kontorsKod'))])

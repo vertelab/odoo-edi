@@ -38,7 +38,7 @@ class _ipf(object):
     ''' Abstract class for communication-session. Use only subclasses.
         Subclasses are called by dispatcher function 'run'
     '''
-    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, debug=False):
+    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, authorization=None, debug=False):
         self.host = host
         self.username = username
         self.password = password
@@ -46,6 +46,7 @@ class _ipf(object):
         self.port = port
         self.environment = environment
         self.sys_id = sys_id
+        self.authorization = authorization
 
     def get(self, message):
         pass
@@ -197,7 +198,7 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 if message.edi_type == 'edi_af_as_notes.asok_daily_note_post':
-                    get_headers.update({'Authorization':self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+                    get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
 
                 get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
