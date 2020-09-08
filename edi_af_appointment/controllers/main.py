@@ -154,7 +154,8 @@ class AppointmentController(http.Controller):
         if not desired_time:
             return Response("Bad request: No desired_time", status=400)
 
-        occasions = request.env['calendar.occasion'].sudo().get_bookable_occasions(desired_time, desired_time + timedelta(appointment_length), appointment_length, type_id, 1)
+        office = False
+        occasions = request.env['calendar.occasion'].sudo().get_bookable_occasions(desired_time, desired_time + timedelta(appointment_length), appointment_length, type_id, office, 1)
 
         _logger.warn("occasions: %s" % occasions)
         found = False
