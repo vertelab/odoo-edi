@@ -38,11 +38,11 @@ class edi_message(models.Model):
             # decode string and convert string to tuple, convert tuple to dict
             body = json.loads(self.body.decode("utf-8"))
             
-            office = body.get('kontor')
+            office_code = body.get('kontorsKod')
             
-            if office:
+            if office_code:
                 jobseeker = self.env['res.partner'].search('customer_id', '=', self.body.get('sokande_id'))
-                office_obj = self.env['res.partner'].search([('office_code', '=', office.get('kontorsKod'))])
+                office_obj = self.env['res.partner'].search([('office_code', '=', office_code)])
                 if office_obj:
                     vals = {
                         'office': office_obj.id,
