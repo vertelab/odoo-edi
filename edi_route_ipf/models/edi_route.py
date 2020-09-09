@@ -113,8 +113,10 @@ class ipf_rest(_ipf):
         res_set = message.env['edi.message']
 
         _logger.warn("_rask_get_all res: %s" % res)
+        _logger.warn("_rask_get_all res.items(): %s" % res.items())
+        _logger.warn("_rask_get_all sorted(res.items(): %s" % res.items())
         # TODO: continue here... i think the structure of res somehow breaks this conversion.
-        body = tuple(sorted(res.items()))
+        body = json.dumps(res)
         vals = {
             'name': "RASK get all reply",
             'body': body,

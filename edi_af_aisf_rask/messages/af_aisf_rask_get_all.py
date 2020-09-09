@@ -20,6 +20,7 @@
 ##############################################################################
 from odoo import models, api, _
 import ast
+import json
 
 import logging
 
@@ -36,10 +37,10 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             _logger.warn("unpack self.body: %s" % self.body.decode("utf-8"))
             # decode string and convert string to tuple, convert tuple to dict
-            body = dict(ast.literal_eval(self.body.decode("utf-8")))
-            pnr = body.get('arbetssokande').get('personnummer')
+            body = json.loads(self.body)
+            sokandeId = body.get('arbetssokande').get('sokandeId')
 
-            res_partner_obj = self.env['res.partner'].search([('company_registry', '=', pnr)])
+            res_partner_obj = self.env['res.partner'].search([('customer_id', '=', sokandeId)])
             _logger.info("edi_af_aisf_rask.edit_message.unpack() has been called, customer_id: %s" % res_partner_obj.customer_id);
             #if res_partner_obj:
              #   if (self.messageType == "AnsvarigtKontor"):
@@ -68,6 +69,7 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             obj = self.model_record
             _logger.info("edi_af_aisf_rask.edit_message.pack() has been called, customer_id: %s" % obj.customer_id);
+
             self.body = self.edi_type.type_mapping.format(
                 path="ais-f-arbetssokande/v1/arbetssokande/{customer_id}/anpassad?resurser=alla".format(
                     customer_id=obj.customer_id)
