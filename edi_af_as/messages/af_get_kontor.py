@@ -36,7 +36,7 @@ class edi_message(models.Model):
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_as.asok_office').id:
             # decode string and convert string to tuple, convert tuple to dict
-            body = dict(ast.literal_eval(self.body.decode("utf-8")))
+            body = json.loads(self.body.decode("utf-8"))
             
             office = body.get('kontor')
             
