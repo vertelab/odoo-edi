@@ -46,7 +46,7 @@ class AppointmentController(http.Controller):
         return Response("OK", status=200) 
 
     @http.route('/v1/appointments/bookable-occasions', type='http', auth="public", methods=['GET'])
-    def get_bookable_occasions(self, start=False, stop=False, duration=False, type_id=False, channel=False, location=False, max_depth=1, **kwargs):
+    def get_bookable_occasions(self, start=False, stop=False, duration=False, type_id=False, channel=False, location=False, employee_user_id=False, profession_id=False, max_depth=1, **kwargs):
         if not (type_id and duration and stop and start):
             return Response("Bad request", status=400)
         
