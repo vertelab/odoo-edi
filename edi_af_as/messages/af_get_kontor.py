@@ -61,7 +61,7 @@ class edi_message(models.Model):
 
             obj = self.model_record #res.partner 
             self.body = self.edi_type.type_mapping.format(
-                path = "arbetssokande/v2/ais-f-arbetssokande/kontor/{sokande_id}".format(sokande_id = obj.customer_id)
+                path = "ais-f-arbetssokande/v2/kontor/{sokande_id}".format(sokande_id = obj.customer_id)
             )
             _logger.info('pack body: %s' % self.body)
             envelope = self.env['edi.envelope'].create({
