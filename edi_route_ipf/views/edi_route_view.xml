@@ -20,8 +20,8 @@
                     <field name="af_environment" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
                     <label for="af_system_id" string="AF-SystemId" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
                     <field name="af_system_id" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
-                    <label for="af_authorization_header" string="AF-Authorization header" attrs="{'invisible': [('protocol','not in',['ipf'])]"/>
-                    <field name="af_authorization_header" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])]"/>
+                    <label for="af_authorization_header" string="AF-Authorization header" attrs="{'invisible': [('protocol','not in',['ipf'])]}"/>
+                    <field name="af_authorization_header" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])]}"/>
                 </group>
             </field>
         </record>
