@@ -119,7 +119,7 @@ class ipf_rest(_ipf):
         _logger.info('path_arr[4]: %s' % path_arr[4])
         #"arbetssokande/rest/v1/arbetssokande/{sokande_id}/office"
         res.update({'sokande_id': path_arr[3]})
-        body = tuple(sorted(res))
+        body = json.dumps(res)
         vals = {
             'name': "AS office reply",
             'body': body,
@@ -262,6 +262,8 @@ class edi_route(models.Model):
     # headers
     af_environment = fields.Char(string='AF-Environment',help="If you need help you shouldn't be changing this")
     af_system_id = fields.Char(string='AF-SystemId',help="If you need help you shouldn't be changing this")
+    af_authorization_header = fields.Char(string='AF-Authorization header',help="If you need help you shouldn't be changing this")
+
     # tracking_id is a unique id for each transaction. Not a good parameter to set.
     # af_tracking_id = fields.Char(string='AF-TrackingId',help="If you need help you shouldn't be changing this")
     
@@ -298,7 +300,7 @@ class edi_route(models.Model):
             try:
                 for envelope in envelopes:
                     for msg in envelope.edi_message_ids:
-                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id)
+                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id, authorization=self.authorization)
                         res_messages = endpoint.get(msg)
                         msg.state = 'sent'
                     

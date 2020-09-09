@@ -36,7 +36,7 @@
         'security/ir.model.access.csv',
         'data/edi_route_data.xml',
         #'data/edi.ace_queue.csv',
-        'views/edi_af_appointment_views.xml',
+        'views/edi_af_as_notes_views.xml',
     ],
     'application': False,
     'installable': True,
