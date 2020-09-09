@@ -177,13 +177,17 @@ class ipf_rest(_ipf):
         app.state = 'done'
 
     def get(self, message):
+        _logger.warn("got to get")
         # Generate a unique tracking id
         message.name = af_tracking_id = self._generate_tracking_id()
         # Generate headers for our get
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
         if message.body:
-            body = message.body.decode("utf-8")
+            if type(message.body) == bytes:
+                body = message.body.decode("utf-8")
+            else:
+                body = message.body
             # A dict will start with "(" here.
             # Is there a prettier way to detect a dict here? 
             if body[0] == "(":
@@ -202,6 +206,7 @@ class ipf_rest(_ipf):
                 elif message.edi_type == 'edi_af_as.asok_office':
                     get_headers.update({'Authorization': self.authorization, 'PISA_ID': 'sys'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
                 get_headers['Content-Type'] = 'application/json'
+
             # Else it should be a string
             # and begin with "http://"
             else:
@@ -216,6 +221,7 @@ class ipf_rest(_ipf):
             # TODO: throw error?
             pass
 
+        _logger.info("get_url %s" % get_url)
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:
@@ -236,6 +242,7 @@ class ipf_rest(_ipf):
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+            _logger.warn("got to message type if")
             self._as_office(message, res)
         elif message.edi_type == message.env.ref('edi_af_as_notes.asok_daily_note_post'):
             self._as_note(message, res)
@@ -300,7 +307,7 @@ class edi_route(models.Model):
             try:
                 for envelope in envelopes:
                     for msg in envelope.edi_message_ids:
-                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id, authorization=self.authorization)
+                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id, authorization=self.af_authorization_header)
                         res_messages = endpoint.get(msg)
                         msg.state = 'sent'
                     

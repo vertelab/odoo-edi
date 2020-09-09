@@ -11,7 +11,7 @@
 
         <record id="asok_office" model="edi.message.type">
             <field name="name">AF Asok: Get office</field>
-            <field name="target">arbetssokande/rest/v1/arbetssokande/{sokande_id}/kontor</field>
+            <field name="target">arbetssokande/v2/ais-f-arbetssokande/kontor/{sokande_id}</field>
             <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
         </record>
 
