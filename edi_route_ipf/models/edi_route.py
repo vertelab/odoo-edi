@@ -198,11 +198,12 @@ class ipf_rest(_ipf):
 
         # get list of occasions from res
         _logger.info("ipf_rest.get() message.edi_type: %s" % message.edi_type)
-        if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
-            self._schedules(message, res)
-        elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
-            self._ace_wi(message, res)
-        elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all'):
+        #if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
+         #   self._schedules(message, res)
+        #elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
+         #   self._ace_wi(message, res)
+        #elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all'):
+        if message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all'):
             self._rask_get_all(message, res)
         elif not res:
             # No result given. Not sure how to handle.
