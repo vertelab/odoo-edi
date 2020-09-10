@@ -32,7 +32,7 @@ class edi_message(models.Model):
             
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_asok_notes.asok_daily_note_post').id: 
+        if self.edi_type.id == self.env.ref('edi_af_as_notes.edi_af_as_notes_post').id: 
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
             _logger.warn("RAPID reply: %s" % body)
@@ -41,7 +41,7 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_asok_notes.asok_daily_note_post').id:
+        if self.edi_type.id == self.env.ref('edi_af_as_notes.edi_af_as_notes_post').id:
             if not self.model_record or self.model_record._name != 'res.partner.note' or not self.model_record.partner_id.is_jobseeker:
                 raise Warning("Appointment: Attached record is not an daily note! {model}".format(model=self.model_record and self.model_record._name or None))
 

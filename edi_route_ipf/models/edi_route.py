@@ -112,19 +112,18 @@ class ipf_rest(_ipf):
         # res: list of dicts with list of schedules
         # schedules: list of dicts of schedules
         res_set = message.env['edi.message']
-
-        path = message.body.get('path')
+        path = message.body
         path_arr = path.split('/')
-        _logger.info('path from message: %s' % path)
-        _logger.info('path_arr[4]: %s' % path_arr[4])
-        #"arbetssokande/rest/v1/arbetssokande/{sokande_id}/office"
-        res.update({'sokande_id': path_arr[3]})
+        customer_id = path_arr[4].split('?')[0]
+        _logger.info('sokande_id: %s' % customer_id) 
+        res.update({'sokande_id': customer_id})
+        _logger.info('res: %s' % res)
         body = json.dumps(res)
         vals = {
             'name': "AS office reply",
             'body': body,
             'edi_type': message.edi_type.id,
-            'res_id': message.res_id.id,
+            'res_id': message.res_id,
             'route_type': message.route_type,
         }
         res_message = message.env['edi.message'].create(vals)
@@ -183,7 +182,10 @@ class ipf_rest(_ipf):
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
         if message.body:
-            body = message.body.decode("utf-8")
+            if type(message.body) == bytes:
+                body = message.body.decode("utf-8")
+            else:
+                body = message.body
             # A dict will start with "(" here.
             # Is there a prettier way to detect a dict here? 
             if body[0] == "(":
@@ -197,11 +199,8 @@ class ipf_rest(_ipf):
                     client = self.username,
                     secret = self.password,
                 )
-                if message.edi_type == 'edi_af_as_notes.asok_daily_note_post':
-                    get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
-                elif message.edi_type == 'edi_af_as.asok_office':
-                    get_headers.update({'Authorization': self.authorization, 'PISA_ID': 'sys'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
                 get_headers['Content-Type'] = 'application/json'
+
             # Else it should be a string
             # and begin with "http://"
             else:
@@ -215,7 +214,10 @@ class ipf_rest(_ipf):
         else:
             # TODO: throw error?
             pass
-
+        if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': 'sys'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:
@@ -237,7 +239,7 @@ class ipf_rest(_ipf):
             self._ace_wi(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
             self._as_office(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as_notes.asok_daily_note_post'):
+        elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
             self._as_note(message, res)
         elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):
             self._ag_org(message, res)
@@ -300,7 +302,7 @@ class edi_route(models.Model):
             try:
                 for envelope in envelopes:
                     for msg in envelope.edi_message_ids:
-                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id, authorization=self.authorization)
+                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id, authorization=self.af_authorization_header)
                         res_messages = endpoint.get(msg)
                         msg.state = 'sent'
                     
