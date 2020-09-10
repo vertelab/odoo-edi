@@ -115,9 +115,7 @@ class ipf_rest(_ipf):
         path = message.body
         path_arr = path.split('/')
         customer_id = path_arr[4].split('?')[0]
-        _logger.info('sokande_id: %s' % customer_id) 
         res.update({'sokande_id': customer_id})
-        _logger.info('res: %s' % res)
         body = json.dumps(res)
         vals = {
             'name': "AS office reply",
