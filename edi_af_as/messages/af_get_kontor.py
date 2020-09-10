@@ -41,7 +41,7 @@ class edi_message(models.Model):
             office_code = body.get('kontorsKod')
             _logger.warn("Unpack body: %s" % body)
             if office_code:
-                jobseeker = self.env['res.partner'].search('customer_id', '=', self.body.get('sokande_id'))
+                jobseeker = self.env['res.partner'].search([('customer_id', '=', body.get('sokande_id'))])
                 office_obj = self.env['res.partner'].search([('office_code', '=', office_code)])
                 if office_obj:
                     vals = {
@@ -63,7 +63,6 @@ class edi_message(models.Model):
             self.body = self.edi_type.type_mapping.format(
                 path = "ais-f-arbetssokande/v2/kontor/{sokande_id}".format(sokande_id = obj.customer_id)
             )
-            _logger.info('pack body: %s' % self.body)
             envelope = self.env['edi.envelope'].create({
                 'name': 'asok office request',
                 'route_id': self.route_id.id,

@@ -57,7 +57,7 @@ class edi_message(models.Model):
             postal_address = body.get('basfakta').get('utdelningsadress') 
             visitation_address = body.get('basfakta').get('besoksadress')
             #orgnr = self.env['res.partner'].browse()
-            partner_id = self.env['res.partner'].search([('company_registry', '=', identity.get('orgnr10')), ('cfar_number', '=', "")]) #if it doesn't have cfar it should only return a organisation
+            partner = self.env['res.partner'].search([('company_registry', '=', identity.get('orgnr10')), ('cfar_number', '=', "")]) #if it doesn't have cfar it should only return a organisation
         
             
             if visitation_address.get('land') == "SE":
@@ -70,7 +70,7 @@ class edi_message(models.Model):
             
             #clear out child_ids and append new visitation adress
             child_ids = [(0,0, visitation_address_dict)] #this might be incorrect
-            if partner_id:
+            if partner:
                 # Update existing schedule only two values can change 
                 vals = {
                     'name': identity.get('namn'),
@@ -81,7 +81,7 @@ class edi_message(models.Model):
                     'fax': body.get('basfakta').get('fax'),
                     'child_ids': child_ids
                 }
-                self.env['res.partner'].browse(partner_id).write(vals)
+                partner.write(vals)
 
             else:
                 _logger.error("The partner doesn't exist")

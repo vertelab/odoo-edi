@@ -112,19 +112,18 @@ class ipf_rest(_ipf):
         # res: list of dicts with list of schedules
         # schedules: list of dicts of schedules
         res_set = message.env['edi.message']
-
-        path = message.body.get('path')
+        path = message.body
         path_arr = path.split('/')
-        _logger.info('path from message: %s' % path)
-        _logger.info('path_arr[4]: %s' % path_arr[4])
-        #"arbetssokande/rest/v1/arbetssokande/{sokande_id}/office"
-        res.update({'sokande_id': path_arr[3]})
+        customer_id = path_arr[4].split('?')[0]
+        _logger.info('sokande_id: %s' % customer_id) 
+        res.update({'sokande_id': customer_id})
+        _logger.info('res: %s' % res)
         body = json.dumps(res)
         vals = {
             'name': "AS office reply",
             'body': body,
             'edi_type': message.edi_type.id,
-            'res_id': message.res_id.id,
+            'res_id': message.res_id,
             'route_type': message.route_type,
         }
         res_message = message.env['edi.message'].create(vals)
@@ -177,7 +176,6 @@ class ipf_rest(_ipf):
         app.state = 'done'
 
     def get(self, message):
-        _logger.warn("got to get")
         # Generate a unique tracking id
         message.name = af_tracking_id = self._generate_tracking_id()
         # Generate headers for our get
@@ -201,10 +199,6 @@ class ipf_rest(_ipf):
                     client = self.username,
                     secret = self.password,
                 )
-                if message.edi_type == 'edi_af_as_notes.asok_daily_note_post':
-                    get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
-                elif message.edi_type == 'edi_af_as.asok_office':
-                    get_headers.update({'Authorization': self.authorization, 'PISA_ID': 'sys'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
                 get_headers['Content-Type'] = 'application/json'
 
             # Else it should be a string
@@ -220,8 +214,10 @@ class ipf_rest(_ipf):
         else:
             # TODO: throw error?
             pass
-
-        _logger.info("get_url %s" % get_url)
+        if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': 'sys'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:
@@ -242,9 +238,8 @@ class ipf_rest(_ipf):
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
-            _logger.warn("got to message type if")
             self._as_office(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as_notes.asok_daily_note_post'):
+        elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
             self._as_note(message, res)
         elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):
             self._ag_org(message, res)

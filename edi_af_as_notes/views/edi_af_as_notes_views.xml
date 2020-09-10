@@ -7,7 +7,7 @@
         <field name="code">
         route = env['edi.route'].search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_as_notes.asok_note_post_route'))])
 
-note_vals =
+#note_vals =
 {
     'name': "Test",
     'note': "Test",
@@ -23,7 +23,7 @@ record = env['res.partner.notes'].create(vals)
 
 vals = {
   'name': 'post note msg',
-  'edi_type': env.ref('edi_af_as_notes.asok_daily_note_post').id,
+  'edi_type': env.ref('edi_af_as_notes.edi_af_as_notes_post').id,
   'model': record._name,
   'res_id': record.id,
   'route_id': route.id,
