@@ -182,7 +182,7 @@ class ipf_rest(_ipf):
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
         if message.body:
-            if type(message.body) == bytes:
+            if type(message.body) == bytes :
                 body = message.body.decode("utf-8")
             else:
                 body = message.body
@@ -200,7 +200,18 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 get_headers['Content-Type'] = 'application/json'
-
+            elif type(message.body) == tuple:
+                body = dict(body)
+                # data_vals = json.loads(body.get('data').encode("utf-8"))
+                data_vals = body.get('data')
+                base_url = body.get('base_url')
+                get_url = base_url.format(
+                    url = self.host,
+                    port = self.port,
+                    client = self.username,
+                    secret = self.password,
+                )
+                get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
             # and begin with "http://"
             else:
@@ -218,6 +229,7 @@ class ipf_rest(_ipf):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': 'sys'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+        
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:
