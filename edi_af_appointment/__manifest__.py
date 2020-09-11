@@ -28,7 +28,12 @@
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['edi_route','calendar_af', 'edi_route_ipf', 'af_data_ais-f_loader'],
+    'depends': [
+        'edi_route',
+        'calendar_af', 
+        'edi_route_ipf', 
+        'af_data_ais-f_loader', 
+        'af_security_rules'],
     'external_dependencies': {
     },
     'data': [
