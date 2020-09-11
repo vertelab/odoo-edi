@@ -130,6 +130,25 @@ class ipf_rest(_ipf):
         # unpack messages
         res_message.unpack()
 
+    def _as_channel(self, message, res):
+        res_set = message.env['edi.message']
+
+        path = message.body.get(path) #path = "ais-f-arbetssokande/v2/segmentering/{SokandeId}" 
+        patharray = path.split('/')   #skapa array av värden
+        res.update({'SokandeId':patharray[4]})
+
+        body = json.dumps(res)
+        vals = {
+            'name': "AS segment reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+
     def _as_notes(self, message, res):
         # Create calendar.schedule from res
         # res: list of dicts with list of schedules
@@ -200,7 +219,7 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 get_headers['Content-Type'] = 'application/json'
-
+                _logger.error('error in ipf')
             # Else it should be a string
             # and begin with "http://"
             else:
@@ -217,7 +236,9 @@ class ipf_rest(_ipf):
         if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
-            get_headers.update({'Authorization': self.authorization, 'PISA_ID': 'sys'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:
@@ -238,6 +259,8 @@ class ipf_rest(_ipf):
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+            self._as_office(message, res)
+        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
             self._as_office(message, res)
         elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
             self._as_note(message, res)
