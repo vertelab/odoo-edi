@@ -160,10 +160,10 @@ class AppointmentController(http.Controller):
         _logger.warn("occasions: %s" % occasions)
         found = False
         for book_occasion in occasions:
-            if book_occasion:
+            if book_occasion and book_occasion[0]:
                 found = True
                 _logger.warn("book_occasion: %s" % book_occasion)
-                app = request.env['calendar.occasion'].sudo().reserve_occasion(book_occasion)
+                app = request.env['calendar.occasion'].sudo().reserve_occasion(book_occasion[0])
                 break
 
         if not found:
