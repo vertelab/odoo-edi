@@ -63,7 +63,9 @@ class edi_ace_errand(models.Model):
             partner.set_user()
             # TODO: notify other systems of change
         # request partner access for user
-        res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.code, reason=errand.name, interval=int(errand.interval), user=self.env.user)
+        # TODO: re-add reason_code ????
+        # res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.code, reason=errand.name, interval=int(errand.interval), user=self.env.user)
+        res = partner._grant_jobseeker_access(access_type=errand.right_type, reason=errand.name, interval=int(errand.interval), user=self.env.user)
         _logger.warn("escalate_jobseeker_access: _grant_jobseeker_access: %s" % res)
 
 class calendar_appointment_type(models.Model):
