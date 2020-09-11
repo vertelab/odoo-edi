@@ -52,18 +52,21 @@ class edi_ace_errand(models.Model):
     client_responsible = fields.Boolean(string='Client Responsible', help="Change current user to be responsible for this client, and get permanent rights that goes with it")
 
     @api.model
-    def escelate_jobseeker_access(self, partner, errand_id):
-        _logger.warn("escelate_jobseeker_access: start")
+    def escalate_jobseeker_access(self, partner, errand_id):
+        _logger.warn("escalate_jobseeker_access: start")
         # find meeting_type from errand
         errand = self.env['edi.ace_errand'].search([('code','=',errand_id)])
-        _logger.warn("escelate_jobseeker_access: errand %s" % errand.code)
+        _logger.warn("escalate_jobseeker_access: errand.code %s" % errand.code)
+        _logger.warn("escalate_jobseeker_access: errand.interval: %s type: %s" % (errand.interval, type(errand.interval)))
         if errand.client_responsible:
             # change user_id
             partner.set_user()
             # TODO: notify other systems of change
         # request partner access for user
-        res = partner._grant_jobseeker_access(type=errand.right_type, reason_code=errand.code, reason=errand.name, interval=errand.interval, user=self.env.user)
-        _logger.warn("escelate_jobseeker_access: _grant_jobseeker_access: %s" % res)
+        # TODO: re-add reason_code ????
+        # res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.code, reason=errand.name, interval=int(errand.interval), user=self.env.user)
+        res = partner._grant_jobseeker_access(access_type=errand.right_type, reason=errand.name, interval=int(errand.interval), user=self.env.user)
+        _logger.warn("escalate_jobseeker_access: _grant_jobseeker_access: %s" % res)
 
 class calendar_appointment_type(models.Model):
     _inherit='calendar.appointment.type'

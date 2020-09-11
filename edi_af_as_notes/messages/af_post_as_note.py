@@ -42,7 +42,7 @@ class edi_message(models.Model):
     @api.one
     def pack(self):
         if self.edi_type.id == self.env.ref('edi_af_as_notes.edi_af_as_notes_post').id:
-            if not self.model_record or self.model_record._name != 'res.partner.note' or not self.model_record.partner_id.is_jobseeker:
+            if not self.model_record or self.model_record._name != 'res.partner.notes' or not self.model_record.partner_id.is_jobseeker:
                 raise Warning("Appointment: Attached record is not an daily note! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record
@@ -52,8 +52,8 @@ class edi_message(models.Model):
             )
             body_dict['data'] = {
                 "entitetsId": obj.customer_id, 
-                "anteckningtypId": obj.note_type,
-                "handelsetidpunkt": obj.note_date,
+                "anteckningtypId": obj.note_type.name,
+                "handelsetidpunkt": obj.note_date.strftime("%Y-%m-%d"),
                 "ansvarKontor": obj.office.office_code,
                 "ansvarSignatur": obj.administrative_officer.login,
                 "avsandandeSystem": "CRM", 
@@ -65,6 +65,8 @@ class edi_message(models.Model):
                 "sekretess": 'true' if obj.is_confidential else 'false',
                 "samtycke": 'false'
             }
+            #_logger.info('administrative_officer login: %s' % obj.administrative_officer)
+            #_logger.info(body_dict['data'])
             self.body = tuple(sorted(body_dict.items()))
 
             envelope = self.env['edi.envelope'].create({
