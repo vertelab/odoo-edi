@@ -45,6 +45,8 @@ class edi_message(models.Model):
             # TODO: hantera office
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
             jobseeker_dict = {
+                'firstname': body.get('arbetssokande').get('fornamn'),
+                'lastname': body.get('arbetssokande').get('efternamn'),
                 'company_registry': body.get('arbetssokande').get('personnummer'),
                 'customer_since': body.get('processStatus').get('aktuellSedanDatum'),
                 'share_info_with_employers': body.get('medgivande').get('infoTillArbetsgivare'),
@@ -77,8 +79,8 @@ class edi_message(models.Model):
                     res_partner_obj.zip = zip
                     res_partner_obj.city = city
                     _logger.info("edi_af_aisf_rask.edit_message.upack() - adressTyp = FBF")
-                elif address.get('adressTyp') == 'EGEN':
-                    _logger.info("edi_af_aisf_rask.edit_message.upack() - adressTyp = EGEN")
+                elif address.get('adressTyp') == 'EGEN' or address.get('adressTyp') == 'UTL':
+                    _logger.info("edi_af_aisf_rask.edit_message.upack() - adressTyp = EGEN or UTL")
                     given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                     if not given_address_object:
                         _logger.info("edi_af_aisf_rask.edit_message.upack() - no given address object exists")
