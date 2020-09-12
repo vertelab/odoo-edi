@@ -112,9 +112,9 @@ class ipf_rest(_ipf):
         # Get the answer from the call to AIS-F RASK
         res_set = message.env['edi.message']
 
-        _logger.warn("_rask_get_all res: %s" % res)
-        _logger.warn("_rask_get_all res.items(): %s" % res.items())
-        _logger.warn("_rask_get_all sorted(res.items(): %s" % res.items())
+        #_logger.warn("_rask_get_all res: %s" % res)
+        #_logger.warn("_rask_get_all res.items(): %s" % res.items())
+        #_logger.warn("_rask_get_all sorted(res.items(): %s" % res.items())
         # TODO: continue here... i think the structure of res somehow breaks this conversion.
         body = json.dumps(res)
         vals = {
@@ -125,7 +125,6 @@ class ipf_rest(_ipf):
             'route_type': message.route_type,
         }
         res_message = message.env['edi.message'].create(vals)
-        # unpack messages
         res_message.unpack()
 
     def _ace_wi(self, message, res):
@@ -143,7 +142,7 @@ class ipf_rest(_ipf):
         # Generate headers for our get
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
-        _logger.warn("message.body: %s" % message.body)
+        #_logger.warn("message.body: %s" % message.body)
 
         if message.body:
             if type(message.body) == bytes:
@@ -163,7 +162,7 @@ class ipf_rest(_ipf):
                     client = self.username,
                     secret = self.password,
                 )
-                _logger.warn("edi_route.get(): url: %s " % get_url)
+                #_logger.warn("edi_route.get(): url: %s " % get_url)
                 get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
             # and begin with "{url}"
@@ -175,12 +174,12 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 data_vals = False
-                _logger.warn("edi_route.get(): url: %s " % get_url)
+                #_logger.warn("edi_route.get(): url: %s " % get_url)
         else:
             # TODO: throw error?
             pass
 
-        _logger.warn("edi_route.get(): url: %s " % get_url)
+       # _logger.warn("edi_route.get(): url: %s " % get_url)
 
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
