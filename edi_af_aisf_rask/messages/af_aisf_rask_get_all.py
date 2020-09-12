@@ -41,17 +41,9 @@ class edi_message(models.Model):
             # fornamn = body.get('arbetssokande').get('fornamn')
             # efternamn = body.get('arbetssokande').get('efternamn')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id)])
-            res_partner_obj.company_registry = body.get('arbetssokande').get('personnummer')
-            res_partner_obj.customer_since = body.get('processStatus').get('aktuellSedanDatum')
-            res_partner_obj.share_info_with_employers = body.get('medgivande').get('infoTillArbetsgivare')
-            res_partner_obj.phone = body.get('kontaktuppgifter').get('telefonBostad')
-            res_partner_obj.work_phone = body.get('kontaktuppgifter').get('telefonArbetet')
-            res_partner_obj.mobile = body.get('kontaktuppgifter').get('telefonMobil')
-            res_partner_obj.jobseeker_category = body.get('kontakt').get('sokandekategoriKod')
-            res_partner_obj.deactualization_date = body.get('processStatus').get('avaktualiseringsDatum')
-            res_partner_obj.deactualization_reason = body.get('processStatus').get('avaktualiseringsOrsaksKod')
-            res_partner_obj.email = body.get('kontaktuppgifter').get('epost')
-            # TODO: hur hantera hemkommunKod?
+            # TODO: hantera hemkommunKod
+            # TODO: hantera office
+            # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
             jobseeker_dict = {
                 'company_registry': body.get('arbetssokande').get('personnummer'),
                 'customer_since': body.get('processStatus').get('aktuellSedanDatum'),
@@ -64,13 +56,12 @@ class edi_message(models.Model):
                 'deactualization_reason': body.get('processStatus').get('avaktualiseringsOrsaksKod'),
                 'email': body.get('kontaktuppgifter').get('epost'),
             }
-            #res_partner_obj.write(jobseeker_dict)
+            res_partner_obj.write(jobseeker_dict)
 
             for address in body.get('kontaktuppgifter').get('adresser'):
                 streetaddress = address.get('gatuadress')
                 streetadress_array = streetaddress.split(",")
                 if len(streetadress_array) == 1:
-                    # street = address.get('gatuadress')
                     street = streetadress_array[0]
                     street2 = None
                 elif len(streetadress_array) > 1:
@@ -80,16 +71,14 @@ class edi_message(models.Model):
                 city = address.get('postort')
                 # TODO: hur hantera landsadress?
 
-                # _logger.info("edi_af_aisf_rask.edit_message.upack() - streetaddress %s:" % streetaddress)
-                # _logger.info("edi_af_aisf_rask.edit_message.upack() - street %s:" % street)
-                # _logger.info("edi_af_aisf_rask.edit_message.upack() - street2 %s:" % street2)
-
                 if address.get('adressTyp') == 'FBF':
                     res_partner_obj.street = street
                     res_partner_obj.street2 = street2
                     res_partner_obj.zip = zip
                     res_partner_obj.city = city
+                    _logger.info("edi_af_aisf_rask.edit_message.upack() - adressTyp = FBF")
                 elif address.get('adressTyp') == 'EGEN':
+                    _logger.info("edi_af_aisf_rask.edit_message.upack() - adressTyp = EGEN")
                     given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                     if not given_address_object:
                         _logger.info("edi_af_aisf_rask.edit_message.upack() - no given address object exists")
@@ -109,9 +98,6 @@ class edi_message(models.Model):
                         given_address_object.zip = zip
                         given_address_object.city = city
                         _logger.info("edi_af_aisf_rask.edit_message.upack() - given address object exists")
-
-            # TODO: hantera office
-            # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
 
             _logger.info("edi_af_aisf_rask.edit_message.upack() - res.partner-object updated")
 
