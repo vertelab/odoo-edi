@@ -42,6 +42,7 @@ class edi_message(models.Model):
             # efternamn = body.get('arbetssokande').get('efternamn')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id)])
             # TODO: hantera hemkommunKod
+            office_obj = self.env['res.partner'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
             # TODO: hantera office
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
             jobseeker_dict = {
@@ -57,6 +58,7 @@ class edi_message(models.Model):
                 'deactualization_date': body.get('processStatus').get('avaktualiseringsDatum'),
                 'deactualization_reason': body.get('processStatus').get('avaktualiseringsOrsaksKod'),
                 'email': body.get('kontaktuppgifter').get('epost'),
+                'office': office_obj.id,
             }
             res_partner_obj.write(jobseeker_dict)
 
