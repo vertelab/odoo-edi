@@ -37,13 +37,9 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             body = json.loads(self.body)
             customer_id = body.get('arbetssokande').get('sokandeId')
-            # TODO: hur hanterat fornamn oc efternamn map name?
-            # fornamn = body.get('arbetssokande').get('fornamn')
-            # efternamn = body.get('arbetssokande').get('efternamn')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id)])
             # TODO: hantera hemkommunKod
             office_obj = self.env['res.partner'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
-            # TODO: hantera office
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
             jobseeker_dict = {
                 'firstname': body.get('arbetssokande').get('fornamn'),
