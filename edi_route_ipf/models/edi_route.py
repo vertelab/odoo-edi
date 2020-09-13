@@ -260,11 +260,11 @@ class ipf_rest(_ipf):
         else:
             # TODO: throw error?
             pass
-        if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
+        if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
-        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
-        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
+        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
 
         # Build our request using url and headers
@@ -283,19 +283,19 @@ class ipf_rest(_ipf):
 
         # get list of occasions from res
         _logger.info("ipf_rest.get() message.edi_type: %s" % message.edi_type)
-        if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
+        if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules', raise_if_not_found=False):
             self._schedules(message, res)
-        elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
+        elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi', raise_if_not_found=False):
             self._ace_wi(message, res)
-        elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all'):
+        elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all', raise_if_not_found=False):
             self._rask_get_all(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
             self._as_office(message, res)
-        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
+        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             self._as_office(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
+        elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post', raise_if_not_found=False):
             self._as_note(message, res)
-        elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):
+        elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation', raise_if_not_found=False):
             self._ag_org(message, res)
         elif not res:
             # No result given. Not sure how to handle.
