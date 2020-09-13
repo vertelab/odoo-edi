@@ -34,7 +34,7 @@ class edi_message(models.Model):
             
     @api.one
     def unpack(self): #get the result of the request and update
-        if self.edi_type.id == self.env.ref('edi_af_organisation.organisation').id:
+        if self.edi_type.id == self.env.ref('edi_ag_ag.ag_organisation').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
             
@@ -57,7 +57,7 @@ class edi_message(models.Model):
             postal_address = body.get('basfakta').get('utdelningsadress') 
             visitation_address = body.get('basfakta').get('besoksadress')
             #orgnr = self.env['res.partner'].browse()
-            partner_id = self.env['res.partner'].search([('company_registry', '=', identity.get('orgnr10')), ('cfar_number', '=', "")]) #if it doesn't have cfar it should only return a organisation
+            partner = self.env['res.partner'].search([('company_registry', '=', identity.get('orgnr10')), ('cfar_number', '=', "")]) #if it doesn't have cfar it should only return a organisation
         
             
             if visitation_address.get('land') == "SE":
@@ -70,7 +70,7 @@ class edi_message(models.Model):
             
             #clear out child_ids and append new visitation adress
             child_ids = [(0,0, visitation_address_dict)] #this might be incorrect
-            if partner_id:
+            if partner:
                 # Update existing schedule only two values can change 
                 vals = {
                     'name': identity.get('namn'),
@@ -81,7 +81,7 @@ class edi_message(models.Model):
                     'fax': body.get('basfakta').get('fax'),
                     'child_ids': child_ids
                 }
-                self.env['res.partner'].browse(partner_id).write(vals)
+                partner.write(vals)
 
             else:
                 _logger.error("The partner doesn't exist")
@@ -90,7 +90,7 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self): #ask about thing that needs update
-        if self.edi_type.id == self.env.ref('edi_af_organisation.organisation').id:
+        if self.edi_type.id == self.env.ref('edi_ag_ag.ag_organisation').id:
             if not self.model_record or self.model_record._name != 'res.partner':
                 raise Warning("Appointment: Attached record is not an res.partner! {model}".format(model=self.model_record and self.model_record._name or None))
 
@@ -101,7 +101,7 @@ class edi_message(models.Model):
             )
 
             envelope = self.env['edi.envelope'].create({
-                'name': 'Appointment schedules request',
+                'name': 'ag organisation request',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
                 # 'recipient': self.recipient.id,

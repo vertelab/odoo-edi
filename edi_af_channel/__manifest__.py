@@ -20,29 +20,20 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Appointment',
+    'name': 'EDI AF Channel',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'EDI AF Appointment - support for appointments ',
+    'summary': 'EDI AF Channel - Return channel through which jobseekers sign on',
     'licence': 'AGPL-3',
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': [
-        'edi_route',
-        'calendar_af', 
-        'edi_route_ipf', 
-        'af_data_ais-f_loader', 
-        'af_security_rules'],
+    'depends': ['partner_view_360', 'edi_route_ipf', 'af_data_ais-f_loader'],
     'external_dependencies': {
     },
     'data': [
-        'security/ir.model.access.csv',
         'data/edi_route_data.xml',
-        'data/edi.ace_queue.csv',
-        'data/edi.ace_errand.csv',
-        'views/edi_af_appointment_views.xml',
-        'data/res_users.xml'
+        'views/edi_af_channel_views.xml',
     ],
     'application': False,
     'installable': True,

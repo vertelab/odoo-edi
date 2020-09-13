@@ -1,0 +1,19 @@
+<openerp>
+    <data noupdate="1">
+
+        <record id="asok_office_route" model="edi.route">
+            <field name="name">AF Asok: Get office route</field>
+            <field name="partner_id" ref="base.main_partner"/>
+            <field name="active" eval="True"/>
+            <field name="protocol">ipf</field>
+            <field name="route_type">edi_af_as_office</field>
+        </record>
+
+        <record id="asok_office" model="edi.message.type">
+            <field name="name">AF Asok: Get office</field>
+            <field name="target">ais-f-arbetssokande/v2/kontor/{sokande_id}</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record>
+
+    </data>
+</openerp>

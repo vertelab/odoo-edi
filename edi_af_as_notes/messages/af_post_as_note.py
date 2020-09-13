@@ -27,49 +27,50 @@ import ast
 import logging
 _logger = logging.getLogger(__name__)
 
-LOCAL_TZ = 'Europe/Stockholm'
-
 class edi_message(models.Model):
     _inherit='edi.message'
             
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id: 
+        if self.edi_type.id == self.env.ref('edi_af_as_notes.edi_af_as_notes_post').id: 
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
+            _logger.warn("RAPID reply: %s" % body)
         else:
             super(edi_message, self).unpack()
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id:
-            if not self.model_record or self.model_record._name != 'edi.ace_workitem':
-                raise Warning("Appointment: Attached record is not an edi.ace_workitem! {model}".format(model=self.model_record and self.model_record._name or None))
+        if self.edi_type.id == self.env.ref('edi_af_as_notes.edi_af_as_notes_post').id:
+            if not self.model_record or self.model_record._name != 'res.partner.notes' or not self.model_record.partner_id.is_jobseeker:
+                raise Warning("Appointment: Attached record is not an daily note! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record
             body_dict = {}
             body_dict['base_url'] = self.edi_type.type_mapping.format(
-                path = "appointments/v2/phone-appointments/queues/{queueId}/workitems".format(queueId=obj.queue.name),
+                path = "ais-f-daganteckningar/v1/anteckning",
             )
             body_dict['data'] = {
-                'from': 'AFCRM',
-                'subject': 'AFCRM %s' % obj.queue.name,
-                'text': obj.text,
-                'label': 'BokaMote',
-                'errand': obj.errand.code,
-                'customer': {
-                    'id': {
-                        'pnr': obj.appointment_id.partner_id.company_registry.replace('-', '')
-                    },
-                    'phone_mobile': (obj.appointment_id.partner_id.mobile or obj.appointment_id.partner_id.phone).replace(' ', ''),
-                    'phone_home': obj.appointment_id.partner_id.phone.replace(' ', '')
-                }
+                "entitetsId": obj.customer_id, 
+                "anteckningtypId": obj.note_type.name,
+                "handelsetidpunkt": obj.note_date.strftime("%Y-%m-%d"),
+                "ansvarKontor": obj.office.office_code,
+                "ansvarSignatur": obj.administrative_officer.login,
+                "avsandandeSystem": "CRM", 
+                "avsandandeSystemReferens": "null",
+                "lank": "null",
+                "text": obj.note,
+                "rubrik": obj.name,
+                "redigerbar": "A",
+                "sekretess": 'true' if obj.is_confidential else 'false',
+                "samtycke": 'false'
             }
-            _logger.warn("body_dict: %s" % body_dict)
+            #_logger.info('administrative_officer login: %s' % obj.administrative_officer)
+            #_logger.info(body_dict['data'])
             self.body = tuple(sorted(body_dict.items()))
 
             envelope = self.env['edi.envelope'].create({
-                'name': 'Appointment ACE WI post',
+                'name': 'Jobseeker daily note post',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
                 'edi_message_ids': [(6, 0, [self.id])]

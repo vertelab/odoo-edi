@@ -1,0 +1,19 @@
+<openerp>
+    <data noupdate="1">
+        <record id="asok_segment_route" model="edi.route"> 
+            <field name="name">AF Asok: Get segment route</field> 
+            <field name="partner_id" ref="base.main_partner"/> 
+            <field name="active" eval="True"/> 
+            <field name="protocol">ipf</field> 
+            <field name="route_type">edi_af_as_segment</field> 
+        </record>
+
+        <record id="registration_channel" model="edi.message.type">
+            <field name="name">AF asok: Get segment</field>
+            <field name="target">ais-f-arbetssokande/v2/segmentering/{SokandeId}</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record>
+
+    </data>
+</openerp>
+ 

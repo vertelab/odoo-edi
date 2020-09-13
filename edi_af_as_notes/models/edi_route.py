@@ -28,10 +28,13 @@ _logger = logging.getLogger(__name__)
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules'), ('edi_af_ace_wi', 'AF ACE WI')])
+    route_type = fields.Selection(selection_add=[('edi_af_as_notes_post', 'AF asok notes post'),('edi_af_as_notes_get', 'AF asok notes get')])
 
     @api.one
     def fold(self,route): # Folds messages in an envelope
+        # TODO: do we need to do something here?
+        # for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
+        #     m.envelope_id = self.id
         envelope = super(edi_envelope,self).fold(route)
         return envelope
 
@@ -45,6 +48,8 @@ class edi_envelope(models.Model):
                 'route_type': self.route_type,
                 'sender': self.sender,
                 'recipient': self.recipient,
+                #~ 'consignor_id': sender.id,
+                #~ 'consignee_id': recipient.id,
             })
             msg.unpack()
         self.envelope_opened()
@@ -52,9 +57,9 @@ class edi_envelope(models.Model):
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules'), ('edi_af_ace_wi', 'AF ACE WI')])
+    route_type = fields.Selection(selection_add=[('edi_af_as_notes_post', 'AF asok notes post'),('edi_af_as_notes_get', 'AF asok notes get')])
 
 class edi_message(models.Model):
     _inherit='edi.message'
           
-    route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules'), ('edi_af_ace_wi', 'AF ACE WI')])
+    route_type = fields.Selection(selection_add=[('edi_af_as_notes_post', 'AF asok notes post'),('edi_af_as_notes_get', 'AF asok notes get')])
