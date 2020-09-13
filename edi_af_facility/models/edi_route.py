@@ -28,14 +28,14 @@ _logger = logging.getLogger(__name__)
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_office_venue', 'AF Office venue') #, ('edi_af_as_office', 'AF AS office')])
+    route_type = fields.Selection(selection_add=[('edi_af_office_campus', 'AF Office campus') #, ('edi_af_as_office', 'AF AS office')])
 
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_office_venue', 'AF Office venue') #, ('edi_af_as_office', 'AF AS office')])
+    route_type = fields.Selection(selection_add=[('edi_af_office_campus', 'AF Office campus') #, ('edi_af_as_office', 'AF AS office')])
 
 class edi_message(models.Model):
     _inherit='edi.message'
           
-    route_type = fields.Selection(selection_add=[('edi_af_office_venue', 'AF Office venue') #, ('edi_af_as_office', 'AF AS office')])
+    route_type = fields.Selection(selection_add=[('edi_af_office_campus', 'AF Office campus') #, ('edi_af_as_office', 'AF AS office')])
