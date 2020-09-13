@@ -87,7 +87,8 @@ class ipf_rest(_ipf):
 
         for comp_day in res:
             # assumes that there's only ever one competence
-            type_id = message.env['calendar.appointment.type'].search([('ipf_id','=',comp_day.get('competence').get('id'))]).id
+            type_id = message.env['calendar.appointment.type'].search(
+                [('ipf_id','=',comp_day.get('competence').get('id'))]).id
             for schedule in comp_day.get('schedules'):
                 # Create messages from result
                 schedule['type_id'] = type_id
@@ -182,7 +183,7 @@ class ipf_rest(_ipf):
         res_message = message.env['edi.message'].create(vals)
         # unpack messages
         res_message.unpack()
-    
+
     def _ace_wi(self, message, res):
         # Why does these not update?
         message.state = "received"
@@ -191,6 +192,22 @@ class ipf_rest(_ipf):
         ace_wi = message.env['edi.ace_workitem'].search([('id', '=', message.res_id)])
         app = message.env['calendar.appointment'].search([('id', '=', ace_wi.appointment_id.id)])
         app.state = 'done'
+
+    def _rask_get_all(self, message, res):
+        # Get the answer from the call to AIS-F RASK
+        res_set = message.env['edi.message']
+
+        # TODO: continue here... i think the structure of res somehow breaks this conversion.
+        body = json.dumps(res)
+        vals = {
+            'name': "RASK get all reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        res_message.unpack()
 
     def get(self, message):
         # Generate a unique tracking id
@@ -231,7 +248,7 @@ class ipf_rest(_ipf):
                 get_headers['Content-Type'] = 'application/json'
 
             # Else it should be a string
-            # and begin with "http://"
+            # and begin with "{url}"
             else:
                 get_url = body.format(
                     url = self.host,
@@ -265,10 +282,13 @@ class ipf_rest(_ipf):
         res = json.loads(res_json)
 
         # get list of occasions from res
+        _logger.info("ipf_rest.get() message.edi_type: %s" % message.edi_type)
         if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
+        elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all'):
+            self._rask_get_all(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
             self._as_office(message, res)
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
@@ -330,7 +350,8 @@ class edi_route(models.Model):
     @api.multi
     def _run_out(self, envelopes):
         if self.protocol == 'ipf':
-            if not (self.af_ipf_url or self.af_ipf_port or self.client_id or self.client_secret or self.af_environment or self.af_system_id):
+            if not (
+                    self.af_ipf_url or self.af_ipf_port or self.client_id or self.client_secret or self.af_environment or self.af_system_id):
                 raise Warning('Please setup AF IPF Information') # this code should be unreachable.
 
             try:
