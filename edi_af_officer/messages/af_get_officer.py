@@ -38,8 +38,8 @@ class edi_message(models.Model):
             # decode string and convert string to tuple, convert tuple to dict
             body = json.loads(self.body.decode("utf-8"))
             for officer in body:
-                operation = self.env['hr.campus'].browse(self.env['ir.model.data'].xmlid_to_res_id('__facility_import__.part_campus_%s' % officer.get('workplaceNumber')))
-                office = self.env['hr.department'].browse(self.env['ir.model.data'].xmlid_to_res_id('__ais_import__.part_office_%s' % officer.get('officeCode')))
+                campus = self.env['hr.campus'].browse(self.env['ir.model.data'].xmlid_to_res_id('__facility_import__.campus_%s' % officer.get('workplaceNumber')))
+                office = self.env['hr.department'].browse(self.env['ir.model.data'].xmlid_to_res_id('__ais_import__.dptmnt_%s' % officer.get('officeCode')))
                 vals = {
                     'firstname': officer.get('firstName'),
                     'lastname': officer.get('lastName'),
@@ -49,7 +49,7 @@ class edi_message(models.Model):
                     'phone': officer.get('telephoneNumber'),
                     'mobile': officer.get('mobileNumber'),
                     'office': office.id,
-                    'campus': [(4,operation.id)]
+                    'campus': [(4,campus.id)]
                 }
                 #     {
                 #     "id" : "32d2a8d6-b521-c391-d018-a5bb762d4d59",
