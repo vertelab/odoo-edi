@@ -38,7 +38,7 @@ class _ipf(object):
     ''' Abstract class for communication-session. Use only subclasses.
         Subclasses are called by dispatcher function 'run'
     '''
-    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None,
+    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, authorization=None,
                  debug=False):
         self.host = host
         self.username = username
@@ -106,15 +106,12 @@ class ipf_rest(_ipf):
         if res_set:
             res_set.unpack()
 
-        message.model_record.unlink()
+        message.model_record.inactivate()
 
     def _rask_get_all(self, message, res):
         # Get the answer from the call to AIS-F RASK
         res_set = message.env['edi.message']
 
-        #_logger.warn("_rask_get_all res: %s" % res)
-        #_logger.warn("_rask_get_all res.items(): %s" % res.items())
-        #_logger.warn("_rask_get_all sorted(res.items(): %s" % res.items())
         # TODO: continue here... i think the structure of res somehow breaks this conversion.
         body = json.dumps(res)
         vals = {
