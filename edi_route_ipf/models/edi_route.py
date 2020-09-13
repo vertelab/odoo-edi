@@ -142,8 +142,6 @@ class ipf_rest(_ipf):
         # Generate headers for our get
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
-        #_logger.warn("message.body: %s" % message.body)
-
         if message.body:
             if type(message.body) == bytes:
                 body = message.body.decode("utf-8")
@@ -162,7 +160,6 @@ class ipf_rest(_ipf):
                     client = self.username,
                     secret = self.password,
                 )
-                #_logger.warn("edi_route.get(): url: %s " % get_url)
                 get_headers['Content-Type'] = 'application/json'
             # Else it should be a string
             # and begin with "{url}"
@@ -174,12 +171,9 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 data_vals = False
-                #_logger.warn("edi_route.get(): url: %s " % get_url)
         else:
             # TODO: throw error?
             pass
-
-       # _logger.warn("edi_route.get(): url: %s " % get_url)
 
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
@@ -197,12 +191,11 @@ class ipf_rest(_ipf):
 
         # get list of occasions from res
         _logger.info("ipf_rest.get() message.edi_type: %s" % message.edi_type)
-        #if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
-         #   self._schedules(message, res)
-        #elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
-         #   self._ace_wi(message, res)
-        #elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all'):
-        if message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all'):
+        if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
+            self._schedules(message, res)
+        elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
+            self._ace_wi(message, res)
+        elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all'):
             self._rask_get_all(message, res)
         elif not res:
             # No result given. Not sure how to handle.
