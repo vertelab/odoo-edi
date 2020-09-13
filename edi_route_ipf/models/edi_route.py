@@ -38,8 +38,7 @@ class _ipf(object):
     ''' Abstract class for communication-session. Use only subclasses.
         Subclasses are called by dispatcher function 'run'
     '''
-    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, authorization=None,
-                 debug=False):
+    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, authorization=None, debug=False):
         self.host = host
         self.username = username
         self.password = password
@@ -108,6 +107,15 @@ class ipf_rest(_ipf):
 
         message.model_record.inactivate()
 
+    def _ace_wi(self, message, res):
+        # Why does these not update?
+        message.state = "received"
+        message.envelope_id.state = "received"
+        
+        ace_wi = message.env['edi.ace_workitem'].search([('id', '=', message.res_id)])
+        app = message.env['calendar.appointment'].search([('id', '=', ace_wi.appointment_id.id)])
+        app.state = 'done'
+
     def _rask_get_all(self, message, res):
         # Get the answer from the call to AIS-F RASK
         res_set = message.env['edi.message']
@@ -123,15 +131,6 @@ class ipf_rest(_ipf):
         }
         res_message = message.env['edi.message'].create(vals)
         res_message.unpack()
-
-    def _ace_wi(self, message, res):
-        # Why does these not update?
-        message.state = "received"
-        message.envelope_id.state = "received"
-        
-        ace_wi = message.env['edi.ace_workitem'].search([('id', '=', message.res_id)])
-        app = message.env['calendar.appointment'].search([('id', '=', ace_wi.appointment_id.id)])
-        app.state = 'done'
 
     def get(self, message):
         # Generate a unique tracking id
