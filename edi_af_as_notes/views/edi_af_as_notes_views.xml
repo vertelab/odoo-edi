@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="af_edi_as_notes" model="ir.actions.server">
+        <field name="name">EDI AF post note</field>
+        <field name="model_id" ref="base.model_ir_actions_server"/>
+        <field name="state">code</field>
+        <field name="code">
+route = env['edi.route'].search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_as_notes.asok_note_post_route'))])
+
+note_vals = {
+    'name': "Test",
+    'note': "Test",
+    'note_date': "2020-08-31",
+    'administrative_officer': env['res.users'].browse(env['ir.model.data'].xmlid_to_res_id('edi_af_appointment.user_sunea')).id,
+    'is_confidential': False,
+    'note_type': env['res.partner.note.type'].browse(1).id,
+    'office': env['res.partner'].browse(env['ir.model.data'].xmlid_to_res_id('__ais_import__.part_office_2050')).id,
+    'partner_id': env['res.partner'].browse(env['ir.model.data'].xmlid_to_res_id('__ais_import__.part_jbskr_2280')).id,
+}
+
+record = env['res.partner.notes'].create(note_vals)
+
+vals = {
+  'name': 'post note msg',
+  'edi_type': env.ref('edi_af_as_notes.edi_af_as_notes_post').id,
+  'model': record._name,
+  'res_id': record.id,
+  'route_id': route.id,
+  'route_type': 'edi_af_as_notes_post',
+}
+
+message = env['edi.message'].create(vals)
+message.pack()
+route.run()
+        
+        
+        </field>
+    </record>
+
+ 
+</odoo>

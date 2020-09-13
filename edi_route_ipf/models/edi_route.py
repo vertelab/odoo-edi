@@ -38,7 +38,7 @@ class _ipf(object):
     ''' Abstract class for communication-session. Use only subclasses.
         Subclasses are called by dispatcher function 'run'
     '''
-    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, debug=False):
+    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, authorization=None, debug=False):
         self.host = host
         self.username = username
         self.password = password
@@ -46,6 +46,7 @@ class _ipf(object):
         self.port = port
         self.environment = environment
         self.sys_id = sys_id
+        self.authorization = authorization
 
     def get(self, message):
         pass
@@ -74,6 +75,7 @@ class ipf_rest(_ipf):
             'AF-Environment': af_environment,
             'AF-SystemId': af_system_id,
             'AF-TrackingId': af_tracking_id,
+            'AF-EndUserId': 'AFCRM',
         }
         return get_headers
 
@@ -103,7 +105,83 @@ class ipf_rest(_ipf):
         if res_set:
             res_set.unpack()
 
-        message.model_record.unlink()
+        message.model_record.inactivate()
+
+    def _as_office(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+        path = message.body
+        path_arr = path.split('/')
+        customer_id = path_arr[4].split('?')[0]
+        res.update({'sokande_id': customer_id})
+        body = json.dumps(res)
+        vals = {
+            'name': "AS office reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+
+    def _as_channel(self, message, res):
+        res_set = message.env['edi.message']
+
+        path = message.body.get(path) #path = "ais-f-arbetssokande/v2/segmentering/{SokandeId}" 
+        patharray = path.split('/')   #skapa array av värden
+        res.update({'SokandeId':patharray[4]})
+
+        body = json.dumps(res)
+        vals = {
+            'name': "AS segment reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+
+    def _as_notes(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+
+        body = tuple(sorted(res))
+        vals = {
+            'name': "AS Note reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id.id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+    
+    def _ag_org(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+
+        body = tuple(sorted(res))
+        vals = {
+            'name': "AS Org reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id.id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
     
     def _ace_wi(self, message, res):
         # Why does these not update?
@@ -121,7 +199,10 @@ class ipf_rest(_ipf):
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
         if message.body:
-            body = message.body.decode("utf-8")
+            if type(message.body) == bytes :
+                body = message.body.decode("utf-8")
+            else:
+                body = message.body
             # A dict will start with "(" here.
             # Is there a prettier way to detect a dict here? 
             if body[0] == "(":
@@ -136,6 +217,19 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 get_headers['Content-Type'] = 'application/json'
+            elif type(message.body) == tuple:
+                body = dict(body)
+                # data_vals = json.loads(body.get('data').encode("utf-8"))
+                data_vals = body.get('data')
+                base_url = body.get('base_url')
+                get_url = base_url.format(
+                    url = self.host,
+                    port = self.port,
+                    client = self.username,
+                    secret = self.password,
+                )
+                get_headers['Content-Type'] = 'application/json'
+
             # Else it should be a string
             # and begin with "http://"
             else:
@@ -149,6 +243,12 @@ class ipf_rest(_ipf):
         else:
             # TODO: throw error?
             pass
+        if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
 
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
@@ -169,6 +269,14 @@ class ipf_rest(_ipf):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+            self._as_office(message, res)
+        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
+            self._as_office(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
+            self._as_note(message, res)
+        elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):
+            self._ag_org(message, res)
         elif not res:
             # No result given. Not sure how to handle.
             pass
@@ -190,6 +298,8 @@ class edi_route(models.Model):
     # headers
     af_environment = fields.Char(string='AF-Environment',help="If you need help you shouldn't be changing this")
     af_system_id = fields.Char(string='AF-SystemId',help="If you need help you shouldn't be changing this")
+    af_authorization_header = fields.Char(string='AF-Authorization header',help="If you need help you shouldn't be changing this")
+
     # tracking_id is a unique id for each transaction. Not a good parameter to set.
     # af_tracking_id = fields.Char(string='AF-TrackingId',help="If you need help you shouldn't be changing this")
     
@@ -226,7 +336,7 @@ class edi_route(models.Model):
             try:
                 for envelope in envelopes:
                     for msg in envelope.edi_message_ids:
-                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id)
+                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id, authorization=self.af_authorization_header)
                         res_messages = endpoint.get(msg)
                         msg.state = 'sent'
                     

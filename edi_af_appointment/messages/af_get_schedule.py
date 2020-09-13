@@ -37,7 +37,6 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_schedules').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
-            
             start_time = datetime.strptime(body.get('start_time'), "%Y-%m-%dT%H:%M:%SZ")
             stop_time = datetime.strptime(body.get('end_time'), "%Y-%m-%dT%H:%M:%SZ")
 
@@ -89,7 +88,6 @@ class edi_message(models.Model):
                 to_date = obj.stop.strftime("%Y-%m-%dT%H:%M:%SZ"), # 2020-03-25T00:00:00Z
                 comp = obj.type_id.ipf_id, # ded72445-e5d3-4e21-a356-aad200dac83d
             )
-
             envelope = self.env['edi.envelope'].create({
                 'name': 'Appointment schedules request',
                 'route_id': self.route_id.id,
@@ -100,7 +98,6 @@ class edi_message(models.Model):
                 # 'edi_message_ids': [(6, 0, msg_ids)]
                 'edi_message_ids': [(6, 0, [self.id])]
             })
-
             # TODO: Decide if we want to fold here?
             # envelope.fold()
             

@@ -34,46 +34,54 @@ class edi_message(models.Model):
             
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id: 
+        if self.edi_type.id == self.env.ref('edi_af_as_notes.edi_af_as_notes_post').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
+            
+            #NOT IMPLEMENTED
+
+            daily_note_id = False#self.env['calendar.schedule'].search([('type_id','=',type_id.id), ('start','=',start_time_utc)])
+            if daily_note_id:
+                # Update existing schedule only two values can change 
+                vals = {
+                    
+                }
+                daily_note_id.update(vals)
+            else:
+                # create new schedule
+                vals = {
+
+                }
+                schedule_id = self.env['res.partner.notes'].create(vals)
+            # TODO: maybe move this
+            schedule_id.create_occasions()
+        
         else:
             super(edi_message, self).unpack()
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id:
-            if not self.model_record or self.model_record._name != 'edi.ace_workitem':
-                raise Warning("Appointment: Attached record is not an edi.ace_workitem! {model}".format(model=self.model_record and self.model_record._name or None))
+        if self.edi_type.id == self.env.ref('edi_af_as_notes.edi_af_as_notes_post').id:
+            if not self.model_record or self.model_record._name != 'res.partner.notesq':
+                raise Warning("Appointment: Attached record is not an daily note! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record
-            body_dict = {}
-            body_dict['base_url'] = self.edi_type.type_mapping.format(
-                path = "appointments/v2/phone-appointments/queues/{queueId}/workitems".format(queueId=obj.queue.name),
+            self.body = self.edi_type.type_mapping.format(
+                path = "",
+                
             )
-            body_dict['data'] = {
-                'from': 'AFCRM',
-                'subject': 'AFCRM %s' % obj.queue.name,
-                'text': obj.text,
-                'label': 'BokaMote',
-                'errand': obj.errand.code,
-                'customer': {
-                    'id': {
-                        'pnr': obj.appointment_id.partner_id.company_registry.replace('-', '')
-                    },
-                    'phone_mobile': (obj.appointment_id.partner_id.mobile or obj.appointment_id.partner_id.phone).replace(' ', ''),
-                    'phone_home': obj.appointment_id.partner_id.phone.replace(' ', '')
-                }
-            }
-            _logger.warn("body_dict: %s" % body_dict)
-            self.body = tuple(sorted(body_dict.items()))
-
             envelope = self.env['edi.envelope'].create({
-                'name': 'Appointment ACE WI post',
+                'name': 'Jobseeker Daily Note request',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
+                # 'recipient': self.recipient.id,
+                # 'sender': self.env.ref('base.main_partner').id,
+                # 'application': app.name,
+                # 'edi_message_ids': [(6, 0, msg_ids)]
                 'edi_message_ids': [(6, 0, [self.id])]
             })
+            # TODO: Decide if we want to fold here?
+            # envelope.fold()
             
         else:
             super(edi_message, self).pack()

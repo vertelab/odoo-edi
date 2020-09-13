@@ -20,29 +20,21 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Appointment',
+    'name': 'EDI AF AS Notes',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'EDI AF Appointment - support for appointments ',
+    'summary': 'EDI AF  ',
     'licence': 'AGPL-3',
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': [
-        'edi_route',
-        'calendar_af', 
-        'edi_route_ipf', 
-        'af_data_ais-f_loader', 
-        'af_security_rules'],
+    'depends': ['edi_route', 'edi_route_ipf', 'partner_daily_notes'],
     'external_dependencies': {
+#        'python': ['xmltodict'],
     },
     'data': [
-        'security/ir.model.access.csv',
         'data/edi_route_data.xml',
-        'data/edi.ace_queue.csv',
-        'data/edi.ace_errand.csv',
-        'views/edi_af_appointment_views.xml',
-        'data/res_users.xml'
+        'views/edi_af_as_notes_views.xml',
     ],
     'application': False,
     'installable': True,

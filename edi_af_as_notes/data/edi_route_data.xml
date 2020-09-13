@@ -1,0 +1,25 @@
+<openerp>
+    <data noupdate="1">
+
+        <record id="asok_note_post_route" model="edi.route">
+            <field name="name">AF Asok: post note route</field>
+            <field name="partner_id" ref="base.main_partner"/>
+            <field name="active" eval="True"/>
+            <field name="protocol">ipf</field>
+            <field name="route_type">edi_af_as_notes_post</field>
+        </record>
+
+        <record id="asok_daily_notes" model="edi.message.type">
+            <field name="name"></field>
+            <field name="target"></field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}&amp;</field>
+        </record>
+
+        <record id="edi_af_as_notes_post" model="edi.message.type">
+            <field name="name">AF Asok daily note post</field>
+            <field name="target">ais-f-daganteckningar/v1/anteckning</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record> 
+
+    </data>
+</openerp>
