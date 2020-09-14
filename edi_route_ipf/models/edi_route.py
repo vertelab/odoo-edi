@@ -115,7 +115,9 @@ class ipf_rest(_ipf):
         path = message.body
         path_arr = path.split('/')
         customer_id = path_arr[4].split('?')[0]
+        _logger.info('sokande_id: %s' % customer_id) 
         res.update({'sokande_id': customer_id})
+        _logger.info('res: %s' % res)
         body = json.dumps(res)
         vals = {
             'name': "AS office reply",
@@ -134,7 +136,7 @@ class ipf_rest(_ipf):
         path = message.body.get(path) #path = "ais-f-arbetssokande/v2/segmentering/{SokandeId}" 
         patharray = path.split('/')   #skapa array av värden
         res.update({'SokandeId':patharray[4]})
-
+        _logger.info('SokandeId: %s' % res)
         body = json.dumps(res)
         vals = {
             'name': "AS segment reply",
@@ -144,6 +146,22 @@ class ipf_rest(_ipf):
             'route_type': message.route_type,
         }
         res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+
+    def _as_krom_postcode(self, message, res):
+        res_set = message.env['edi.message']
+        _logger.info('postnummer: %s' % res)
+        body = json.dumps(res)
+        vals = {
+            'name': "AS krom postcode reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        _logger.info('L168 res_message: %s' % res_message)
         # unpack messages
         res_message.unpack()
 
@@ -243,13 +261,14 @@ class ipf_rest(_ipf):
         else:
             # TODO: throw error?
             pass
+        _logger.info('get_url: %s' % get_url)
         if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
-
+        
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:
@@ -260,11 +279,13 @@ class ipf_rest(_ipf):
             req = request.Request(url=get_url, headers=get_headers)
         ctx = self._generate_ctx(True) # TODO: change to False
         # send GET and read result
+        # postcode kommer inte förbi res_json
         res_json = request.urlopen(req, context=ctx).read()
         # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table 
         res = json.loads(res_json)
-
         # get list of occasions from res
+
+
         if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
@@ -272,9 +293,12 @@ class ipf_rest(_ipf):
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
             self._as_office(message, res)
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
-            self._as_office(message, res)
+            self._as_channel(message, res)
+        elif message.edi_type == message.env.ref('edi_af_krom_postcode.asok_postcode'):
+            _logger.info('check IF sats')
+            self._as_krom_postcode(message, res)
         elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
-            self._as_note(message, res)
+            self._as_notes(message, res)
         elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):
             self._ag_org(message, res)
         elif not res:
