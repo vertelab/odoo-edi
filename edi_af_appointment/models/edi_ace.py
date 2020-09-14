@@ -22,6 +22,7 @@
 from odoo import models, fields, api, _
 import logging
 from datetime import datetime
+# import zeep
 
 _logger = logging.getLogger(__name__)
 
@@ -66,7 +67,14 @@ class edi_ace_errand(models.Model):
         # TODO: re-add reason_code ????
         # res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.code, reason=errand.name, interval=int(errand.interval), user=self.env.user)
         res = partner._grant_jobseeker_access(access_type=errand.right_type, reason=errand.name, interval=int(errand.interval), user=self.env.user)
-        _logger.warn("escalate_jobseeker_access: _grant_jobseeker_access: %s" % res)
+        # res = zeep.helpers.serialize_object(res, target_cls=dict)
+        fail_list = res.get('body').get('nyckelMisslyckadLista')
+        if not fail_list:
+            fail_list = [{ 'felKod': 250, 'felOrsak': 'OK' },]
+        fail_dict = fail_list[0]
+        res = fail_dict.get('felKod'), fail_dict.get('felOrsak')
+        
+        return res
 
 class calendar_appointment_type(models.Model):
     _inherit='calendar.appointment.type'
