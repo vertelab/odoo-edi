@@ -41,8 +41,6 @@ class edi_message(models.Model):
 
             # Get values
             match_area = body.get('ArPostnummerGiltigForKrom')
-           # match_area = True
-            _logger.warn("Unpack body: %s" % body)
             if match_area:
                 self.env['res.partner'].browse(self.res_id).match_area = match_area  #always true
             else:
