@@ -33,7 +33,7 @@
         'calendar_af', 
         'edi_route_ipf', 
         'af_data_ais-f_loader', 
-        'af_security_rules'],
+        'af_security'],
     'external_dependencies': {
     },
     'data': [

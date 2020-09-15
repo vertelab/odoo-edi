@@ -67,7 +67,6 @@ class edi_ace_errand(models.Model):
         # TODO: re-add reason_code ????
         # res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.code, reason=errand.name, interval=int(errand.interval), user=self.env.user)
         res = partner._grant_jobseeker_access(access_type=errand.right_type, reason=errand.name, interval=int(errand.interval), user=self.env.user)
-        # res = zeep.helpers.serialize_object(res, target_cls=dict)
         fail_list = res.get('body').get('nyckelMisslyckadLista')
         if not fail_list:
             fail_list = [{ 'felKod': 250, 'felOrsak': 'OK' },]
