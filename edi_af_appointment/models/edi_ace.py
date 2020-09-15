@@ -48,7 +48,8 @@ class edi_ace_errand(models.Model):
     name = fields.Char(string='Name', size=25, trim=True)
     app_type_id = fields.Many2one(comodel_name='calendar.appointment.type', string='Meeting type')
     right_type = fields.Selection(string='Right Type', selection=[('','None'),('STARK','Stark'),('MYCKET_STARK','Mycket Stark')] )
-    code = fields.Char(string='Reason Code', size=3, trim=True, )
+    code = fields.Char(string='Errand Code', size=3, trim=True, )
+    reason_code = fields.Char(string='Reason Code', size=2 )
     interval = fields.Selection(selection=[('1','1 day'),('7','1 week'),('14','2 weeks'),('30','30 days'),('60','60 days'),('100','100 days'),('365','a Year')],string='Interval',default='1')
     client_responsible = fields.Boolean(string='Client Responsible', help="Change current user to be responsible for this client, and get permanent rights that goes with it")
 
@@ -65,8 +66,8 @@ class edi_ace_errand(models.Model):
             # TODO: notify other systems of change
         # request partner access for user
         # TODO: re-add reason_code ????
-        # res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.code, reason=errand.name, interval=int(errand.interval), user=self.env.user)
-        res = partner._grant_jobseeker_access(access_type=errand.right_type, reason=errand.name, interval=int(errand.interval), user=self.env.user)
+        res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.reason_code, reason=errand.name, interval=int(errand.interval), user=self.env.user)
+        # res = partner._grant_jobseeker_access(access_type=errand.right_type, reason=errand.name, interval=int(errand.interval), user=self.env.user)
         fail_list = res.get('body').get('nyckelMisslyckadLista')
         if not fail_list:
             fail_list = [{ 'felKod': 250, 'felOrsak': 'OK' },]
