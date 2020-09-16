@@ -29,6 +29,107 @@ _logger = logging.getLogger(__name__)
 
 LOCAL_TZ = 'Europe/Stockholm'
 
+class ediServiceNowOperation(models.Model):
+    _name = "edi.service_now_operation"
+
+    name = fields.Char(string="Name")
+    opening_hours = fields.Char(string = 'Opening hours')
+    personal_service_opening = fields.Char(string="Opening hours for personal service")
+    office_code = fields.Char(string="Office code")
+    organisational_belongin = fields.Char(string="Organisation")
+
+    workplace_number = fields.Char(string="Workplace number")
+    location_code = fields.Char(string="Location code")
+
+    department_id = fields.Many2one(comodel_name='hr.department', string="Department")
+    location_id = fields.Many2one(comodel_name='hr.location', string="Location")
+
+    accessibilies = fields.Char()
+    active = fields.Char()
+    name = fields.Char()
+    phone_hours = fields.Char()
+    fax_number = fields.Char()
+    email_address = fields.Char()
+    phone_number = fields.Char()
+    operation_id = fields.Char()
+    last_operation_day = fields.Char()
+    public_contact_name = fields.Char()
+    public_contact_source = fields.Char()
+    public_contact_user_name = fields.Char()
+    visiting_address_street = fields.Char()
+    visiting_address_zip = fields.Char()
+    visiting_address_city = fields.Char()
+    mailing_address_street = fields.Char()
+    mailing_address_zip = fields.Char()
+    mailing_address_city = fields.Char()
+    campus_name = fields.Char()
+    campus_workplace_number = fields.Char()
+    campus_location_code = fields.Char()
+    campus_county_number = fields.Char()
+    campus_latitude = fields.Char()
+    campus_longitude = fields.Char()
+    x500_id = fields.Char()
+    
+    @api.one
+    def compute_department_id(self):
+        department = self.env['ir.model.data'].xmlid_to_res_id('__ais_import__.dptmnt_office_%s' % self.office_code)
+        if department:
+            self.department_id = department.id
+        else:
+            self.department_id = self.env['hr.department'].create({'office_code': self.office_code, 'note': _('Missing in AIS-F')}).id
+
+    @api.one
+    def compute_accessibilies(self, location_id, accessibility_list):
+        for accessibility in accessibility_list:
+            accessibility['location_id'] = location_id
+            self.env['hr.location.accessibility'].create(accessibility)
+
+    @api.one
+    def compute_location_id(self, department_id):
+        location = self.env['hr.location'].search('location_code', '=', location_code)
+        #create partners from fields
+        visitation_address_vals = {
+            'type': 'visitation address',
+            'street': self.visiting_address_street,
+            'city': self.visiting_address_city,
+            'zip': self.visiting_address_zip,
+        }
+        visitng_address = self.env['res.partner'].create(visitation_address_vals)
+        mailing_address_vals = {
+            'type': 'mailing address',
+            'street': self.mailing_address_street,
+            'city': self.mailing_address_city,
+            'zip': self.mailing_address_zip,
+        }
+        mailing_address = self.env['res.partner'].create(mailing_address_vals)
+
+        partner_vals = {
+            'phone': self.phone_number,
+            'fax': self.fax_number,        
+        }
+
+        partner = self.env['res.partner'].create(partner_vals)
+
+        vals = {
+            'name': self.name,
+            'visiting_address_id': visitng_address.id,
+            'mailing_address_id': mailing_address.id,
+            'partner_id': partner.id,
+            'opening_hours': self.opening_hours,
+            'personal_service_opening': self.personal_service_opening,
+            'workplace_number': self.workplace_number,
+            'location_code': self.location_code,
+        }
+        
+        if location:
+            if not department_id in location.department_ids:
+               location.department_ids = [(4, 0, department_id)]
+            location.write(vals)
+        else:
+            vals['department_ids'] = [(4, 0, department_id)]
+            self.env['hr.location'].create(vals)
+
+
 class edi_message(models.Model):
     _inherit='edi.message'
 
@@ -36,62 +137,18 @@ class edi_message(models.Model):
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_facility.office_campus').id:
             # decode string and convert string to tuple, convert tuple to dict
-            body = json.loads(self.body.decode("utf-8"))           
-            
-            for office in body:
-                office_id = '__ais_import__.dptmnt_office_%s' % office.get('office_code')
-                partner_vals = {
-                    'phone': office.get('phone_number'),
-                    'fax': office.get('fax_number'),
-                    'email': office.get('email_address')
-                }
-                
-                external_xmlid = '__facility_import__.part_campus_%s' % office.get('campus.location_code')
-                partner_obj = create_partner_from_dict(partner_vals, external_xmlid)
+            body = json.loads(self.body.decode("utf-8"))   
 
-                external_xmlid_state = 'partner_view_360.state_se_%s' % office.get('campus.county_number')
-                state_id = self.env['ir.model.data'].xmlid_to_res_id(external_xmlid_state)
-                visitaiton_address_vals = {
-                    'street': office.get('visiting_address.street'),
-                    'zip': office.get('visiting_address.zip'),
-                    'city': office.get('visiting_address.city'),
-                    'state_id': state_id,
-                }
-                external_xmlid = '__facility_import__.part_campus_visitation_address_%s' % office.get('campus.location_code')
-                visitation_address_obj = create_partner_from_dict(visitaiton_address_vals, external_xmlid)
+            for operation_rec in body:
+                vals = {}
+                for key in operation_rec.keys():
+                    vals[key.replace('.','_')] = operation_rec[key]
+                vals['accessibilities'] = "%s" % vals['accessibilities']
 
-                mailing_address_vals = {
-                    'street': office.get('mailing_address.street'),
-                    'zip': office.get('mailing_address.zip'),
-                    'city': office.get('mailing_address.city'),
-                }
-                external_xmlid = '__facility_import__.part_campus_mailing_address_%s' % office.get('campus.location_code')
-                mailing_address_obj = create_partner_from_dict(mailing_address_vals, external_xmlid)
-
-                campus_vals = {
-                    'name': office.get('name'),
-                    'location_code': office.get('campus.location_code'),
-                    'opening_hours': office.get('opening_hours'),
-                    'personal_service_opening': office.get('personal_service_opening'),
-                    'office_id': office_id.id,
-                    'partner_id': partner_obj.id,
-                    'visitation_address_id': visitation_address_obj.id,
-                    'mailing_address_id': mailing_address_obj.id,
-                } 
-                external_xmlid = '__facility_import__.campus_%s' % campus_vals.get('work_place_code')
-                campus_obj = self.env['hr.campus'].browse(self.env['ir.model.data'].xmlid_to_res_id(external_xmlid))
-                if campus_obj:
-                    campus_obj.write(campus_vals)
-                else:
-                    campus_obj = self.env['hr.campus'].create(campus_vals) 
-                    external_xmlid = '__facility_import__.campus_%s' % campus_vals.get('work_place_code')
-                    self.env['ir.model.data'].create(
-                        {
-                        'name': external_xmlid.split('.')[1], 
-                        'module': external_xmlid.split('.')[0],
-                        'model': campus_obj._name,
-                        'res_id': campus_obj.id
-                        })
+                operation = self.env['edi.service_now_operation'].create(vals)
+                operation.compute_department_id()
+                operation.compute_location_id(operation.department_id)
+                operation.compute_accessibilies(operation.location_id, operation_rec['accessibilities'])
         else:
             super(edi_message, self).unpack()
         
