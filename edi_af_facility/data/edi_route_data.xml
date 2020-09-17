@@ -2,15 +2,15 @@
     <data noupdate="1">
 
         <record id="office_campus_route" model="edi.route">
-            <field name="name">AF Office: get venue route</field>
+            <field name="name">AF Office: get location route</field>
             <field name="partner_id" ref="base.main_partner"/>
             <field name="active" eval="True"/>
             <field name="protocol">ipf</field>
-            <field name="route_type">edi_af_office_venue</field>
+            <field name="route_type">edi_af_location</field>
         </record>
 
         <record id="office_campus" model="edi.message.type">
-            <field name="name">AF Office: get venue</field>
+            <field name="name">AF Office: get location</field>
             <field name="target">service-now-on-site-operations/v1/operations</field>
             <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
         </record>

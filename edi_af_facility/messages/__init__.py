@@ -1,2 +1,2 @@
 # import messages here
-from . import af_get_venue
+from . import af_get_location
