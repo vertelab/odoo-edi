@@ -55,19 +55,17 @@ class edi_ace_errand(models.Model):
 
     @api.model
     def escalate_jobseeker_access(self, partner, errand_id):
-        _logger.warn("escalate_jobseeker_access: start")
+        _logger.debug("escalate_jobseeker_access: start")
         # find meeting_type from errand
-        errand = self.env['edi.ace_errand'].search([('code','=',errand_id)])
-        _logger.warn("escalate_jobseeker_access: errand.code %s" % errand.code)
-        _logger.warn("escalate_jobseeker_access: errand.interval: %s type: %s" % (errand.interval, type(errand.interval)))
+        errand = self.env['edi.ace_errand'].sudo().search([('code','=',errand_id)])
+        _logger.debug("escalate_jobseeker_access: errand.code %s" % errand.code)
+        _logger.debug("escalate_jobseeker_access: errand.interval: %s type: %s" % (errand.interval, type(errand.interval)))
         if errand.client_responsible:
             # change user_id
             partner.set_user()
             # TODO: notify other systems of change
         # request partner access for user
-        # TODO: re-add reason_code ????
         res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.reason_code, reason=errand.name, interval=int(errand.interval), user=self.env.user)
-        # res = partner._grant_jobseeker_access(access_type=errand.right_type, reason=errand.name, interval=int(errand.interval), user=self.env.user)
         fail_list = res.get('body').get('nyckelMisslyckadLista')
         if not fail_list:
             fail_list = [{ 'felKod': 250, 'felOrsak': 'OK' },]
