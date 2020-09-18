@@ -87,7 +87,8 @@ class ipf_rest(_ipf):
 
         for comp_day in res:
             # assumes that there's only ever one competence
-            type_id = message.env['calendar.appointment.type'].search([('ipf_id','=',comp_day.get('competence').get('id'))]).id
+            type_id = message.env['calendar.appointment.type'].search(
+                [('ipf_id','=',comp_day.get('competence').get('id'))]).id
             for schedule in comp_day.get('schedules'):
                 # Create messages from result
                 schedule['type_id'] = type_id
@@ -114,7 +115,7 @@ class ipf_rest(_ipf):
         res_set = message.env['edi.message']
         path = message.body
         path_arr = path.split('/')
-        customer_id = path_arr[4].split('?')[0]
+        customer_id = path_arr[4].split('?')[0] 
         res.update({'sokande_id': customer_id})
         body = json.dumps(res)
         vals = {
@@ -134,10 +135,23 @@ class ipf_rest(_ipf):
         path = message.body.get(path) #path = "ais-f-arbetssokande/v2/segmentering/{SokandeId}" 
         patharray = path.split('/')   #skapa array av värden
         res.update({'SokandeId':patharray[4]})
-
         body = json.dumps(res)
         vals = {
             'name': "AS segment reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+
+    def _as_krom_postcode(self, message, res):
+        res_set = message.env['edi.message']
+        body = json.dumps(res)
+        vals = {
+            'name': "AS krom postcode reply",
             'body': body,
             'edi_type': message.edi_type.id,
             'res_id': message.res_id,
@@ -200,7 +214,7 @@ class ipf_rest(_ipf):
         res_message = message.env['edi.message'].create(vals)
         # unpack messages
         res_message.unpack()
-    
+
     def _ace_wi(self, message, res):
         # Why does these not update?
         message.state = "received"
@@ -209,6 +223,22 @@ class ipf_rest(_ipf):
         ace_wi = message.env['edi.ace_workitem'].search([('id', '=', message.res_id)])
         app = message.env['calendar.appointment'].search([('id', '=', ace_wi.appointment_id.id)])
         app.state = 'done'
+
+    def _rask_get_all(self, message, res):
+        # Get the answer from the call to AIS-F RASK
+        res_set = message.env['edi.message']
+
+        # TODO: continue here... i think the structure of res somehow breaks this conversion.
+        body = json.dumps(res)
+        vals = {
+            'name': "RASK get all reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        res_message.unpack()
 
     def get(self, message):
         # Generate a unique tracking id
@@ -249,7 +279,7 @@ class ipf_rest(_ipf):
                 get_headers['Content-Type'] = 'application/json'
 
             # Else it should be a string
-            # and begin with "http://"
+            # and begin with "{url}"
             else:
                 get_url = body.format(
                     url = self.host,
@@ -261,13 +291,14 @@ class ipf_rest(_ipf):
         else:
             # TODO: throw error?
             pass
-        if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
-            get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
-        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
-            get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
-        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
-            get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
 
+        if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post', raise_if_not_found=False):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
+            get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
+        
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:
@@ -281,21 +312,31 @@ class ipf_rest(_ipf):
         res_json = request.urlopen(req, context=ctx).read()
         # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table 
         res = json.loads(res_json)
-
         # get list of occasions from res
-        if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
+
+
+
+        _logger.info("ipf_rest.get() message.edi_type: %s" % message.edi_type)
+        if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules', raise_if_not_found=False):
             self._schedules(message, res)
-        elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
+        elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi', raise_if_not_found=False):
             self._ace_wi(message, res)
         elif message.edi_type == message.env.ref('edi_af_facility.office_campus'):
             self._af_facility(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+        elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all', raise_if_not_found=False):
+            self._rask_get_all(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
             self._as_office(message, res)
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
+            self._as_channel(message, res)
+        elif message.edi_type == message.env.ref('edi_af_krom_postcode.asok_postcode', raise_if_not_found=False):
+            self._as_krom_postcode(message, res)
+        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             self._as_office(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
-            self._as_note(message, res)
-        elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):
+        elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post', raise_if_not_found=False):
+            self._as_notes(message, res)
+        elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation', raise_if_not_found=False):
             self._ag_org(message, res)
         elif not res:
             # No result given. Not sure how to handle.
@@ -350,7 +391,8 @@ class edi_route(models.Model):
     @api.multi
     def _run_out(self, envelopes):
         if self.protocol == 'ipf':
-            if not (self.af_ipf_url or self.af_ipf_port or self.client_id or self.client_secret or self.af_environment or self.af_system_id):
+            if not (
+                    self.af_ipf_url or self.af_ipf_port or self.client_id or self.client_secret or self.af_environment or self.af_system_id):
                 raise Warning('Please setup AF IPF Information') # this code should be unreachable.
 
             try:

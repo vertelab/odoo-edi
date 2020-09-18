@@ -18,33 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from odoo import models, fields, api, _
 
-{
-    'name': 'EDI AF Appointment',
-    'version': '0.1',
-    'category': 'edi',
-    'summary': 'EDI AF Appointment - support for appointments ',
-    'licence': 'AGPL-3',
-    'description': """ """,
-    'author': 'Vertel AB',
-    'website': 'http://www.vertel.se',
-    'depends': [
-        'edi_route',
-        'calendar_af', 
-        'edi_route_ipf', 
-        'af_data_ais-f_loader', 
-        'af_security'],
-    'external_dependencies': {
-    },
-    'data': [
-        'security/ir.model.access.csv',
-        'data/edi_route_data.xml',
-        'data/edi.ace_queue.csv',
-        'data/edi.ace_errand.csv',
-        'views/edi_af_appointment_views.xml',
-        'data/res_users.xml'
-    ],
-    'application': False,
-    'installable': True,
-}
-# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
+import logging
+_logger = logging.getLogger(__name__)
+
+class edi_route(models.Model):
+    _inherit = 'edi.route'
+
+    route_type = fields.Selection(selection_add=[('edi_af_as_rask', 'AF AS rask')])
+
+class edi_envelope(models.Model):
+    _inherit = 'edi.envelope'
+
+    route_type = fields.Selection(selection_add=[('edi_af_as_rask', 'AF AS rask')])
+
+class edi_message(models.Model):
+    _inherit = 'edi.message'
+
+    route_type = fields.Selection(selection_add=[('edi_af_as_rask', 'AF AS rask')])
