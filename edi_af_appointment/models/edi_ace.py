@@ -54,7 +54,7 @@ class edi_ace_errand(models.Model):
     client_responsible = fields.Boolean(string='Client Responsible', help="Change current user to be responsible for this client, and get permanent rights that goes with it")
 
     @api.model
-    def escalate_jobseeker_access(self, partner, errand_id):
+    def escalate_jobseeker_access(self, partner, errand_id, user):
         _logger.debug("escalate_jobseeker_access: start")
         # find meeting_type from errand
         errand = self.env['edi.ace_errand'].sudo().search([('code','=',errand_id)])
@@ -62,16 +62,15 @@ class edi_ace_errand(models.Model):
         _logger.debug("escalate_jobseeker_access: errand.interval: %s type: %s" % (errand.interval, type(errand.interval)))
         if errand.client_responsible:
             # change user_id
-            partner.set_user()
+            partner.set_user(user)
             # TODO: notify other systems of change
         # request partner access for user
-        res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.reason_code, reason=errand.name, interval=int(errand.interval), user=self.env.user)
+        res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.reason_code, reason=errand.name, interval=int(errand.interval), user=user)
         fail_list = res.get('body').get('nyckelMisslyckadLista')
         if not fail_list:
             fail_list = [{ 'felKod': 250, 'felOrsak': 'OK' },]
         fail_dict = fail_list[0]
         res = fail_dict.get('felKod'), fail_dict.get('felOrsak')
-        
         return res
 
 class calendar_appointment_type(models.Model):
