@@ -164,6 +164,24 @@ class ipf_rest(_ipf):
         res_message = message.env['edi.message'].create(vals)
         # unpack messages
         res_message.unpack()
+
+    def _af_facility(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+        body = json.dumps(res)
+        vals = { #cannot get past this line
+            'name': "AF Facility reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
     
     def _ag_org(self, message, res):
         # Create calendar.schedule from res
@@ -269,6 +287,8 @@ class ipf_rest(_ipf):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi'):
             self._ace_wi(message, res)
+        elif message.edi_type == message.env.ref('edi_af_facility.office_campus'):
+            self._af_facility(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
             self._as_office(message, res)
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):

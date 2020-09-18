@@ -33,17 +33,15 @@ class ediServiceNowOperation(models.Model):
     _name = "edi.service_now_operation"
 
     name = fields.Char(string="Name")
-    opening_hours = fields.Char(string = 'Opening hours')
-    personal_service_opening = fields.Char(string="Opening hours for personal service")
-    office_code = fields.Char(string="Office code")
-    organisational_belongin = fields.Char(string="Organisation")
-
-    workplace_number = fields.Char(string="Workplace number")
-    location_code = fields.Char(string="Location code")
+    
 
     department_id = fields.Many2one(comodel_name='hr.department', string="Department")
     location_id = fields.Many2one(comodel_name='hr.location', string="Location")
 
+    opening_hours = fields.Char()
+    personal_service_opening = fields.Char()
+    office_code = fields.Char()
+    organisational_belonging = fields.Char()
     accessibilies = fields.Char()
     active = fields.Char()
     name = fields.Char()
@@ -69,10 +67,14 @@ class ediServiceNowOperation(models.Model):
     campus_latitude = fields.Char()
     campus_longitude = fields.Char()
     x500_id = fields.Char()
+    organisational_belonging_u_copakod = fields.Char()
+    phone_numbers = fields.Char()
+    public_contact = fields.Char()
+    accessibilities = fields.Char()
     
     @api.one
     def compute_department_id(self):
-        department = self.env['ir.model.data'].xmlid_to_res_id('__ais_import__.dptmnt_office_%s' % self.office_code)
+        department = self.env['hr.department'].search([('office_code','=', self.office_code)])
         if department:
             self.department_id = department.id
         else:
@@ -86,7 +88,7 @@ class ediServiceNowOperation(models.Model):
 
     @api.one
     def compute_location_id(self, department_id):
-        location = self.env['hr.location'].search('location_code', '=', location_code)
+        location = self.env['hr.location'].search([('location_code', '=', self.campus_location_code)])
         #create partners from fields
         visitation_address_vals = {
             'type': 'visitation address',
@@ -94,7 +96,7 @@ class ediServiceNowOperation(models.Model):
             'city': self.visiting_address_city,
             'zip': self.visiting_address_zip,
         }
-        visitng_address = self.env['res.partner'].create(visitation_address_vals)
+        visitation_address = self.env['res.partner'].create(visitation_address_vals)
         mailing_address_vals = {
             'type': 'mailing address',
             'street': self.mailing_address_street,
@@ -104,6 +106,7 @@ class ediServiceNowOperation(models.Model):
         mailing_address = self.env['res.partner'].create(mailing_address_vals)
 
         partner_vals = {
+            'name': self.name,
             'phone': self.phone_number,
             'fax': self.fax_number,        
         }
@@ -112,21 +115,24 @@ class ediServiceNowOperation(models.Model):
 
         vals = {
             'name': self.name,
-            'visiting_address_id': visitng_address.id,
+            'visitation_address_id': visitation_address.id,
             'mailing_address_id': mailing_address.id,
             'partner_id': partner.id,
             'opening_hours': self.opening_hours,
             'personal_service_opening': self.personal_service_opening,
-            'workplace_number': self.workplace_number,
-            'location_code': self.location_code,
+            'workplace_number': self.campus_workplace_number,
+            'location_code': self.campus_location_code,
+            'x500_id': self.x500_id,
         }
         
         if location:
             if not department_id in location.department_ids:
-               location.department_ids = [(4, 0, department_id)]
+                _logger.info("department id: %s" % department_id)
+                location.department_ids = [(4, department_id, 0)]
             location.write(vals)
         else:
-            vals['department_ids'] = [(4, 0, department_id)]
+            _logger.info("department id: %s" % department_id)
+            vals['department_ids'] = [(4, department_id, 0)]
             self.env['hr.location'].create(vals)
 
 
@@ -144,11 +150,11 @@ class edi_message(models.Model):
                 for key in operation_rec.keys():
                     vals[key.replace('.','_')] = operation_rec[key]
                 vals['accessibilities'] = "%s" % vals['accessibilities']
-
-                operation = self.env['edi.service_now_operation'].create(vals)
-                operation.compute_department_id()
-                operation.compute_location_id(operation.department_id)
-                operation.compute_accessibilies(operation.location_id, operation_rec['accessibilities'])
+                if operation_rec['active'] == 'true':
+                    operation = self.env['edi.service_now_operation'].create(vals)
+                    operation.compute_department_id()
+                    operation.compute_location_id(operation.department_id)
+                    operation.compute_accessibilies(operation.location_id, operation_rec['accessibilities'])
         else:
             super(edi_message, self).unpack()
         

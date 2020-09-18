@@ -4,9 +4,9 @@
         <field name="name">EDI AF Get facility</field>
         <field name="model_id" ref="base.model_ir_actions_server"/>
         <field name="state">code</field>
-        <field name="code">route = env['edi.route'].search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_facility.office_campus_route'))])
+        <field name="code">route = env['edi.route'].sudo().search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_facility.office_campus_route'))])
 
-record = env['res.partner'].browse(env['ir.model.data'].xmlid_to_res_id('__ais_import__.part_jbskr_2280'))
+record = env['res.partner'].sudo().search([('customer_id','=','2280')])
 
 vals = {
   'name': 'get office campus msg',
@@ -14,10 +14,10 @@ vals = {
   'model': record._name,
   'res_id': record.id,
   'route_id': route.id,
-  'route_type': 'edi_af_office_campus',
+  'route_type': 'edi_af_location',
 }
 
-message = env['edi.message'].create(vals)
+message = env['edi.message'].sudo().create(vals)
 message.pack()
 route.run()
       </field>
