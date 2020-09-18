@@ -78,7 +78,7 @@ class ediServiceNowOperation(models.Model):
         if department:
             self.department_id = department.id
         else:
-            self.department_id = self.env['hr.department'].create({'office_code': self.office_code, 'note': _('Missing in AIS-F')}).id
+            self.department_id = self.env['hr.department'].create({'name': self.office_code, 'office_code': self.office_code, 'note': _('Missing in AIS-F')}).id
 
     @api.one
     def compute_accessibilies(self, location_id, accessibility_list):
@@ -127,12 +127,10 @@ class ediServiceNowOperation(models.Model):
         
         if location:
             if not department_id in location.department_ids:
-                _logger.info("department id: %s" % department_id)
-                location.department_ids = [(4, department_id, 0)]
+                location.department_ids = [(4, department_id.id, 0)]
             location.write(vals)
         else:
-            _logger.info("department id: %s" % department_id)
-            vals['department_ids'] = [(4, department_id, 0)]
+            vals['department_ids'] = [(4, department_id.id, 0)]
             self.env['hr.location'].create(vals)
 
 
