@@ -38,8 +38,8 @@ class edi_message(models.Model):
             # decode string and convert string to tuple, convert tuple to dict
             body = json.loads(self.body.decode("utf-8"))
             for officer in body:
-                campus = self.env['hr.campus'].browse(self.env['ir.model.data'].xmlid_to_res_id('__facility_import__.campus_%s' % officer.get('workplaceNumber')))
-                office = self.env['hr.department'].browse(self.env['ir.model.data'].xmlid_to_res_id('__ais_import__.dptmnt_%s' % officer.get('officeCode')))
+                location = self.env['hr.location'].search([('workplace_number','=', officer.get('workPlaceNumber'))])
+                office = self.env['hr.department'].search([('office_code','=',officer.get('officeCode'))])
                 vals = {
                     'firstname': officer.get('firstName'),
                     'lastname': officer.get('lastName'),
@@ -49,7 +49,7 @@ class edi_message(models.Model):
                     'phone': officer.get('telephoneNumber'),
                     'mobile': officer.get('mobileNumber'),
                     'office': office.id,
-                    'campus': [(4,campus.id)]
+                    'campus': [(4,location.id)]
                 }
                 #     {
                 #     "id" : "32d2a8d6-b521-c391-d018-a5bb762d4d59",
@@ -81,18 +81,6 @@ class edi_message(models.Model):
                             'model': user._name,
                             'res_id': user.id
                             }) 
-            office_code = body.get('kontorsKod')
-            _logger.warn("Unpack body: %s" % body)
-            if office_code:
-                jobseeker = self.env['res.partner'].search([('customer_id', '=', body.get('sokande_id'))])
-                office_obj = self.env['res.partner'].search([('office_code', '=', office_code)])
-                if office_obj:
-                    vals = {
-                        'office': office_obj.id,
-                    }
-                    jobseeker.write(vals)
-                else:
-                    pass
         else:
             super(edi_message, self).unpack()
 
