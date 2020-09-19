@@ -72,14 +72,18 @@ class edi_message(models.Model):
                 #     "loaStart" : "2020-01-01",
                 #     "loaEnd" : "2020-04-01"
                 #   },
-                user = self.env['res.users'].create(vals)
-                external_xmlid = '__x500_import__.user_%s' % vals.get('login')
-                self.env['ir.model.data'].create({
-                            'name': external_xmlid.split('.')[1],
-                            'module': external_xmlid.split('.')[0],
-                            'model': user._name,
-                            'res_id': user.id
-                            }) 
+                user = self.env['res.users'].search([('login','=',vals['login'])])
+                if user:
+                    user.write(vals)
+                else:
+                    user = self.env['res.users'].create(vals)
+                    external_xmlid = '__x500_import__.user_%s' % vals.get('login')
+                    self.env['ir.model.data'].create({
+                                'name': external_xmlid.split('.')[1],
+                                'module': external_xmlid.split('.')[0],
+                                'model': user._name,
+                                'res_id': user.id
+                                }) 
         else:
             super(edi_message, self).unpack()
 
