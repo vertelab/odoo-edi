@@ -31,49 +31,51 @@ LOCAL_TZ = 'Europe/Stockholm'
 
 class edi_message(models.Model):
     _inherit='edi.message'
-            
+
+    #obj = False    
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id: 
+        if self.edi_type.id == self.env.ref('edi_af_channel.registration_channel').id:
             # decode string and convert string to tuple, convert tuple to dict
-            body = dict(ast.literal_eval(self.body.decode("utf-8")))
+            body = json.loads(self.body.decode("utf-8"))
+
+            # Get values
+            registered_through = body.get('segmenteringsval')
+            if registered_through:
+                registered_through_obj = self.env['res.partner'].search([('customer_id', '=', body.get('sokande_id'))])               
+                if registered_through_obj:
+                    if registered_through == 'test_segmentering':
+                        registered_through = 'pdm'
+                    if registered_through == 'PDM':
+                        registered_through = 'pdm'
+                    if registered_through == 'SJALVSERVICE':
+                        registered_through = 'self service'
+                    if registered_through == 'LOKAL':
+                        registered_through = 'local office'
+                    vals = {
+                        'registered_through': registered_through,
+                    }
+                    registered_through_obj.write(vals)
+            else:
+                pass       
         else:
             super(edi_message, self).unpack()
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id:
-            if not self.model_record or self.model_record._name != 'edi.ace_workitem':
-                raise Warning("Appointment: Attached record is not an edi.ace_workitem! {model}".format(model=self.model_record and self.model_record._name or None))
+        if self.edi_type.id == self.env.ref('edi_af_channel.registration_channel').id:
+            if not self.model_record or self.model_record._name != 'res.partner':
+                raise Warning("Appointment: Attached record is not an res.partner'! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record
-            body_dict = {}
-            body_dict['base_url'] = self.edi_type.type_mapping.format(
-                path = "appointments/v2/phone-appointments/queues/{queueId}/workitems".format(queueId=obj.queue.name),
+            self.body = self.edi_type.type_mapping.format(
+                path = "ais-f-arbetssokande/v2/segmentering/{SokandeId}".format(SokandeId = obj.customer_id),
             )
-            body_dict['data'] = {
-                'from': 'AFCRM',
-                'subject': 'AFCRM %s' % obj.queue.name,
-                'text': obj.text,
-                'label': 'BokaMote',
-                'errand': obj.errand.code,
-                'customer': {
-                    'id': {
-                        'pnr': obj.appointment_id.partner_id.company_registry.replace('-', '')
-                    },
-                    'phone_mobile': (obj.appointment_id.partner_id.mobile or obj.appointment_id.partner_id.phone).replace(' ', ''),
-                    'phone_home': obj.appointment_id.partner_id.phone.replace(' ', '')
-                }
-            }
-            _logger.warn("body_dict: %s" % body_dict)
-            self.body = tuple(sorted(body_dict.items()))
-
             envelope = self.env['edi.envelope'].create({
-                'name': 'Appointment ACE WI post',
+                'name': 'asok segment request',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
                 'edi_message_ids': [(6, 0, [self.id])]
-            })
-            
+            })        
         else:
             super(edi_message, self).pack()

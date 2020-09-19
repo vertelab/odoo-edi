@@ -46,11 +46,12 @@ class AppointmentController(http.Controller):
         return Response("OK", status=200) 
 
     @http.route('/v1/appointments/bookable-occasions', type='http', auth="public", methods=['GET'])
-    def get_bookable_occasions(self, start=False, stop=False, duration=False, type_id=False, channel=False, location=False, max_depth=1, **kwargs):
+    def get_bookable_occasions(self, start=False, stop=False, duration=False, type_id=False, channel=False, location=False, employee_user_id=False, profession_id=False, max_depth=1, **kwargs):
         if not (type_id and duration and stop and start):
             return Response("Bad request", status=400)
         
         type_id = self.is_int(type_id)
+        office = False
         
         if not type_id:
             return Response("Bad request: Invalid type_id", status=400)
@@ -76,7 +77,7 @@ class AppointmentController(http.Controller):
 
         # TODO: if local meeting, check location arg.
 
-        occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time, stop_time, duration, type_id, int(max_depth))
+        occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time, stop_time, duration, type_id, office, int(max_depth))
         res = {}
 
         for day in occ_list:
@@ -117,20 +118,20 @@ class AppointmentController(http.Controller):
                 "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_length": int(app.duration),
-                "appointment_title": app.name,
+                "appointment_title": app.name or '',
                 "appointment_type": app.type_id.ipf_num,
-                "appointment_channel": app.channel.name,
+                "appointment_channel": app.channel.name or '',
                 "customer_nr": app.partner_id.customer_id or '',
                 "customer_name": app.partner_id.display_name or '',
-                "employee_name": app.user_id.display_name or '',
+                "employee_name": app.user_id.name or '',
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
                 "id": app.id,
-                "office_address": app.office.contact_address,
-                "office_email": app.office.email,
-                "location_code": app.location_code,
-                "office_code": app.office.office_code,
-                "office_name": app.office.display_name,
+                "office_address": app.office.contact_address or '',
+                "office_email": app.office.email or '',
+                "location_code": app.location_code or '',
+                "office_code": app.office.office_code or '',
+                "office_name": app.office.display_name or '',
                 "status": app.state,
             }
             res = json.dumps(res)
@@ -153,15 +154,16 @@ class AppointmentController(http.Controller):
         if not desired_time:
             return Response("Bad request: No desired_time", status=400)
 
-        occasions = request.env['calendar.occasion'].sudo().get_bookable_occasions(desired_time, desired_time + timedelta(appointment_length), appointment_length, type_id, 1)
+        office = False
+        occasions = request.env['calendar.occasion'].sudo().get_bookable_occasions(desired_time, desired_time + timedelta(appointment_length), appointment_length, type_id, office, 1)
 
         _logger.warn("occasions: %s" % occasions)
         found = False
         for book_occasion in occasions:
-            if book_occasion:
+            if book_occasion and book_occasion[0]:
                 found = True
                 _logger.warn("book_occasion: %s" % book_occasion)
-                app = request.env['calendar.occasion'].sudo().reserve_occasion(book_occasion)
+                app = request.env['calendar.occasion'].sudo().reserve_occasion(book_occasion[0])
                 break
 
         if not found:
@@ -172,20 +174,20 @@ class AppointmentController(http.Controller):
                 "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_length": int(app.duration),
-                "appointment_title": app.name,
+                "appointment_title": app.name or '',
                 "appointment_type": app.type_id.ipf_num,
-                "appointment_channel": app.channel.name,
+                "appointment_channel": app.channel.name or '',
                 "customer_nr": app.partner_id.customer_id or '',
                 "customer_name": app.partner_id.display_name or '',
-                "employee_name": app.user_id.display_name or '',
+                "employee_name": app.user_id.name or '',
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
                 "id": app.id,
-                "office_address": app.office.contact_address,
-                "office_email": app.office.email,
-                "location_code": app.location_code,
-                "office_code": app.office.office_code,
-                "office_name": app.office.display_name,
+                "office_address": app.office.contact_address or '',
+                "office_email": app.office.email or '',
+                "location_code": app.location_code or '',
+                "office_code": app.office.office_code or '',
+                "office_name": app.office.display_name or '',
                 "status": app.state,
             }
             return res
@@ -264,20 +266,20 @@ class AppointmentController(http.Controller):
                 "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_length": int(app.duration),
-                "appointment_title": app.name,
+                "appointment_title": app.name or '',
                 "appointment_type": app.type_id.ipf_num,
-                "appointment_channel": app.channel.name,
-                "customer_nr": app.partner_id.customer_id,
-                "customer_name": app.partner_id.display_name,
-                "employee_name": app.user_id.display_name,
-                "employee_phone": app.user_id.phone,
-                "employee_signature": app.user_id.name,
+                "appointment_channel": app.channel.name or '',
+                "customer_nr": app.partner_id.customer_id or '',
+                "customer_name": app.partner_id.display_name or '',
+                "employee_name": app.user_id.name or '',
+                "employee_phone": app.user_id.phone or '',
+                "employee_signature": app.user_id.name or '',
                 "id": app.id,
-                "office_address": app.office.contact_address,
-                "office_email": app.office.email,
-                "location_code": app.location_code,
-                "office_code": app.office.office_code,
-                "office_name": app.office.display_name,
+                "office_address": app.office.contact_address or '',
+                "office_email": app.office.email or '',
+                "location_code": app.location_code or '',
+                "office_code": app.office.office_code or '',
+                "office_name": app.office.display_name or '',
                 "status": app.state,
             }
 
@@ -345,20 +347,20 @@ class AppointmentController(http.Controller):
             "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "appointment_length": int(app.duration),
-            "appointment_title": app.name,
+            "appointment_title": app.name or '',
             "appointment_type": app.type_id.ipf_num,
-            "appointment_channel": app.type_id.channel.name,
-            "customer_nr": partner.customer_id,
-            "customer_name": partner.display_name,
-            "employee_name": sunea.partner_id.display_name,
-            "employee_phone": sunea.partner_id.phone,
-            "employee_signature": sunea.login,
+            "appointment_channel": app.type_id.channel.name or '',
+            "customer_nr": partner.customer_id or '',
+            "customer_name": partner.display_name or '',
+            "employee_name": sunea.partner_id.name or '',
+            "employee_phone": sunea.partner_id.phone or '',
+            "employee_signature": sunea.login or '',
             "id": app.id,
-            "office_address": sunea.office.contact_address,
-            "office_email": sunea.office.email,
-            "location_code": app.location_code,
-            "office_code": sunea.office.office_code,
-            "office_name": sunea.office.display_name,
+            "office_address": sunea.office.contact_address or '',
+            "office_email": sunea.office.email or '',
+            "location_code": app.location_code or '',
+            "office_code": sunea.office.office_code or '',
+            "office_name": sunea.office.display_name or '',
             "status": app.state,
         }
 
@@ -375,20 +377,20 @@ class AppointmentController(http.Controller):
                     "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "appointment_length": int(app.duration),
-                    "appointment_title": app.name,
+                    "appointment_title": app.name or '',
                     "appointment_type": app.type_id.ipf_num,
-                    "appointment_channel": app.type_id.channel.name,
-                    "customer_nr": app.partner_id.customer_id,
-                    "customer_name": app.partner_id.display_name,
-                    "employee_name": app.user_id.partner_id.display_name,
-                    "employee_phone": app.user_id.partner_id.phone,
-                    "employee_signature": app.user_id.login,
-                    "id": app.id,
-                    "office_address": app.office.contact_address,
-                    "office_email": app.office.email,
-                    "location_code": app.location_code,
-                    "office_code": app.office.office_code,
-                    "office_name": app.office.display_name,
+                    "appointment_channel": app.type_id.channel.name or '',
+                    "customer_nr": app.partner_id.customer_id or '',
+                    "customer_name": app.partner_id.display_name or '',
+                    "employee_name": app.user_id.partner_id.name or '',
+                    "employee_phone": app.user_id.partner_id.phone or '',
+                    "employee_signature": app.user_id.login or '',
+                    "id": app.id or '',
+                    "office_address": app.office.contact_address or '',
+                    "office_email": app.office.email or '',
+                    "location_code": app.location_code or '',
+                    "office_code": app.office.office_code or '',
+                    "office_name": app.office.display_name or '',
                     "status": app.state,
                 }
 
@@ -466,20 +468,20 @@ class AppointmentController(http.Controller):
                     "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "appointment_length": int(app.duration),
-                    "appointment_title": app.name,
+                    "appointment_title": app.name or '',
                     "appointment_type": app.type_id.ipf_num,
-                    "appointment_channel": app.type_id.channel.name,
-                    "customer_nr": app.partner_id.customer_id,
-                    "customer_name": app.partner_id.display_name,
-                    "employee_name": app.user_id.partner_id.display_name,
-                    "employee_phone": app.user_id.partner_id.phone,
-                    "employee_signature": app.user_id.login,
+                    "appointment_channel": app.type_id.channel.name or '',
+                    "customer_nr": app.partner_id.customer_id or '',
+                    "customer_name": app.partner_id.display_name or '',
+                    "employee_name": app.user_id.partner_id.name or '',
+                    "employee_phone": app.user_id.partner_id.phone or '',
+                    "employee_signature": app.user_id.login or '',
                     "id": app.id,
-                    "office_address": app.office.contact_address,
-                    "office_email": app.office.email,
-                    "location_code": app.location_code,
-                    "office_code": app.office.office_code,
-                    "office_name": app.office.display_name,
+                    "office_address": app.office.contact_address or '',
+                    "office_email": app.office.email or '',
+                    "location_code": app.location_code or '',
+                    "office_code": app.office.office_code or '',
+                    "office_name": app.office.display_name or '',
                     "status": app.state,
                 }
                 

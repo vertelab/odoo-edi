@@ -20,29 +20,20 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Appointment',
+    'name': 'EDI AF KROM Postcode',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'EDI AF Appointment - support for appointments ',
+    'summary': 'Check if a postcode is valid for KROM',
     'licence': 'AGPL-3',
-    'description': """ """,
+    'description': """Returns a boolean for postnummer from IPF AIS BOS Regelverk API""",
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': [
-        'edi_route',
-        'calendar_af', 
-        'edi_route_ipf', 
-        'af_data_ais-f_loader', 
-        'af_security'],
+    'depends': ['partner_view_360', 'edi_route_ipf', 'af_data_ais-f_loader'],
     'external_dependencies': {
     },
     'data': [
-        'security/ir.model.access.csv',
         'data/edi_route_data.xml',
-        'data/edi.ace_queue.csv',
-        'data/edi.ace_errand.csv',
-        'views/edi_af_appointment_views.xml',
-        'data/res_users.xml'
+        'views/edi_af_krom_postcode_views.xml',
     ],
     'application': False,
     'installable': True,
