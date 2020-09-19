@@ -4,20 +4,20 @@
         <field name="name">EDI AF X500 Get officer</field>
         <field name="model_id" ref="base.model_ir_actions_server"/>
         <field name="state">code</field>
-        <field name="code">route = env['edi.route'].search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_officer.get_officer_route'))])
+        <field name="code">route = env['edi.route'].sudo().search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_officer.get_officer_route'))])
 
-record = env['res.partner'].create({'name': 'a'})
+record = env['hr.location'].sudo().search([('workplace_number','=','1912')])
 
 vals = {
   'name': 'get office msg',
-  'edi_type': env.ref('edi_af_office.get_office').id,
+  'edi_type': env.ref('edi_af_officer.get_officer').id,
   'model': record._name,
   'res_id': record.id,
   'route_id': route.id,
-  'route_type': 'edi_af_get_office',
+  'route_type': 'edi_af_officer',
 }
 
-message = env['edi.message'].create(vals)
+message = env['edi.message'].sudo().create(vals)
 message.pack()
 route.run()
       </field>

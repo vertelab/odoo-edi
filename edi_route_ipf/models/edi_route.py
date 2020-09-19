@@ -258,7 +258,6 @@ class ipf_rest(_ipf):
         res_json = request.urlopen(req, context=ctx).read()
         # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table 
         res = json.loads(res_json)
-
         # get list of occasions from res
         if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules'):
             self._schedules(message, res)
@@ -267,7 +266,7 @@ class ipf_rest(_ipf):
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
             self._as_office(message, res)
         elif message.edi_type == message.env.ref('edi_af_officer.get_officer'):
-            self._as_office(message, res)
+            self._officer(message, res)
         elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post'):
             self._as_note(message, res)
         elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation'):

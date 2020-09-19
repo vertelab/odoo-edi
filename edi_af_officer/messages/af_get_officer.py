@@ -34,7 +34,7 @@ class edi_message(models.Model):
 
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_officer.af_officer').id:
+        if self.edi_type.id == self.env.ref('edi_af_officer.get_officer').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = json.loads(self.body.decode("utf-8"))
             for officer in body:
@@ -45,11 +45,10 @@ class edi_message(models.Model):
                     'lastname': officer.get('lastName'),
                     'login': officer.get('userName'),
                     'email': officer.get('mail'),
-                    'login': officer.get('managerSignature'),
                     'phone': officer.get('telephoneNumber'),
                     'mobile': officer.get('mobileNumber'),
-                    'office': office.id,
-                    'campus': [(4,location.id)]
+                    'office_id': office.id,
+                    'location_id': location.id
                 }
                 #     {
                 #     "id" : "32d2a8d6-b521-c391-d018-a5bb762d4d59",
@@ -86,14 +85,14 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_officer.af_officer').id:
-            if not self.model_record or self.model_record._name != 'res.user':
-                raise Warning("Appointment: Attached record is not a res.user! {model}".format(model=self.model_record and self.model_record._name or None))
+        if self.edi_type.id == self.env.ref('edi_af_officer.get_officer').id:
+            if not self.model_record or self.model_record._name != 'hr.location':
+                raise Warning("Appointment: Attached record is not a hr.location! {model}".format(model=self.model_record and self.model_record._name or None))
 
-            obj = self.model_record #res.user 
+            obj = self.model_record #hr.location 
             self.body = self.edi_type.type_mapping.format(
                 path = "x500-af-person/v1/af-persons",
-                workplace_nr = obj.get('work_place_code')
+                workplace_nr = obj.workplace_number.zfill(5)
             )
             envelope = self.env['edi.envelope'].create({
                 'name': 'asok office request',
