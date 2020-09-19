@@ -6,7 +6,7 @@
         <field name="state">code</field>
         <field name="code">
 for partner in records:
-    partner.rask_controller(partner.customer_id,partner.social_security_number,partner.former_social_security_number,'edi_af_as_rask')</field>
+    partner.rask_controller(partner.customer_id,partner.social_security_number,None,'edi_af_as_rask')</field>
     </record>
 
     <function name="create_action" model="ir.actions.server">
@@ -21,7 +21,7 @@ for partner in records:
         <field name="state">code</field>
         <field name="code">
 for partner in records:
-    partner.rask_controller(partner.customer_id,partner.social_security_number,partner.former_social_security_number,'edi_af_as_rask')</field>
+    partner.rask_controller(partner.customer_id,partner.social_security_number,None,'edi_af_as_rask')</field>
     </record>
 
     <function name="create_action" model="ir.actions.server">
