@@ -33,6 +33,7 @@
     },
     'data': [
         'data/edi_route_data.xml',
+        'data/server_action.xml',
         'views/edi_af_aisf_rask_views.xml',
     ],
     'application': False,
