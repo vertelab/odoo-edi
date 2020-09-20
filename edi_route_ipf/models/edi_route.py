@@ -324,6 +324,7 @@ class ipf_rest(_ipf):
         elif message.edi_type == message.env.ref('edi_af_facility.office_campus'):
             self._af_facility(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+            self._rask_get_all(message, res)
         elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all', raise_if_not_found=False):
             self._rask_get_all(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
