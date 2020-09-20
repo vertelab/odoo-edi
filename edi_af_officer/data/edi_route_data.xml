@@ -12,7 +12,7 @@
         <record id="get_officer" model="edi.message.type">
             <field name="name">AF: Get officer</field>
             <field name="target">x500-af-person/v1/af-persons</field>
-            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}&amp;workplace={workplace_nr}</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
         </record>
 
     </data>

@@ -96,7 +96,6 @@ class edi_message(models.Model):
             obj = self.model_record #hr.location 
             self.body = self.edi_type.type_mapping.format(
                 path = "x500-af-person/v1/af-persons",
-                workplace_nr = obj.workplace_number.zfill(5)
             )
             envelope = self.env['edi.envelope'].create({
                 'name': 'asok office request',
