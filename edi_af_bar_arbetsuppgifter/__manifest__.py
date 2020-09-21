@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2020 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,21 +20,18 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF AIS-F RASK',
+    'name': 'EDI AF AS Bär Arbetsuppgifter',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'EDI AF AIS-F RASK - synchronize arbetssökande in AF CRM with AIS-F ASH by calling RASK',
+    'summary': 'EDI AF  ',
     'licence': 'AGPL-3',
     'description': """ """,
-    'author': 'Arbetsförmedlingen',
-    'website': 'http://www.arbetsformedlingen.se',
-    'depends': ['partner_view_360', 'edi_route_ipf'],
-    'external_dependencies': {
-    },
+    'author': 'Vertel AB',
+    'website': 'http://www.vertel.se',
+    'depends': ['edi_route', 'edi_route_ipf'],
     'data': [
         'data/edi_route_data.xml',
-        'data/server_action.xml',
-        'views/edi_af_aisf_rask_views.xml',
+        'views/edi_af_as_notes_views.xml',
     ],
     'application': False,
     'installable': True,

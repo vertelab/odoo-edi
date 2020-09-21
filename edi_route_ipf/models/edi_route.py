@@ -61,13 +61,17 @@ class ipf_rest(_ipf):
         """ Returns an uuid as an unique tracking id"""
         return str(uuid.uuid4())
 
-    def _generate_ctx(self, verify_ssl):
+    def _generate_ctx(self,route):
         ctx = ssl.create_default_context()
-        if verify_ssl:
+        if route.ssl_protocol == 'mutual': # mTLS
+            # Define the client certificate settings for https connection
+            # https://www.techcoil.com/blog/how-to-send-a-http-request-with-client-certificate-private-key-password-secret-in-python-3/
+            ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+            ctx.load_cert_chain(certfile=route_id.ssl_certfile, keyfile=route_id.ssl_keyfile)
+        elif route.ssl_protocol == 'simple':
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
-        else:
-            pass # TODO: implement mTSL here!!!
+        #else: # route.ssl_protocol == 'no_verifiaction';
         return ctx
 
     def _generate_headers(self, af_environment, af_system_id, af_tracking_id):
@@ -307,7 +311,7 @@ class ipf_rest(_ipf):
             req = request.Request(url=get_url, data=data_vals, headers=get_headers)
         else:
             req = request.Request(url=get_url, headers=get_headers)
-        ctx = self._generate_ctx(True) # TODO: change to False
+        ctx = self._generate_ctx(message.route_id) # TODO: change to False
         # send GET and read result
         res_json = request.urlopen(req, context=ctx).read()
         # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table 
@@ -366,6 +370,11 @@ class edi_route(models.Model):
     # af_tracking_id = fields.Char(string='AF-TrackingId',help="If you need help you shouldn't be changing this")
     
     protocol = fields.Selection(selection_add=[('ipf', 'IPF')])
+    ssl_protocol = fields.Selection(selection=[('no_verfy','No verification'),('simple','Simple verification'),('mutual','Mutual verification (mTLS)')],string='SSL-Protocol')
+    ssl_certfile = fields.Char(string='SSL Cert File Path',help="Path of the X.509 certificate file in PEM(Privacy Enhanced Email) format")
+    ssl_keyfile = fields.Char(string='SSL Key File Path',help="Path of the X.509 private key of the certificate")
+    # https://www.techcoil.com/blog/how-to-send-a-http-request-with-client-certificate-private-key-password-secret-in-python-3/
+    # https://pythontic.com/ssl/sslcontext/load_cert_chain
 
     @api.multi
     def _run_in(self):
@@ -399,7 +408,18 @@ class edi_route(models.Model):
             try:
                 for envelope in envelopes:
                     for msg in envelope.edi_message_ids:
-                        endpoint = ipf_rest(host=self.af_ipf_url, username=self.af_client_id, password=self.af_client_secret, port=self.af_ipf_port, environment=self.af_environment, sys_id=self.af_system_id, authorization=self.af_authorization_header)
+                        endpoint = ipf_rest(
+                                    host=self.af_ipf_url, 
+                                    username=self.af_client_id, 
+                                    password=self.af_client_secret, 
+                                    port=self.af_ipf_port, 
+                                    environment=self.af_environment, 
+                                    sys_id=self.af_system_id, 
+                                    authorization=self.af_authorization_header,
+                                    ssl_protocol=self.ssl_protocol,
+                                    ssl_certfile=self.ssl_certfile,
+                                    ssl_keyfile=self.ssl_keyfile,
+                                    )
                         res_messages = endpoint.get(msg)
                         msg.state = 'sent'
                     

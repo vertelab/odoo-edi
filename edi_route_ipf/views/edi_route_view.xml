@@ -16,7 +16,11 @@
                     <field name="af_client_id" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
                     <label for="af_client_secret" string="Client Secret" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
                     <field name="af_client_secret" password="True" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    <field name="ssl_protocol" attrs="{'invisible': [('protocol','not in',['ipf'])]}"/>
+                    <field name="ssl_certfile" attrs="{'invisible': [('protocol','not in',['ipf'])]}"/>
+                    <field name="ssl_keyfile" attrs="{'invisible': [('protocol','not in',['ipf'])]}"/>
                     <label for="af_environment" string="AF-Environment" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
+                    
                     <field name="af_environment" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
                     <label for="af_system_id" string="AF-SystemId" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
                     <field name="af_system_id" nolabel="1" attrs="{'invisible': [('protocol','not in',['ipf'])], 'required': [('protocol','in',['ipf'])]}"/>
