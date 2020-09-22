@@ -138,6 +138,14 @@ class ipf_rest(_ipf):
         body = json.dumps(res)
         vals = {
             'name': "AS office reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
           
     def _as_channel(self, message, res):
         res_set = message.env['edi.message']
