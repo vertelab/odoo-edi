@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+<!--
     <record id="update_customer_number" model="ir.actions.server">
         <field name="name">Update Customer Number</field>
         <field name="model_id" ref="account.model_res_partner"/>
@@ -29,6 +30,6 @@ for partner in records:
             ('id', 'in', [ref('update_customer_number_all')]),
             ]"/>
     </function>
-
+-->
 </odoo>
 
