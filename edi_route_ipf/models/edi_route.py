@@ -133,6 +133,24 @@ class ipf_rest(_ipf):
         # unpack messages
         res_message.unpack()
 
+
+    def _officer(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = message.env['edi.message']
+        body = json.dumps(res)
+        vals = {
+            'name': "AS office reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env['edi.message'].create(vals)
+        # unpack messages
+        res_message.unpack()
+          
     def _as_channel(self, message, res):
         res_set = message.env['edi.message']
 
@@ -339,6 +357,8 @@ class ipf_rest(_ipf):
             self._as_krom_postcode(message, res)
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             self._as_office(message, res)
+        elif message.edi_type == message.env.ref('edi_af_officer.get_officer'):
+            self._officer(message, res)
         elif message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post', raise_if_not_found=False):
             self._as_notes(message, res)
         elif message.edi_type == message.env.ref('edi_af_ag.ag_organisation', raise_if_not_found=False):
