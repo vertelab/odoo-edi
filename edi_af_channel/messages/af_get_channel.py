@@ -19,15 +19,12 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-from datetime import datetime, timedelta
 import json
 import pytz
 import ast
 
 import logging
 _logger = logging.getLogger(__name__)
-
-LOCAL_TZ = 'Europe/Stockholm'
 
 class edi_message(models.Model):
     _inherit='edi.message'
@@ -42,7 +39,7 @@ class edi_message(models.Model):
             # Get values
             registered_through = body.get('segmenteringsval')
             if registered_through:
-                registered_through_obj = self.env['res.partner'].search([('customer_id', '=', body.get('sokande_id'))])               
+                registered_through_obj = self.env['res.partner'].search([('customer_id', '=', body.get('SokandeId'))])               
                 if registered_through_obj:
                     if registered_through == 'test_segmentering':
                         registered_through = 'pdm'
