@@ -38,7 +38,7 @@ class _ipf(object):
     ''' Abstract class for communication-session. Use only subclasses.
         Subclasses are called by dispatcher function 'run'
     '''
-    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, authorization=None, debug=False):
+    def __init__(self, host='localhost', username=None, password=None, port=None, environment=None, sys_id=None, authorization=None, debug=False, ssl_protocol=None, ssl_certfile=None, ssl_keyfile=None):
         self.host = host
         self.username = username
         self.password = password
@@ -47,6 +47,9 @@ class _ipf(object):
         self.environment = environment
         self.sys_id = sys_id
         self.authorization = authorization
+        self.ssl_protocol = ssl_protocol
+        self.ssl_certfile = ssl_certfile
+        self.ssl_keyfile = ssl_keyfile
 
     def get(self, message):
         pass
@@ -61,14 +64,16 @@ class ipf_rest(_ipf):
         """ Returns an uuid as an unique tracking id"""
         return str(uuid.uuid4())
 
-    def _generate_ctx(self,route):
+    def _generate_ctx(self):
+        if self.ssl_protocol == 'no_verify':
+            return
         ctx = ssl.create_default_context()
-        if route.ssl_protocol == 'mutual': # mTLS
+        if self.ssl_protocol == 'mutual': # mTLS
             # Define the client certificate settings for https connection
             # https://www.techcoil.com/blog/how-to-send-a-http-request-with-client-certificate-private-key-password-secret-in-python-3/
             ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-            ctx.load_cert_chain(certfile=route_id.ssl_certfile, keyfile=route_id.ssl_keyfile)
-        elif route.ssl_protocol == 'simple':
+            ctx.load_cert_chain(certfile=self.ssl_certfile, keyfile=self.ssl_keyfile)
+        elif self.ssl_protocol == 'simple':
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
         #else: # route.ssl_protocol == 'no_verifiaction';
@@ -154,9 +159,8 @@ class ipf_rest(_ipf):
     def _as_channel(self, message, res):
         res_set = message.env['edi.message']
 
-        path = message.body.get(path) #path = "ais-f-arbetssokande/v2/segmentering/{SokandeId}" 
-        patharray = path.split('/')   #skapa array av värden
-        res.update({'SokandeId':patharray[4]})
+        patharray = message.body.split('/')   #skapa array av värden
+        res.update({'SokandeId':int(patharray[4].split('?', 1)[0])})
         body = json.dumps(res)
         vals = {
             'name': "AS segment reply",
@@ -329,7 +333,7 @@ class ipf_rest(_ipf):
             req = request.Request(url=get_url, data=data_vals, headers=get_headers)
         else:
             req = request.Request(url=get_url, headers=get_headers)
-        ctx = self._generate_ctx(message.route_id) # TODO: change to False
+        ctx = self._generate_ctx() # TODO: change to False
         # send GET and read result
         res_json = request.urlopen(req, context=ctx).read()
         # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table 
@@ -343,15 +347,15 @@ class ipf_rest(_ipf):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi', raise_if_not_found=False):
             self._ace_wi(message, res)
-        elif message.edi_type == message.env.ref('edi_af_facility.office_campus'):
+        elif message.edi_type == message.env.ref('edi_af_facility.office_campus', raise_if_not_found=False):
             self._af_facility(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as.asok_office'):
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
             self._rask_get_all(message, res)
         elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all', raise_if_not_found=False):
             self._rask_get_all(message, res)
         elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
             self._as_office(message, res)
-        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel'):
+        elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             self._as_channel(message, res)
         elif message.edi_type == message.env.ref('edi_af_krom_postcode.asok_postcode', raise_if_not_found=False):
             self._as_krom_postcode(message, res)
@@ -390,7 +394,7 @@ class edi_route(models.Model):
     # af_tracking_id = fields.Char(string='AF-TrackingId',help="If you need help you shouldn't be changing this")
     
     protocol = fields.Selection(selection_add=[('ipf', 'IPF')])
-    ssl_protocol = fields.Selection(selection=[('no_verfy','No verification'),('simple','Simple verification'),('mutual','Mutual verification (mTLS)')],string='SSL-Protocol')
+    ssl_protocol = fields.Selection(selection=[('no_verify','No verification'),('simple','Simple verification'),('mutual','Mutual verification (mTLS)')],string='SSL-Protocol')
     ssl_certfile = fields.Char(string='SSL Cert File Path',help="Path of the X.509 certificate file in PEM(Privacy Enhanced Email) format")
     ssl_keyfile = fields.Char(string='SSL Key File Path',help="Path of the X.509 private key of the certificate")
     # https://www.techcoil.com/blog/how-to-send-a-http-request-with-client-certificate-private-key-password-secret-in-python-3/

@@ -7,7 +7,6 @@
         <field name="code">
 route  = env['edi.route'].search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_channel.asok_segment_route'))])   
 record = env['res.partner'].browse(env['ir.model.data'].xmlid_to_res_id('__ais_import__.part_jbskr_2279'))
-
 vals = {
   'name': 'Get segment msg',
   'edi_type': env.ref('edi_af_channel.registration_channel').id,
