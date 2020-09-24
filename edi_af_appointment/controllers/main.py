@@ -324,15 +324,15 @@ class AppointmentController(http.Controller):
         if not free:
             return Response("Bookable occasion id not free", status=403)
 
-        sunea = request.env['res.users'].sudo().search([('login', '=', 'sunea')])
+        sunie = request.env['res.users'].sudo().search([('login', '=', 'sunie')])
 
         vals = {
             'start' : occasions[0].start,
             'stop' : occasions[-1].stop,
             'duration' : len(occasions) * BASE_DURATION,
-            'user_id' : sunea.id, # SUNEA
-            'office' : sunea.office_id.id, 
-            'office_code' : sunea.office_id.office_code, # 0248
+            'user_id' : sunie.id, # SUNIE
+            'office' : sunie.office_id.id, 
+            'office_code' : sunie.office_id.office_code, # 0248
             'partner_id' : partner.id, 
             'state' : 'confirmed',
             'type_id' : occasions[0].type_id.id,
@@ -352,15 +352,15 @@ class AppointmentController(http.Controller):
             "appointment_channel": app.type_id.channel.name or '',
             "customer_nr": partner.customer_id or '',
             "customer_name": partner.display_name or '',
-            "employee_name": sunea.partner_id.name or '',
-            "employee_phone": sunea.partner_id.phone or '',
-            "employee_signature": sunea.login or '',
+            "employee_name": sunie.partner_id.name or '',
+            "employee_phone": sunie.partner_id.phone or '',
+            "employee_signature": sunie.login or '',
             "id": app.id,
-            "office_address": sunea.office_id.partner_id.contact_address or '',
-            "office_email": sunea.office_id.partner_id.email or '',
+            "office_address": sunie.office_id.partner_id.contact_address or '',
+            "office_email": sunie.office_id.partner_id.email or '',
             "location_code": app.location_code or '',
-            "office_code": sunea.office_id.office_code or '',
-            "office_name": sunea.office_id.display_name or '',
+            "office_code": sunie.office_id.office_code or '',
+            "office_name": sunie.office_id.display_name or '',
             "status": app.state,
         }
 
