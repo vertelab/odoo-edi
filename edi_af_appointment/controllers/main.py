@@ -331,8 +331,8 @@ class AppointmentController(http.Controller):
             'stop' : occasions[-1].stop,
             'duration' : len(occasions) * BASE_DURATION,
             'user_id' : sunie.id, # SUNIE
-            'office' : sunie.office_id.id, 
-            'office_code' : sunie.office_id.office_code, # 0248
+            'office_id' : sunie.office_id.id, 
+            # 'office_code' : sunie.office_id.office_code, # 0248
             'partner_id' : partner.id, 
             'state' : 'confirmed',
             'type_id' : occasions[0].type_id.id,
