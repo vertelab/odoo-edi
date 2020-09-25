@@ -156,22 +156,6 @@ class edi_message(models.Model):
         else:
             super(edi_message, self).unpack()
         
-    @api.model
-    def create_partner_from_dict(self, vals, external_xmlid):
-        obj = self.env['res.partner'].browse(self.env['ir.model.data'].xmlid_to_res_id(external_xmlid))
-        if obj:
-            obj.write(vals)
-        else:
-            obj = self.env['res.partner'].create(vals) 
-            self.env['ir.model.data'].create(
-                {
-                'name': external_xmlid.split('.')[1], 
-                'module': external_xmlid.split('.')[0],
-                'model': obj._name,
-                'res_id': obj.id
-                })  
-        return obj 
-
     @api.one
     def pack(self):
         if self.edi_type.id == self.env.ref('edi_af_facility.office_campus').id:
