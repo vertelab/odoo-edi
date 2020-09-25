@@ -4,7 +4,6 @@ from odoo import models, api
 
 _logger = logging.getLogger(__name__)
 
-
 class ais_as_rask_controller(models.Model):
     _inherit = 'res.partner'
 
@@ -12,8 +11,9 @@ class ais_as_rask_controller(models.Model):
     def rask_controller(self, customer_id, social_security_number, former_social_security_number, message_type):
         _logger.info(
             "ais_as_rask_controller.rask_controller(): customerId: %s socialSecurityNumber %s formerSocialSecurityNumber %s messageType %s" % (
-            customer_id, social_security_number, former_social_security_number, message_type))
+                customer_id, social_security_number, former_social_security_number, message_type))
         if message_type == "PersonnummerByte":
+            _logger.info("ais_as_rask_controller.rask_controller(): messageType %s will be handled" % message_type)
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id)])
             if res_partner_obj:
                 res_partner_obj.company_registry = social_security_number
@@ -40,12 +40,12 @@ class ais_as_rask_controller(models.Model):
                 message = self.env['edi.message'].create(vals)
                 message.pack()
                 route.run()
-        else:
-            _logger.info("ais_as_rask_controller.rask_controller(): messageType %s" % message_type)
+        elif message_type == "Nyinskrivning" or message_type == "AnsvarigtKontor" or message_type == "Personuppgift" or\
+                message_type == "Sokandekategori" or message_type == "Avaktualisering":
+            _logger.info("ais_as_rask_controller.rask_controller(): messageType %s will be handled" % message_type)
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id)])
             if not res_partner_obj:
                 # AS saknas i AF CRM DB, hantera det som en "Nyinskrivning"
-
                 vals = {
                     'customer_id': customer_id,
                     'firstname': "new object",
@@ -68,3 +68,5 @@ class ais_as_rask_controller(models.Model):
             message = self.env['edi.message'].create(vals)
             message.pack()
             route.run()
+        else:
+            _logger.info("ais_as_rask_controller.rask_controller(): messageType %s will not be handled" % message_type)

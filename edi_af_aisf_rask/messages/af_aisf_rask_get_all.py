@@ -38,9 +38,31 @@ class edi_message(models.Model):
             body = json.loads(self.body)
             customer_id = body.get('arbetssokande').get('sokandeId')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id)])
-            # TODO: hantera hemkommunKod
+            res_countr_state_obj = self.env['res.country.state'].search([('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))])
             office_obj = self.env['res.partner'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
+            sun_id_obj = self.env['res.sun'].search([('code','=', body.get('kontaktuppgifter').get('sunKod'))])
+            if sun_id_obj is None:
+                _logger.info("None res.sun object for RASK kontaktUppgifter.sunKod: %s" % body.get('kontaktuppgifter').get('sunKod'))
+            elif not sun_id_obj.id:
+                _logger.info(
+                    "id for res.sun object for RASK kontaktUppgifter.sunKod: %s" % sun_id_obj.id)
+                _logger.info(
+                    "name res.sun object for RASK kontaktUppgifter.sunKod: %s" % sun_id_obj.name)
+            #'sun_ids': [(6, 0, sun_id_obj.id)],
+
+            # segmenteringsval = body.get('segmentering').get('segmenteringsval')
+            # if segmenteringsval == "LOKAL":
+            #     registered_through = "local office"
+            # elif segmenteringsval == "SJALVSERVICE":
+            #     registered_through = "self service"
+            # elif segmenteringsval == "PDM":
+            #     registered_through = "pdm"
+            # else:
+            #     registered_through = None
+            #'registered_through': registered_through,
+
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
+
             jobseeker_dict = {
                 'firstname': body.get('arbetssokande').get('fornamn'),
                 'lastname': body.get('arbetssokande').get('efternamn'),
@@ -55,6 +77,9 @@ class edi_message(models.Model):
                 'deactualization_reason': body.get('processStatus').get('avaktualiseringsOrsaksKod'),
                 'email': body.get('kontaktuppgifter').get('epost'),
                 'office': office_obj.id,
+                'state_id': res_countr_state_obj.id,
+                'education_level': body.get('utbildning').get('utbildningsniva'),
+
             }
             res_partner_obj.write(jobseeker_dict)
 
@@ -91,15 +116,15 @@ class edi_message(models.Model):
                             'type': 'given address',
                         }
                         self.env['res.partner'].create(given_address_dict)
-                        _logger.info("edi_af_aisf_rask.edit_message.upack() - given address object created")
+                        _logger.info("edi_af_aisf_rask.edit_message.unpack() - given address object created")
                     else:
                         given_address_object.street = street
                         given_address_object.street2 = street2
                         given_address_object.zip = zip
                         given_address_object.city = city
-                        _logger.info("edi_af_aisf_rask.edit_message.upack() - given address object exists")
+                        _logger.info("edi_af_aisf_rask.edit_message.unpack() - given address object exists")
 
-            _logger.info("edi_af_aisf_rask.edit_message.upack() - res.partner-object updated")
+            _logger.info("edi_af_aisf_rask.edit_message.unpack() - res.partner-object updated")
 
     @api.one
     def pack(self):
