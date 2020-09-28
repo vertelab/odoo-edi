@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_edi_message_tree_inherited" model="ir.ui.view"> 
+    <field name="name">view.edi.message.tree.inherited</field>
+    <field name="model">edi.message</field> 
+    <field name="inherit_id" ref="edi_route.view_edi_message_tree" /> 
+    <field name="arch" type="xml"> 
+      <tree position="replace">
+        <tree string="EDI Message" colors="black:state in ('sent','received');blue:state=='progress';red:state=='canceled'">
+            <field name="name"/>
+            <field name="envelope_id"/>
+            <field name="route_id"/>
+            <field name="edi_type"/>
+            <field name="model_record"/>
+            <field name="state"/>
+            <field name="model" invisible="1"/>
+            <field name="res_id" invisible="1"/>
+        </tree>
+      </tree>
+    </field>
+  </record> 
+</odoo>
