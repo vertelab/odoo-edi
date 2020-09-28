@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-<!--
     <record id="update_customer_number" model="ir.actions.server">
         <field name="name">Update Customer Number</field>
-        <field name="model_id" ref="account.model_res_partner"/>
+        <field name="model_id" ref="base.model_res_partner"/>
         <field name="state">code</field>
         <field name="code">
 for partner in records:
@@ -18,7 +17,7 @@ for partner in records:
 
     <record id="update_customer_number_all" model="ir.actions.server">
         <field name="name">Update ALL Customer Number</field>
-        <field name="model_id" ref="account.model_res_partner"/>
+        <field name="model_id" ref="base.model_res_partner"/>
         <field name="state">code</field>
         <field name="code">
 for partner in records:
@@ -30,6 +29,5 @@ for partner in records:
             ('id', 'in', [ref('update_customer_number_all')]),
             ]"/>
     </function>
--->
 </odoo>
 
