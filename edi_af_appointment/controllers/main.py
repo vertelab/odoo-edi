@@ -127,11 +127,11 @@ class AppointmentController(http.Controller):
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
                 "id": app.id,
-                "office_address": app.office.contact_address or '',
-                "office_email": app.office.email or '',
-                "location_code": app.location_code or '',
-                "office_code": app.office.office_code or '',
-                "office_name": app.office.display_name or '',
+                "office_address": app.office_id.contact_address or '',
+                "office_email": app.office_id.email or '',
+                "location_code": app.partner_id.location_code or '',
+                "office_code": app.office_id.office_code or '',
+                "office_name": app.office_id.display_name or '',
                 "status": app.state,
             }
             res = json.dumps(res)
@@ -183,11 +183,11 @@ class AppointmentController(http.Controller):
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
                 "id": app.id,
-                "office_address": app.office.contact_address or '',
-                "office_email": app.office.email or '',
-                "location_code": app.location_code or '',
-                "office_code": app.office.office_code or '',
-                "office_name": app.office.display_name or '',
+                "office_address": app.office_id.partner_id.contact_address or '',
+                "office_email": app.office_id.partner_id.email or '',
+                "location_code": app.user_id.location_id.location_code or '',
+                "office_code": app.office_id.office_code or '',
+                "office_name": app.office_id.display_name or '',
                 "status": app.state,
             }
             return res
@@ -234,7 +234,7 @@ class AppointmentController(http.Controller):
         if partner:
             partner_domain = ('partner_id', '=', partner.id)
             search_domain.append(partner_domain)
-        
+
         if appointment_types:
             type_list = appointment_types.split(',')
             type_ids = request.env['calendar.appointment.type'].sudo().search([('ipf_num', 'in', type_list)]).mapped('id')
@@ -242,17 +242,17 @@ class AppointmentController(http.Controller):
                 return Response("Meeting type not found", status=404)
             type_ids_domain = ('type_id', 'in', type_ids)
             search_domain.append(type_ids_domain)
-                
+
         if status_list:
             status_list_list = status_list.split(',')
             status_list_domain = ('state', 'in', status_list_list)
             search_domain.append(status_list_domain)
-        
+
         if start:
             start_datetime = datetime.strptime(start, "%Y-%m-%dT%H:%M:%SZ")
             start_datetime_domain = ('start', '>=', start_datetime)
             search_domain.append(start_datetime_domain)
-        
+
         if stop:
             stop_datetime = datetime.strptime(stop, "%Y-%m-%dT%H:%M:%SZ")
             stop_datetime_domain = ('stop', '<=', stop_datetime)
@@ -275,11 +275,11 @@ class AppointmentController(http.Controller):
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
                 "id": app.id,
-                "office_address": app.office.contact_address or '',
-                "office_email": app.office.email or '',
+                "office_address": app.office_id.partner_id.contact_address or '',
+                "office_email": app.office_id.partner_id.email or '',
                 "location_code": app.location_code or '',
-                "office_code": app.office.office_code or '',
-                "office_name": app.office.display_name or '',
+                "office_code": app.office_id.office_code or '',
+                "office_name": app.office_id.display_name or '',
                 "status": app.state,
             }
 
@@ -324,15 +324,15 @@ class AppointmentController(http.Controller):
         if not free:
             return Response("Bookable occasion id not free", status=403)
 
-        sunea = request.env['res.users'].sudo().search([('login', '=', 'sunea')])
+        sunie = request.env['res.users'].sudo().search([('login', '=', 'sunie')])
 
         vals = {
             'start' : occasions[0].start,
             'stop' : occasions[-1].stop,
             'duration' : len(occasions) * BASE_DURATION,
-            'user_id' : sunea.id, # SUNEA
-            'office' : sunea.office.id, 
-            # 'office_code' : sunea.office.office_code, # 0248
+            'user_id' : sunie.id, # SUNIE
+            'office_id' : sunie.office_id.id, 
+            # 'office_code' : sunie.office_id.office_code, # 0248
             'partner_id' : partner.id, 
             'state' : 'confirmed',
             'type_id' : occasions[0].type_id.id,
@@ -352,15 +352,15 @@ class AppointmentController(http.Controller):
             "appointment_channel": app.type_id.channel.name or '',
             "customer_nr": partner.customer_id or '',
             "customer_name": partner.display_name or '',
-            "employee_name": sunea.partner_id.name or '',
-            "employee_phone": sunea.partner_id.phone or '',
-            "employee_signature": sunea.login or '',
+            "employee_name": sunie.partner_id.name or '',
+            "employee_phone": sunie.partner_id.phone or '',
+            "employee_signature": sunie.login or '',
             "id": app.id,
-            "office_address": sunea.office.contact_address or '',
-            "office_email": sunea.office.email or '',
+            "office_address": sunie.office_id.partner_id.contact_address or '',
+            "office_email": sunie.office_id.partner_id.email or '',
             "location_code": app.location_code or '',
-            "office_code": sunea.office.office_code or '',
-            "office_name": sunea.office.display_name or '',
+            "office_code": sunie.office_id.office_code or '',
+            "office_name": sunie.office_id.display_name or '',
             "status": app.state,
         }
 
@@ -386,11 +386,11 @@ class AppointmentController(http.Controller):
                     "employee_phone": app.user_id.partner_id.phone or '',
                     "employee_signature": app.user_id.login or '',
                     "id": app.id or '',
-                    "office_address": app.office.contact_address or '',
-                    "office_email": app.office.email or '',
+                    "office_address": app.office_id.partner_id.contact_address or '',
+                    "office_email": app.office_id.partner_id.email or '',
                     "location_code": app.location_code or '',
-                    "office_code": app.office.office_code or '',
-                    "office_name": app.office.display_name or '',
+                    "office_code": app.office_id.office_code or '',
+                    "office_name": app.office_id.display_name or '',
                     "status": app.state,
                 }
 
@@ -477,11 +477,11 @@ class AppointmentController(http.Controller):
                     "employee_phone": app.user_id.partner_id.phone or '',
                     "employee_signature": app.user_id.login or '',
                     "id": app.id,
-                    "office_address": app.office.contact_address or '',
-                    "office_email": app.office.email or '',
+                    "office_address": app.office_id.partner_id.contact_address or '',
+                    "office_email": app.office_id.partner_id.email or '',
                     "location_code": app.location_code or '',
-                    "office_code": app.office.office_code or '',
-                    "office_name": app.office.display_name or '',
+                    "office_code": app.office_id.office_code or '',
+                    "office_name": app.office_id.display_name or '',
                     "status": app.state,
                 }
                 
