@@ -72,38 +72,6 @@ class edi_message(models.Model):
                     record.af_wi_conid = record.body.get('contactId')
                     record.af_wi_mailuid = record.body.get('emailUid')
 
-    # @api.one
-    # def _af_wi_start(self):
-    #     for record in self:
-    #         if record.model_record and record.model_record._name == 'edi.ace_workitem':
-    #             record.af_wi_start = record.model_record.appointment_id.start
-    #         else:
-    #             record.af_wi_start = False
-
-    # @api.one
-    # def _af_wi_stop(self):
-    #     for record in self:
-    #         if record.model_record and record.model_record._name == 'edi.ace_workitem':
-    #             record.af_wi_stop = record.model_record.appointment_id.stop
-    #         else:
-    #             record.af_wi_stop = False
-
-    # @api.one
-    # def _af_wi_type(self):
-    #     for record in self:
-    #         if record.model_record and record.model_record._name == 'edi.ace_workitem':
-    #             record.af_wi_type = record.model_record.appointment_id.type_id
-    #         else:
-    #             record.af_wi_type = False
-
-    # @api.one
-    # def _af_wi_pnr(self):
-    #     for record in self:
-    #         if record.model_record and record.model_record._name == 'edi.ace_workitem':
-    #             record.af_wi_pnr = record.sudo().model_record.appointment_id.partner_id.company_registry
-    #         else:
-    #             record.af_wi_pnr = False
-
     af_wi_start = fields.Datetime(string='Start time', compute="_af_wi_compute")
     af_wi_stop = fields.Datetime(string='End time', compute="_af_wi_compute")
     af_wi_type = fields.Many2one(string='Meeting type', comodel_name="calendar.appointment.type", compute="_af_wi_compute")
