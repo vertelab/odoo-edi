@@ -56,5 +56,26 @@ class edi_route(models.Model):
 
 class edi_message(models.Model):
     _inherit='edi.message'
-          
+
     route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules'), ('edi_af_ace_wi', 'AF ACE WI')])
+
+    @api.one
+    def _af_wi_compute(self):
+        for record in self:
+            if record.model_record and record.model_record._name == 'edi.ace_workitem':
+                record.af_wi_start = record.model_record.appointment_id.start
+                record.af_wi_stop = record.model_record.appointment_id.stop
+                record.af_wi_pnr = record.sudo().model_record.appointment_id.partner_id.company_registry
+                record.af_wi_type = record.model_record.appointment_id.type_id
+                if record.state == "sent":
+                    record.af_wi_reqid = record.body.get('requestId')
+                    record.af_wi_conid = record.body.get('contactId')
+                    record.af_wi_mailuid = record.body.get('emailUid')
+
+    af_wi_start = fields.Datetime(string='Start time', compute="_af_wi_compute")
+    af_wi_stop = fields.Datetime(string='End time', compute="_af_wi_compute")
+    af_wi_type = fields.Many2one(string='Meeting type', comodel_name="calendar.appointment.type", compute="_af_wi_compute")
+    af_wi_pnr = fields.Char(string='Jobseeker', compute="_af_wi_compute")
+    af_wi_reqid = fields.Char(string='Request id', compute="_af_wi_compute")
+    af_wi_conid = fields.Char(string='Contact id', compute="_af_wi_compute")
+    af_wi_mailuid = fields.Char(string='Email uid', compute="_af_wi_compute")
