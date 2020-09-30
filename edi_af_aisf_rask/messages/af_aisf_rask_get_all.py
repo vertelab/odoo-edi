@@ -41,17 +41,9 @@ class edi_message(models.Model):
             res_countr_state_obj = self.env['res.country.state'].search(
                 [('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))])
             office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
-            sun_id_obj = self.env['res.sun'].search([('code', '=', body.get('kontaktuppgifter').get('sunKod'))])
-            if sun_id_obj is None:
-                _logger.info(
-                    "None res.sun object for RASK kontaktUppgifter.sunKod: %s" % body.get('kontaktuppgifter').get(
-                        'sunKod'))
-            elif not sun_id_obj.id:
-                _logger.info(
-                    "id for res.sun object for RASK kontaktUppgifter.sunKod: %s" % sun_id_obj.id)
-                _logger.info(
-                    "name res.sun object for RASK kontaktUppgifter.sunKod: %s" % sun_id_obj.name)
-            # 'sun_ids': [(6, 0, sun_id_obj.id)],
+            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning').get('sunKod'))])
+            if sun_obj is None:
+                sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
             segmenteringsval = body.get('segmentering').get('segmenteringsval')
             if segmenteringsval == "LOKAL":
@@ -82,6 +74,7 @@ class edi_message(models.Model):
                 'state_id': res_countr_state_obj.id,
                 'education_level': body.get('utbildning').get('utbildningsniva'),
                 'registered_through': registered_through,
+                'sun_ids': [(6, 0, [sun_obj.id])],
             }
             res_partner_obj.write(jobseeker_dict)
 
@@ -103,11 +96,9 @@ class edi_message(models.Model):
                         [('name', '=', country_name)])
                     if country_obj is not None:
                         country_obj_id = country_obj.id
-                _logger.info("edi_af_aisf_rask.edit_message.unpack() - country_name %s country_obj_id %s" % (
-                    country_name, country_obj_id))
+                _logger.info("RASK-RASK-RASK - country_name %s country_obj_id %s" % (country_name, country_obj_id))
 
                 if address.get('adressTyp') == 'FBF':
-
                     res_partner_obj.street = street
                     res_partner_obj.street2 = street2
                     res_partner_obj.zip = zip
@@ -116,7 +107,6 @@ class edi_message(models.Model):
                 elif address.get('adressTyp') == 'EGEN' or address.get('adressTyp') == 'UTL':
                     given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                     if not given_address_object:
-                        _logger.info("edi_af_aisf_rask.edit_message.upack() - no given address object exists")
                         given_address_dict = {
                             'parent_id': res_partner_obj.id,
                             'street': street,
