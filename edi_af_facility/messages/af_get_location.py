@@ -159,8 +159,8 @@ class edi_message(models.Model):
     @api.one
     def pack(self):
         if self.edi_type.id == self.env.ref('edi_af_facility.office_campus').id:
-            if not self.model_record or self.model_record._name != 'res.partner' or not self.model_record.is_jobseeker:
-                raise Warning("Appointment: Attached record is not a res.partner or not a jobseeker! {model}".format(model=self.model_record and self.model_record._name or None))
+            if not self.model_record or self.model_record._name != 'res.partner':
+                raise Warning("Appointment: Attached record is not a res.partner {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record #res.partner 
             self.body = self.edi_type.type_mapping.format(
