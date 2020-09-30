@@ -19,15 +19,12 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-from datetime import datetime, timedelta
 import json
 import pytz
 import ast
 
 import logging
 _logger = logging.getLogger(__name__)
-
-LOCAL_TZ = 'Europe/Stockholm'
 
 class edi_message(models.Model):
     _inherit='edi.message'
@@ -47,20 +44,20 @@ class edi_message(models.Model):
                 pass       
         else:
             super(edi_message, self).unpack()
+            
 
     @api.one
     def pack(self):
         if self.edi_type.id == self.env.ref('edi_af_krom_postcode.asok_postcode').id:
             if not self.model_record or self.model_record._name != 'res.partner':
-                raise Warning("Appointment: Attached record is not an res.partner'! {model}".format(model=self.model_record and self.model_record._name or None))
+                raise Warning("KROM: Attached record is not an res.partner'! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record  #res.partner
             path = "ais-bos-regelverk/api/Krom/ArPostnummerGiltigForKrom"
             self.body = self.edi_type.type_mapping.format(
                 path=path,   #boolean
-                postnummer = obj.zip,            
-            )
-            _logger.info("Path on l66: %s" % path )
+                postnummer = obj.zip,   # test '72130'          
+            ) 
             envelope = self.env['edi.envelope'].create({
                 'name': 'KROM postcode request',
                 'route_id': self.route_id.id,
