@@ -42,6 +42,7 @@
         'data/edi.ace_queue.csv',
         'data/edi.ace_errand.csv',
         'views/edi_af_appointment_views.xml',
+        'views/edi_message_view.xml',
         'data/res_users.xml'
     ],
     'application': False,

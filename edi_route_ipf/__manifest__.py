@@ -33,15 +33,12 @@ Requires python libraries paramiko and pycrypto. http://www.paramiko.org/install
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['edi_route',],
-#    'external_dependencies': {
-#        'python': ['paramiko','Crypto'],
-#    },
     'data': [ 
         'views/edi_route_view.xml', 
+        'views/edi_message_view.xml', 
         'views/edi_type_view.xml',
     ],
     'application': False,
     'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
 }
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
