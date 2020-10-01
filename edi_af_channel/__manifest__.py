@@ -20,12 +20,20 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Channel',
+    'name': 'Depreciated EDI AF Channel',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'EDI AF Channel - Return channel through which jobseekers sign on',
+    'summary': """
+        Return channel through which jobseekers sign on. \n
+        Example: \n
+        PDM, LOKAL, SJALVSERVICE
+        """,
+    'description': """
+Depreciated
+===============================================================================
+The functioinality of this module was replaced by edi_af_aisf_rask. \n 
+""",
     'licence': 'AGPL-3',
-    'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['partner_view_360', 'edi_route_ipf', 'af_data_ais-f_loader'],
