@@ -1,2 +1,8 @@
 id,name,app_type_id/id
-edi_ace_queue.as_uppfstomw,"AS_UppfSTOMW",calendar_meeting_type.type_21
+edi_ace_queue.AS_PlansamtalW,"AS_PlansamtalW",calendar_meeting_type.type_21
+edi_ace_queue.AS_UppfoljandeW,"AS_UppfoljandeW",calendar_meeting_type.type_22
+edi_ace_queue.AS_FordjMoteW,"AS_FordjMoteW",calendar_meeting_type.type_23
+edi_ace_queue.AS_PlansKROMW,"AS_PlansKROMW",calendar_meeting_type.type_24
+edi_ace_queue.AS_UppfKROMW,"AS_UppfKROMW",calendar_meeting_type.type_25
+edi_ace_queue.AS_PlansSTOMW,"AS_PlansSTOMW",calendar_meeting_type.type_26
+edi_ace_queue.AS_UppfSTOMW,"AS_UppfSTOMW",calendar_meeting_type.type_27
