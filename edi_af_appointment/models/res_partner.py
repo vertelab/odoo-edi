@@ -28,6 +28,6 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
     
     @api.one
-    def set_user(self):
+    def set_user(self, user):
         """Updates the responsible officer of a res.partner from an AF-signature """
-        self.user_id = self.env.user.id
+        self.user_id = user.id

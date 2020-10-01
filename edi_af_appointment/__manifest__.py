@@ -33,7 +33,7 @@
         'calendar_af', 
         'edi_route_ipf', 
         'af_data_ais-f_loader', 
-        'af_security_rules'],
+        'af_security'],
     'external_dependencies': {
     },
     'data': [
@@ -42,6 +42,7 @@
         'data/edi.ace_queue.csv',
         'data/edi.ace_errand.csv',
         'views/edi_af_appointment_views.xml',
+        'views/edi_message_view.xml',
         'data/res_users.xml'
     ],
     'application': False,

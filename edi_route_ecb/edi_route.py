@@ -88,7 +88,7 @@ class edi_route(models.Model):
     def _run_out(self, envelopes):
         _logger.debug('edi_route._run_out (ipf): %s' % envelopes)
         if self.protocol == 'ipf':
-            if not (self.af_url or self.af_port or self.client_id or self.client_secret or self.af_environment or self.af_system_id):
+            if not (self.af_url or self.af_port or self.af_client_id or self.af_client_secret or self.af_environment or self.af_system_id):
                 raise Warning('Please setup AF IPF Information')
 
             if self.ipf_debug:

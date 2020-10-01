@@ -1,0 +1,19 @@
+<openerp>
+    <data noupdate="1">
+
+        <record id="get_officer_route" model="edi.route">
+            <field name="name">AF Get officer route</field>
+            <field name="partner_id" ref="base.main_partner"/>
+            <field name="active" eval="True"/>
+            <field name="protocol">ipf</field>
+            <field name="route_type">edi_af_officer</field>
+        </record>
+
+        <record id="get_officer" model="edi.message.type">
+            <field name="name">AF: Get officer</field>
+            <field name="target">x500-af-person/v1/af-persons</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record>
+
+    </data>
+</openerp>

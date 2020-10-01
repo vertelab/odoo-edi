@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="af_edi_get_officer" model="ir.actions.server">
+        <field name="name">EDI AF X500 Get officer</field>
+        <field name="model_id" ref="base.model_ir_actions_server"/>
+        <field name="state">code</field>
+        <field name="code">route = env['edi.route'].sudo().search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_officer.get_officer_route'))])
+
+record = env['hr.location'].sudo().search([('workplace_number','=','1912')])
+
+vals = {
+  'name': 'get office msg',
+  'edi_type': env.ref('edi_af_officer.get_officer').id,
+  'model': record._name,
+  'res_id': record.id,
+  'route_id': route.id,
+  'route_type': 'edi_af_officer',
+}
+
+message = env['edi.message'].sudo().create(vals)
+message.pack()
+route.run()
+      </field>
+    </record>
+</odoo>

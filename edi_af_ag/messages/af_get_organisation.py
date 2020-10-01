@@ -34,7 +34,7 @@ class edi_message(models.Model):
             
     @api.one
     def unpack(self): #get the result of the request and update
-        if self.edi_type.id == self.env.ref('edi_ag_ag.ag_organisation').id:
+        if self.edi_type.id == self.env.ref('edi_af_ag.ag_organisation').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
             
@@ -90,7 +90,7 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self): #ask about thing that needs update
-        if self.edi_type.id == self.env.ref('edi_ag_ag.ag_organisation').id:
+        if self.edi_type.id == self.env.ref('edi_af_ag.ag_organisation').id:
             if not self.model_record or self.model_record._name != 'res.partner':
                 raise Warning("Appointment: Attached record is not an res.partner! {model}".format(model=self.model_record and self.model_record._name or None))
 

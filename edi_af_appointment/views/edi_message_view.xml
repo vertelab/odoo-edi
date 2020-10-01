@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_edi_message_tree_wi_inherited" model="ir.ui.view"> 
+    <field name="name">view.edi.message.tree.wi.inherited</field>
+    <field name="model">edi.message</field> 
+    <field name="inherit_id" ref="edi_route_ipf.view_edi_message_tree_inherited" /> 
+    <field name="arch" type="xml"> 
+      <tree position="inside">
+        <field name="af_wi_start" attrs="{'invisible':[('model', '!=', 'edi.ace_workitem')]}"/>
+        <field name="af_wi_stop" attrs="{'invisible':[('model', '!=', 'edi.ace_workitem')]}"/>
+        <field name="af_wi_type" attrs="{'invisible':[('model', '!=', 'edi.ace_workitem')]}"/>
+        <field name="af_wi_pnr" attrs="{'invisible':[('model', '!=', 'edi.ace_workitem')]}"/>
+        <field name="af_wi_reqid" attrs="{'invisible':[('model', '!=', 'edi.ace_workitem')]}"/>
+        <field name="af_wi_conid" attrs="{'invisible':[('model', '!=', 'edi.ace_workitem')]}"/>
+        <field name="af_wi_mailuid" attrs="{'invisible':[('model', '!=', 'edi.ace_workitem')]}"/>
+      </tree>
+    </field>
+  </record> 
+</odoo>
