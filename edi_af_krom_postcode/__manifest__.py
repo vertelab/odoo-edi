@@ -21,11 +21,18 @@
 
 {
     'name': 'EDI AF KROM Postcode',
-    'version': '0.1',
+    'version': '12.0.1.0.0',
     'category': 'edi',
-    'summary': 'Check if a postcode is valid for KROM',
+    'summary': """
+        Check if a postcode is valid for KROM.\n
+        Returns a boolean for postnummer from IPF AIS BOS Regelverk API.
+        """,
     'licence': 'AGPL-3',
-    'description': """Returns a boolean for postnummer from IPF AIS BOS Regelverk API""",
+    'description': """
+Jira
+===========================================
+AFC-621 - Integration Rusta-och-Matcha (V12.0.1.0.0)
+""",
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['partner_view_360', 'edi_route_ipf', 'af_data_ais-f_loader'],
