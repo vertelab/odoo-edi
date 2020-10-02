@@ -48,30 +48,13 @@ class edi_message(models.Model):
                     'phone': officer.get('telephoneNumber'),
                     'mobile': officer.get('mobileNumber'),
                     'office_id': office.id,
-                    'location_id': location.id
+                    'location_id': location.id,
+                    'employee': True,
+                    'saml_uid': officer.get('userName'),
+                    'action_id': self.env.ref("hr_360_view.search_jobseeker_wizard").id,
+                    'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth')
                 }
-                #     {
-                #     "id" : "32d2a8d6-b521-c391-d018-a5bb762d4d59",
-                #     "lastName" : "Svensson",
-                #     "firstName" : "Sven",
-                #     "userName" : "abcde",
-                #     "mail" : "sven.svenssondok@arbetsformedlingen.se",
-                #     "managerId" : "32d2a8d6-b521-c391-d018-a5bb762d4d59",
-                #     "managerSignature" : "cheft",
-                #     "telephoneNumber" : "01012345678",
-                #     "personalIdentityNumber" : "191111111111",
-                #     "startDate" : "2019-02-01",
-                #     "functionCode" : "0123",
-                #     "workPlaceNumber" : "01900",
-                #     "organisationNumber" : "0130_73100704",
-                #     "endDate" : "2022-12-31",
-                #     "functionName" : "Testare",
-                #     "officeCode" : "3614",
-                #     "mobileNumber" : "0701234567",
-                #     "updated" : "2019-02-09T14:09:48.000+00:00",
-                #     "loaStart" : "2020-01-01",
-                #     "loaEnd" : "2020-04-01"
-                #   },
+            
                 user = self.env['res.users'].search([('login','=',vals['login'])])
                 if user:
                     user.write(vals)

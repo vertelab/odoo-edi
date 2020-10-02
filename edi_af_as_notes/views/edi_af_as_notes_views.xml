@@ -5,20 +5,20 @@
         <field name="model_id" ref="base.model_ir_actions_server"/>
         <field name="state">code</field>
         <field name="code">
-route = env['edi.route'].search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_as_notes.asok_note_post_route'))])
+route = env['edi.route'].sudo().search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_as_notes.asok_note_post_route'))])
 
 note_vals = {
     'name': "Test",
     'note': "Test",
     'note_date': "2020-08-31",
-    'administrative_officer': env['res.users'].browse(env['ir.model.data'].xmlid_to_res_id('edi_af_appointment.user_sunea')).id,
+    'administrative_officer': env['res.users'].sudo().browse(env['ir.model.data'].xmlid_to_res_id('edi_af_appointment.user_sunea')).id,
     'is_confidential': False,
-    'note_type': env['res.partner.note.type'].browse(1).id,
-    'office': env['res.partner'].browse(env['ir.model.data'].xmlid_to_res_id('__ais_import__.part_office_2050')).id,
-    'partner_id': env['res.partner'].browse(env['ir.model.data'].xmlid_to_res_id('__ais_import__.part_jbskr_2280')).id,
+    'note_type': env['res.partner.note.type'].sudo().browse(1).id,
+    'office_id': env['hr.department'].sudo().search([('office_code','=','2050')]).id,
+    'partner_id': env['res.partner'].sudo().search([('customer_id','=','2280')]).id,
 }
 
-record = env['res.partner.notes'].create(note_vals)
+record = env['res.partner.notes'].sudo().create(note_vals)
 
 vals = {
   'name': 'post note msg',
@@ -29,7 +29,7 @@ vals = {
   'route_type': 'edi_af_as_notes_post',
 }
 
-message = env['edi.message'].create(vals)
+message = env['edi.message'].sudo().create(vals)
 message.pack()
 route.run()
         
