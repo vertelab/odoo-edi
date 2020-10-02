@@ -324,7 +324,9 @@ class ipf_rest(_ipf):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
-        
+        elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all', raise_if_not_found=False):
+            get_headers.update({'PISA_ID': '*sys*'}) #HTTP-headern med dess värde krävs för AS med skyddad identitet
+
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:

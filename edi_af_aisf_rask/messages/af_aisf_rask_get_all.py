@@ -28,7 +28,6 @@ _logger = logging.getLogger(__name__)
 
 LOCAL_TZ = 'Europe/Stockholm'
 
-
 class edi_message(models.Model):
     _inherit = 'edi.message'
 
@@ -38,6 +37,11 @@ class edi_message(models.Model):
             body = json.loads(self.body)
             customer_id = body.get('arbetssokande').get('sokandeId')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id)])
+
+            if body.get('processStatus').get('skyddadePersonUppgifter'):
+                res_partner_obj.unlink()
+                return
+
             res_countr_state_obj = self.env['res.country.state'].search(
                 [('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))])
             office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
@@ -78,6 +82,7 @@ class edi_message(models.Model):
             }
             res_partner_obj.write(jobseeker_dict)
 
+            own_or_foreign_address_given = False
             for address in body.get('kontaktuppgifter').get('adresser'):
                 streetaddress = address.get('gatuadress')
                 streetadress_array = streetaddress.split(",")
@@ -96,7 +101,6 @@ class edi_message(models.Model):
                         [('name', '=', country_name)])
                     if country_obj is not None:
                         country_obj_id = country_obj.id
-                _logger.info("RASK-RASK-RASK - country_name %s country_obj_id %s" % (country_name, country_obj_id))
 
                 if address.get('adressTyp') == 'FBF':
                     res_partner_obj.street = street
@@ -105,6 +109,7 @@ class edi_message(models.Model):
                     res_partner_obj.city = city
                     res_partner_obj.country_id = country_obj_id
                 elif address.get('adressTyp') == 'EGEN' or address.get('adressTyp') == 'UTL':
+                    own_or_foreign_address_given = True
                     given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                     if not given_address_object:
                         given_address_dict = {
@@ -123,6 +128,11 @@ class edi_message(models.Model):
                         given_address_object.zip = zip
                         given_address_object.city = city
                         given_address_object.country_id = country_obj_id
+
+            if not own_or_foreign_address_given:
+                given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
+                if given_address_object:
+                    given_address_object.unlink()
 
     @api.one
     def pack(self):
