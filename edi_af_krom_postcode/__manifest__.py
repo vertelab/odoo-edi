@@ -28,7 +28,7 @@
     'description': """Returns a boolean for postnummer from IPF AIS BOS Regelverk API""",
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['partner_view_360', 'edi_route_ipf', 'af_data_ais-f_loader'],
+    'depends': ['partner_view_360', 'edi_route_ipf'],
     'external_dependencies': {
     },
     'data': [
