@@ -48,7 +48,9 @@ class edi_message(models.Model):
                     'phone': officer.get('telephoneNumber'),
                     'mobile': officer.get('mobileNumber'),
                     'office_id': office.id,
-                    'location_id': location.id
+                    'location_id': location.id,
+                    'employee': True,
+                    'saml_uid': officer.get('userName')
                 }
                 #     {
                 #     "id" : "32d2a8d6-b521-c391-d018-a5bb762d4d59",
