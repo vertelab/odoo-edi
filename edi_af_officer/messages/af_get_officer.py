@@ -50,7 +50,9 @@ class edi_message(models.Model):
                     'office_id': office.id,
                     'location_id': location.id,
                     'employee': True,
-                    'saml_uid': officer.get('userName')
+                    'saml_uid': officer.get('userName'),
+                    'action_id': self.env.ref("hr_360_view.search_jobseeker_wizard").id,
+                    'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth')
                 }
             
                 user = self.env['res.users'].search([('login','=',vals['login'])])
