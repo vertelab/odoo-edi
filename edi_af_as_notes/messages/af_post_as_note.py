@@ -54,7 +54,7 @@ class edi_message(models.Model):
                 "entitetsId": obj.customer_id, 
                 "anteckningtypId": obj.note_type.name,
                 "handelsetidpunkt": obj.note_date.strftime("%Y-%m-%d"),
-                "ansvarKontor": obj.office.office_code,
+                "ansvarKontor": obj.office_id.office_code,
                 "ansvarSignatur": obj.administrative_officer.login,
                 "avsandandeSystem": "CRM", 
                 "avsandandeSystemReferens": "null",
@@ -65,6 +65,8 @@ class edi_message(models.Model):
                 "sekretess": 'true' if obj.is_confidential else 'false',
                 "samtycke": 'false'
             }
+            _logger.info("Sending note: %s" % body_dict['data'])
+
             #_logger.info('administrative_officer login: %s' % obj.administrative_officer)
             #_logger.info(body_dict['data'])
             self.body = tuple(sorted(body_dict.items()))

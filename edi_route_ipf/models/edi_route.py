@@ -427,7 +427,7 @@ class edi_route(models.Model):
         if self.protocol == 'ipf':
             if not (
                     self.af_ipf_url or self.af_ipf_port or self.af_client_id or self.af_client_secret or self.af_environment or self.af_system_id):
-                raise Warning('Please setup AF IPF Information') # this code should be unreachable.
+                raise Warning('Please setup AF IPF Information, url: %s port: %s client id: %s client secret: %s environment: %s system id: %s' % (self.af_ipf_url, self.af_ipf_port, self.af_client_id, self.af_client_secret, self.af_environment, self.af_system_id)) # this code should be unreachable.
 
             try:
                 for envelope in envelopes:

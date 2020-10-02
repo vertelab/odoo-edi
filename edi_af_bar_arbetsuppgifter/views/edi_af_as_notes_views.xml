@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <odoo>
-    <record id="af_edi_as_notes" model="ir.actions.server">
-        <field name="name">EDI AF post note</field>
+    <record id="af_edi_bar" model="ir.actions.server">
+        <field name="name">EDI AF bar</field>
         <field name="model_id" ref="base.model_ir_actions_server"/>
         <field name="state">code</field>
         <field name="code">

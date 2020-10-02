@@ -14,8 +14,8 @@ note_vals = {
     'administrative_officer': env['res.users'].sudo().browse(env['ir.model.data'].xmlid_to_res_id('edi_af_appointment.user_sunea')).id,
     'is_confidential': False,
     'note_type': env['res.partner.note.type'].sudo().browse(1).id,
-    'office': env['hr.department'].sudo().search([('office_code','=','2050')]),
-    'partner_id': env['res.partner'].sudo().search([('customer_id','=','2280')]),
+    'office_id': env['hr.department'].sudo().search([('office_code','=','2050')]).id,
+    'partner_id': env['res.partner'].sudo().search([('customer_id','=','2280')]).id,
 }
 
 record = env['res.partner.notes'].sudo().create(note_vals)
