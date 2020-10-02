@@ -58,4 +58,63 @@ msg = env['edi.message'].create(vals)
 msg.pack()
       </field>
     </record>
+
+  <record model="ir.ui.view" id="view_edi_ace_queue_tree">
+    <field name="name">EDI Queue</field>
+    <field name="model">edi.ace_queue</field>
+    <field name="arch" type="xml">
+      <tree string="EDI Queue">
+        <field name="name" />
+        <field name="app_type_id" />
+      </tree>
+    </field>
+  </record>
+
+  <record id="action_edi_ace_queue" model="ir.actions.act_window">
+    <field name="name">ACE Queue</field>
+    <field name="res_model">edi.ace_queue</field>
+    <field name="view_mode">tree,form</field>
+    <field name="view_id" ref="view_edi_ace_queue_tree" />
+  </record>
+
+  <record model="ir.actions.act_window.view" id="action_edi_ace_queue_tree">
+    <field name="act_window_id" ref="action_edi_ace_queue" />
+    <field name="sequence" eval="2" />
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="view_edi_ace_queue_tree" />
+  </record>
+
+  <record model="ir.ui.view" id="view_edi_ace_errand_tree">
+    <field name="name">EDI errand</field>
+    <field name="model">edi.ace_errand</field>
+    <field name="arch" type="xml">
+      <tree string="EDI Errand">
+        <field name="name" />
+        <field name="app_type_id" />
+        <field name="right_type" />
+        <field name="code" />
+        <field name="reason_code" />
+        <field name="interval" />
+        <field name="client_responsible" />
+      </tree>
+    </field>
+  </record>
+
+  <record id="action_edi_ace_errand" model="ir.actions.act_window">
+    <field name="name">ACE Errand</field>
+    <field name="res_model">edi.ace_errand</field>
+    <field name="view_mode">tree,form</field>
+    <field name="view_id" ref="view_edi_ace_errand_tree" />
+  </record>
+
+  <record model="ir.actions.act_window.view" id="action_edi_ace_errand_tree">
+    <field name="act_window_id" ref="action_edi_ace_errand" />
+    <field name="sequence" eval="2" />
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="view_edi_ace_errand_tree" />
+  </record>
+
+  <menuitem id="menu_edi_ace" name="ACE" parent="edi_route.menu_edi" sequence="1"/>
+  <menuitem id="menu_edi_ace_queue" name="ACE queues" parent="edi_af_appointment.menu_edi_ace" action='action_edi_ace_queue' />
+  <menuitem id="menu_edi_ace_errand" name="ACE errands" parent="edi_af_appointment.menu_edi_ace" action='action_edi_ace_errand' />
 </odoo>

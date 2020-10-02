@@ -1,6 +1,14 @@
 <openerp>
     <data noupdate="1">
 
+        <record id="schedule" model="edi.route">
+            <field name="name">Schedule route</field>
+            <field name="partner_id" ref="base.main_partner"/>
+            <field name="active" eval="True"/>
+            <field name="protocol">ipf</field>
+            <field name="route_type">edi_af_schedules</field>
+        </record>
+
         <record id="ace_wi" model="edi.route">
             <field name="name">ACE WI route</field>
             <field name="partner_id" ref="base.main_partner"/>
