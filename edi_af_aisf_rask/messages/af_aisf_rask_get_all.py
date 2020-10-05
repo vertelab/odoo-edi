@@ -28,7 +28,6 @@ _logger = logging.getLogger(__name__)
 
 LOCAL_TZ = 'Europe/Stockholm'
 
-
 class edi_message(models.Model):
     _inherit = 'edi.message'
 
@@ -38,9 +37,30 @@ class edi_message(models.Model):
             body = json.loads(self.body)
             customer_id = body.get('arbetssokande').get('sokandeId')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id)])
-            # TODO: hantera hemkommunKod
-            office_obj = self.env['res.partner'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
+
+            if body.get('processStatus').get('skyddadePersonUppgifter'):
+                res_partner_obj.unlink()
+                return
+
+            res_countr_state_obj = self.env['res.country.state'].search(
+                [('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))])
+            office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
+            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning').get('sunKod'))])
+            if sun_obj is None:
+                sun_obj = self.env['res.sun'].search([('code', '=', '999')])
+
+            segmenteringsval = body.get('segmentering').get('segmenteringsval')
+            if segmenteringsval == "LOKAL":
+                registered_through = "local office"
+            elif segmenteringsval == "SJALVSERVICE":
+                registered_through = "self service"
+            elif segmenteringsval == "PDM":
+                registered_through = "pdm"
+            else:
+                registered_through = None
+
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
+
             jobseeker_dict = {
                 'firstname': body.get('arbetssokande').get('fornamn'),
                 'lastname': body.get('arbetssokande').get('efternamn'),
@@ -54,10 +74,15 @@ class edi_message(models.Model):
                 'deactualization_date': body.get('processStatus').get('avaktualiseringsDatum'),
                 'deactualization_reason': body.get('processStatus').get('avaktualiseringsOrsaksKod'),
                 'email': body.get('kontaktuppgifter').get('epost'),
-                'office': office_obj.id,
+                'office_id': office_obj.id,
+                'state_id': res_countr_state_obj.id,
+                'education_level': body.get('utbildning').get('utbildningsniva'),
+                'registered_through': registered_through,
+                'sun_ids': [(6, 0, [sun_obj.id])],
             }
             res_partner_obj.write(jobseeker_dict)
 
+            own_or_foreign_address_given = False
             for address in body.get('kontaktuppgifter').get('adresser'):
                 streetaddress = address.get('gatuadress')
                 streetadress_array = streetaddress.split(",")
@@ -69,19 +94,24 @@ class edi_message(models.Model):
                     street2 = streetadress_array[0]
                 zip = address.get('postnummer')
                 city = address.get('postort')
-                # TODO: hur hantera landsadress?
+                country_name = address.get('landsadress')
+                country_obj_id = None
+                if country_name is not None:
+                    country_obj = self.env['res.country'].with_context(lang='sv_SE').search(
+                        [('name', '=', country_name)])
+                    if country_obj is not None:
+                        country_obj_id = country_obj.id
 
                 if address.get('adressTyp') == 'FBF':
                     res_partner_obj.street = street
                     res_partner_obj.street2 = street2
                     res_partner_obj.zip = zip
                     res_partner_obj.city = city
-                    _logger.info("edi_af_aisf_rask.edit_message.upack() - adressTyp = FBF")
+                    res_partner_obj.country_id = country_obj_id
                 elif address.get('adressTyp') == 'EGEN' or address.get('adressTyp') == 'UTL':
-                    _logger.info("edi_af_aisf_rask.edit_message.upack() - adressTyp = EGEN or UTL")
+                    own_or_foreign_address_given = True
                     given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                     if not given_address_object:
-                        _logger.info("edi_af_aisf_rask.edit_message.upack() - no given address object exists")
                         given_address_dict = {
                             'parent_id': res_partner_obj.id,
                             'street': street,
@@ -89,23 +119,25 @@ class edi_message(models.Model):
                             'zip': zip,
                             'city': city,
                             'type': 'given address',
+                            'country_id': country_obj_id,
                         }
                         self.env['res.partner'].create(given_address_dict)
-                        _logger.info("edi_af_aisf_rask.edit_message.upack() - given address object created")
                     else:
                         given_address_object.street = street
                         given_address_object.street2 = street2
                         given_address_object.zip = zip
                         given_address_object.city = city
-                        _logger.info("edi_af_aisf_rask.edit_message.upack() - given address object exists")
+                        given_address_object.country_id = country_obj_id
 
-            _logger.info("edi_af_aisf_rask.edit_message.upack() - res.partner-object updated")
+            if not own_or_foreign_address_given:
+                given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
+                if given_address_object:
+                    given_address_object.unlink()
 
     @api.one
     def pack(self):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             obj = self.model_record
-            _logger.info("edi_af_aisf_rask.edit_message.pack() has been called, customer_id: %s" % obj.customer_id)
 
             self.body = self.edi_type.type_mapping.format(
                 path="ais-f-arbetssokande/v1/arbetssokande/{customer_id}/anpassad?resurser=alla".format(
