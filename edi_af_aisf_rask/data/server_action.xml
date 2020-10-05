@@ -6,7 +6,7 @@
         <field name="state">code</field>
         <field name="code">
 for partner in records:
-    partner.rask_controller(partner.customer_id,partner.social_security_number,None,'edi_af_as_rask')</field>
+    partner.rask_controller(partner.customer_id,partner.social_sec_nr,None,'edi_af_as_rask')</field>
     </record>
 
     <function name="create_action" model="ir.actions.server">
@@ -20,8 +20,9 @@ for partner in records:
         <field name="model_id" ref="base.model_res_partner"/>
         <field name="state">code</field>
         <field name="code">
-for partner in records:
-    partner.rask_controller(partner.customer_id,partner.social_security_number,None,'edi_af_as_rask')</field>
+partners = env["res.partner"].sudo().search([('is_jobseeker', '=', True)])
+for partner in partners:
+    partner.rask_controller(partner.customer_id,partner.social_sec_nr,None,'edi_af_as_rask')</field>
     </record>
 
     <function name="create_action" model="ir.actions.server">
