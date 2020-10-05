@@ -160,8 +160,8 @@ class ipf_rest(_ipf):
         res_set = message.env['edi.message']
 
         patharray = message.body.split('/')   #skapa array av värden
-        res.update({'SokandeId':int(patharray[4].split('?', 1)[0])})
-        body = json.dumps(res)
+        res.update({'SokandeId':int(patharray[4].split('?', 1)[0])})        
+        body = json.dumps(res)        
         vals = {
             'name': "AS segment reply",
             'body': body,
