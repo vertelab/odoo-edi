@@ -84,7 +84,12 @@ class ediServiceNowOperation(models.Model):
     def compute_accessibilies(self, location_id, accessibility_list):
         for accessibility in accessibility_list:
             accessibility['location_id'] = location_id
-            self.env['hr.location.accessibility'].create(accessibility)
+            self.env['hr.location.accessibility'].create(
+                {
+                    'location_id': accessibility['location_id'],
+                    'name': accessibility['type'],
+                    'description': accessibility['description']
+                })
 
     @api.one
     def compute_location_id(self, department_id):
