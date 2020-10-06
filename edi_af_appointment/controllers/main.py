@@ -292,6 +292,7 @@ class AppointmentController(http.Controller):
     def create_appointment(self, **kwargs):
         message = json.loads(request.httprequest.data)
         
+        partner = False
         bookable_occasion_id = message.get('bookable_occasion_id') 
         customer_nr = message.get('customer_nr') 
         pnr = message.get('pnr') 

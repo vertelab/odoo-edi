@@ -6,9 +6,8 @@
         <field name="state">code</field>
         <field name="code">
 
-route = env['edi.route'].search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_krom_postcode.asok_postcode_route'))])   
-record = env['res.partner'].browse(env['ir.model.data'].xmlid_to_res_id('__ais_import__.part_jbskr_2280'))
-
+route = env['edi.route'].search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_krom_postcode.asok_postcode_route'))])
+record = env['res.partner'].sudo().search([('customer_id', '=', '2279')])
 vals = {
   'name': 'get krom postcode msg',
   'edi_type': env.ref('edi_af_krom_postcode.asok_postcode').id,
@@ -18,7 +17,7 @@ vals = {
   'route_type': 'edi_af_as_krom_postcode',
 }
 
-msg = env['edi.message'].create(vals)
+msg = env['edi.message'].sudo().create(vals)
 msg.pack()
 route.run()
   </field>
