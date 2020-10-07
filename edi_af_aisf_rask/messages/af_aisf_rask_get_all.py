@@ -71,9 +71,20 @@ class edi_message(models.Model):
             else:
                 skat_obj_id = skat_obj.id
 
+            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning').get('utbildningsniva'))])
+            if education_level_obj is None:
+                education_level_obj_id = None
+            else:
+                education_level_obj_id = education_level_obj.id
+
+            users_obj = self.env['res.users'].search([('login', '=', body.get('kontor').get('ansvarigHandlaggareSignatur'))])
+            if users_obj is None:
+                users_obj_id = None
+            else:
+                users_obj_id = users_obj.id
+
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
 
-            #'jobseeker_category': body.get('kontakt').get('sokandekategoriKod'),
             jobseeker_dict = {
                 'firstname': body.get('arbetssokande').get('fornamn'),
                 'lastname': body.get('arbetssokande').get('efternamn'),
@@ -89,9 +100,11 @@ class edi_message(models.Model):
                 'email': body.get('kontaktuppgifter').get('epost'),
                 'office_id': office_obj.id,
                 'state_id': res_countr_state_obj.id,
-                'education_level': body.get('utbildning').get('utbildningsniva'),
+                'education_level': education_level_obj_id,
                 'registered_through': registered_through,
                 'sun_ids': [(6, 0, [sun_obj.id])],
+                'user_id': users_obj_id,
+                'sms_reminders': body.get('medgivande').get('paminnelseViaSms'),
             }
             res_partner_obj.write(jobseeker_dict)
 
