@@ -78,6 +78,7 @@ class ediServiceNowOperation(models.Model):
         if department:
             self.department_id = department.id
         else:
+            _logger.info("office number %s not in database, creating" % self.office_code)
             self.department_id = self.env['hr.department'].create({'name': self.office_code, 'office_code': self.office_code, 'note': _('Missing in AIS-F')}).id
 
     @api.one

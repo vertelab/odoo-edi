@@ -20,20 +20,29 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF users',
+    'name': 'EDI AF Install modules',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'EDI AF officers - support for officers',
+    'summary': 'EDI AF  ',
     'licence': 'AGPL-3',
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['partner_view_360', 'edi_route_ipf','hr_360_view', 'af_security'],
+    'depends': [
+        'edi_af_as',
+        'edi_af_ag',
+        'edi_af_appointment',
+        'edi_af_aisf_rask',
+        'edi_af_as_notes',
+        'edi_af_officer',
+        'edi_af_channel',
+        'edi_af_facility',
+        'edi_af_krom_postcode',
+        ],
     'external_dependencies': {
     },
     'data': [
-        'data/edi_route_data.xml',
-        'views/edi_af_officer_views.xml',
+        
     ],
     'application': False,
     'installable': True,
