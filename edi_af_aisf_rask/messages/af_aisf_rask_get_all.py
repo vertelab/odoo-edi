@@ -42,6 +42,12 @@ class edi_message(models.Model):
                 res_partner_obj.unlink()
                 return
 
+            if (res_partner_obj.firstname == "new object" and res_partner_obj.lastname == "new object"):
+                # New jobseeker
+                create_links = True
+            else:
+                create_links = False
+
             res_countr_state_obj = self.env['res.country.state'].search(
                 [('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))])
             office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
@@ -59,6 +65,24 @@ class edi_message(models.Model):
             else:
                 registered_through = None
 
+            skat_obj = self.env['res.partner.skat'].search([('code', '=', body.get('kontakt').get('sokandekategoriKod'))])
+            if skat_obj is None:
+                skat_obj_id = None
+            else:
+                skat_obj_id = skat_obj.id
+
+            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning').get('utbildningsniva'))])
+            if education_level_obj is None:
+                education_level_obj_id = None
+            else:
+                education_level_obj_id = education_level_obj.id
+
+            users_obj = self.env['res.users'].search([('login', '=', body.get('kontor').get('ansvarigHandlaggareSignatur'))])
+            if users_obj is None:
+                users_obj_id = None
+            else:
+                users_obj_id = users_obj.id
+
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
 
             jobseeker_dict = {
@@ -70,15 +94,17 @@ class edi_message(models.Model):
                 'phone': body.get('kontaktuppgifter').get('telefonBostad'),
                 'work_phone': body.get('kontaktuppgifter').get('telefonArbetet'),
                 'mobile': body.get('kontaktuppgifter').get('telefonMobil'),
-                'jobseeker_category': body.get('kontakt').get('sokandekategoriKod'),
+                'jobseeker_category_id': skat_obj_id,
                 'deactualization_date': body.get('processStatus').get('avaktualiseringsDatum'),
                 'deactualization_reason': body.get('processStatus').get('avaktualiseringsOrsaksKod'),
                 'email': body.get('kontaktuppgifter').get('epost'),
                 'office_id': office_obj.id,
                 'state_id': res_countr_state_obj.id,
-                'education_level': body.get('utbildning').get('utbildningsniva'),
+                'education_level': education_level_obj_id,
                 'registered_through': registered_through,
                 'sun_ids': [(6, 0, [sun_obj.id])],
+                'user_id': users_obj_id,
+                'sms_reminders': body.get('medgivande').get('paminnelseViaSms'),
             }
             res_partner_obj.write(jobseeker_dict)
 
@@ -133,6 +159,9 @@ class edi_message(models.Model):
                 given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                 if given_address_object:
                     given_address_object.unlink()
+
+            if (create_links):
+                res_partner_obj.sync_links()
 
     @api.one
     def pack(self):

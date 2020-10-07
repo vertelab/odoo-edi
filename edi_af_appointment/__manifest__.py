@@ -42,7 +42,8 @@
         'data/edi.ace_errand.csv',
         'views/edi_af_appointment_views.xml',
         'views/edi_message_view.xml',
-        'data/res_users.xml'
+        # 'data/res_users.xml',
+        'data/scheduled_meeting_reminder.xml'
     ],
     'application': False,
     'installable': True,
