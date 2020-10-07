@@ -28,7 +28,7 @@
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['partner_view_360', 'edi_route_ipf','hr_360_view', 'af_security'],
+    'depends': ['partner_view_360', 'edi_route_ipf','hr_360_view', 'auth_saml_af'],
     'external_dependencies': {
     },
     'data': [
