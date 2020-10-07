@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 12.0-20200508\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-01 09:05+0000\n"
-"PO-Revision-Date: 2020-10-01 11:15+0200\n"
+"PO-Revision-Date: 2020-10-07 16:46+0200\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -82,7 +82,7 @@ msgstr "SamtalsId måste vara unik!"
 #: code:addons/edi_route/edi_route.py:707
 #, python-format
 msgid "Caller ID not found: %s; kwargs %s"
-msgstr "SamtalsId är inte hittad: %s; kwargs %s"
+msgstr "SamtalsId är inte hittat: %s; kwargs %s"
 
 #. module: edi_route
 #: selection:edi.envelope,state:0 selection:edi.message,state:0
@@ -287,7 +287,7 @@ msgstr "Klicka för att schemalägga en ny EDI rutt samtalsperson."
 #: model:ir.cron,cron_name:edi_route.ir_cron_edi_route
 #: model:ir.cron,name:edi_route.ir_cron_edi_route
 msgid "EDI Route runs"
-msgstr "EDI rutt sikt"
+msgstr "EDI ruttsikt"
 
 #. module: edi_route
 #: model:ir.actions.act_window,name:edi_route.action_edi_type
@@ -295,7 +295,7 @@ msgstr "EDI rutt sikt"
 #: model_terms:ir.ui.view,arch_db:edi_route.view_edi_type_form
 #: model_terms:ir.ui.view,arch_db:edi_route.view_edi_type_tree
 msgid "EDI Type"
-msgstr "EDI Typ"
+msgstr "EDI typ"
 
 #. module: edi_route
 #: model_terms:ir.ui.view,arch_db:edi_route.view_partner_form
@@ -317,7 +317,7 @@ msgstr "EDI meddelande"
 #: model:ir.model.fields,field_description:edi_route.field_edi_message__edi_type
 #: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
 msgid "Edi Type"
-msgstr "EDI Typ"
+msgstr "EDI typ"
 
 #. module: edi_route
 #: model:ir.model.fields,field_description:edi_route.field_edi_message__envelope_id
@@ -401,7 +401,7 @@ msgstr "ID"
 #: model:ir.model.fields,help:edi_route.field_edi_message__message_unread
 #: model:ir.model.fields,help:edi_route.field_edi_route__message_unread
 msgid "If checked new messages require your attention."
-msgstr "Om ikryssad nya meddelanden som kräver din uppmärksamhet"
+msgstr "Om ikryssat, så har du nya meddelanden som kräver din uppmärksamhet"
 
 #. module: edi_route
 #: model:ir.model.fields,help:edi_route.field_edi_envelope__message_needaction
@@ -496,7 +496,7 @@ msgstr "Meddelande"
 #: model:ir.model.fields,field_description:edi_route.field_edi_message__message_has_error
 #: model:ir.model.fields,field_description:edi_route.field_edi_route__message_has_error
 msgid "Message Delivery error"
-msgstr "Meddelande fel leverans"
+msgstr "Meddelande felleverans"
 
 #. module: edi_route
 #: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_ids
