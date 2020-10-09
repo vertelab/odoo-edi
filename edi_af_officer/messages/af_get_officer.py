@@ -37,36 +37,44 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_officer.get_officer').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = json.loads(self.body.decode("utf-8"))
+            i = 0
             for officer in body:
+                i += 1
+                if i == 500:
+                    i = 0
+                    self.env.cr.commit()
                 location = self.env['hr.location'].search([('workplace_number','=', officer.get('workPlaceNumber'))])
                 office = self.env['hr.department'].search([('office_code','=',officer.get('officeCode'))])
-                vals = {
+                _logger.info("office code: %s" % officer.get('officeCode'))
+                if office and len(office) == 1:
+                    vals = {
                     'firstname': officer.get('firstName'),
                     'lastname': officer.get('lastName'),
                     'login': officer.get('userName'),
                     'email': officer.get('mail'),
                     'phone': officer.get('telephoneNumber'),
                     'mobile': officer.get('mobileNumber'),
-                    'office_id': office.id,
+                    'office_id': office.id, #hur kollar jag att det inte är två eller flera?
                     'location_id': location.id,
                     'employee': True,
                     'saml_uid': officer.get('userName'),
                     'action_id': self.env.ref("hr_360_view.search_jobseeker_wizard").id,
                     'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth')
                 }
-            
-                user = self.env['res.users'].search([('login','=',vals['login'])])
-                if user:
-                    user.write(vals)
+                    user = self.env['res.users'].search([('login','=',vals['login'])])
+                    if user:
+                        user.write(vals)
+                    else:
+                        user = self.env['res.users'].create(vals)
+                        external_xmlid = '__x500_import__.user_%s' % vals.get('login')
+                        self.env['ir.model.data'].create({
+                                    'name': external_xmlid.split('.')[1],
+                                    'module': external_xmlid.split('.')[0],
+                                    'model': user._name,
+                                    'res_id': user.id
+                                    }) 
                 else:
-                    user = self.env['res.users'].create(vals)
-                    external_xmlid = '__x500_import__.user_%s' % vals.get('login')
-                    self.env['ir.model.data'].create({
-                                'name': external_xmlid.split('.')[1],
-                                'module': external_xmlid.split('.')[0],
-                                'model': user._name,
-                                'res_id': user.id
-                                }) 
+                    _logger.warn("office number %s not found for %s, not creating" % (officer.get('officeCode'), officer.get('userName')))
         else:
             super(edi_message, self).unpack()
 
