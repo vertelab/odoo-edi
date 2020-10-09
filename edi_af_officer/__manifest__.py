@@ -25,7 +25,12 @@
     'category': 'edi',
     'summary': 'EDI AF officers - support for officers',
     'licence': 'AGPL-3',
-    'description': """ """,
+    'description': """ 
+odoo.conf needs to have a >1hr limit_time_real 
+===============================================================================
+AFC-239
+
+    """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['partner_view_360', 'edi_route_ipf','hr_360_view', 'auth_saml_af'],
