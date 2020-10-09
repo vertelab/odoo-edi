@@ -129,7 +129,7 @@ class AppointmentController(http.Controller):
                 "id": app.id,
                 "office_address": app.office_id.contact_address or '',
                 "office_email": app.office_id.email or '',
-                "location_code": app.partner_id.location_code or '',
+                "location_code": app.partner_id.location or '',
                 "office_code": app.office_id.office_code or '',
                 "office_name": app.office_id.display_name or '',
                 "status": app.state,
@@ -185,7 +185,7 @@ class AppointmentController(http.Controller):
                 "id": app.id,
                 "office_address": app.office_id.partner_id.contact_address or '',
                 "office_email": app.office_id.partner_id.email or '',
-                "location_code": app.user_id.location_id.location_code or '',
+                "location_code": app.location or '',
                 "office_code": app.office_id.office_code or '',
                 "office_name": app.office_id.display_name or '',
                 "status": app.state,
@@ -221,7 +221,9 @@ class AppointmentController(http.Controller):
             if not partner:
                 return Response("pnr. not found", status=404)
         if customer_nr:
-            partner = request.env['res.partner'].sudo().search([('customer_id', '=', customer_nr)])
+            pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
+            if pnr:
+                partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
             if not partner:
                 return Response("customer nr. not found", status=404)
         if user_id:
@@ -277,7 +279,7 @@ class AppointmentController(http.Controller):
                 "id": app.id,
                 "office_address": app.office_id.partner_id.contact_address or '',
                 "office_email": app.office_id.partner_id.email or '',
-                "location_code": app.location_code or '',
+                "location_code": app.location or '',
                 "office_code": app.office_id.office_code or '',
                 "office_name": app.office_id.display_name or '',
                 "status": app.state,
@@ -307,10 +309,15 @@ class AppointmentController(http.Controller):
             partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
             if not partner:
                 return Response("pnr. not found", status=404)
-        if not partner and customer_nr:
-            partner = request.env['res.partner'].sudo().search([('customer_id', '=', customer_nr)])
+        if customer_nr:
+            pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
+            if pnr:
+                partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
             if not partner:
                 return Response("customer nr. not found", status=404)
+
+        if not partner:
+            return Response("Partner not found", status=404)
 
         occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
         if not occasions:
@@ -359,7 +366,7 @@ class AppointmentController(http.Controller):
             "id": app.id,
             "office_address": sunie.office_id.partner_id.contact_address or '',
             "office_email": sunie.office_id.partner_id.email or '',
-            "location_code": app.location_code or '',
+            "location_code": app.location or '',
             "office_code": sunie.office_id.office_code or '',
             "office_name": sunie.office_id.display_name or '',
             "status": app.state,
@@ -389,7 +396,7 @@ class AppointmentController(http.Controller):
                     "id": app.id or '',
                     "office_address": app.office_id.partner_id.contact_address or '',
                     "office_email": app.office_id.partner_id.email or '',
-                    "location_code": app.location_code or '',
+                    "location_code": app.location or '',
                     "office_code": app.office_id.office_code or '',
                     "office_name": app.office_id.display_name or '',
                     "status": app.state,
@@ -480,7 +487,7 @@ class AppointmentController(http.Controller):
                     "id": app.id,
                     "office_address": app.office_id.partner_id.contact_address or '',
                     "office_email": app.office_id.partner_id.email or '',
-                    "location_code": app.location_code or '',
+                    "location_code": app.location or '',
                     "office_code": app.office_id.office_code or '',
                     "office_name": app.office_id.display_name or '',
                     "status": app.state,
