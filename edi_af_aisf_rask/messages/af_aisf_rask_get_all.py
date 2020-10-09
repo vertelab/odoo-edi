@@ -36,7 +36,7 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             body = json.loads(self.body)
             customer_id = body.get('arbetssokande').get('sokandeId')
-            res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id)])
+            res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
 
             if body.get('processStatus').get('skyddadePersonUppgifter'):
                 res_partner_obj.unlink()
@@ -161,7 +161,7 @@ class edi_message(models.Model):
                     given_address_object.unlink()
 
             if (create_links):
-                res_partner_obj.sync_links()
+                res_partner_obj.sync_link()
 
     @api.one
     def pack(self):
