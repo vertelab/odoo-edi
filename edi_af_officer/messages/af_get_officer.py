@@ -45,7 +45,9 @@ class edi_message(models.Model):
                     self.env.cr.commit()
                 location = self.env['hr.location'].search([('workplace_number','=', officer.get('workPlaceNumber'))])
                 office = self.env['hr.department'].search([('office_code','=',officer.get('officeCode'))])
-                _logger.info("office code: %s" % officer.get('officeCode'))
+                if not office:
+                    _logger.info("office number %s not in database, creating" % officer.get('officeCode'))
+                    office = self.env['hr.department'].create({'name': officer.get('officeCode'), 'office_code': officer.get('officeCode'), 'note': _('Missing in AIS-F')})
                 if office and len(office) == 1:
                     vals = {
                     'firstname': officer.get('firstName'),
