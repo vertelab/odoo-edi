@@ -32,26 +32,29 @@ class ScheduledMeeting(models.Model):
         for record in appointment_ids:
             before_start_time = record.start - datetime.timedelta(minutes=10)
             if before_start_time.strftime('%H:%M') == datetime.datetime.now().strftime('%H:%M'):
-                text = "Test-text"
-                queue = record.type_id.ace_queue_id
-                errand = record.type_id.ace_errand_id
+                if record.partner_id.phone:
+                    text = "Test-text"
+                    queue = record.type_id.ace_queue_id
+                    errand = record.type_id.ace_errand_id
 
-                vals = {
-                'name': "IPF request",
-                'text': text,
-                'appointment_id': record.id,
-                'queue': queue.id,
-                'errand': errand.id,
-                }
-                ace_wi = self.env['edi.ace_workitem'].create(vals)
+                    vals = {
+                    'name': "IPF request",
+                    'text': text,
+                    'appointment_id': record.id,
+                    'queue': queue.id,
+                    'errand': errand.id,
+                    }
+                    ace_wi = self.env['edi.ace_workitem'].create(vals)
 
-                vals = {
-                'name': 'ACE post',
-                'edi_type': self.env.ref('edi_af_appointment.appointment_ace_wi').id,
-                'model': ace_wi._name,
-                'res_id': ace_wi.id,
-                'route_id': self.env.ref("edi_af_appointment.ace_wi").id,
-                'route_type': 'edi_af_ace_wi',
-                }
-                msg = self.env['edi.message'].create(vals)
-                msg.pack()
+                    vals = {
+                    'name': 'ACE post',
+                    'edi_type': self.env.ref('edi_af_appointment.appointment_ace_wi').id,
+                    'model': ace_wi._name,
+                    'res_id': ace_wi.id,
+                    'route_id': self.env.ref("edi_af_appointment.ace_wi").id,
+                    'route_type': 'edi_af_ace_wi',
+                    }
+                    msg = self.env['edi.message'].create(vals)
+                    msg.pack()
+                else:
+                    record.state = 'canceled'
