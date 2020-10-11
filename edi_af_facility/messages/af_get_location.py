@@ -137,7 +137,16 @@ class ediServiceNowOperation(models.Model):
             location.write(vals)
         else:
             vals['department_ids'] = [(4, department_id.id, 0)]
-            self.env['hr.location'].create(vals)
+            location = self.env['hr.location'].create(vals)
+            external_xmlid = "__facility_import__.location_%s" % vals['location_code']
+            self.env['ir.model.data'].create({
+                            'name': external_xmlid.split('.')[1],
+                            'module': external_xmlid.split('.')[0],
+                            'model': location._name,
+                            'res_id': location.id
+                            })
+
+
 
 
 class edi_message(models.Model):

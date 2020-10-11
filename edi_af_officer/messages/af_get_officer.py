@@ -32,6 +32,8 @@ LOCAL_TZ = 'Europe/Stockholm'
 class edi_message(models.Model):
     _inherit='edi.message'
 
+    #TODO: add managerSignature as parent_id, if it doesn't exist create a new user with that login
+
     @api.one
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_officer.get_officer').id:
