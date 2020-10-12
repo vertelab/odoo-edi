@@ -35,7 +35,7 @@ class edi_message(models.Model):
     @api.one
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_as.asok_contact').id:
-            body = dict(ast.literal_eval(self.body.decode("utf-8")))
+            self.body = dict(ast.literal_eval(self.body.decode("utf-8")))
         else:
             super(edi_message, self).unpack()
 
@@ -69,10 +69,6 @@ class edi_message(models.Model):
                 'name': 'asok contact update',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
-                # 'recipient': self.recipient.id,
-                # 'sender': self.env.ref('base.main_partner').id,
-                # 'application': app.name,
-                # 'edi_message_ids': [(6, 0, msg_ids)]
                 'edi_message_ids': [(6, 0, [self.id])]
             })
         else:
