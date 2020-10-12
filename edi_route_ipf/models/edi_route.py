@@ -250,6 +250,11 @@ class ipf_rest(_ipf):
         app = message.env['calendar.appointment'].search([('id', '=', ace_wi.appointment_id.id)])
         app.state = 'done'
 
+    def _as_contact(self, message, res):
+        # Why does these not update?
+        message.state = "received"
+        message.envelope_id.state = "received"
+
     def _rask_get_all(self, message, res):
         # Get the answer from the call to AIS-F RASK
         res_set = message.env['edi.message']
@@ -320,7 +325,7 @@ class ipf_rest(_ipf):
 
         if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
-        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
+        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False) or message.edi_type == message.env.ref('edi_af_as.asok_contact', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
@@ -355,8 +360,8 @@ class ipf_rest(_ipf):
             self._rask_get_all(message, res)
         elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all', raise_if_not_found=False):
             self._rask_get_all(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
-            self._as_office(message, res)
+        elif message.edi_type == message.env.ref('edi_af_as.asok_contact', raise_if_not_found=False):
+            self._as_contact(message, res)
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             self._as_channel(message, res)
         elif message.edi_type == message.env.ref('edi_af_krom_postcode.asok_postcode', raise_if_not_found=False):
