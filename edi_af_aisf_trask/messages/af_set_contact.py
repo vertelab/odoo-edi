@@ -34,15 +34,15 @@ class edi_message(models.Model):
 
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_as.asok_contact').id:
+        if self.edi_type.id == self.env.ref('edi_af_aisf_trask.asok_contact').id:
             self.body = dict(ast.literal_eval(self.body.decode("utf-8")))
         else:
             super(edi_message, self).unpack()
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_as.asok_contact').id:
-            if not self.model_record or self.model_record._name != 'res.partner' or not self.model_record.is_jobseeker:
+        if self.edi_type.id == self.env.ref('edi_af_aisf_trask.asok_contact').id:
+            if not self.model_record or self.model_record._name != 'res.partner':
                 raise Warning("Appointment: Attached record is not a res.partner or not a jobseeker! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record 
@@ -51,19 +51,23 @@ class edi_message(models.Model):
                 path = "ais-f-arbetssokande/v2/kontakt/{sokande_id}".format(sokande_id = obj.customer_id)
             )
             body_dict['data'] = {
-                # "sokandekategoriKod": "11",
-                # "sokandekategoriSedan": "2016-10-06",
-                "senasteKontaktTyp": "%s" % obj.last_contact_type, # Possible values: B, T, E, P, I
-                "senasteKontaktDatum": obj.last_contact.strftime("%Y-%m-%d"), #"2019-10-02",
-                "nastaKontaktTyper": [
-                    "%s" % obj.next_contact_type # Possible values: B, T, E, P, I
-                ],
-                "nastaKontaktDatum": obj.next_contact.strftime("%Y-%m-%d"), #"2019-12-31",
-                "nastaKontaktTid": obj.next_contact_time.strftime("%H:%M"), #"11:30",
-                # "tolksprak": "Swahili",
-                # "tolkleveranssatt": "Telefontolk"
+                "senasteKontaktTyp": "%s" % obj.last_contact_type if obj.last_contact_type else '', # Possible values: B, T, E, P, I
+                "senasteKontaktDatum": obj.last_contact.strftime("%Y-%m-%d") if obj.last_contact else '', #"2019-10-02",
+                "nastaKontaktTyper": "[%s]" % obj.next_contact_type if obj.next_contact_type else '', # Possible values: B, T, E, P, I
+                "nastaKontaktDatum": obj.next_contact.strftime("%Y-%m-%d") if obj.next_contact else '', #"2019-12-31",
+                "nastaKontaktTid": obj.next_contact_time.strftime("%H:%M") if obj.next_contact_time else '', #"11:30",
             }
+            # BUG: SOLVE THIS 
+            # check values before writing
+            _logger.warn("DAER: body_dict: %s" % body_dict)
             self.body = tuple(sorted(body_dict.items()))
+            # check values after writing
+            _logger.warn("DAER: self.body: %s" % dict(self.body))
+            # trying to commit to see if that is the problem
+            self.env.cr.commit()
+            # no, we can still read values here
+            _logger.warn("DAER: self.body (after commit): %s" % dict(self.body))
+            # but when we check the message later it does not have a body???
 
             envelope = self.env['edi.envelope'].create({
                 'name': 'asok contact update',

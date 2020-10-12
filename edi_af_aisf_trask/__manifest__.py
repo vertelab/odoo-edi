@@ -20,22 +20,25 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Arbetssökande - DEPRECIATED',
+    'name': 'EDI AF TRASK Arbetssökande',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'EDI AF arbetssökande - support for jobseekers ',
+    'summary': 'EDI AF TRASK arbetssökande - support for jobseekers ',
     'licence': 'AGPL-3',
     'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['partner_view_360', 'edi_route_ipf'],
+    'depends': [
+        # 'partner_daily_notes', 
+        'edi_route_ipf'
+        ],
     'external_dependencies': {
     },
     'data': [
         'data/edi_route_data.xml',
-        'views/edi_af_as_views.xml',
+        'views/edi_af_aisf_trask_views.xml',
     ],
     'application': False,
-    'installable': False,
+    'installable': True,
 }
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:

@@ -30,7 +30,7 @@
     'website': 'http://www.vertel.se',
     'depends': [
         'af_data_ais-f_loader',
-        'edi_af_as',
+        'edi_af_aisf_trask',
         'edi_af_ag',
         'edi_af_appointment',
         'edi_af_aisf_rask',
