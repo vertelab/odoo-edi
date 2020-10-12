@@ -340,7 +340,7 @@ class ipf_rest(_ipf):
             req = request.Request(url=get_url, data=data_vals, headers=get_headers)
         else:
             req = request.Request(url=get_url, headers=get_headers)
-        ctx = self._generate_ctx() # TODO: change to False
+        ctx = self._generate_ctx()
         # send GET and read result
         res_json = request.urlopen(req, context=ctx).read()
         # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table 
