@@ -68,9 +68,9 @@ class edi_message(models.Model):
                 record.af_wi_pnr = record.sudo().model_record.appointment_id.partner_id.company_registry
                 record.af_wi_type = record.model_record.appointment_id.type_id
                 if record.state == "sent":
-                    record.af_wi_reqid = record.body.get('requestId')
-                    record.af_wi_conid = record.body.get('contactId')
-                    record.af_wi_mailuid = record.body.get('emailUid')
+                    record.af_wi_reqid = ''#record.body.get('requestId')
+                    record.af_wi_conid = ''#record.body.get('contactId')
+                    record.af_wi_mailuid = ''#record.body.get('emailUid')
 
     af_wi_start = fields.Datetime(string='Start time', compute="_af_wi_compute", store=True)
     af_wi_stop = fields.Datetime(string='End time', compute="_af_wi_compute", store=True)
