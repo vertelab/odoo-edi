@@ -34,7 +34,9 @@ class edi_message(models.Model):
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_as_notes.edi_af_as_notes_post').id: 
             # decode string and convert string to tuple, convert tuple to dict
-            body = dict(ast.literal_eval(self.body.decode("utf-8")))
+            body = False
+            if self.body:
+                body = dict(ast.literal_eval(self.body.decode("utf-8")))
             _logger.warn("RAPID reply: %s" % body)
         else:
             super(edi_message, self).unpack()
