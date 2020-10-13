@@ -35,8 +35,6 @@ class edi_message(models.Model):
     @api.one
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id: 
-            # decode string and convert string to tuple, convert tuple to dict
-            # self.body = dict(ast.literal_eval(self.body.decode("utf-8")))
             # don't do anything
             pass
         else:
