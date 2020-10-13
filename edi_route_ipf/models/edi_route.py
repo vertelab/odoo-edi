@@ -247,7 +247,8 @@ class ipf_rest(_ipf):
         # Why does these not update?
         message.state = "received"
         message.envelope_id.state = "received"
-        
+        message.body = json.dumps(res)
+
         ace_wi = message.env['edi.ace_workitem'].search([('id', '=', message.res_id)])
         app = message.env['calendar.appointment'].search([('id', '=', ace_wi.appointment_id.id)])
         app.state = 'done'
@@ -288,7 +289,6 @@ class ipf_rest(_ipf):
             # Is there a prettier way to detect a dict here? 
             if body[0] == "(":
                 body = dict(ast.literal_eval(body))
-                # data_vals = json.loads(body.get('data').encode("utf-8"))
                 data_vals = body.get('data')
                 method = body.get('method', 'GET')
                 base_url = body.get('base_url')
@@ -301,7 +301,6 @@ class ipf_rest(_ipf):
                 get_headers['Content-Type'] = 'application/json'
             elif type(message.body) == tuple:
                 body = dict(body)
-                # data_vals = json.loads(body.get('data').encode("utf-8"))
                 data_vals = body.get('data')
                 method = body.get('method', 'GET')
                 base_url = body.get('base_url')

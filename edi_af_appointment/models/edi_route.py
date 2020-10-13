@@ -21,7 +21,7 @@
 from odoo import models, fields, api, _
 import base64
 from datetime import datetime
-
+import json
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class edi_message(models.Model):
 
     route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules'), ('edi_af_ace_wi', 'AF ACE WI')])
 
-    @api.one
+    @api.depends('state')
     def _af_wi_compute(self):
         for record in self:
             if record.model_record and record.model_record._name == 'edi.ace_workitem':
@@ -68,9 +68,10 @@ class edi_message(models.Model):
                 record.af_wi_pnr = record.sudo().model_record.appointment_id.partner_id.company_registry
                 record.af_wi_type = record.model_record.appointment_id.type_id
                 if record.state == "sent":
-                    record.af_wi_reqid = ''#record.body.get('requestId')
-                    record.af_wi_conid = ''#record.body.get('contactId')
-                    record.af_wi_mailuid = ''#record.body.get('emailUid')
+                    body = json.loads(record.body)
+                    record.af_wi_reqid = body.get('requestId')
+                    record.af_wi_conid = body.get('contactId')
+                    record.af_wi_mailuid = body.get('emailUid')
 
     af_wi_start = fields.Datetime(string='Start time', compute="_af_wi_compute", store=True)
     af_wi_stop = fields.Datetime(string='End time', compute="_af_wi_compute", store=True)
