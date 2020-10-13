@@ -344,7 +344,10 @@ class ipf_rest(_ipf):
         # send GET and read result
         res_json = request.urlopen(req, context=ctx).read()
         # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table 
-        res = json.loads(res_json)
+        if res_json:
+            res = json.loads(res_json)
+        else:
+            res = False
         # get list of occasions from res
 
 
