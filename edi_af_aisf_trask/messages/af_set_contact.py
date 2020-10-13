@@ -50,24 +50,18 @@ class edi_message(models.Model):
             body_dict['base_url'] = self.edi_type.type_mapping.format(
                 path = "ais-f-arbetssokande/v2/kontakt/{sokande_id}".format(sokande_id = obj.customer_id)
             )
-            body_dict['data'] = {
-                "senasteKontaktTyp": "%s" % obj.last_contact_type if obj.last_contact_type else '', # Possible values: B, T, E, P, I
-                "senasteKontaktDatum": obj.last_contact.strftime("%Y-%m-%d") if obj.last_contact else '', #"2019-10-02",
-                "nastaKontaktTyper": "[%s]" % obj.next_contact_type if obj.next_contact_type else '', # Possible values: B, T, E, P, I
-                "nastaKontaktDatum": obj.next_contact.strftime("%Y-%m-%d") if obj.next_contact else '', #"2019-12-31",
-                "nastaKontaktTid": obj.next_contact_time.strftime("%H:%M") if obj.next_contact_time else '', #"11:30",
-            }
-            # BUG: SOLVE THIS 
-            # check values before writing
-            _logger.warn("DAER: body_dict: %s" % body_dict)
+            body_dict['method'] = 'PATCH'
+            
+            data_dict = {}
+            if obj.last_contact and obj.last_contact_type:
+                data_dict['senasteKontaktTyp'] = obj.last_contact_type # Possible values: B, T, E, P, I
+                data_dict['senasteKontaktDatum'] = obj.last_contact.strftime("%Y-%m-%d") #"2019-10-02",
+            if obj.next_contact:
+                data_dict['nastaKontaktTyper'] = ["%s" % obj.next_contact_type] # Possible values: B, T, E, P, I
+                data_dict['nastaKontaktDatum'] = obj.next_contact.strftime("%Y-%m-%d") #"2019-12-31",
+                data_dict['nastaKontaktTid'] = obj.next_contact_time.strftime("%H:%M") #"11:30",
+            body_dict['data'] = data_dict
             self.body = tuple(sorted(body_dict.items()))
-            # check values after writing
-            _logger.warn("DAER: self.body: %s" % dict(self.body))
-            # trying to commit to see if that is the problem
-            self.env.cr.commit()
-            # no, we can still read values here
-            _logger.warn("DAER: self.body (after commit): %s" % dict(self.body))
-            # but when we check the message later it does not have a body???
 
             envelope = self.env['edi.envelope'].create({
                 'name': 'asok contact update',

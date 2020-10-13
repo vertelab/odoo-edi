@@ -288,6 +288,7 @@ class ipf_rest(_ipf):
                 body = dict(ast.literal_eval(body))
                 # data_vals = json.loads(body.get('data').encode("utf-8"))
                 data_vals = body.get('data')
+                method = body.get('method', 'GET')
                 base_url = body.get('base_url')
                 get_url = base_url.format(
                     url = self.host,
@@ -300,6 +301,7 @@ class ipf_rest(_ipf):
                 body = dict(body)
                 # data_vals = json.loads(body.get('data').encode("utf-8"))
                 data_vals = body.get('data')
+                method = body.get('method', 'GET')
                 base_url = body.get('base_url')
                 get_url = base_url.format(
                     url = self.host,
@@ -318,6 +320,7 @@ class ipf_rest(_ipf):
                     client = self.username,
                     secret = self.password,
                 )
+                method = 'GET'
                 data_vals = False
         else:
             # TODO: throw error?
@@ -337,14 +340,17 @@ class ipf_rest(_ipf):
         if data_vals:
             # If we have data to send as a json, encode and attach it:
             data_vals = json.dumps(data_vals).encode("utf-8")
-            req = request.Request(url=get_url, data=data_vals, headers=get_headers)
+            req = request.Request(url=get_url, data=data_vals, headers=get_headers, method=method)
         else:
-            req = request.Request(url=get_url, headers=get_headers)
+            req = request.Request(url=get_url, headers=get_headers, method=method)
         ctx = self._generate_ctx()
         # send GET and read result
         res_json = request.urlopen(req, context=ctx).read()
         # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table 
-        res = json.loads(res_json)
+        if res_json:
+            res = json.loads(res_json)
+        else:
+            res = False
         # get list of occasions from res
 
         _logger.debug("ipf_rest.get() message.edi_type: %s" % message.edi_type)
