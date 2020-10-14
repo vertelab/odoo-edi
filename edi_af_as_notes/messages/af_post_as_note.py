@@ -36,7 +36,7 @@ class edi_message(models.Model):
             # decode string and convert string to tuple, convert tuple to dict
             body = False
             if self.body:
-                body = dict(ast.literal_eval(self.body.decode("utf-8")))
+                body = json.loads(self.body.decode("utf-8"))
             _logger.warn("RAPID reply: %s" % body)
         else:
             super(edi_message, self).unpack()
@@ -59,8 +59,7 @@ class edi_message(models.Model):
                 "ansvarKontor": obj.office_id.office_code,
                 "ansvarSignatur": obj.administrative_officer.login,
                 "avsandandeSystem": "CRM", 
-                "avsandandeSystemReferens": "null",
-                "lank": "null",
+                "avsandandeSystemReferens": str(obj.appointment_id.id) if obj.appointment_id else '0',
                 "text": obj.note,
                 "rubrik": obj.name,
                 "redigerbar": "A",
@@ -71,7 +70,7 @@ class edi_message(models.Model):
 
             #_logger.info('administrative_officer login: %s' % obj.administrative_officer)
             #_logger.info(body_dict['data'])
-            self.body = tuple(sorted(body_dict.items()))
+            self.body = json.dumps(body_dict)
 
             envelope = self.env['edi.envelope'].create({
                 'name': 'Jobseeker daily note post',

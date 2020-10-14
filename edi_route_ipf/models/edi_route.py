@@ -193,7 +193,7 @@ class ipf_rest(_ipf):
         # schedules: list of dicts of schedules
         res_set = message.env['edi.message']
         if res:
-            body = tuple(sorted(res))
+            body = json.dumps(res)
         else:
             body = False
         vals = {
@@ -272,8 +272,15 @@ class ipf_rest(_ipf):
         }
         res_message = message.env['edi.message'].create(vals)
         res_message.unpack()
+    
+    def is_json(self, json_str):
+        try:
+            json_object = json.loads(json_str)
+        except ValueError as e:
+            return False
+        return True
 
-    def get(self, message):
+    def get(self, message):        
         # Generate a unique tracking id
         message.name = af_tracking_id = self._generate_tracking_id()
         # Generate headers for our get
@@ -286,9 +293,20 @@ class ipf_rest(_ipf):
                 body = message.body
             # A dict will start with "(" here.
             # Is there a prettier way to detect a dict here? 
-            if body[0] == "(":
+            if body[0] == "(" :
                 body = dict(ast.literal_eval(body))
-                # data_vals = json.loads(body.get('data').encode("utf-8"))
+                data_vals = json.loads(body.get('data').encode("utf-8"))
+                data_vals = body.get('data')
+                base_url = body.get('base_url')
+                get_url = base_url.format(
+                    url = self.host,
+                    port = self.port,
+                    client = self.username,
+                    secret = self.password,
+                )
+                get_headers['Content-Type'] = 'application/json'
+            elif self.is_json(body):
+                body = json.loads(body.encode("utf-8"))
                 data_vals = body.get('data')
                 base_url = body.get('base_url')
                 get_url = base_url.format(
@@ -300,7 +318,6 @@ class ipf_rest(_ipf):
                 get_headers['Content-Type'] = 'application/json'
             elif type(message.body) == tuple:
                 body = dict(body)
-                # data_vals = json.loads(body.get('data').encode("utf-8"))
                 data_vals = body.get('data')
                 base_url = body.get('base_url')
                 get_url = base_url.format(
@@ -324,7 +341,6 @@ class ipf_rest(_ipf):
         else:
             # TODO: throw error?
             pass
-
         if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
         elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False) or message.edi_type == message.env.ref('edi_af_as.asok_contact', raise_if_not_found=False):

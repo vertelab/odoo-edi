@@ -6,16 +6,17 @@
         <field name="state">code</field>
         <field name="code">
 route = env['edi.route'].sudo().search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_as_notes.asok_note_post_route'))])
-
+officer = env['res.users'].sudo().search([('login','=','xxaoj')])
 note_vals = {
-    'name': "Test",
-    'note': "Test",
-    'note_date': "2020-08-31",
-    'administrative_officer': env['res.users'].sudo().browse(env['ir.model.data'].xmlid_to_res_id('edi_af_appointment.user_sunea')).id,
+    'name': "Ombokat första planeringssamtal PDM. Orsak: Arbete",
+    'note': "Ombokat första planeringssamtal lokalkontor: 2019-12-22 kl 16:00, 0248 xxaoj. Orsak: Arbete",
+    'note_date': "2020-10-13",
+    'administrative_officer': officer.id,
     'is_confidential': False,
     'note_type': env['res.partner.note.type'].sudo().browse(1).id,
-    'office_id': env['hr.department'].sudo().search([('office_code','=','2050')]).id,
+    'office_id': officer.office_id.id, #make sure to change it to 0248 for T2
     'partner_id': env['res.partner'].sudo().search([('customer_id','=','2280')]).id,
+    'appointment_id': env['calendar.appointment'].browse(1).id,
 }
 
 record = env['res.partner.notes'].sudo().create(note_vals)
