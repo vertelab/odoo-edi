@@ -247,7 +247,8 @@ class ipf_rest(_ipf):
         # Why does these not update?
         message.state = "received"
         message.envelope_id.state = "received"
-        
+        message.body = json.dumps(res)
+
         ace_wi = message.env['edi.ace_workitem'].search([('id', '=', message.res_id)])
         app = message.env['calendar.appointment'].search([('id', '=', ace_wi.appointment_id.id)])
         app.state = 'done'
@@ -308,6 +309,7 @@ class ipf_rest(_ipf):
             elif self.is_json(body):
                 body = json.loads(body.encode("utf-8"))
                 data_vals = body.get('data')
+                method = body.get('method', 'GET')
                 base_url = body.get('base_url')
                 get_url = base_url.format(
                     url = self.host,
@@ -319,6 +321,7 @@ class ipf_rest(_ipf):
             elif type(message.body) == tuple:
                 body = dict(body)
                 data_vals = body.get('data')
+                method = body.get('method', 'GET')
                 base_url = body.get('base_url')
                 get_url = base_url.format(
                     url = self.host,
@@ -337,13 +340,14 @@ class ipf_rest(_ipf):
                     client = self.username,
                     secret = self.password,
                 )
+                method = 'GET'
                 data_vals = False
         else:
             # TODO: throw error?
             pass
         if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
-        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False) or message.edi_type == message.env.ref('edi_af_as.asok_contact', raise_if_not_found=False):
+        elif message.edi_type == message.env.ref('edi_af_aisf_trask.asok_office', raise_if_not_found=False) or message.edi_type == message.env.ref('edi_af_aisf_trask.asok_contact', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
@@ -355,9 +359,9 @@ class ipf_rest(_ipf):
         if data_vals:
             # If we have data to send as a json, encode and attach it:
             data_vals = json.dumps(data_vals).encode("utf-8")
-            req = request.Request(url=get_url, data=data_vals, headers=get_headers)
+            req = request.Request(url=get_url, data=data_vals, headers=get_headers, method=method)
         else:
-            req = request.Request(url=get_url, headers=get_headers)
+            req = request.Request(url=get_url, headers=get_headers, method=method)
         ctx = self._generate_ctx()
         # send GET and read result
         res_json = request.urlopen(req, context=ctx).read()
@@ -368,20 +372,18 @@ class ipf_rest(_ipf):
             res = False
         # get list of occasions from res
 
-
-
-        _logger.info("ipf_rest.get() message.edi_type: %s" % message.edi_type)
+        _logger.debug("ipf_rest.get() message.edi_type: %s" % message.edi_type)
         if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules', raise_if_not_found=False):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi', raise_if_not_found=False):
             self._ace_wi(message, res)
         elif message.edi_type == message.env.ref('edi_af_facility.office_campus', raise_if_not_found=False):
             self._af_facility(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as.asok_office', raise_if_not_found=False):
+        elif message.edi_type == message.env.ref('edi_af_aisf_trask.asok_office', raise_if_not_found=False):
             self._rask_get_all(message, res)
         elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all', raise_if_not_found=False):
             self._rask_get_all(message, res)
-        elif message.edi_type == message.env.ref('edi_af_as.asok_contact', raise_if_not_found=False):
+        elif message.edi_type == message.env.ref('edi_af_aisf_trask.asok_contact', raise_if_not_found=False):
             self._as_contact(message, res)
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             self._as_channel(message, res)

@@ -31,49 +31,43 @@ LOCAL_TZ = 'Europe/Stockholm'
 
 class edi_message(models.Model):
     _inherit='edi.message'
-            
+
     @api.one
     def unpack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id: 
-            # don't do anything
-            pass
+        if self.edi_type.id == self.env.ref('edi_af_aisf_trask.asok_contact').id:
+            self.body = dict(ast.literal_eval(self.body.decode("utf-8")))
         else:
             super(edi_message, self).unpack()
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id:
-            if not self.model_record or self.model_record._name != 'edi.ace_workitem':
-                raise Warning("Appointment: Attached record is not an edi.ace_workitem! {model}".format(model=self.model_record and self.model_record._name or None))
+        if self.edi_type.id == self.env.ref('edi_af_aisf_trask.asok_contact').id:
+            if not self.model_record or self.model_record._name != 'res.partner':
+                raise Warning("Appointment: Attached record is not a res.partner or not a jobseeker! {model}".format(model=self.model_record and self.model_record._name or None))
 
-            obj = self.model_record
+            obj = self.model_record 
             body_dict = {}
             body_dict['base_url'] = self.edi_type.type_mapping.format(
-                path = "appointments/v2/phone-appointments/queues/{queueId}/workitems".format(queueId=obj.queue.name),
+                path = "ais-f-arbetssokande/v2/kontakt/{sokande_id}".format(sokande_id = obj.customer_id)
             )
-            body_dict['method'] = 'POST'
-            body_dict['data'] = {
-                'from': 'AFCRM',
-                'subject': 'AFCRM %s' % obj.queue.name,
-                'text': obj.text,
-                'label': 'BokaMote',
-                'errand': obj.errand.code,
-                'customer': {
-                    'id': {
-                        'pnr': obj.appointment_id.partner_id.company_registry.replace('-', '')
-                    },
-                    'phone_mobile': (obj.appointment_id.partner_id.mobile or obj.appointment_id.partner_id.phone).replace(' ', ''),
-                    'phone_home': obj.appointment_id.partner_id.phone.replace(' ', '')
-                }
-            }
+            body_dict['method'] = 'PATCH'
+            
+            data_dict = {}
+            if obj.last_contact and obj.last_contact_type:
+                data_dict['senasteKontaktTyp'] = obj.last_contact_type # Possible values: B, T, E, P, I
+                data_dict['senasteKontaktDatum'] = obj.last_contact.strftime("%Y-%m-%d") #"2019-10-02",
+            if obj.next_contact:
+                data_dict['nastaKontaktTyper'] = ["%s" % obj.next_contact_type] # Possible values: B, T, E, P, I
+                data_dict['nastaKontaktDatum'] = obj.next_contact.strftime("%Y-%m-%d") #"2019-12-31",
+                data_dict['nastaKontaktTid'] = obj.next_contact_time.strftime("%H:%M") #"11:30",
+            body_dict['data'] = data_dict
             self.body = tuple(sorted(body_dict.items()))
 
             envelope = self.env['edi.envelope'].create({
-                'name': 'Appointment ACE WI post',
+                'name': 'asok contact update',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
                 'edi_message_ids': [(6, 0, [self.id])]
             })
-            
         else:
             super(edi_message, self).pack()

@@ -53,13 +53,13 @@ class edi_message(models.Model):
             body_dict['data'] = {
                 # "sokandekategoriKod": "11",
                 # "sokandekategoriSedan": "2016-10-06",
-                "senasteKontaktTyp": "T", # Possible values: B, T, E, P, I TODO: what do they mean??? # local = B, PDM = T
+                "senasteKontaktTyp": "%s" % obj.last_contact_type, # Possible values: B, T, E, P, I
                 "senasteKontaktDatum": obj.last_contact.strftime("%Y-%m-%d"), #"2019-10-02",
                 "nastaKontaktTyper": [
-                    "T" # Possible values: B, T, E, P, I TODO: what do they mean???
+                    "%s" % obj.next_contact_type # Possible values: B, T, E, P, I
                 ],
                 "nastaKontaktDatum": obj.next_contact.strftime("%Y-%m-%d"), #"2019-12-31",
-                "nastaKontaktTid": obj.next_contact.strftime("%H:%M"), #"11:30",
+                "nastaKontaktTid": obj.next_contact_time.strftime("%H:%M"), #"11:30",
                 # "tolksprak": "Swahili",
                 # "tolkleveranssatt": "Telefontolk"
             }

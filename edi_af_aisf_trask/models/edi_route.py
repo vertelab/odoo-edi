@@ -18,24 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from odoo import models, fields, api, _
+import base64
+from datetime import datetime
 
-{
-    'name': 'EDI AF Arbetssökande - DEPRECIATED',
-    'version': '0.1',
-    'category': 'edi',
-    'summary': 'EDI AF arbetssökande - support for jobseekers ',
-    'licence': 'AGPL-3',
-    'description': """ """,
-    'author': 'Vertel AB',
-    'website': 'http://www.vertel.se',
-    'depends': ['partner_view_360', 'edi_route_ipf'],
-    'external_dependencies': {
-    },
-    'data': [
-        'data/edi_route_data.xml',
-        'views/edi_af_as_views.xml',
-    ],
-    'application': False,
-    'installable': False,
-}
-# vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
+import logging
+_logger = logging.getLogger(__name__)
+
+class edi_route(models.Model):
+    _inherit = 'edi.route' 
+    
+    route_type = fields.Selection(selection_add=[('edi_af_aisf_trask_rask', 'AF AS rask'), ('edi_af_aisf_trask_office', 'AF AS office'), ('edi_af_aisf_trask_contact', 'AF AS contact')])
+
+class edi_envelope(models.Model):
+    _inherit = 'edi.envelope' 
+    
+    route_type = fields.Selection(selection_add=[('edi_af_aisf_trask_rask', 'AF AS rask'), ('edi_af_aisf_trask_office', 'AF AS office'), ('edi_af_aisf_trask_contact', 'AF AS contact')])
+
+class edi_message(models.Model):
+    _inherit='edi.message'
+          
+    route_type = fields.Selection(selection_add=[('edi_af_aisf_trask_rask', 'AF AS rask'), ('edi_af_aisf_trask_office', 'AF AS office'), ('edi_af_aisf_trask_contact', 'AF AS contact')])
