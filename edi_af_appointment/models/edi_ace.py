@@ -52,6 +52,7 @@ class edi_ace_errand(models.Model):
     reason_code = fields.Char(string='Reason Code', size=2 )
     interval = fields.Selection(selection=[('1','1 day'),('7','1 week'),('14','2 weeks'),('30','30 days'),('60','60 days'),('100','100 days'),('365','a Year')],string='Interval',default='1')
     client_responsible = fields.Boolean(string='Client Responsible', help="Change current user to be responsible for this client, and get permanent rights that goes with it")
+    office_code = fields.Char(string='Office code')
 
     @api.model
     def escalate_jobseeker_access(self, partner, errand_id, user):
@@ -62,8 +63,7 @@ class edi_ace_errand(models.Model):
         _logger.debug("escalate_jobseeker_access: errand.interval: %s type: %s" % (errand.interval, type(errand.interval)))
         if errand.client_responsible:
             # change user_id
-            partner.set_user(user)
-            # TODO: notify other systems of change
+            partner.with_context(office_code=errand.office_code).set_user(user)
         # request partner access for user
         res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.reason_code, reason=errand.name, interval=int(errand.interval), user=user)
         fail_list = res.get('body').get('nyckelMisslyckadLista')
