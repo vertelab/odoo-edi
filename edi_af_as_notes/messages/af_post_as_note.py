@@ -48,7 +48,9 @@ class edi_message(models.Model):
                 raise Warning("Appointment: Attached record is not an daily note! {model}".format(model=self.model_record and self.model_record._name or None))
 
             obj = self.model_record
-            body_dict = {}
+            body_dict = {
+                'method': 'POST'
+            }
             body_dict['base_url'] = self.edi_type.type_mapping.format(
                 path = "ais-f-daganteckningar/v1/anteckning",
             )
