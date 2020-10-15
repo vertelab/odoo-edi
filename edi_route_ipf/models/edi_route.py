@@ -276,10 +276,9 @@ class ipf_rest(_ipf):
     
     def is_json(self, json_str):
         try:
-            json_object = json.loads(json_str)
-        except ValueError as e:
+            return json.loads(json_str)
+        except:
             return False
-        return True
 
     def get(self, message):        
         # Generate a unique tracking id
@@ -306,8 +305,8 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 get_headers['Content-Type'] = 'application/json'
-            elif self.is_json(body):
-                body = json.loads(body.encode("utf-8"))
+            elif type(message.body) == tuple:
+                body = dict(body)
                 data_vals = body.get('data')
                 method = body.get('method', 'GET')
                 base_url = body.get('base_url')
@@ -318,8 +317,8 @@ class ipf_rest(_ipf):
                     secret = self.password,
                 )
                 get_headers['Content-Type'] = 'application/json'
-            elif type(message.body) == tuple:
-                body = dict(body)
+            elif self.is_json(body):
+                body = json.loads(body.encode("utf-8"))
                 data_vals = body.get('data')
                 method = body.get('method', 'GET')
                 base_url = body.get('base_url')
