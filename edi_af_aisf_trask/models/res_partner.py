@@ -45,5 +45,4 @@ class ResPartner(models.Model):
 
         message = self.env['edi.message'].create(vals)
         message.pack()
-        # do we want to run this here? I think yes.
         route.run()

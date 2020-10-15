@@ -31,7 +31,6 @@ class edi_message(models.Model):
     @api.one
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_aisf_trask.asok_patch_office').id:
-            # do nothing
             pass
         else:
             super(edi_message, self).unpack()
