@@ -21,13 +21,9 @@
 from odoo import models, fields, api, _
 from datetime import datetime, timedelta
 import json
-import pytz
-import ast
 
 import logging
 _logger = logging.getLogger(__name__)
-
-LOCAL_TZ = 'Europe/Stockholm'
 
 class edi_message(models.Model):
     _inherit='edi.message'
@@ -56,9 +52,9 @@ class edi_message(models.Model):
     def pack(self):
         if self.edi_type.id == self.env.ref('edi_af_aisf_trask.asok_office').id:
             if not self.model_record or self.model_record._name != 'res.partner' or not self.model_record.is_jobseeker:
-                raise Warning("Appointment: Attached record is not a res.partner or not a jobseeker! {model}".format(model=self.model_record and self.model_record._name or None))
+                raise Warning("Attached record is not a res.partner or not a jobseeker! {model}".format(model=self.model_record and self.model_record._name or None))
 
-            obj = self.model_record #res.partner 
+            obj = self.model_record
             self.body = self.edi_type.type_mapping.format(
                 path = "ais-f-arbetssokande/v2/kontor/{sokande_id}".format(sokande_id = obj.customer_id)
             )
@@ -66,10 +62,6 @@ class edi_message(models.Model):
                 'name': 'asok office request',
                 'route_id': self.route_id.id,
                 'route_type': self.route_type,
-                # 'recipient': self.recipient.id,
-                # 'sender': self.env.ref('base.main_partner').id,
-                # 'application': app.name,
-                # 'edi_message_ids': [(6, 0, msg_ids)]
                 'edi_message_ids': [(6, 0, [self.id])]
             })
         else:

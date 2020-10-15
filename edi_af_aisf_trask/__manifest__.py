@@ -29,8 +29,8 @@
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': [
-        # 'partner_daily_notes', 
-        'edi_route_ipf'
+        'edi_route_ipf',
+        'edi_af_appointment'
         ],
     'external_dependencies': {
     },

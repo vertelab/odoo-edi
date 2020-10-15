@@ -2,7 +2,7 @@
     <data noupdate="1">
 
         <record id="asok_office_route" model="edi.route">
-            <field name="name">TRASK Get office route</field>
+            <field name="name">TRASK office route</field>
             <field name="partner_id" ref="base.main_partner"/>
             <field name="active" eval="True"/>
             <field name="protocol">ipf</field>
@@ -18,13 +18,19 @@
         </record>
 
         <record id="asok_office" model="edi.message.type">
-            <field name="name">AF Asok: Get office</field>
+            <field name="name">AIS-F TRASK: Get office</field>
+            <field name="target">ais-f-arbetssokande/v2/kontor/{sokande_id}</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record>
+
+        <record id="asok_patch_office" model="edi.message.type">
+            <field name="name">AIS-F TRASK: Patch office</field>
             <field name="target">ais-f-arbetssokande/v2/kontor/{sokande_id}</field>
             <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
         </record>
 
         <record id="asok_contact" model="edi.message.type">
-            <field name="name">AF Asok: Update contact</field>
+            <field name="name">AIS-F TRASK: Patch contact</field>
             <field name="target">ais-f-arbetssokande/v2/kontakt/{sokande_id}</field>
             <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
         </record>

@@ -347,7 +347,9 @@ class ipf_rest(_ipf):
             pass
         if message.edi_type == message.env.ref('edi_af_as_notes.edi_af_as_notes_post', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': data_vals.get('ansvarSignatur')}) #Authorization med given username+password och PISA_ID med antingen sys eller handläggares signatur
-        elif message.edi_type == message.env.ref('edi_af_aisf_trask.asok_office', raise_if_not_found=False) or message.edi_type == message.env.ref('edi_af_aisf_trask.asok_contact', raise_if_not_found=False):
+        elif message.edi_type in [message.env.ref('edi_af_aisf_trask.asok_office', raise_if_not_found=False),
+                                  message.env.ref('edi_af_aisf_trask.asok_patch_office', raise_if_not_found=False),
+                                  message.env.ref('edi_af_aisf_trask.asok_contact', raise_if_not_found=False)]:
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
         elif message.edi_type == message.env.ref('edi_af_channel.registration_channel', raise_if_not_found=False):
             get_headers.update({'Authorization': self.authorization, 'PISA_ID': '*sys*'}) #X-JWT-Assertion eller alternativt Authorization med given data och PISA_ID med antingen sys eller handläggares signatur
@@ -381,6 +383,8 @@ class ipf_rest(_ipf):
             self._af_facility(message, res)
         elif message.edi_type == message.env.ref('edi_af_aisf_trask.asok_office', raise_if_not_found=False):
             self._rask_get_all(message, res)
+        elif message.edi_type == message.env.ref('edi_af_aisf_trask.asok_patch_office', raise_if_not_found=False):
+            pass
         elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all', raise_if_not_found=False):
             self._rask_get_all(message, res)
         elif message.edi_type == message.env.ref('edi_af_aisf_trask.asok_contact', raise_if_not_found=False):
