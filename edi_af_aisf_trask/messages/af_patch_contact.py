@@ -56,7 +56,7 @@ class edi_message(models.Model):
             if obj.next_contact:
                 data_dict['nastaKontaktTyper'] = ["%s" % obj.next_contact_type] # Possible values: B, T, E, P, I
                 data_dict['nastaKontaktDatum'] = obj.next_contact.strftime("%Y-%m-%d") #"2019-12-31",
-                data_dict['nastaKontaktTid'] = obj.next_contact_time.strftime("%H:%M") #"11:30",
+                data_dict['nastaKontaktTid'] = obj.next_contact_time #"11:30",
             body_dict['data'] = data_dict
             self.body = tuple(sorted(body_dict.items()))
 
