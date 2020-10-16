@@ -58,7 +58,7 @@ class edi_message(models.Model):
                 data_dict['nastaKontaktDatum'] = obj.next_contact.strftime("%Y-%m-%d") #"2019-12-31",
                 data_dict['nastaKontaktTid'] = obj.next_contact_time #"11:30",
             body_dict['data'] = data_dict
-            self.body = tuple(sorted(body_dict.items()))
+            self.body = json.dumps(body_dict)
 
             envelope = self.env['edi.envelope'].create({
                 'name': 'asok contact update',
