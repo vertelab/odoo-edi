@@ -83,6 +83,18 @@ class edi_message(models.Model):
             else:
                 users_obj_id = users_obj.id
 
+            last_contact_type_string = body.get('kontakt').get('senasteKontakttyp')
+            if last_contact_type_string is None:
+                last_contact_type = None
+            else:
+                last_contact_type = last_contact_type_string[0]
+
+            nasta_kontakttyper_list = body.get('kontakt').get('nastaKontakttyper')
+            next_contact_type = None
+            if len(nasta_kontakttyper_list) > 0:
+                next_contact_type = nasta_kontakttyper_list[0]
+                next_contact_type = next_contact_type[0]
+
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
 
             jobseeker_dict = {
@@ -105,6 +117,11 @@ class edi_message(models.Model):
                 'sun_ids': [(6, 0, [sun_obj.id])],
                 'user_id': users_obj_id,
                 'sms_reminders': body.get('medgivande').get('paminnelseViaSms'),
+                'next_contact': body.get('kontakt').get('nastaKontaktdatum'),
+                'next_contact_time': body.get('kontakt').get('nastaKontaktTid'),
+                'next_contact_type': next_contact_type,
+                'last_contact': body.get('kontakt').get('senasteKontaktdatum'),
+                'last_contact_type': last_contact_type,
             }
             res_partner_obj.write(jobseeker_dict)
 
