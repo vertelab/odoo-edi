@@ -95,6 +95,7 @@ class ediServiceNowOperation(models.Model):
     @api.one
     def compute_location_id(self, department_id):
         location = self.env['hr.location'].search([('location_code', '=', self.campus_location_code)])
+        operation = self.env['hr.operation'].search([('x500_id','=',self.x500_id)])
         #create partners from fields
         visitation_address_vals = {
             'type': 'visitation address',
@@ -119,7 +120,7 @@ class ediServiceNowOperation(models.Model):
 
         partner = self.env['res.partner'].create(partner_vals)
 
-        vals = {
+        operation_vals = {
             'name': self.name,
             'visitation_address_id': visitation_address.id,
             'mailing_address_id': mailing_address.id,
@@ -129,16 +130,28 @@ class ediServiceNowOperation(models.Model):
             'workplace_number': self.campus_workplace_number,
             'location_code': self.campus_location_code,
             'x500_id': self.x500_id,
+            'department_id': department_id.id
+        }
+        if operation:
+            operation.write(operation_vals)
+        else:
+            operation = self.env['hr.operation'].create(operation_vals)
+        
+        location_vals = {
+            'name': self.campus_name,
+            'workplace_number': self.campus_workplace_number,
+            'location_code': self.campus_location_code,
         }
         
         if location:
-            if not department_id in location.department_ids:
-                location.department_ids = [(4, department_id.id, 0)]
-            location.write(vals)
+            _logger.info("operation: %s location.operation_ids: %s" % (operation, location.operation_ids)
+            if not operation in location.operation_ids:
+                location.operation_ids = [(4, operation.id, 0)]
+            location.write(location_vals)
         else:
-            vals['department_ids'] = [(4, department_id.id, 0)]
+            location_vals['operation_ids'] = [(4, operation.id, 0)]
             location = self.env['hr.location'].create(vals)
-            external_xmlid = "__facility_import__.location_%s" % vals['location_code']
+            external_xmlid = "__facility_import__.location_%s" % location_vals['location_code']
             self.env['ir.model.data'].create({
                             'name': external_xmlid.split('.')[1],
                             'module': external_xmlid.split('.')[0],
