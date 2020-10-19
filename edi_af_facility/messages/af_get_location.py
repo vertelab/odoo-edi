@@ -144,7 +144,7 @@ class ediServiceNowOperation(models.Model):
         }
         
         if location:
-            _logger.info("operation: %s location.operation_ids: %s" % (operation, location.operation_ids)
+            _logger.info("operation: %s location.operation_ids: %s" % (operation, location.operation_ids))
             if not operation in location.operation_ids:
                 location.operation_ids = [(4, operation.id, 0)]
             location.write(location_vals)
