@@ -53,7 +53,7 @@ vals = {
   'edi_type': env.ref('edi_af_appointment.appointment_ace_wi').id,
   'model': ace_wi._name,
   'res_id': ace_wi.id,
-  'route_id': 5,
+  'route_id': env.ref('edi_af_appointment.ace_wi').id,
   'route_type': 'edi_af_ace_wi',
 }
 msg = env['edi.message'].create(vals)
