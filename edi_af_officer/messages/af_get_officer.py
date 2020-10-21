@@ -45,9 +45,12 @@ class edi_message(models.Model):
                 if i == 500:
                     i = 0
                     self.env.cr.commit()
-                location = self.env['hr.location'].search([('workplace_number','=', officer.get('workPlaceNumber'))])
+                workplaceNumber = officer.get('workplaceNumber')
+                if workplaceNumber:
+                    workplaceNumber = int(workplaceNumber)
+                location = self.env['hr.location'].search([('workplace_number','=', workplaceNumber)])
                 if not location:
-                    _logger.info("No location with workplace number: %s" % officer.get('workPlaceNumber'))
+                    _logger.info("No location with workplace number: %s" % workplaceNumber)
                 office = self.env['hr.department'].search([('office_code','=',officer.get('officeCode'))])
                 if not office:
                     _logger.info("office number %s not in database, creating" % officer.get('officeCode'))
