@@ -127,8 +127,6 @@ class ediServiceNowOperation(models.Model):
             'partner_id': partner.id,
             'opening_hours': self.opening_hours,
             'personal_service_opening': self.personal_service_opening,
-            'workplace_number': self.campus_workplace_number,
-            'location_code': self.campus_location_code,
             'x500_id': self.x500_id,
             'department_id': department_id.id
         }
@@ -141,6 +139,7 @@ class ediServiceNowOperation(models.Model):
             'name': self.campus_name,
             'workplace_number': self.campus_workplace_number,
             'location_code': self.campus_location_code,
+            'visitation_address_id': visitation_address.id,
         }
         
         if location:
@@ -150,7 +149,7 @@ class ediServiceNowOperation(models.Model):
             location.write(location_vals)
         else:
             location_vals['operation_ids'] = [(4, operation.id, 0)]
-            location = self.env['hr.location'].create(vals)
+            location = self.env['hr.location'].create(location_vals)
             external_xmlid = "__facility_import__.location_%s" % location_vals['location_code']
             self.env['ir.model.data'].create({
                             'name': external_xmlid.split('.')[1],

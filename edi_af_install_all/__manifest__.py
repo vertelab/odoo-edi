@@ -37,7 +37,6 @@
         'edi_af_as_notes',
         'edi_af_officer',
         'edi_af_facility',
-        'edi_af_krom_postcode',
         ],
     'external_dependencies': {
     },
