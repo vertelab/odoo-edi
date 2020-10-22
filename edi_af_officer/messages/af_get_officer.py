@@ -45,7 +45,12 @@ class edi_message(models.Model):
                 if i == 500:
                     i = 0
                     self.env.cr.commit()
-                location = self.env['hr.location'].search([('workplace_number','=', officer.get('workPlaceNumber'))])
+                workplaceNumber = officer.get('workplaceNumber')
+                if workplaceNumber:
+                    workplaceNumber = int(workplaceNumber)
+                operation = self.env['hr.operation'].search([('workplace_number','=', workplaceNumber)])
+                if not operation:
+                    _logger.info("No operation with workplace number: %s" % workplaceNumber)
                 office = self.env['hr.department'].search([('office_code','=',officer.get('officeCode'))])
                 if not office:
                     _logger.info("office number %s not in database, creating" % officer.get('officeCode'))
@@ -58,8 +63,8 @@ class edi_message(models.Model):
                     'email': officer.get('mail'),
                     'phone': officer.get('telephoneNumber'),
                     'mobile': officer.get('mobileNumber'),
-                    'office_id': office.id, #hur kollar jag att det inte är två eller flera?
-                    'location_id': location.id,
+                    'office_id': office.id, 
+                    'operation_id': operation.id,
                     'employee': True,
                     'saml_uid': officer.get('userName'),
                     'action_id': self.env.ref("hr_360_view.search_jobseeker_wizard").id,
@@ -85,10 +90,10 @@ class edi_message(models.Model):
     @api.one
     def pack(self):
         if self.edi_type.id == self.env.ref('edi_af_officer.get_officer').id:
-            if not self.model_record or self.model_record._name != 'hr.location':
-                raise Warning("Appointment: Attached record is not a hr.location! {model}".format(model=self.model_record and self.model_record._name or None))
+            if not self.model_record or self.model_record._name != 'hr.operation':
+                raise Warning("Appointment: Attached record is not a hr.operation! {model}".format(model=self.model_record and self.model_record._name or None))
 
-            obj = self.model_record #hr.location 
+            obj = self.model_record #hr.operation 
             self.body = self.edi_type.type_mapping.format(
                 path = "x500-af-person/v1/af-persons",
             )

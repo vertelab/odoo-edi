@@ -37,6 +37,7 @@ class ediServiceNowOperation(models.Model):
 
     department_id = fields.Many2one(comodel_name='hr.department', string="Department")
     location_id = fields.Many2one(comodel_name='hr.location', string="Location")
+    operation_id = fields.Many2one(comodel_name="hr.operation", string="Operation")
 
     opening_hours = fields.Char()
     personal_service_opening = fields.Char()
@@ -82,12 +83,12 @@ class ediServiceNowOperation(models.Model):
             self.department_id = self.env['hr.department'].create({'name': self.office_code, 'office_code': self.office_code, 'note': _('Missing in AIS-F')}).id
 
     @api.one
-    def compute_accessibilies(self, location_id, accessibility_list):
+    def compute_accessibilies(self, operation_id, accessibility_list):
         for accessibility in accessibility_list:
-            accessibility['location_id'] = location_id
+            accessibility['operation_id'] = operation_id
             self.env['hr.location.accessibility'].create(
                 {
-                    'location_id': accessibility['location_id'],
+                    'location_id': accessibility['operation_id'],
                     'name': accessibility['type'],
                     'description': accessibility['description']
                 })
@@ -127,9 +128,7 @@ class ediServiceNowOperation(models.Model):
             'partner_id': partner.id,
             'opening_hours': self.opening_hours,
             'personal_service_opening': self.personal_service_opening,
-            'workplace_number': self.campus_workplace_number,
-            'location_code': self.campus_location_code,
-            'x500_id': self.x500_id,
+            'operation_code': self.x500_id,
             'department_id': department_id.id
         }
         if operation:
@@ -180,7 +179,8 @@ class edi_message(models.Model):
                     operation = self.env['edi.service_now_operation'].create(vals)
                     operation.compute_department_id()
                     operation.compute_location_id(operation.department_id)
-                    operation.compute_accessibilies(operation.location_id, operation_rec['accessibilities'])
+                    #logg operation_id and location_id
+                    operation.compute_accessibilies(operation.operation_id, operation_rec['accessibilities'])
         else:
             super(edi_message, self).unpack()
         
