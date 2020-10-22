@@ -21,8 +21,6 @@
 from odoo import models, fields, api, _
 from datetime import datetime, timedelta
 import json
-import pytz
-import ast
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -66,7 +64,7 @@ class edi_message(models.Model):
                     'phone_home': obj.appointment_id.partner_id.phone.replace(' ', '')
                 }
             }
-            self.body = tuple(sorted(body_dict.items()))
+            self.body = json.dumps(body_dict)
 
             envelope = self.env['edi.envelope'].create({
                 'name': 'Appointment ACE WI post',

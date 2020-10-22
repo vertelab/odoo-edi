@@ -140,16 +140,17 @@ class ediServiceNowOperation(models.Model):
             'name': self.campus_name,
             'workplace_number': self.campus_workplace_number,
             'location_code': self.campus_location_code,
+            'visitation_address_id': visitation_address.id,
         }
         
         if location:
-            _logger.info("operation: %s location.operation_ids: %s" % (operation, location.operation_ids)
+            _logger.info("operation: %s location.operation_ids: %s" % (operation, location.operation_ids))
             if not operation in location.operation_ids:
                 location.operation_ids = [(4, operation.id, 0)]
             location.write(location_vals)
         else:
             location_vals['operation_ids'] = [(4, operation.id, 0)]
-            location = self.env['hr.location'].create(vals)
+            location = self.env['hr.location'].create(location_vals)
             external_xmlid = "__facility_import__.location_%s" % location_vals['location_code']
             self.env['ir.model.data'].create({
                             'name': external_xmlid.split('.')[1],
