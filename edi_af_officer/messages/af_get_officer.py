@@ -56,6 +56,9 @@ class edi_message(models.Model):
                     _logger.info("office number %s not in database, creating" % officer.get('officeCode'))
                     office = self.env['hr.department'].create({'name': officer.get('officeCode'), 'office_code': officer.get('officeCode'), 'note': _('Missing in AIS-F')})
                 if office and len(office) == 1:
+                    parent_id = self.env['res.users'].search([('login','=',officer.get('managerSignature'))])
+                    if not parent_id:
+                        parent_id = self.env['res.users'].create({'name': officer.get('managerSignature')})
                     vals = {
                     'firstname': officer.get('firstName'),
                     'lastname': officer.get('lastName'),
@@ -63,18 +66,27 @@ class edi_message(models.Model):
                     'email': officer.get('mail'),
                     'phone': officer.get('telephoneNumber'),
                     'mobile': officer.get('mobileNumber'),
-                    'office_id': office.id, 
-                    'operation_id': operation.id,
                     'employee': True,
                     'saml_uid': officer.get('userName'),
                     'action_id': self.env.ref("hr_360_view.search_jobseeker_wizard").id,
-                    'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth')
-                }
+                    'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth'),
+                    'parent_id': parent_id
+                    }
                     user = self.env['res.users'].search([('login','=',vals['login'])])
+                    employee_vals = {
+                        'user_id': user.id,
+                        'department_id': office.id,
+                        'operation_id': operation.id,
+                    }
+                    
                     if user:
                         user.write(vals)
+                        for employee in user.employee_ids:
+                            employee.write(employee_vals)
                     else:
                         user = self.env['res.users'].create(vals)
+                        employee_vals['user_id'] = user.id
+                        self.env['hr.employee'].create(employee_vals)
                         external_xmlid = '__x500_import__.user_%s' % vals.get('login')
                         self.env['ir.model.data'].create({
                                     'name': external_xmlid.split('.')[1],
