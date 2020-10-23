@@ -53,7 +53,7 @@ class edi_message(models.Model):
             if office_code:
                 data_dict['kontorsKod'] = office_code
             body_dict['data'] = data_dict
-            self.body = tuple(sorted(body_dict.items()))
+            self.body = json.dumps(body_dict)
 
             envelope = self.env['edi.envelope'].create({
                 'name': 'asok office request',
