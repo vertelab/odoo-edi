@@ -6,7 +6,7 @@
         <field name="state">code</field>
         <field name="code">route = env['edi.route'].sudo().search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_officer.get_officer_route'))])
 
-record = env['hr.location'].sudo().search([('workplace_number','=','1912')])
+record = env['hr.operation'].sudo().search([('workplace_number','=','1912')])
 
 vals = {
   'name': 'get office msg',
