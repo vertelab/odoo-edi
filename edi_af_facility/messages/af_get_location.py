@@ -88,7 +88,7 @@ class ediServiceNowOperation(models.Model):
             accessibility['operation_id'] = operation_id
             self.env['hr.location.accessibility'].create(
                 {
-                    'location_id': accessibility['operation_id'],
+                    'operation_id': accessibility['operation_id'],
                     'name': accessibility['type'],
                     'description': accessibility['description']
                 })
