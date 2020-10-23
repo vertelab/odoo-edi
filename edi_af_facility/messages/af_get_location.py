@@ -96,7 +96,7 @@ class ediServiceNowOperation(models.Model):
     @api.one
     def compute_location_id(self, department_id):
         location = self.env['hr.location'].search([('location_code', '=', self.campus_location_code)])
-        operation = self.env['hr.operation'].search([('x500_id','=',self.x500_id)])
+        operation = self.env['hr.operation'].search([('operation_code','=',self.x500_id)])
         #create partners from fields
         visitation_address_vals = {
             'type': 'visitation address',
