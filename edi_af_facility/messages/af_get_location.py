@@ -37,7 +37,7 @@ class ediServiceNowOperation(models.Model):
 
     department_id = fields.Many2one(comodel_name='hr.department', string="Department")
     location_id = fields.Many2one(comodel_name='hr.location', string="Location")
-    operation_id = fields.Many2one(comodel_name="hr.operation", string="Operation")
+    operation_res_id = fields.Many2one(comodel_name="hr.operation", string="Operation")
 
     opening_hours = fields.Char()
     personal_service_opening = fields.Char()
@@ -85,7 +85,7 @@ class ediServiceNowOperation(models.Model):
     @api.one
     def compute_accessibilies(self, operation_id, accessibility_list):
         for accessibility in accessibility_list:
-            accessibility['operation_id'] = operation_id
+            accessibility['operation_id'] = operation_id.id
             self.env['hr.location.accessibility'].create(
                 {
                     'operation_id': accessibility['operation_id'],
@@ -135,7 +135,16 @@ class ediServiceNowOperation(models.Model):
             operation.write(operation_vals)
         else:
             operation = self.env['hr.operation'].create(operation_vals)
+            external_xmlid = "__facility_import__.operation_%s" % operation_vals['operation_code']
+            self.env['ir.model.data'].create({
+                            'name': external_xmlid.split('.')[1],
+                            'module': external_xmlid.split('.')[0],
+                            'model': operation._name,
+                            'res_id': operation.id
+                            })
         
+        self.operation_res_id = operation.id
+
         location_vals = {
             'name': self.campus_name,
             'workplace_number': self.campus_workplace_number,
@@ -144,7 +153,6 @@ class ediServiceNowOperation(models.Model):
         }
         
         if location:
-            _logger.info("operation: %s location.operation_ids: %s" % (operation, location.operation_ids))
             if not operation in location.operation_ids:
                 location.operation_ids = [(4, operation.id, 0)]
             location.write(location_vals)
@@ -158,6 +166,7 @@ class ediServiceNowOperation(models.Model):
                             'model': location._name,
                             'res_id': location.id
                             })
+        self.location_id = location.id
 
 
 
@@ -180,8 +189,7 @@ class edi_message(models.Model):
                     operation = self.env['edi.service_now_operation'].create(vals)
                     operation.compute_department_id()
                     operation.compute_location_id(operation.department_id)
-                    #logg operation_id and location_id
-                    operation.compute_accessibilies(operation.operation_id, operation_rec['accessibilities'])
+                    operation.compute_accessibilies(operation.operation_res_id, operation_rec['accessibilities'])
         else:
             super(edi_message, self).unpack()
         
@@ -191,7 +199,7 @@ class edi_message(models.Model):
             if not self.model_record or self.model_record._name != 'hr.department':
                 raise Warning("Appointment: Attached record is not a hr.department {model}".format(model=self.model_record and self.model_record._name or None))
 
-            obj = self.model_record  
+            obj = self.model_record
             self.body = self.edi_type.type_mapping.format(
                 path = "service-now-on-site-operations/v1/operations"
             )

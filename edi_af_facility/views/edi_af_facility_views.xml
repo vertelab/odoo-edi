@@ -18,8 +18,8 @@ vals = {
 }
 
 message = env['edi.message'].sudo().create(vals)
-message.pack()
-route.run()
+message.sudo().pack()
+route.sudo().run()
       </field>
     </record>
 </odoo>
