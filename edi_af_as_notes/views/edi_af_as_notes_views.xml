@@ -14,7 +14,7 @@ note_vals = {
     'administrative_officer': officer.id,
     'is_confidential': False,
     'note_type': env['res.partner.note.type'].sudo().browse(1).id,
-    'office_id': officer.office_id.id, #make sure to change it to 0248 for T2
+    'office_id': env['hr.department'].search([('office_code','=','0248')]).id,
     'partner_id': env['res.partner'].sudo().search([('customer_id','=','2280')]).id,
     'appointment_id': env['calendar.appointment'].browse(1).id,
 }
@@ -31,8 +31,8 @@ vals = {
 }
 
 message = env['edi.message'].sudo().create(vals)
-message.pack()
-route.run()
+message.sudo().pack()
+route.sudo().run()
         
         
         </field>
