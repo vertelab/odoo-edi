@@ -126,7 +126,8 @@ class AppointmentController(http.Controller):
                 "employee_name": app.user_id.name or '',
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
-                "id": app.id,
+                "id": bookable_occasion_id,
+                "appointment_id": app.id,
                 "office_address": app.office_id.partner_id.contact_address or '',
                 "office_email": app.office_id.partner_id.email or '',
                 "location_code": app.operation_id or '',
@@ -178,9 +179,11 @@ class AppointmentController(http.Controller):
 
         # reserve occasions if we found them
         if len(occasions) == no_occasions:
-            app = request.env['calendar.occasion'].sudo().reserve_occasion(occasions)  
+            app = request.env['calendar.occasion'].sudo().reserve_occasion(occasions)
+            bookable_occasion_id = self.encode_bookable_occasion_id(occasions)
         else:
-            app = False      
+            app = False    
+            bookable_occasion_id = False  
 
         if app:
             res = {
@@ -195,7 +198,8 @@ class AppointmentController(http.Controller):
                 "employee_name": app.user_id.name or '',
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
-                "id": app.id,
+                "id": bookable_occasion_id,
+                "appointment_id": app.id,
                 "office_address": app.office_id.partner_id.contact_address or '',
                 "office_email": app.office_id.partner_id.email or '',
                 "location_code": app.operation_id or '',
@@ -313,14 +317,12 @@ class AppointmentController(http.Controller):
         sunie = request.env['res.users'].sudo().search([('login', '=', 'sunie')], limit=1)
         sunie_office = request.env['hr.department'].sudo().search([('office_code', '=', '0248')], limit=1)
         
-        appointment_id = message.get('appointment_id')
         bookable_occasion_id = message.get('bookable_occasion_id') 
         customer_nr = message.get('customer_nr') 
         pnr = message.get('pnr') 
 
         if (not customer_nr and not pnr):
             return Response("No customer nr. or pnr.", status=400)        
-
         if pnr:
             partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
             if not partner:
@@ -335,22 +337,20 @@ class AppointmentController(http.Controller):
         if not partner:
             return Response("Partner not found", status=404)
 
-        if appointment_id:
-            app = request.env['calendar.appointment'].sudo().search([('id', '=', appointment_id)])
-            if not app:
-                return Response("Appointment not found", status=404)
+        if not bookable_occasion_id:
+            return Response("No bookable_occasion_id.", status=400)
+
+        occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
+        if not occasions:
+            return Response("Bookable occasion id not found", status=404)
+
+        if occasions[0].appointment_id and occasions[0].appointment_id.state == 'reserved':
+            app = occasions[0].appointment_id
             # app.user_id = sunie.id # SUNIE
             # app.operation_id = sunie_location.id # 0248
             app.partner_id = partner.id
             app._confirm_appointment()
         else:
-            if not bookable_occasion_id:
-                return Response("No bookable_occasion_id.", status=400)
-
-            occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
-            if not occasions:
-                return Response("Bookable occasion id not found", status=404)
-
             # check that occasions are free and unreserved
             free = True
             for occasion_id in occasions:
