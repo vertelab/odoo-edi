@@ -318,32 +318,34 @@ class AppointmentController(http.Controller):
         customer_nr = message.get('customer_nr') 
         pnr = message.get('pnr') 
 
-        if appointment_id:
-            app = request.env['calendar.appointment'].sudo().search([('id', '=', appointment_id)])
-            # app.user_id = sunie.id # SUNIE
-            # app.operation_id = sunie_location.id # 0248
-            app._confirm_appointment()
-        else:
+        if (not customer_nr and not pnr):
+            return Response("No customer nr. or pnr.", status=400)        
 
-            if (not customer_nr and not pnr):
-                return Response("No customer nr. or pnr.", status=400)
-            
-            if not bookable_occasion_id:
-                return Response("No bookable_occasion_id.", status=400)
-
+        if pnr:
+            partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
+            if not partner:
+                return Response("pnr. not found", status=404)
+        if customer_nr:
+            pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
             if pnr:
                 partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
-                if not partner:
-                    return Response("pnr. not found", status=404)
-            if customer_nr:
-                pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
-                if pnr:
-                    partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
-                if not partner:
-                    return Response("customer nr. not found", status=404)
-
             if not partner:
-                return Response("Partner not found", status=404)
+                return Response("customer nr. not found", status=404)
+
+        if not partner:
+            return Response("Partner not found", status=404)
+
+        if appointment_id:
+            app = request.env['calendar.appointment'].sudo().search([('id', '=', appointment_id)])
+            if not app:
+                return Response("Appointment not found", status=404)
+            # app.user_id = sunie.id # SUNIE
+            # app.operation_id = sunie_location.id # 0248
+            app.partner_id = partner.id
+            app._confirm_appointment()
+        else:
+            if not bookable_occasion_id:
+                return Response("No bookable_occasion_id.", status=400)
 
             occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
             if not occasions:
