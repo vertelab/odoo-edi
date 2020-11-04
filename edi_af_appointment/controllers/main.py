@@ -240,8 +240,6 @@ class AppointmentController(http.Controller):
         if customer_nr:
             pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
             if pnr:
-                if len(pnr) == 12:
-                    pnr = pnr[:8] + "-" + pnr[8:12]
                 partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
             if not partner:
                 return Response("customer nr. not found", status=404)
@@ -332,8 +330,6 @@ class AppointmentController(http.Controller):
         if customer_nr:
             pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
             if pnr:
-                if len(pnr) == 12:
-                    pnr = pnr[:8] + "-" + pnr[8:12]
                 partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
             if not partner:
                 return Response("customer nr. not found", status=404)
