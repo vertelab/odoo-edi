@@ -445,8 +445,8 @@ class AppointmentController(http.Controller):
         if appointment_id and appointment_id > 0:
             appointment = request.env['calendar.appointment'].sudo().search([('id', '=', appointment_id)])
             if appointment:
-                # appointment.sudo().unlink()
-                appointment.sudo().cancel(request.env.ref('calendar_cancel_reason.integration'))
+                appointment.sudo().unlink()
+                # appointment.sudo().cancel(request.env.ref('calendar_cancel_reason.authority'))
                 return Response("OK, deleted", status=200)
             else:
                 return Response("ID not found", status=404)
