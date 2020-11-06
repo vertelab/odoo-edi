@@ -20,10 +20,10 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF AIS-F RASK',
+    'name': 'EDI AF AIS-F RASK Get Jobseeker',
     'version': '0.1',
     'category': 'edi',
-    'summary': 'EDI AF AIS-F RASK - synchronize arbetssökande in AF CRM with AIS-F ASH by calling RASK',
+    'summary': 'EDI AF AIS-F RASK Get Jobseeker',
     'licence': 'AGPL-3',
     'description': """ """,
     'author': 'Arbetsförmedlingen',
