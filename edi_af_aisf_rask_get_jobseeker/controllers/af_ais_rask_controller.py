@@ -1,55 +1,24 @@
+from odoo import models, api, _
 import logging
+from odoo.tools.profiler import profile
 
-from odoo import models, api
 
 _logger = logging.getLogger(__name__)
 
 
-class ais_as_rask_controller(models.Model):
+class ResPartner(models.Model):
     _inherit = 'res.partner'
-
+    
+    @profile
     @api.model
-    def rask_controller(self, customer_id, social_security_number, former_social_security_number, message_type):
-        _logger.info("called with: customer_id %s social_security_number: %s former_social_security_number %s message_type %s" % (customer_id, social_security_number, former_social_security_number, message_type))
-        if message_type == "PersonnummerByte":
-            # Inget anrop av RASK behöver göras eftersom allt finns i notifieringen
-            res_partner_obj = self.env['res.partner'].search(
-                [('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
-            if res_partner_obj:
-                res_partner_obj.company_registry = social_security_number
-            else:
-                # TODO: När allt funkar så ska det här ske i en egen metod...
-                # AS saknas i AF CRM DB, hantera det som en "Nyinskrivning"
-                vals = {
-                    'customer_id': customer_id,
-                    'firstname': "new object",
-                    'lastname': "new object",
-                    'is_jobseeker': True,
-                }
-                res_partner_obj = self.env['res.partner'].create(vals)
-                ipf = self.env.ref('af_ipf.ipf_endpoint_').sudo()
-                res = ipf.call(customer_id=customer_id)
-                self.unpack(res)
-                
-                
-        else:
-            # Det finns ingen förteckning över vilka ändrade attribut som triggar respektive meddelandetyp.
-            # Därför ska RASK anropas för varje annan meddelandetyp än PersonnummerByte (där har vi all info)
-            res_partner_obj = self.env['res.partner'].search(
-                [('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
-            if not res_partner_obj:
-                # AS saknas i AF CRM DB, hantera det som en "Nyinskrivning"
-                vals = {
-                    'customer_id': customer_id,
-                    'firstname': "new object",
-                    'lastname': "new object",
-                    'is_jobseeker': True,
-                }
-                res_partner_obj = self.env['res.partner'].create(vals)
-                ipf = self.env.ref('af_ipf.ipf_endpoint_rask').sudo()
-                res = ipf.call(customer_id=customer_id)
-                self.unpack(res)
-
+    def rask_as_get(self, customer_id):
+        # Det finns ingen förteckning över vilka ändrade attribut som triggar respektive meddelandetyp.
+        # Därför ska RASK anropas för varje annan meddelandetyp än PersonnummerByte (där har vi all info)
+        ipf = self.env.ref('af_ipf.ipf_endpoint_rask').sudo()
+        res = ipf.call(customer_id=customer_id)
+        self.unpack(res)
+    
+    @profile
     @api.one
     def unpack(self, res):
         customer_id = res.get('arbetssokande').get('sokandeId')
@@ -59,7 +28,7 @@ class ais_as_rask_controller(models.Model):
             res_partner_obj.unlink()
             return
 
-        if (res_partner_obj.firstname == "new object" and res_partner_obj.lastname == "new object"):
+        if not res_partner_obj:
             # New jobseeker
             create_links = True
         else:
@@ -140,7 +109,10 @@ class ais_as_rask_controller(models.Model):
             'last_contact': res.get('kontakt').get('senasteKontaktdatum'),
             'last_contact_type': last_contact_type,
         }
-        res_partner_obj.write(jobseeker_dict)
+        if res_partner_obj:
+            res_partner_obj.write(jobseeker_dict)
+        else:
+            res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
 
         own_or_foreign_address_given = False
         for address in res.get('kontaktuppgifter').get('adresser'):
@@ -193,7 +165,8 @@ class ais_as_rask_controller(models.Model):
             given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
             if given_address_object:
                 given_address_object.unlink()
-
+        
+       
         if (create_links):
             res_partner_obj.sync_link()
 
