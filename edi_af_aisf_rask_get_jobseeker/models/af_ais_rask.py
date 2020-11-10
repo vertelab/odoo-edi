@@ -36,7 +36,7 @@ class ResPartner(models.Model):
                 [('code', '=', res.get('kontaktuppgifter').get('hemkommunKod'))])
             office_obj = self.env['hr.department'].search([('office_code', '=', res.get('kontor').get('kontorsKod'))])
             sun_obj = self.env['res.sun'].search([('code', '=', res.get('utbildning').get('sunKod'))])
-            if sun_obj is None:
+            if not sun_obj:
                 sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
             segmenteringsval = res.get('segmentering').get('segmenteringsval')
@@ -47,34 +47,26 @@ class ResPartner(models.Model):
             elif segmenteringsval == "PDM":
                 registered_through = "pdm"
             else:
-                registered_through = None
+                registered_through = False
 
             skat_obj = self.env['res.partner.skat'].search([('code', '=', res.get('kontakt').get('sokandekategoriKod'))])
-            if skat_obj is None:
-                skat_obj_id = None
-            else:
+            if skat_obj:
                 skat_obj_id = skat_obj.id
 
             education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', res.get('utbildning').get('utbildningsniva'))])
-            if education_level_obj is None:
-                education_level_obj_id = None
-            else:
+            if education_level_obj:
                 education_level_obj_id = education_level_obj.id
 
             users_obj = self.env['res.users'].search([('login', '=', res.get('kontor').get('ansvarigHandlaggareSignatur'))])
-            if users_obj is None:
-                users_obj_id = None
-            else:
+            if users_obj:
                 users_obj_id = users_obj.id
 
             last_contact_type_string = res.get('kontakt').get('senasteKontakttyp')
-            if last_contact_type_string is None:
-                last_contact_type = None
-            else:
+            if last_contact_type_string:
                 last_contact_type = last_contact_type_string[0]
 
             nasta_kontakttyper_list = res.get('kontakt').get('nastaKontakttyper')
-            next_contact_type = None
+            next_contact_type = False
             if len(nasta_kontakttyper_list) > 0:
                 next_contact_type = nasta_kontakttyper_list[0]
                 next_contact_type = next_contact_type[0]
@@ -84,6 +76,7 @@ class ResPartner(models.Model):
             jobseeker_dict = {
                 'firstname': res.get('arbetssokande').get('fornamn'),
                 'lastname': res.get('arbetssokande').get('efternamn'),
+                'customer_id': customer_id, 
                 'company_registry': res.get('arbetssokande').get('personnummer'),
                 'customer_since': res.get('processStatus').get('aktuellSedanDatum'),
                 'share_info_with_employers': res.get('medgivande').get('infoTillArbetsgivare'),
@@ -98,7 +91,6 @@ class ResPartner(models.Model):
                 'state_id': res_countr_state_obj.id,
                 'education_level': education_level_obj_id,
                 'registered_through': registered_through,
-                'sun_ids': [(6, 0, [sun_obj.id])],
                 'user_id': users_obj_id,
                 'sms_reminders': res.get('medgivande').get('paminnelseViaSms'),
                 'next_contact': res.get('kontakt').get('nastaKontaktdatum'),
@@ -107,6 +99,8 @@ class ResPartner(models.Model):
                 'last_contact': res.get('kontakt').get('senasteKontaktdatum'),
                 'last_contact_type': last_contact_type,
             }
+            if sun_obj:
+                jobseeker_dict['sun_ids'] = [(6, 0, [sun_obj.id])],
             if res_partner_obj:
                 res_partner_obj.write(jobseeker_dict)
             else:
@@ -119,18 +113,18 @@ class ResPartner(models.Model):
                     streetadress_array = streetaddress.split(",")
                     if len(streetadress_array) == 1:
                         street = streetadress_array[0]
-                        street2 = None
+                        street2 = False
                     elif len(streetadress_array) > 1:
                         street = streetadress_array[1]
                         street2 = streetadress_array[0]
                     zip = address.get('postnummer')
                     city = address.get('postort')
                     country_name = address.get('landsadress')
-                    country_obj_id = None
-                    if country_name is not None:
+                    country_obj_id = False
+                    if country_name:
                         country_obj = self.env['res.country'].with_context(lang='sv_SE').search(
                             [('name', '=', country_name)])
-                        if country_obj is not None:
+                        if country_obj:
                             country_obj_id = country_obj.id
 
                     if address.get('adressTyp') == 'FBF':
