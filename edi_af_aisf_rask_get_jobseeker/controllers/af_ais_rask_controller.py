@@ -9,16 +9,14 @@ _logger = logging.getLogger(__name__)
 class ResPartner(models.Model):
     _inherit = 'res.partner'
     
-    @profile
     @api.model
     def rask_as_get(self, customer_id):
         # Det finns ingen förteckning över vilka ändrade attribut som triggar respektive meddelandetyp.
         # Därför ska RASK anropas för varje annan meddelandetyp än PersonnummerByte (där har vi all info)
         ipf = self.env.ref('af_ipf.ipf_endpoint_rask').sudo()
-        res = ipf.call(customer_id=customer_id)
+        res = ipf.call(customer_id=int(customer_id))
         self.unpack(res)
     
-    @profile
     @api.one
     def unpack(self, res):
         customer_id = res.get('arbetssokande').get('sokandeId')
