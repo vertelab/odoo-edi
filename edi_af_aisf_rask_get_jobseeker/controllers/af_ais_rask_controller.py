@@ -17,11 +17,10 @@ class ResPartner(models.Model):
         res = ipf.call(customer_id=int(customer_id))
         self.unpack(res)
     
-    @api.one
+    @api.model
     def unpack(self, res):
         customer_id = res.get('arbetssokande').get('sokandeId')
         res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
-
         if res.get('processStatus').get('skyddadePersonUppgifter'):
             res_partner_obj.unlink()
             return
@@ -165,6 +164,6 @@ class ResPartner(models.Model):
                 given_address_object.unlink()
         
        
-        if (create_links):
-            res_partner_obj.sync_link()
+        # if (create_links):
+        #     res_partner_obj.sync_link()
 
