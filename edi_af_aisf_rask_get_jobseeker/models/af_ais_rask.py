@@ -26,12 +26,6 @@ class ResPartner(models.Model):
                 res_partner_obj.unlink()
                 return
 
-            if not res_partner_obj:
-                # New jobseeker
-                create_links = True
-            else:
-                create_links = False
-
             res_countr_state_obj = self.env['res.country.state'].search(
                 [('code', '=', res.get('kontaktuppgifter').get('hemkommunKod'))])
             office_obj = self.env['hr.department'].search([('office_code', '=', res.get('kontor').get('kontorsKod'))])
@@ -160,6 +154,5 @@ class ResPartner(models.Model):
                     given_address_object.unlink()
         
        
-        # if (create_links):
-        #     res_partner_obj.sync_link()
+     
 
