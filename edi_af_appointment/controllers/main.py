@@ -117,7 +117,7 @@ class AppointmentController(http.Controller):
             res = {
                 "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "appointment_length": int(app.duration),
+                "appointment_length": int(app.duration * 60),
                 "appointment_title": app.name or '',
                 "appointment_type": app.type_id.ipf_num,
                 "appointment_channel": app.channel.name or '',
@@ -126,10 +126,11 @@ class AppointmentController(http.Controller):
                 "employee_name": app.user_id.name or '',
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
-                "id": app.id,
-                "office_address": app.office_id.contact_address or '',
-                "office_email": app.office_id.email or '',
-                "location_code": app.operation_id or '',
+                "id": bookable_occasion_id,
+                "appointment_id": app.id,
+                "office_address": app.office_id.partner_id.contact_address or '',
+                "office_email": app.office_id.partner_id.email or '',
+                "location_code": app.operation_id.location_code or '',
                 "office_code": app.office_id.office_code or '',
                 "office_name": app.office_id.display_name or '',
                 "status": app.state,
@@ -145,7 +146,6 @@ class AppointmentController(http.Controller):
         # { "desired_time": "2019-09-30T11:00:00Z", "location_code": "71928", "appointment_length": 30, "appointment_type": 21 }
 
         desired_time = datetime.strptime(message.get('desired_time'), "%Y-%m-%dT%H:%M:%SZ")
-        # location_code needs to be taken into consideration
         location_code = message.get('location_code')
         appointment_length = int(message.get('appointment_length'))
         appointment_type = message.get('appointment_type')
@@ -154,26 +154,42 @@ class AppointmentController(http.Controller):
         if not desired_time:
             return Response("Bad request: No desired_time", status=400)
 
-        office = False
-        occasions = request.env['calendar.occasion'].sudo().get_bookable_occasions(desired_time, desired_time + timedelta(appointment_length), appointment_length, type_id, office, 1)
+        if location_code:
+            operation = request.env['hr.operation'].sudo().search([('location_code', '=', location_code)], limit=1)
+            if not operation:
+                return Response("Location not found", status=404)
+        else:
+            operation = False
 
-        _logger.warn("occasions: %s" % occasions)
-        found = False
-        for book_occasion in occasions:
-            if book_occasion and book_occasion[0]:
-                found = True
-                _logger.warn("book_occasion: %s" % book_occasion)
-                app = request.env['calendar.occasion'].sudo().reserve_occasion(book_occasion[0])
-                break
+        # find exact match for desired occasions
+        occasions = request.env['calendar.occasion'].sudo()
+        no_occasions = int(appointment_length / BASE_DURATION)
+        for i in range(no_occasions):
+            domain = [
+                ("start", "=", desired_time + timedelta(minutes=BASE_DURATION) * i),
+                ("type_id", "=", type_id.id),
+                ("appointment_id", "=", False),
+            ]
+            if operation:
+                domain += [
+                    ("operation_id", "=", operation.id), 
+                    ('state', '=', 'ok')
+                ]
+            occasions |= request.env['calendar.occasion'].sudo().search(domain, limit=1)
 
-        if not found:
-            return Response("Bad request: Invalid id", status=400)
+        # reserve occasions if we found them
+        if len(occasions) == no_occasions:
+            app = request.env['calendar.occasion'].sudo().reserve_occasion(occasions)
+            bookable_occasion_id = self.encode_bookable_occasion_id(occasions)
+        else:
+            app = False    
+            bookable_occasion_id = False  
 
         if app:
             res = {
                 "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "appointment_length": int(app.duration),
+                "appointment_length": int(app.duration * 60),
                 "appointment_title": app.name or '',
                 "appointment_type": app.type_id.ipf_num,
                 "appointment_channel": app.channel.name or '',
@@ -182,10 +198,11 @@ class AppointmentController(http.Controller):
                 "employee_name": app.user_id.name or '',
                 "employee_phone": app.user_id.phone or '',
                 "employee_signature": app.user_id.name or '',
-                "id": app.id,
+                "id": bookable_occasion_id,
+                "appointment_id": app.id,
                 "office_address": app.office_id.partner_id.contact_address or '',
                 "office_email": app.office_id.partner_id.email or '',
-                "location_code": app.operation_id or '',
+                "location_code": app.operation_id.location_code or '',
                 "office_code": app.office_id.office_code or '',
                 "office_name": app.office_id.display_name or '',
                 "status": app.state,
@@ -267,7 +284,7 @@ class AppointmentController(http.Controller):
             app_dict = {
                 "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "appointment_length": int(app.duration),
+                "appointment_length": int(app.duration * 60),
                 "appointment_title": app.name or '',
                 "appointment_type": app.type_id.ipf_num,
                 "appointment_channel": app.channel.name or '',
@@ -279,7 +296,7 @@ class AppointmentController(http.Controller):
                 "id": app.id,
                 "office_address": app.office_id.partner_id.contact_address or '',
                 "office_email": app.office_id.partner_id.email or '',
-                "location_code": app.operation_id or '',
+                "location_code": app.operation_id.location_code or '',
                 "office_code": app.office_id.office_code or '',
                 "office_name": app.office_id.display_name or '',
                 "status": app.state,
@@ -295,16 +312,17 @@ class AppointmentController(http.Controller):
         message = json.loads(request.httprequest.data)
         
         partner = False
+        
+        # hardcoding...
+        sunie = request.env['res.users'].sudo().search([('login', '=', 'sunie')], limit=1)
+        sunie_office = request.env['hr.department'].sudo().search([('office_code', '=', '0248')], limit=1)
+        
         bookable_occasion_id = message.get('bookable_occasion_id') 
         customer_nr = message.get('customer_nr') 
         pnr = message.get('pnr') 
 
         if (not customer_nr and not pnr):
-            return Response("No customer nr. or pnr.", status=400)
-        
-        if not bookable_occasion_id:
-            return Response("No bookable_occasion_id.", status=400)
-
+            return Response("No customer nr. or pnr.", status=400)        
         if pnr:
             partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
             if not partner:
@@ -319,56 +337,64 @@ class AppointmentController(http.Controller):
         if not partner:
             return Response("Partner not found", status=404)
 
+        if not bookable_occasion_id:
+            return Response("No bookable_occasion_id.", status=400)
+
         occasions = self.decode_bookable_occasion_id(bookable_occasion_id)
         if not occasions:
             return Response("Bookable occasion id not found", status=404)
+        if occasions[0].appointment_id and occasions[0].appointment_id.state == 'reserved':
+            app = occasions[0].appointment_id
+            # app.user_id = sunie.id # SUNIE
+            # app.operation_id = sunie_location.id # 0248
+            app.partner_id = partner.id
+            app._confirm_appointment()
+        else:
+            # check that occasions are free and unreserved
+            free = True
+            for occasion_id in occasions:
+                if (occasion_id.appointment_id and occasion_id.appointment_id.state != 'reserved') or (occasion_id.appointment_id and occasion_id.appointment_id.state == 'reserved' and occasion_id.appointment_id.reserved > datetime.now() - timedelta(seconds=RESERVED_TIMEOUT)):
+                    free = False
 
-        # check that occasions are free and unreserved
-        free = True
-        for occasion_id in occasions:
-            if (occasion_id.appointment_id and occasion_id.appointment_id.state != 'reserved') or (occasion_id.appointment_id and occasion_id.appointment_id.state == 'reserved' and occasion_id.appointment_id.reserved > datetime.now() - timedelta(seconds=RESERVED_TIMEOUT)):
-                free = False
+            if not free:
+                return Response("Bookable occasion id not free", status=403)
 
-        if not free:
-            return Response("Bookable occasion id not free", status=403)
+            vals = {
+                'start' : occasions[0].start,
+                'stop' : occasions[-1].stop,
+                'duration' : len(occasions) * BASE_DURATION / 60,
+                # 'user_id' : sunie.id, # SUNIE
+                # 'operation_id' : sunie_location.id, # 0248
+                'partner_id' : partner.id, 
+                'state' : 'confirmed',
+                'type_id' : occasions[0].type_id.id,
+                'channel' : occasions[0].type_id.channel.id,
+                'occasion_ids' : [(6,0, list(occasions.mapped('id')))],
+                'name' : occasions[0].type_id.name,
+            }
+            app = request.env['calendar.appointment'].sudo().create(vals)
 
-        sunie = request.env['res.users'].sudo().search([('login', '=', 'sunie')])
-
-        vals = {
-            'start' : occasions[0].start,
-            'stop' : occasions[-1].stop,
-            'duration' : len(occasions) * BASE_DURATION,
-            'user_id' : sunie.id, # SUNIE
-            'office_id' : sunie.office_id.id, 
-            # 'office_code' : sunie.office_id.office_code, # 0248
-            'partner_id' : partner.id, 
-            'state' : 'confirmed',
-            'type_id' : occasions[0].type_id.id,
-            'channel' : occasions[0].type_id.channel.id,
-            'occasion_ids' : [(6,0, list(occasions.mapped('id')))],
-            'name' : occasions[0].type_id.name,
-        }
-
-        app = request.env['calendar.appointment'].sudo().create(vals)
+        if not app:
+            return Response("Bad request", status=400)
 
         res = {
             "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "appointment_length": int(app.duration),
+            "appointment_length": int(app.duration * 60),
             "appointment_title": app.name or '',
             "appointment_type": app.type_id.ipf_num,
             "appointment_channel": app.type_id.channel.name or '',
-            "customer_nr": partner.customer_id or '',
-            "customer_name": partner.display_name or '',
+            "customer_nr": app.partner_id.customer_id or '',
+            "customer_name": app.partner_id.display_name or '',
             "employee_name": sunie.partner_id.name or '',
             "employee_phone": sunie.partner_id.phone or '',
             "employee_signature": sunie.login or '',
             "id": app.id,
-            "office_address": sunie.office_id.partner_id.contact_address or '',
-            "office_email": sunie.office_id.partner_id.email or '',
-            "location_code": app.operation_id or '',
-            "office_code": sunie.office_id.office_code or '',
-            "office_name": sunie.office_id.display_name or '',
+            "office_address": sunie_office.partner_id.contact_address or '',
+            "office_email": sunie_office.partner_id.email or '',
+            "location_code": app.operation_id.location_code or '',
+            "office_code": sunie_office.office_code or '',
+            "office_name": sunie_office.display_name or '',
             "status": app.state,
         }
 
@@ -384,7 +410,7 @@ class AppointmentController(http.Controller):
                 res = {
                     "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                    "appointment_length": int(app.duration),
+                    "appointment_length": int(app.duration * 60),
                     "appointment_title": app.name or '',
                     "appointment_type": app.type_id.ipf_num,
                     "appointment_channel": app.type_id.channel.name or '',
@@ -396,7 +422,7 @@ class AppointmentController(http.Controller):
                     "id": app.id or '',
                     "office_address": app.office_id.partner_id.contact_address or '',
                     "office_email": app.office_id.partner_id.email or '',
-                    "location_code": app.operation_id or '',
+                    "location_code": app.operation_id.location_code or '',
                     "office_code": app.office_id.office_code or '',
                     "office_name": app.office_id.display_name or '',
                     "status": app.state,
@@ -419,8 +445,8 @@ class AppointmentController(http.Controller):
         if appointment_id and appointment_id > 0:
             appointment = request.env['calendar.appointment'].sudo().search([('id', '=', appointment_id)])
             if appointment:
-                # appointment.sudo().unlink()
-                appointment.sudo().cancel(request.env.ref('calendar_cancel_reason.integration'))
+                appointment.sudo().unlink()
+                # appointment.sudo().cancel(request.env.ref('calendar_cancel_reason.authority'))
                 return Response("OK, deleted", status=200)
             else:
                 return Response("ID not found", status=404)
@@ -465,7 +491,7 @@ class AppointmentController(http.Controller):
                 vals = {
                     'start' : occasions[0].start,
                     'stop' : occasions[-1].stop,
-                    'duration' : len(occasions) * BASE_DURATION,
+                    'duration' : len(occasions) * BASE_DURATION / 60,
                     'occasion_ids' : [(6,0, list(occasions.mapped('id')))],
                     'name' : occasions[0].type_id.name,
                 }
@@ -475,7 +501,7 @@ class AppointmentController(http.Controller):
                 res = {
                     "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                    "appointment_length": int(app.duration),
+                    "appointment_length": int(app.duration * 60),
                     "appointment_title": app.name or '',
                     "appointment_type": app.type_id.ipf_num,
                     "appointment_channel": app.type_id.channel.name or '',
@@ -487,7 +513,7 @@ class AppointmentController(http.Controller):
                     "id": app.id,
                     "office_address": app.office_id.partner_id.contact_address or '',
                     "office_email": app.office_id.partner_id.email or '',
-                    "location_code": app.operation_id or '',
+                    "location_code": app.operation_id.location_code or '',
                     "office_code": app.office_id.office_code or '',
                     "office_name": app.office_id.display_name or '',
                     "status": app.state,
