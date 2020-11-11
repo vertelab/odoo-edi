@@ -56,7 +56,7 @@ class edi_message(models.Model):
             path = "ais-bos-regelverk/api/Krom/ArPostnummerGiltigForKrom"
             self.body = self.edi_type.type_mapping.format(
                 path=path,   #boolean
-                postnummer = obj.zip,   # test '72130'          
+                postnummer = obj.zip.replace(" ", ""),   # test '72130'          
             ) 
             envelope = self.env['edi.envelope'].create({
                 'name': 'KROM postcode request',

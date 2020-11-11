@@ -28,11 +28,7 @@
         Returns a boolean for postnummer from IPF AIS BOS Regelverk API.
         """,
     'licence': 'AGPL-3',
-    'description': """
-Jira
-===========================================
-AFC-621 - Integration Rusta-och-Matcha (V12.0.1.0.0)
-""",
+    'description': """ """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['partner_view_360', 'edi_route_ipf'],
