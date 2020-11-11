@@ -84,7 +84,7 @@ class ipf_rest(_ipf):
             'AF-Environment': af_environment,
             'AF-SystemId': af_system_id,
             'AF-TrackingId': af_tracking_id,
-            'AF-EndUserId': 'AFCRM',
+            'AF-EndUserId': '*sys*',
         }
         return get_headers
 
