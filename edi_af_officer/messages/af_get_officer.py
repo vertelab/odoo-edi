@@ -64,7 +64,7 @@ class edi_message(models.Model):
                     #             {
                     #                 'firstname': 'placeholder',
                     #                 'lastname': 'manager',
-                    #                 'user_id': self.env['res.users'].create(
+                    #                 'user_id': self.env['res.users'].with_context(no_reset_password=True).create(
                     #                     {
                     #                         'firstname': 'placeholder manager',
                     #                         'lastname': officer.get('managerSignature'), 
@@ -86,6 +86,7 @@ class edi_message(models.Model):
                     'employee': True,
                     'saml_uid': officer.get('userName'),
                     'action_id': self.env.ref("hr_360_view.search_jobseeker_wizard").id,
+                    'groups_id': [(6, 0, [self.env.ref('base.group_user').id])],
                     'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth'),
                     }
                     user = self.env['res.users'].search([('login','=',vals['login'])])
@@ -103,7 +104,7 @@ class edi_message(models.Model):
                         for employee in user.employee_ids:
                             employee.write(employee_vals)
                     else:
-                        user = self.env['res.users'].create(vals)
+                        user = self.env['res.users'].with_context(no_reset_password=True).create(vals)
                         employee_vals['user_id'] = user.id
                         self.env['hr.employee'].create(employee_vals)
                         external_xmlid = '__x500_import__.user_%s' % vals.get('login')
