@@ -35,20 +35,20 @@ class edi_message(models.Model):
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             body = json.loads(self.body)
-            customer_id = body.get('arbetssokande').get('sokandeId')
-            res_partner_obj = self.env['body.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
-            if body.get('processStatus').get('skyddadePersonUppgifter'):
+            customer_id = body.get('arbetssokande',{}).get('sokandeId')
+            res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
+            if body.get('processStatus',{}).get('skyddadePersonUppgifter'):
                 res_partner_obj.unlink()
                 return
 
-            res_countr_state_obj = self.env['body.country.state'].search(
-                [('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))])
-            office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
-            sun_obj = self.env['body.sun'].search([('code', '=', body.get('utbildning').get('sunKod'))])
+            res_countr_state_obj = self.env['res.country.state'].search(
+                [('code', '=', body.get('kontaktuppgifter',{}).get('hemkommunKod'))]) 
+            office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor',{}).get('kontorsKod'))]) 
+            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning',{}).get('sunKod'))]) 
             if not sun_obj:
-                sun_obj = self.env['body.sun'].search([('code', '=', '999')])
+                sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
-            segmenteringsval = body.get('segmentering').get('segmenteringsval')
+            segmenteringsval = body.get('segmentering',{}).get('segmenteringsval') 
             if segmenteringsval == "LOKAL":
                 registered_through = "local office"
             elif segmenteringsval == "SJALVSERVICE":
@@ -57,24 +57,25 @@ class edi_message(models.Model):
                 registered_through = "pdm"
             else:
                 registered_through = False
-
-            skat_obj = self.env['body.partner.skat'].search([('code', '=', body.get('kontakt').get('sokandekategoriKod'))])
+            
+            skat_obj = self.env['res.partner.skat'].search([('code', '=', body.get('kontakt',{}).get('sokandekategoriKod'))]) 
             if skat_obj:
-                skat_obj_id = skat_obj.id
+                skat_obj = skat_obj.id
+            
 
-            education_level_obj =  self.env['body.partner.education_level'].search([('name', '=', body.get('utbildning').get('utbildningsniva'))])
+            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning',{}).get('utbildningsniva'))]) 
             if education_level_obj:
-                education_level_obj_id = education_level_obj.id
+                education_level_obj = education_level_obj.id
 
-            users_obj = self.env['body.users'].search([('login', '=', body.get('kontor').get('ansvarigHandlaggareSignatur'))])
+            users_obj = self.env['res.users'].search([('login', '=', body.get('kontor',{}).get('ansvarigHandlaggareSignatur'))]) 
             if users_obj:
-                users_obj_id = users_obj.id
+                users_obj = users_obj.id
 
-            last_contact_type_string = body.get('kontakt').get('senasteKontakttyp')
+            last_contact_type_string = body.get('kontakt',{}).get('senasteKontakttyp') 
             if last_contact_type_string:
                 last_contact_type = last_contact_type_string[0]
 
-            nasta_kontakttyper_list = body.get('kontakt').get('nastaKontakttyper')
+            nasta_kontakttyper_list = body.get('kontakt',{}).get('nastaKontakttyper') 
             next_contact_type = False
             if len(nasta_kontakttyper_list) > 0:
                 next_contact_type = nasta_kontakttyper_list[0]
@@ -83,29 +84,29 @@ class edi_message(models.Model):
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
 
             jobseeker_dict = {
-                'firstname': body.get('arbetssokande').get('fornamn'),
-                'lastname': body.get('arbetssokande').get('efternamn'),
+                'firstname': body.get('arbetssokande',{}).get('fornamn'),
+                'lastname': body.get('arbetssokande',{}).get('efternamn'),
                 'customer_id': customer_id, 
-                'company_registry': body.get('arbetssokande').get('personnummer'),
-                'customer_since': body.get('processStatus').get('aktuellSedanDatum'),
-                'share_info_with_employers': body.get('medgivande').get('infoTillArbetsgivare'),
-                'phone': body.get('kontaktuppgifter').get('telefonBostad'),
-                'work_phone': body.get('kontaktuppgifter').get('telefonArbetet'),
-                'mobile': body.get('kontaktuppgifter').get('telefonMobil'),
-                'jobseeker_category_id': skat_obj_id,
-                'deactualization_date': body.get('processStatus').get('avaktualiseringsDatum'),
-                'deactualization_reason': body.get('processStatus').get('avaktualiseringsOrsaksKod'),
-                'email': body.get('kontaktuppgifter').get('epost'),
+                'company_registry': body.get('arbetssokande',{}).get('personnummer'),
+                'customer_since': body.get('processStatus',{}).get('aktuellSedanDatum'),
+                'share_info_with_employers': body.get('medgivande',{}).get('infoTillArbetsgivare'),
+                'phone': body.get('kontaktuppgifter',{}).get('telefonBostad'),
+                'work_phone': body.get('kontaktuppgifter',{}).get('telefonArbetet'),
+                'mobile': body.get('kontaktuppgifter',{}).get('telefonMobil'),
+                'jobseeker_category_id': skat_obj,
+                'deactualization_date': body.get('processStatus',{}).get('avaktualiseringsDatum'),
+                'deactualization_reason': body.get('processStatus',{}).get('avaktualiseringsOrsaksKod'),
+                'email': body.get('kontaktuppgifter',{}).get('epost'),
                 'office_id': office_obj.id,
                 'state_id': res_countr_state_obj.id,
-                'education_level': education_level_obj_id,
+                'education_level': education_level_obj,
                 'registered_through': registered_through,
-                'user_id': users_obj_id,
-                'sms_reminders': body.get('medgivande').get('paminnelseViaSms'),
-                'next_contact': body.get('kontakt').get('nastaKontaktdatum'),
-                'next_contact_time': body.get('kontakt').get('nastaKontaktTid'),
+                'user_id': users_obj,
+                'sms_reminders': body.get('medgivande',{}).get('paminnelseViaSms'),
+                'next_contact': body.get('kontakt',{}).get('nastaKontaktdatum'),
+                'next_contact_time': body.get('kontakt',{}).get('nastaKontaktTid'),
                 'next_contact_type': next_contact_type,
-                'last_contact': body.get('kontakt').get('senasteKontaktdatum'),
+                'last_contact': body.get('kontakt',{}).get('senasteKontaktdatum'),
                 'last_contact_type': last_contact_type,
             }
             if sun_obj:
@@ -113,10 +114,10 @@ class edi_message(models.Model):
             if res_partner_obj:
                 res_partner_obj.write(jobseeker_dict)
             else:
-                res_partner_obj = self.env['body.partner'].create(jobseeker_dict)
+                res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
 
             own_or_foreign_address_given = False
-            for address in body.get('kontaktuppgifter').get('adresser'):
+            for address in body.get('kontaktuppgifter',{}).get('adresser'):
                 streetaddress = address.get('gatuadress')
                 if streetaddress: 
                     streetadress_array = streetaddress.split(",")
@@ -129,22 +130,22 @@ class edi_message(models.Model):
                     zip = address.get('postnummer')
                     city = address.get('postort')
                     country_name = address.get('landsadress')
-                    country_obj_id = False
+                    country_obj = False
                     if country_name:
-                        country_obj = self.env['body.country'].with_context(lang='sv_SE').search(
+                        country_obj = self.env['res.country'].with_context(lang='sv_SE').search(
                             [('name', '=', country_name)])
                         if country_obj:
-                            country_obj_id = country_obj.id
+                            country_obj = country_obj.id
 
                     if address.get('adressTyp') == 'FBF':
                         res_partner_obj.street = street
                         res_partner_obj.street2 = street2
                         res_partner_obj.zip = zip
                         res_partner_obj.city = city
-                        res_partner_obj.country_id = country_obj_id
+                        res_partner_obj.country_id = country_obj
                     elif address.get('adressTyp') == 'EGEN' or address.get('adressTyp') == 'UTL':
                         own_or_foreign_address_given = True
-                        given_address_object = self.env['body.partner'].search([('parent_id', '=', res_partner_obj.id)])
+                        given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                         if not given_address_object:
                             given_address_dict = {
                                 'parent_id': res_partner_obj.id,
@@ -153,18 +154,18 @@ class edi_message(models.Model):
                                 'zip': zip,
                                 'city': city,
                                 'type': 'given address',
-                                'country_id': country_obj_id,
+                                'country_id': country_obj,
                             }
-                            self.env['body.partner'].create(given_address_dict)
+                            self.env['res.partner'].create(given_address_dict)
                         else:
                             given_address_object.street = street
                             given_address_object.street2 = street2
                             given_address_object.zip = zip
                             given_address_object.city = city
-                            given_address_object.country_id = country_obj_id
+                            given_address_object.country_id = country_obj
 
             if not own_or_foreign_address_given:
-                given_address_object = self.env['body.partner'].search([('parent_id', '=', res_partner_obj.id)])
+                given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                 if given_address_object:
                     given_address_object.unlink()
 
