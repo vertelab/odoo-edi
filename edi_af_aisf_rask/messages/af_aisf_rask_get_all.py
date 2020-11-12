@@ -42,13 +42,13 @@ class edi_message(models.Model):
                 return
 
             res_countr_state_obj = self.env['res.country.state'].search(
-                [('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))])
-            office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
-            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning').get('sunKod'))])
+                [('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))]) if body.get('kontaktuppgifter') else False
+            office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))]) if body.get('kontor') else False
+            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning').get('sunKod'))]) if body.get('utbildning') else False
             if not sun_obj:
                 sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
-            segmenteringsval = body.get('segmentering').get('segmenteringsval')
+            segmenteringsval = body.get('segmentering').get('segmenteringsval') if body.get('segmentering') else False
             if segmenteringsval == "LOKAL":
                 registered_through = "local office"
             elif segmenteringsval == "SJALVSERVICE":
@@ -57,24 +57,25 @@ class edi_message(models.Model):
                 registered_through = "pdm"
             else:
                 registered_through = False
+            if body.get('kontakt'):
+                skat_obj = self.env['res.partner.skat'].search([('code', '=', body.get('kontakt').get('sokandekategoriKod'))]) if body.get('kontakt') else False
+                if skat_obj:
+                    skat_obj = skat_obj.id
+            
 
-            skat_obj = self.env['res.partner.skat'].search([('code', '=', body.get('kontakt').get('sokandekategoriKod'))])
-            if skat_obj:
-                skat_obj = skat_obj.id
-
-            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning').get('utbildningsniva'))])
+            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning').get('utbildningsniva'))]) if body.get('utbildning') else False
             if education_level_obj:
                 education_level_obj = education_level_obj.id
 
-            users_obj = self.env['res.users'].search([('login', '=', body.get('kontor').get('ansvarigHandlaggareSignatur'))])
+            users_obj = self.env['res.users'].search([('login', '=', body.get('kontor').get('ansvarigHandlaggareSignatur'))]) if body.get('kontor') else False
             if users_obj:
                 users_obj = users_obj.id
 
-            last_contact_type_string = body.get('kontakt').get('senasteKontakttyp')
+            last_contact_type_string = body.get('kontakt').get('senasteKontakttyp') if body.get('kontakt') else False
             if last_contact_type_string:
                 last_contact_type = last_contact_type_string[0]
 
-            nasta_kontakttyper_list = body.get('kontakt').get('nastaKontakttyper')
+            nasta_kontakttyper_list = body.get('kontakt').get('nastaKontakttyper') if body.get('kontakt') else False
             next_contact_type = False
             if len(nasta_kontakttyper_list) > 0:
                 next_contact_type = nasta_kontakttyper_list[0]
