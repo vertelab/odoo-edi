@@ -35,20 +35,20 @@ class edi_message(models.Model):
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             body = json.loads(self.body)
-            customer_id = body.get('arbetssokande').get('sokandeId')
+            customer_id = body.get('arbetssokande',{}).get('sokandeId')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
-            if body.get('processStatus').get('skyddadePersonUppgifter'):
+            if body.get('processStatus',{}).get('skyddadePersonUppgifter'):
                 res_partner_obj.unlink()
                 return
 
             res_countr_state_obj = self.env['res.country.state'].search(
-                [('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))]) if body.get('kontaktuppgifter') else False
-            office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))]) if body.get('kontor') else False
-            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning').get('sunKod'))]) if body.get('utbildning') else False
+                [('code', '=', body.get('kontaktuppgifter',{}).get('hemkommunKod'))]) 
+            office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor',{}).get('kontorsKod'))]) 
+            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning',{}).get('sunKod'))]) 
             if not sun_obj:
                 sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
-            segmenteringsval = body.get('segmentering').get('segmenteringsval') if body.get('segmentering') else False
+            segmenteringsval = body.get('segmentering',{}).get('segmenteringsval') 
             if segmenteringsval == "LOKAL":
                 registered_through = "local office"
             elif segmenteringsval == "SJALVSERVICE":
@@ -57,25 +57,25 @@ class edi_message(models.Model):
                 registered_through = "pdm"
             else:
                 registered_through = False
-            if body.get('kontakt'):
-                skat_obj = self.env['res.partner.skat'].search([('code', '=', body.get('kontakt').get('sokandekategoriKod'))]) if body.get('kontakt') else False
-                if skat_obj:
-                    skat_obj = skat_obj.id
+            
+            skat_obj = self.env['res.partner.skat'].search([('code', '=', body.get('kontakt',{}).get('sokandekategoriKod'))]) 
+            if skat_obj:
+                skat_obj = skat_obj.id
             
 
-            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning').get('utbildningsniva'))]) if body.get('utbildning') else False
+            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning',{}).get('utbildningsniva'))]) 
             if education_level_obj:
                 education_level_obj = education_level_obj.id
 
-            users_obj = self.env['res.users'].search([('login', '=', body.get('kontor').get('ansvarigHandlaggareSignatur'))]) if body.get('kontor') else False
+            users_obj = self.env['res.users'].search([('login', '=', body.get('kontor',{}).get('ansvarigHandlaggareSignatur'))]) 
             if users_obj:
                 users_obj = users_obj.id
 
-            last_contact_type_string = body.get('kontakt').get('senasteKontakttyp') if body.get('kontakt') else False
+            last_contact_type_string = body.get('kontakt',{}).get('senasteKontakttyp') 
             if last_contact_type_string:
                 last_contact_type = last_contact_type_string[0]
 
-            nasta_kontakttyper_list = body.get('kontakt').get('nastaKontakttyper') if body.get('kontakt') else False
+            nasta_kontakttyper_list = body.get('kontakt',{}).get('nastaKontakttyper') 
             next_contact_type = False
             if len(nasta_kontakttyper_list) > 0:
                 next_contact_type = nasta_kontakttyper_list[0]
@@ -84,29 +84,29 @@ class edi_message(models.Model):
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
 
             jobseeker_dict = {
-                'firstname': body.get('arbetssokande').get('fornamn'),
-                'lastname': body.get('arbetssokande').get('efternamn'),
+                'firstname': body.get('arbetssokande',{}).get('fornamn'),
+                'lastname': body.get('arbetssokande',{}).get('efternamn'),
                 'customer_id': customer_id, 
-                'company_registry': body.get('arbetssokande').get('personnummer'),
-                'customer_since': body.get('processStatus').get('aktuellSedanDatum'),
-                'share_info_with_employers': body.get('medgivande').get('infoTillArbetsgivare'),
-                'phone': body.get('kontaktuppgifter').get('telefonBostad'),
-                'work_phone': body.get('kontaktuppgifter').get('telefonArbetet'),
-                'mobile': body.get('kontaktuppgifter').get('telefonMobil'),
+                'company_registry': body.get('arbetssokande',{}).get('personnummer'),
+                'customer_since': body.get('processStatus',{}).get('aktuellSedanDatum'),
+                'share_info_with_employers': body.get('medgivande',{}).get('infoTillArbetsgivare'),
+                'phone': body.get('kontaktuppgifter',{}).get('telefonBostad'),
+                'work_phone': body.get('kontaktuppgifter',{}).get('telefonArbetet'),
+                'mobile': body.get('kontaktuppgifter',{}).get('telefonMobil'),
                 'jobseeker_category_id': skat_obj,
-                'deactualization_date': body.get('processStatus').get('avaktualiseringsDatum'),
-                'deactualization_reason': body.get('processStatus').get('avaktualiseringsOrsaksKod'),
-                'email': body.get('kontaktuppgifter').get('epost'),
+                'deactualization_date': body.get('processStatus',{}).get('avaktualiseringsDatum'),
+                'deactualization_reason': body.get('processStatus',{}).get('avaktualiseringsOrsaksKod'),
+                'email': body.get('kontaktuppgifter',{}).get('epost'),
                 'office_id': office_obj.id,
                 'state_id': res_countr_state_obj.id,
                 'education_level': education_level_obj,
                 'registered_through': registered_through,
                 'user_id': users_obj,
-                'sms_reminders': body.get('medgivande').get('paminnelseViaSms'),
-                'next_contact': body.get('kontakt').get('nastaKontaktdatum'),
-                'next_contact_time': body.get('kontakt').get('nastaKontaktTid'),
+                'sms_reminders': body.get('medgivande',{}).get('paminnelseViaSms'),
+                'next_contact': body.get('kontakt',{}).get('nastaKontaktdatum'),
+                'next_contact_time': body.get('kontakt',{}).get('nastaKontaktTid'),
                 'next_contact_type': next_contact_type,
-                'last_contact': body.get('kontakt').get('senasteKontaktdatum'),
+                'last_contact': body.get('kontakt',{}).get('senasteKontaktdatum'),
                 'last_contact_type': last_contact_type,
             }
             if sun_obj:
@@ -117,7 +117,7 @@ class edi_message(models.Model):
                 res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
 
             own_or_foreign_address_given = False
-            for address in body.get('kontaktuppgifter').get('adresser'):
+            for address in body.get('kontaktuppgifter',{}).get('adresser'):
                 streetaddress = address.get('gatuadress')
                 if streetaddress: 
                     streetadress_array = streetaddress.split(",")

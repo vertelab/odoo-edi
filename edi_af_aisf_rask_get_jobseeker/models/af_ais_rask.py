@@ -20,20 +20,20 @@ class ResPartner(models.Model):
     @api.model
     def unpack(self, res):
         if res:
-            customer_id = res.get('arbetssokande').get('sokandeId')
+            customer_id = res.get('arbetssokande',{}).get('sokandeId')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
-            if res.get('processStatus').get('skyddadePersonUppgifter'):
+            if res.get('processStatus',{}).get('skyddadePersonUppgifter'):
                 res_partner_obj.unlink()
                 return
 
             res_countr_state_obj = self.env['res.country.state'].search(
-                [('code', '=', res.get('kontaktuppgifter').get('hemkommunKod'))]) if res.get('kontaktuppgifter') else False
-            office_obj = self.env['hr.department'].search([('office_code', '=', res.get('kontor').get('kontorsKod'))]) if res.get('kontor') else False
-            sun_obj = self.env['res.sun'].search([('code', '=', res.get('utbildning').get('sunKod'))]) if res.get('utbildning') else False
+                [('code', '=', res.get('kontaktuppgifter',{}).get('hemkommunKod'))]) 
+            office_obj = self.env['hr.department'].search([('office_code', '=', res.get('kontor',{}).get('kontorsKod'))]) 
+            sun_obj = self.env['res.sun'].search([('code', '=', res.get('utbildning',{}).get('sunKod'))]) 
             if not sun_obj:
                 sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
-            segmenteringsval = res.get('segmentering').get('segmenteringsval') if res.get('segmentering') else False
+            segmenteringsval = res.get('segmentering',{}).get('segmenteringsval') 
             if segmenteringsval == "LOKAL":
                 registered_through = "local office"
             elif segmenteringsval == "SJALVSERVICE":
@@ -42,25 +42,25 @@ class ResPartner(models.Model):
                 registered_through = "pdm"
             else:
                 registered_through = False
-            if res.get('kontakt'):
-                skat_obj = self.env['res.partner.skat'].search([('code', '=', res.get('kontakt').get('sokandekategoriKod'))]) if res.get('kontakt') else False
-                if skat_obj:
-                    skat_obj = skat_obj.id
+            
+            skat_obj = self.env['res.partner.skat'].search([('code', '=', res.get('kontakt',{}).get('sokandekategoriKod'))]) 
+            if skat_obj:
+                skat_obj = skat_obj.id
             
 
-            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', res.get('utbildning').get('utbildningsniva'))]) if res.get('utbildning') else False
+            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', res.get('utbildning',{}).get('utbildningsniva'))]) 
             if education_level_obj:
                 education_level_obj = education_level_obj.id
 
-            users_obj = self.env['res.users'].search([('login', '=', res.get('kontor').get('ansvarigHandlaggareSignatur'))]) if res.get('kontor') else False
+            users_obj = self.env['res.users'].search([('login', '=', res.get('kontor',{}).get('ansvarigHandlaggareSignatur'))]) 
             if users_obj:
                 users_obj = users_obj.id
 
-            last_contact_type_string = res.get('kontakt').get('senasteKontakttyp') if res.get('kontakt') else False
+            last_contact_type_string = res.get('kontakt',{}).get('senasteKontakttyp') 
             if last_contact_type_string:
                 last_contact_type = last_contact_type_string[0]
 
-            nasta_kontakttyper_list = res.get('kontakt').get('nastaKontakttyper') if res.get('kontakt') else False
+            nasta_kontakttyper_list = res.get('kontakt',{}).get('nastaKontakttyper') 
             next_contact_type = False
             if len(nasta_kontakttyper_list) > 0:
                 next_contact_type = nasta_kontakttyper_list[0]
@@ -69,29 +69,29 @@ class ResPartner(models.Model):
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
 
             jobseeker_dict = {
-                'firstname': res.get('arbetssokande').get('fornamn'),
-                'lastname': res.get('arbetssokande').get('efternamn'),
+                'firstname': res.get('arbetssokande',{}).get('fornamn'),
+                'lastname': res.get('arbetssokande',{}).get('efternamn'),
                 'customer_id': customer_id, 
-                'company_registry': res.get('arbetssokande').get('personnummer'),
-                'customer_since': res.get('processStatus').get('aktuellSedanDatum'),
-                'share_info_with_employers': res.get('medgivande').get('infoTillArbetsgivare'),
-                'phone': res.get('kontaktuppgifter').get('telefonBostad'),
-                'work_phone': res.get('kontaktuppgifter').get('telefonArbetet'),
-                'mobile': res.get('kontaktuppgifter').get('telefonMobil'),
+                'company_registry': res.get('arbetssokande',{}).get('personnummer'),
+                'customer_since': res.get('processStatus',{}).get('aktuellSedanDatum'),
+                'share_info_with_employers': res.get('medgivande',{}).get('infoTillArbetsgivare'),
+                'phone': res.get('kontaktuppgifter',{}).get('telefonBostad'),
+                'work_phone': res.get('kontaktuppgifter',{}).get('telefonArbetet'),
+                'mobile': res.get('kontaktuppgifter',{}).get('telefonMobil'),
                 'jobseeker_category_id': skat_obj,
-                'deactualization_date': res.get('processStatus').get('avaktualiseringsDatum'),
-                'deactualization_reason': res.get('processStatus').get('avaktualiseringsOrsaksKod'),
-                'email': res.get('kontaktuppgifter').get('epost'),
+                'deactualization_date': res.get('processStatus',{}).get('avaktualiseringsDatum'),
+                'deactualization_reason': res.get('processStatus',{}).get('avaktualiseringsOrsaksKod'),
+                'email': res.get('kontaktuppgifter',{}).get('epost'),
                 'office_id': office_obj.id,
                 'state_id': res_countr_state_obj.id,
                 'education_level': education_level_obj,
                 'registered_through': registered_through,
                 'user_id': users_obj,
-                'sms_reminders': res.get('medgivande').get('paminnelseViaSms'),
-                'next_contact': res.get('kontakt').get('nastaKontaktdatum'),
-                'next_contact_time': res.get('kontakt').get('nastaKontaktTid'),
+                'sms_reminders': res.get('medgivande',{}).get('paminnelseViaSms'),
+                'next_contact': res.get('kontakt',{}).get('nastaKontaktdatum'),
+                'next_contact_time': res.get('kontakt',{}).get('nastaKontaktTid'),
                 'next_contact_type': next_contact_type,
-                'last_contact': res.get('kontakt').get('senasteKontaktdatum'),
+                'last_contact': res.get('kontakt',{}).get('senasteKontaktdatum'),
                 'last_contact_type': last_contact_type,
             }
             if sun_obj:
@@ -102,7 +102,7 @@ class ResPartner(models.Model):
                 res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
 
             own_or_foreign_address_given = False
-            for address in res.get('kontaktuppgifter').get('adresser'):
+            for address in res.get('kontaktuppgifter',{}).get('adresser'):
                 streetaddress = address.get('gatuadress')
                 if streetaddress: 
                     streetadress_array = streetaddress.split(",")
