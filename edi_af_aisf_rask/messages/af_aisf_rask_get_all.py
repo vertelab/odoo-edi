@@ -36,17 +36,17 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             body = json.loads(self.body)
             customer_id = body.get('arbetssokande').get('sokandeId')
-            res_partner_obj = self.env['body.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
+            res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
             if body.get('processStatus').get('skyddadePersonUppgifter'):
                 res_partner_obj.unlink()
                 return
 
-            res_countr_state_obj = self.env['body.country.state'].search(
+            res_countr_state_obj = self.env['res.country.state'].search(
                 [('code', '=', body.get('kontaktuppgifter').get('hemkommunKod'))])
             office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor').get('kontorsKod'))])
-            sun_obj = self.env['body.sun'].search([('code', '=', body.get('utbildning').get('sunKod'))])
+            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning').get('sunKod'))])
             if not sun_obj:
-                sun_obj = self.env['body.sun'].search([('code', '=', '999')])
+                sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
             segmenteringsval = body.get('segmentering').get('segmenteringsval')
             if segmenteringsval == "LOKAL":
@@ -58,15 +58,15 @@ class edi_message(models.Model):
             else:
                 registered_through = False
 
-            skat_obj = self.env['body.partner.skat'].search([('code', '=', body.get('kontakt').get('sokandekategoriKod'))])
+            skat_obj = self.env['res.partner.skat'].search([('code', '=', body.get('kontakt').get('sokandekategoriKod'))])
             if skat_obj:
                 skat_obj = skat_obj.id
 
-            education_level_obj =  self.env['body.partner.education_level'].search([('name', '=', body.get('utbildning').get('utbildningsniva'))])
+            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning').get('utbildningsniva'))])
             if education_level_obj:
                 education_level_obj = education_level_obj.id
 
-            users_obj = self.env['body.users'].search([('login', '=', body.get('kontor').get('ansvarigHandlaggareSignatur'))])
+            users_obj = self.env['res.users'].search([('login', '=', body.get('kontor').get('ansvarigHandlaggareSignatur'))])
             if users_obj:
                 users_obj = users_obj.id
 
@@ -113,7 +113,7 @@ class edi_message(models.Model):
             if res_partner_obj:
                 res_partner_obj.write(jobseeker_dict)
             else:
-                res_partner_obj = self.env['body.partner'].create(jobseeker_dict)
+                res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
 
             own_or_foreign_address_given = False
             for address in body.get('kontaktuppgifter').get('adresser'):
@@ -131,7 +131,7 @@ class edi_message(models.Model):
                     country_name = address.get('landsadress')
                     country_obj = False
                     if country_name:
-                        country_obj = self.env['body.country'].with_context(lang='sv_SE').search(
+                        country_obj = self.env['res.country'].with_context(lang='sv_SE').search(
                             [('name', '=', country_name)])
                         if country_obj:
                             country_obj = country_obj.id
@@ -144,7 +144,7 @@ class edi_message(models.Model):
                         res_partner_obj.country_id = country_obj
                     elif address.get('adressTyp') == 'EGEN' or address.get('adressTyp') == 'UTL':
                         own_or_foreign_address_given = True
-                        given_address_object = self.env['body.partner'].search([('parent_id', '=', res_partner_obj.id)])
+                        given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                         if not given_address_object:
                             given_address_dict = {
                                 'parent_id': res_partner_obj.id,
@@ -155,7 +155,7 @@ class edi_message(models.Model):
                                 'type': 'given address',
                                 'country_id': country_obj,
                             }
-                            self.env['body.partner'].create(given_address_dict)
+                            self.env['res.partner'].create(given_address_dict)
                         else:
                             given_address_object.street = street
                             given_address_object.street2 = street2
@@ -164,7 +164,7 @@ class edi_message(models.Model):
                             given_address_object.country_id = country_obj
 
             if not own_or_foreign_address_given:
-                given_address_object = self.env['body.partner'].search([('parent_id', '=', res_partner_obj.id)])
+                given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                 if given_address_object:
                     given_address_object.unlink()
 
