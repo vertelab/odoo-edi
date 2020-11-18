@@ -376,8 +376,8 @@ class AppointmentController(http.Controller):
 
         if not app:
             return Response("Bad request", status=400)
-
-        if app.type_id.channel == request.env.ref("calendar_channel.channel_local"):
+        
+        if app.type_id.channel == request.env.ref('calendar_channel.channel_local'):
             res = {
                 "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -421,7 +421,7 @@ class AppointmentController(http.Controller):
             }
 
         return res
-
+      
     @http.route('/v1/appointments/appointments/<appointment_id>', type='http', auth="public", methods=['GET'])
     def get_appointment_id(self, appointment_id=False, **kwargs):
         appointment_id = self.is_int(appointment_id)
@@ -430,8 +430,8 @@ class AppointmentController(http.Controller):
             app = request.env['calendar.appointment'].sudo().search([('id', '=', appointment_id)])
             if app:
                 res = {
-                    "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                    "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "appointment_length": int(app.duration * 60),
                     "appointment_title": app.name or '',
                     "appointment_type": app.type_id.ipf_num,
