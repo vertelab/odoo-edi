@@ -376,30 +376,51 @@ class AppointmentController(http.Controller):
 
         if not app:
             return Response("Bad request", status=400)
-
-        res = {
-            "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "appointment_length": int(app.duration * 60),
-            "appointment_title": app.name or '',
-            "appointment_type": app.type_id.ipf_num,
-            "appointment_channel": app.type_id.channel.name or '',
-            "customer_nr": app.partner_id.customer_id or '',
-            "customer_name": app.partner_id.display_name or '',
-            "employee_name": sunie.partner_id.name or '',
-            "employee_phone": sunie.partner_id.phone or '',
-            "employee_signature": sunie.login or '',
-            "id": app.id,
-            "office_address": sunie_office.partner_id.contact_address or '',
-            "office_email": sunie_office.partner_id.email or '',
-            "location_code": app.operation_id.location_code or '',
-            "office_code": sunie_office.office_code or '',
-            "office_name": sunie_office.display_name or '',
-            "status": app.state,
-        }
-
-        return res
-
+        
+        if app.type_id.channel == request.env.ref('calendar_channel.channel_local'):
+            res = {
+                "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_length": int(app.duration * 60),
+                "appointment_title": app.name or '',
+                "appointment_type": app.type_id.ipf_num,
+                "appointment_channel": app.type_id.channel.name or '',
+                "customer_nr": app.partner_id.customer_id or '',
+                "customer_name": app.partner_id.display_name or '',
+                "employee_name": app.user_id.partner_id.name or '',
+                "employee_phone": app.user_id.partner_id.phone or '',
+                "employee_signature": app.user_id.login or '',
+                "id": app.id,
+                "office_address": app.office_id.partner_id.contact_address or '',
+                "office_email": app.office_id.partner_id.email or '',
+                "location_code": app.operation_id.location_code or '',
+                "office_code": app.office_id.office_code or '',
+                "office_name": app.office_id.display_name or '',
+                "status": app.state,
+            }
+        else:
+            res = {
+                "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_length": int(app.duration * 60),
+                "appointment_title": app.name or '',
+                "appointment_type": app.type_id.ipf_num,
+                "appointment_channel": app.type_id.channel.name or '',
+                "customer_nr": app.partner_id.customer_id or '',
+                "customer_name": app.partner_id.display_name or '',
+                "employee_name": sunie.partner_id.name or '',
+                "employee_phone": sunie.partner_id.phone or '',
+                "employee_signature": sunie.login or '',
+                "id": app.id,
+                "office_address": sunie_office.partner_id.contact_address or '',
+                "office_email": sunie_office.partner_id.email or '',
+                "location_code": app.operation_id.location_code or '',
+                "office_code": sunie_office.office_code or '',
+                "office_name": sunie_office.display_name or '',
+                "status": app.state,
+            }
+        return res    
+        
     @http.route('/v1/appointments/appointments/<appointment_id>', type='http', auth="public", methods=['GET'])
     def get_appointment_id(self, appointment_id=False, **kwargs):
         appointment_id = self.is_int(appointment_id)
@@ -408,8 +429,8 @@ class AppointmentController(http.Controller):
             app = request.env['calendar.appointment'].sudo().search([('id', '=', appointment_id)])
             if app:
                 res = {
-                    "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                    "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "appointment_length": int(app.duration * 60),
                     "appointment_title": app.name or '',
                     "appointment_type": app.type_id.ipf_num,
