@@ -484,6 +484,7 @@ class edi_route(models.Model):
                                     )
                         res_messages = endpoint.get(msg)
                         msg.state = 'sent'
+                        msg.message_post(body=_("EDI Message processed."))
                     
                     envelope.state = 'sent'
 

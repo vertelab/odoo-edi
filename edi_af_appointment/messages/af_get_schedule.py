@@ -69,7 +69,8 @@ class edi_message(models.Model):
                     'channel': type_id.channel.id,
                 }
                 schedule_id = self.env['calendar.schedule'].create(vals)
-            # TODO: maybe move this
+            # TODO: this is run once for every schedule now. 
+            # It only has to be run once per day and meeting type
             schedule_id.create_occasions()
         
         else:
