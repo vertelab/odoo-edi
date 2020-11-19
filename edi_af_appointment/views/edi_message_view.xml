@@ -16,4 +16,15 @@
       </tree>
     </field>
   </record> 
+
+  <record id="action_calendar_edi_message_ace" model="ir.actions.act_window">
+    <field name="name">ACE messages</field>
+    <field name="res_model">edi.message</field>
+    <field name="view_mode">tree,form</field>
+    <field name="view_id" ref="edi_route.view_edi_message_tree"/>
+    <!-- Not a good domain filter but it does the work -->
+    <field name="domain">[('af_wi_type', '!=', False)]</field>
+  </record>
+
+  <menuitem name="ACE messages" action="action_calendar_edi_message_ace" id="menu_action_calendar_edi_message_ace" parent="calendar_af.menu_admin" sequence="20" groups="af_security.af_meeting_admin" />
 </odoo>
