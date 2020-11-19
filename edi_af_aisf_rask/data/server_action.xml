@@ -4,6 +4,7 @@
         <field name="name">Update Customer Number</field>
         <field name="model_id" ref="base.model_res_partner"/>
         <field name="state">code</field>
+        <field name="groups_id" eval="[(4, ref('base.group_system'))]"/>
         <field name="code">
 for partner in records:
     partner.rask_controller(partner.customer_id,partner.social_sec_nr,None,'edi_af_as_rask')</field>
@@ -19,6 +20,7 @@ for partner in records:
         <field name="name">Update ALL Customer Number</field>
         <field name="model_id" ref="base.model_res_partner"/>
         <field name="state">code</field>
+        <field name="groups_id" eval="[(4, ref('base.group_system'))]"/>
         <field name="code">
 partners = env["res.partner"].sudo().search([('is_jobseeker', '=', True)])
 for partner in partners:
