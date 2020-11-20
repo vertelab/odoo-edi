@@ -51,7 +51,7 @@ class AppointmentController(http.Controller):
             return Response("Bad request", status=400)
         
         type_id = self.is_int(type_id)
-        office = False
+        
         
         if not type_id:
             return Response("Bad request: Invalid type_id", status=400)
@@ -75,9 +75,12 @@ class AppointmentController(http.Controller):
         if not stop:
             stop = start_time + timedelta(minutes=duration)
 
-        # TODO: if local meeting, check location arg.
+        if location:
+            operation = request.env['hr.operation'].sudo().search([('location_code', '=', location)])
+        else:
+            operation = False
 
-        occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time, stop_time, duration, type_id, office, int(max_depth))
+        occ_list = request.env['calendar.occasion'].sudo().get_bookable_occasions(start_time, stop_time, duration, type_id, operation, int(max_depth))
         res = {}
 
         for day in occ_list:
@@ -88,6 +91,9 @@ class AppointmentController(http.Controller):
                         'id': self.encode_bookable_occasion_id(book_occ),
                         'appointment_title': '%sm @ %s' % (int(len(book_occ) * BASE_DURATION), book_occ[0].start),
                         'appointment_channel': book_occ[0].channel.name,
+                        'employee_name': book_occ[0].user_id.display_name if book_occ[0].user_id else '',
+                        'employee_signature': book_occ[0].user_id.af_signature if book_occ[0].user_id else '',
+                        'location_code': book_occ[0].operation_id.location_code if book_occ[0].operation_id else '',
                         'occasion_start': book_occ[0].start.strftime("%Y-%m-%dT%H:%M:%SZ"),
                         'occasion_end': book_occ[-1].stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                         'occasion_duration': int(len(book_occ) * BASE_DURATION),
