@@ -108,6 +108,7 @@ class edi_message(models.Model):
                 'next_contact_type': next_contact_type,
                 'last_contact': body.get('kontakt',{}).get('senasteKontaktdatum'),
                 'last_contact_type': last_contact_type,
+                'is_jobseeker': True
             }
             if sun_obj:
                 jobseeker_dict['sun_ids'] = [(6, 0, [sun_obj.id])],
