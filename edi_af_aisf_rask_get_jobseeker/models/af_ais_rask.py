@@ -28,8 +28,9 @@ class ResPartner(models.Model):
 
             res_countr_state_obj = self.env['res.country.state'].search(
                 [('code', '=', res.get('kontaktuppgifter',{}).get('hemkommunKod'))]) 
-            office_obj = self.env['hr.department'].search([('office_code', '=', res.get('kontor',{}).get('kontorsKod'))]) 
-            sun_obj = self.env['res.sun'].search([('code', '=', res.get('utbildning',{}).get('sunKod'))]) 
+            office_code = body.get('kontor',{}).get('kontorsKod')
+            if office_code:
+                office_obj = self.env['hr.department'].search([('office_code', '=', office_code)])             sun_obj = self.env['res.sun'].search([('code', '=', res.get('utbildning',{}).get('sunKod'))]) 
             if not sun_obj:
                 sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
@@ -103,7 +104,7 @@ class ResPartner(models.Model):
                 res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
 
             own_or_foreign_address_given = False
-            for address in res.get('kontaktuppgifter',{}).get('adresser'):
+            for address in res.get('kontaktuppgifter',{}).get('adresser',{}):
                 streetaddress = address.get('gatuadress')
                 if streetaddress: 
                     streetadress_array = streetaddress.split(",")

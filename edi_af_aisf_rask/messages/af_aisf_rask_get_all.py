@@ -42,8 +42,10 @@ class edi_message(models.Model):
                 return
 
             res_countr_state_obj = self.env['res.country.state'].search(
-                [('code', '=', body.get('kontaktuppgifter',{}).get('hemkommunKod'))]) 
-            office_obj = self.env['hr.department'].search([('office_code', '=', body.get('kontor',{}).get('kontorsKod'))]) 
+                [('code', '=', body.get('kontaktuppgifter',{}).get('hemkommunKod'))])
+            office_code = body.get('kontor',{}).get('kontorsKod')
+            if office_code:
+                office_obj = self.env['hr.department'].search([('office_code', '=', office_code)]) 
             sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning',{}).get('sunKod'))]) 
             if not sun_obj:
                 sun_obj = self.env['res.sun'].search([('code', '=', '999')])
@@ -62,7 +64,6 @@ class edi_message(models.Model):
             if skat_obj:
                 skat_obj = skat_obj.id
             
-
             education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning',{}).get('utbildningsniva'))]) 
             if education_level_obj:
                 education_level_obj = education_level_obj.id
@@ -118,7 +119,7 @@ class edi_message(models.Model):
                 res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
 
             own_or_foreign_address_given = False
-            for address in body.get('kontaktuppgifter',{}).get('adresser'):
+            for address in body.get('kontaktuppgifter',{}).get('adresser', {}):
                 streetaddress = address.get('gatuadress')
                 if streetaddress: 
                     streetadress_array = streetaddress.split(",")
