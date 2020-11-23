@@ -102,7 +102,7 @@ class edi_message(models.Model):
                 'deactualization_date': body.get('processStatus',{}).get('avaktualiseringsDatum'),
                 'deactualization_reason': body.get('processStatus',{}).get('avaktualiseringsOrsaksKod'),
                 'email': body.get('kontaktuppgifter',{}).get('epost'),
-                'office_id': office_obj.id,
+                'office_id': office_obj.id if office_obj else False,
                 'state_id': res_countr_state_obj.id,
                 'education_level': education_level_obj,
                 'registered_through': registered_through,
