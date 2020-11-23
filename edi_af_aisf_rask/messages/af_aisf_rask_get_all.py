@@ -37,6 +37,8 @@ class edi_message(models.Model):
             body = json.loads(self.body)
             customer_id = body.get('arbetssokande',{}).get('sokandeId')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
+            if len(res_partner_obj) > 1:
+                res_partner_obj = res_partner_obj[0]
             if body.get('processStatus',{}).get('skyddadePersonUppgifter'):
                 res_partner_obj.unlink()
                 return

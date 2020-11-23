@@ -22,6 +22,8 @@ class ResPartner(models.Model):
         if res:
             customer_id = res.get('arbetssokande',{}).get('sokandeId')
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
+            if len(res_partner_obj) > 1:
+                res_partner_obj = res_partner_obj[0]
             if res.get('processStatus',{}).get('skyddadePersonUppgifter'):
                 res_partner_obj.unlink()
                 return
