@@ -60,7 +60,7 @@ class ResPartner(models.Model):
             if last_contact_type_string:
                 last_contact_type = last_contact_type_string[0]
 
-            nasta_kontakttyper_list = res.get('kontakt',{}).get('nastaKontakttyper') 
+            nasta_kontakttyper_list = res.get('kontakt',{}).get('nastaKontakttyper',{}) 
             next_contact_type = False
             if len(nasta_kontakttyper_list) > 0:
                 next_contact_type = nasta_kontakttyper_list[0]
