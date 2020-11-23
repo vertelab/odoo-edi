@@ -30,9 +30,12 @@ class ResPartner(models.Model):
 
             res_countr_state_obj = self.env['res.country.state'].search(
                 [('code', '=', res.get('kontaktuppgifter',{}).get('hemkommunKod'))]) 
-            office_code = body.get('kontor',{}).get('kontorsKod')
+            office_code = res.get('kontor',{}).get('kontorsKod')
             if office_code:
-                office_obj = self.env['hr.department'].search([('office_code', '=', office_code)])             sun_obj = self.env['res.sun'].search([('code', '=', res.get('utbildning',{}).get('sunKod'))]) 
+                office_obj = self.env['hr.department'].search([('office_code', '=', office_code)]) 
+            else:
+                office_obj = False            
+            sun_obj = self.env['res.sun'].search([('code', '=', res.get('utbildning',{}).get('sunKod'))]) 
             if not sun_obj:
                 sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 

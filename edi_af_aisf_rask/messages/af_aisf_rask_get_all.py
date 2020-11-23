@@ -47,7 +47,9 @@ class edi_message(models.Model):
                 [('code', '=', body.get('kontaktuppgifter',{}).get('hemkommunKod'))])
             office_code = body.get('kontor',{}).get('kontorsKod')
             if office_code:
-                office_obj = self.env['hr.department'].search([('office_code', '=', office_code)]) 
+                office_obj = self.env['hr.department'].search([('office_code', '=', office_code)])
+            else:
+                office_obj = False
             sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning',{}).get('sunKod'))]) 
             if not sun_obj:
                 sun_obj = self.env['res.sun'].search([('code', '=', '999')])
