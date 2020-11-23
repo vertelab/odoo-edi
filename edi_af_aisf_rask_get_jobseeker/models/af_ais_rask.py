@@ -76,8 +76,8 @@ class ResPartner(models.Model):
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
 
             jobseeker_dict = {
-                'firstname': res.get('arbetssokande',{}).get('fornamn'),
-                'lastname': res.get('arbetssokande',{}).get('efternamn'),
+                'firstname': res.get('arbetssokande',{}).get('fornamn','MISSING FIRSTNAME'),
+                'lastname': res.get('arbetssokande',{}).get('efternamn','MISSING LASTNAME'),
                 'customer_id': customer_id, 
                 'company_registry': res.get('arbetssokande',{}).get('personnummer'),
                 'customer_since': res.get('processStatus',{}).get('aktuellSedanDatum'),

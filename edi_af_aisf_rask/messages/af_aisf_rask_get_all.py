@@ -90,8 +90,8 @@ class edi_message(models.Model):
             # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
 
             jobseeker_dict = {
-                'firstname': body.get('arbetssokande',{}).get('fornamn'),
-                'lastname': body.get('arbetssokande',{}).get('efternamn'),
+                'firstname': body.get('arbetssokande',{}).get('fornamn',''),
+                'lastname': body.get('arbetssokande',{}).get('efternamn',''),
                 'customer_id': customer_id, 
                 'company_registry': body.get('arbetssokande',{}).get('personnummer'),
                 'customer_since': body.get('processStatus',{}).get('aktuellSedanDatum'),
