@@ -77,6 +77,7 @@ class edi_message(models.Model):
                 users_obj = users_obj.id
 
             last_contact_type_string = body.get('kontakt',{}).get('senasteKontakttyp') 
+            last_contact_type = False
             if last_contact_type_string:
                 last_contact_type = last_contact_type_string[0]
 
