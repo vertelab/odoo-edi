@@ -62,7 +62,7 @@ class edi_message(models.Model):
                     'name': type_id.name,
                     'start': start_time_utc,
                     'stop': stop_time_utc,
-                    'duration': 30.0,
+                    'duration': 0.5,
                     'scheduled_agents': int(body.get('scheduled_agents')), # number of agents supposed to be available for this. Can sometimes be float.
                     'forecasted_agents': int(body.get('forecasted_agents')), # May be implemented at a later date. Can sometimes be float.
                     'type_id': type_id.id,
