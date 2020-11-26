@@ -10,7 +10,7 @@ class ais_as_rask_controller(models.Model):
 
     @api.model
     def rask_controller(self, customer_id, social_security_number, former_social_security_number, message_type):
-        _logger.info(
+        _logger.debug(
             "called with: customer_id %s social_security_number: %s former_social_security_number %s message_type %s" % (
             customer_id, social_security_number, former_social_security_number, message_type))
 

@@ -287,7 +287,7 @@ class ipf_rest(_ipf):
         get_headers = self._generate_headers(self.environment, self.sys_id, af_tracking_id)
 
         if message.body:
-            _logger.warn("edi_route: message.body: %s" % message.body)
+            _logger.debug("edi_route: message.body: %s" % message.body)
             if type(message.body) == bytes :
                 body = message.body.decode("utf-8")
             else:
@@ -356,10 +356,10 @@ class ipf_rest(_ipf):
         elif message.edi_type == message.env.ref('edi_af_aisf_rask.rask_get_all', raise_if_not_found=False):
             get_headers.update({'PISA_ID': '*sys*'}) #HTTP-headern med dess värde krävs för AS med skyddad identitet
 
-        _logger.warn("edi_route: get_url: %s" % get_url)
-        _logger.warn("edi_route: data_vals: %s" % data_vals)
-        _logger.warn("edi_route: get_headers: %s" % get_headers)
-        _logger.warn("edi_route: method: %s" % method)
+        _logger.debug("edi_route: get_url: %s" % get_url)
+        _logger.debug("edi_route: data_vals: %s" % data_vals)
+        _logger.debug("edi_route: get_headers: %s" % get_headers)
+        _logger.debug("edi_route: method: %s" % method)
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:
