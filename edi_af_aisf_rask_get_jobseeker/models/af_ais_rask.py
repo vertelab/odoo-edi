@@ -15,7 +15,7 @@ class ResPartner(models.Model):
         Relies on that customer_id does not exist in database yet.
         Adds a new res.partner in database with customer_id.
         """
-        res = ipf.call(customer_id=int(customer_id))
+        res = db_con.call(customer_id=int(customer_id))
         if not res:
             return
         customer_id = res.get('arbetssokande',{}).get('sokandeId')
@@ -113,19 +113,19 @@ class ResPartner(models.Model):
                     res_partner.street2 = street2
                     res_partner.zip = zip_
                     res_partner.city = city
-                    res_partner.country_id = country_obj
+                    res_partner.country_id = country_id
                 elif address.get('adressTyp') == 'EGEN' or address.get('adressTyp') == 'UTL':
                     own_or_foreign_address_given = True
-                    given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
+                    given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner.id)])
                     if not given_address_object:
                         given_address_dict = {
-                            'parent_id': res_partner_obj.id,
+                            'parent_id': res_partner.id,
                             'street': street,
                             'street2': street2,
                             'zip': zip,
                             'city': city,
                             'type': 'given address',
-                            'country_id': country_obj,
+                            'country_id': country_id,
                         }
                         self.env['res.partner'].create(given_address_dict)
                     else:
@@ -133,9 +133,9 @@ class ResPartner(models.Model):
                         given_address_object.street2 = street2
                         given_address_object.zip = zip
                         given_address_object.city = city
-                        given_address_object.country_id = country_obj
+                        given_address_object.country_id = country_id
 
         if not own_or_foreign_address_given:
-            given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
+            given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner.id)])
             if given_address_object:
                 given_address_object.unlink()
