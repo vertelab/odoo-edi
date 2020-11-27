@@ -20,29 +20,34 @@
 ##############################################################################
 
 from odoo import models, fields, api, _
+
 import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class ResPartner(models.Model):
-    _inherit = 'res.partner'
-    
+    _inherit = "res.partner"
+
     @api.one
-    def set_user(self, user):
-        # set user_id on partner
-        super(ResPartner, self).set_user(user)
-        # create message to AIS-F
-        route = self.env.ref('edi_af_aisf_trask.asok_office_route')
+    def write(self, vals):
+        # Overwrite write method to catch changes to user_id
+        user_id = vals.get("user_id", False)
+        if user_id and user_id != self.env.user.id:
+            if user_id != self.user_id.id:
+                route = self.env.ref("edi_af_aisf_trask.asok_office_route")
 
-        vals = {
-            'name': 'patch office msg',
-            'edi_type': self.env.ref('edi_af_aisf_trask.asok_patch_office').id,
-            'model': self._name,
-            'res_id': self.id,
-            'route_id': route.id,
-            'route_type': 'edi_af_aisf_trask_office',
-        }
+                msg_vals = {
+                    "name": "patch office msg",
+                    "edi_type": self.env.ref("edi_af_aisf_trask.asok_patch_office").id,
+                    "model": self._name,
+                    "res_id": self.id,
+                    "route_id": route.id,
+                    "route_type": "edi_af_aisf_trask_office",
+                }
 
-        message = self.env['edi.message'].create(vals)
-        message.pack()
-        route.run()
+                message = self.env["edi.message"].create(msg_vals)
+                message.pack()
+                route.run()
+
+        super(ResPartner, self).write(vals)

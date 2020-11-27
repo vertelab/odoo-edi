@@ -63,7 +63,8 @@ class edi_ace_errand(models.Model):
         _logger.debug("escalate_jobseeker_access: errand.interval: %s type: %s" % (errand.interval, type(errand.interval)))
         if errand.client_responsible:
             # change user_id
-            partner.with_context(office_code=errand.office_code).set_user(user)
+            vals = {"user_id": user.id}
+            partner.with_context(office_code=errand.office_code).write(vals)
         # request partner access for user
         res = partner._grant_jobseeker_access(access_type=errand.right_type, reason_code=errand.reason_code, reason=errand.name, interval=int(errand.interval), user=user)
         fail_list = res.get('body').get('nyckelMisslyckadLista')
@@ -72,6 +73,7 @@ class edi_ace_errand(models.Model):
         fail_dict = fail_list[0]
         res = fail_dict.get('felKod'), fail_dict.get('felOrsak')
         return res
+
 
 class calendar_appointment_type(models.Model):
     _inherit='calendar.appointment.type'

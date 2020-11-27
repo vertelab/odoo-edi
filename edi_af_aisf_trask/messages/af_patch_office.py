@@ -43,6 +43,12 @@ class edi_message(models.Model):
 
             obj = self.model_record
             office_code = self.env.context.get('office_code')
+            if not office_code:
+                try:
+                    office_code = obj.office_id.office_code
+                except:
+                    # leave office_code as False
+                    pass
             body_dict = {}
             body_dict['base_url'] = self.edi_type.type_mapping.format(
                 path = "ais-f-arbetssokande/v2/kontor/{sokande_id}".format(sokande_id = obj.customer_id)

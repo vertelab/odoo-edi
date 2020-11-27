@@ -32,7 +32,8 @@
         'edi_route',
         'calendar_af', 
         'edi_route_ipf', 
-        'af_security'],
+        'af_security',
+    ],
     'external_dependencies': {
     },
     'data': [
