@@ -20,32 +20,32 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Appointment',
-    'version': '0.1',
-    'category': 'edi',
-    'summary': 'EDI AF Appointment - support for appointments ',
-    'licence': 'AGPL-3',
-    'description': """ """,
-    'author': 'Vertel AB',
-    'website': 'http://www.vertel.se',
-    'depends': [
-        'edi_route',
-        'calendar_af', 
-        'edi_route_ipf', 
-        'af_security'],
-    'external_dependencies': {
-    },
-    'data': [
-        'security/ir.model.access.csv',
-        'data/edi_route_data.xml',
-        'data/edi.ace_queue.csv',
-        'data/edi.ace_errand.csv',
-        'views/edi_af_appointment_views.xml',
-        'views/edi_message_view.xml',
-        # 'data/res_users.xml',
-        'data/scheduled_meeting_reminder.xml'
+    "name": "EDI AF Appointment",
+    "version": "0.1",
+    "category": "edi",
+    "summary": "EDI AF Appointment - support for appointments ",
+    "licence": "AGPL-3",
+    "description": """ """,
+    "author": "Vertel AB",
+    "website": "http://www.vertel.se",
+    "depends": [
+        "edi_route",
+        "calendar_af",
+        "edi_route_ipf",
+        "af_security",
     ],
-    'application': False,
-    'installable': True,
+    "external_dependencies": {},
+    "data": [
+        "security/ir.model.access.csv",
+        "data/edi_route_data.xml",
+        "data/edi.ace_queue.csv",
+        "data/edi.ace_errand.csv",
+        "views/edi_af_appointment_views.xml",
+        "views/edi_message_view.xml",
+        # 'data/res_users.xml',
+        "data/scheduled_meeting_reminder.xml",
+    ],
+    "application": False,
+    "installable": True,
 }
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:
