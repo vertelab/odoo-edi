@@ -351,8 +351,6 @@ class AppointmentController(http.Controller):
             return Response("Bookable occasion id not found", status=404)
         if occasions[0].appointment_id and occasions[0].appointment_id.state == 'reserved':
             app = occasions[0].appointment_id
-            # app.user_id = sunie.id # SUNIE
-            # app.operation_id = sunie_location.id # 0248
             app.partner_id = partner.id
             app._confirm_appointment()
         else:
@@ -369,8 +367,6 @@ class AppointmentController(http.Controller):
                 'start' : occasions[0].start,
                 'stop' : occasions[-1].stop,
                 'duration' : len(occasions) * BASE_DURATION / 60,
-                # 'user_id' : sunie.id, # SUNIE
-                # 'operation_id' : sunie_location.id, # 0248
                 'partner_id' : partner.id, 
                 'state' : 'confirmed',
                 'type_id' : occasions[0].type_id.id,
@@ -378,6 +374,10 @@ class AppointmentController(http.Controller):
                 'occasion_ids' : [(6,0, list(occasions.mapped('id')))],
                 'name' : occasions[0].type_id.name,
             }
+            if occasions[0].user_id:
+                vals['user_id'] = occasions[0].user_id
+            if occasions[0].operation_id:
+                vals['operation_id'] = occasions[0].operation_id
             app = request.env['calendar.appointment'].sudo().create(vals)
 
         if not app:
@@ -385,8 +385,8 @@ class AppointmentController(http.Controller):
         
         if app.type_id.channel == request.env.ref('calendar_channel.channel_local'):
             res = {
-                "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_length": int(app.duration * 60),
                 "appointment_title": app.name or '',
                 "appointment_type": app.type_id.ipf_num,
@@ -406,8 +406,8 @@ class AppointmentController(http.Controller):
             }
         else:
             res = {
-                "appointment_end_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "appointment_start_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_start_datetime": app.start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "appointment_end_datetime": app.stop.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "appointment_length": int(app.duration * 60),
                 "appointment_title": app.name or '',
                 "appointment_type": app.type_id.ipf_num,
