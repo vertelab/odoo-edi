@@ -20,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'EDI AF Arbetssökande - DEPRECIATED',
+    'name': 'DEPRECIATED - EDI AF Arbetssökande',
     'version': '0.1',
     'category': 'edi',
     'summary': 'EDI AF arbetssökande - support for jobseekers ',
