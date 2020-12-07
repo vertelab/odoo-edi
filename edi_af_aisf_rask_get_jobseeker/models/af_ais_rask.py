@@ -5,7 +5,6 @@ from odoo.tools.profiler import profile
 
 _logger = logging.getLogger(__name__)
 
-
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
@@ -58,8 +57,6 @@ class ResPartner(models.Model):
         if next_contact_type:
             next_contact_type = next_contact_type[0][0]
 
-        # TODO: hantera tillgång till bil, notifiering får vi men REST-api för matchning måste anropas
-
         jobseeker_dict = {
             'firstname': res.get('arbetssokande',{}).get('fornamn','MISSING FIRSTNAME'),
             'lastname': res.get('arbetssokande',{}).get('efternamn','MISSING LASTNAME'),
@@ -92,7 +89,6 @@ class ResPartner(models.Model):
 
         res_partner = self.env['res.partner'].create(jobseeker_dict)
 
-        own_or_foreign_address_given = False
         for address in res.get('kontaktuppgifter',{}).get('adresser',{}):
             streetaddress = address.get('gatuadress')
             if streetaddress:
@@ -115,27 +111,13 @@ class ResPartner(models.Model):
                     res_partner.city = city
                     res_partner.country_id = country_id
                 elif address.get('adressTyp') == 'EGEN' or address.get('adressTyp') == 'UTL':
-                    own_or_foreign_address_given = True
-                    given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner.id)])
-                    if not given_address_object:
-                        given_address_dict = {
-                            'parent_id': res_partner.id,
-                            'street': street,
-                            'street2': street2,
-                            'zip': zip,
-                            'city': city,
-                            'type': 'given address',
-                            'country_id': country_id,
-                        }
-                        self.env['res.partner'].create(given_address_dict)
-                    else:
-                        given_address_object.street = street
-                        given_address_object.street2 = street2
-                        given_address_object.zip = zip
-                        given_address_object.city = city
-                        given_address_object.country_id = country_id
-
-        if not own_or_foreign_address_given:
-            given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner.id)])
-            if given_address_object:
-                given_address_object.unlink()
+                    given_address_dict = {
+                        'parent_id': res_partner.id,
+                        'street': street,
+                        'street2': street2,
+                        'zip': zip,
+                        'city': city,
+                        'type': 'given address',
+                        'country_id': country_id,
+                    }
+                    self.env['res.partner'].create(given_address_dict)
