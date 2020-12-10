@@ -84,10 +84,11 @@ class ResPartner(models.Model):
             'last_contact_type': last_contact_type,
             'is_jobseeker': True
         }
-        if sun_id:
-            jobseeker_dict['sun_ids'] = [(6, 0, [sun_id])],
 
         res_partner = self.env['res.partner'].create(jobseeker_dict)
+
+        if sun_id:
+            res_partner.sun_ids = [(4, sun_id)]
 
         for address in res.get('kontaktuppgifter',{}).get('adresser',{}):
             streetaddress = address.get('gatuadress')
@@ -99,15 +100,20 @@ class ResPartner(models.Model):
                 elif len(streetadress_array) > 1:
                     street = streetadress_array[1]
                     street2 = streetadress_array[0]
-                zip_ = address.get('postnummer')
+                zip = address.get('postnummer')
                 city = address.get('postort')
                 key = address.get('landsadress')
-                country_id = db_values['res.country'].get(key, False)
-
+                if key:
+                    country_id = db_values['res.country'].get(key, False)
+                    if country_id is False:
+                        country_id = None
+                else:
+                    country_id = None
+                _logger.info("GET JOBSEEKER zip %s " % zip)
                 if address.get('adressTyp') == 'FBF':
                     res_partner.street = street
                     res_partner.street2 = street2
-                    res_partner.zip = zip_
+                    res_partner.zip = zip
                     res_partner.city = city
                     res_partner.country_id = country_id
                 elif address.get('adressTyp') == 'EGEN' or address.get('adressTyp') == 'UTL':
