@@ -50,7 +50,7 @@ class edi_message(models.Model):
                 office_obj = self.env['hr.department'].search([('office_code', '=', office_code)])
             else:
                 office_obj = False
-            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning',{}).get('sunKod'))]) 
+            sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning',{}).get('sunKod'))])
             if not sun_obj:
                 sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
@@ -114,14 +114,16 @@ class edi_message(models.Model):
                 'next_contact_type': next_contact_type,
                 'last_contact': body.get('kontakt',{}).get('senasteKontaktdatum'),
                 'last_contact_type': last_contact_type,
-                'is_jobseeker': True
+                'is_jobseeker': True,
             }
-            if sun_obj:
-                jobseeker_dict['sun_ids'] = [(6, 0, [sun_obj.id])],
+
             if res_partner_obj:
                 res_partner_obj.write(jobseeker_dict)
             else:
                 res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
+
+            if sun_obj:
+                res_partner_obj.sun_ids = [(6, 0, [sun_obj.id])]
 
             own_or_foreign_address_given = False
             for address in body.get('kontaktuppgifter',{}).get('adresser', {}):
