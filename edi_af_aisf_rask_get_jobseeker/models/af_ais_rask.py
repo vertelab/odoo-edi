@@ -109,7 +109,6 @@ class ResPartner(models.Model):
                         country_id = None
                 else:
                     country_id = None
-                _logger.info("GET JOBSEEKER zip %s " % zip)
                 if address.get('adressTyp') == 'FBF':
                     res_partner.street = street
                     res_partner.street2 = street2
