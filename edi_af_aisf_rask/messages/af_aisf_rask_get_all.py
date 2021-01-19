@@ -93,7 +93,7 @@ class edi_message(models.Model):
                 'firstname': body.get('arbetssokande',{}).get('fornamn',''),
                 'lastname': body.get('arbetssokande',{}).get('efternamn',''),
                 'customer_id': customer_id, 
-                'company_registry': body.get('arbetssokande',{}).get('personnummer'),
+                'social_sec_nr': body.get('arbetssokande',{}).get('personnummer'),
                 'customer_since': body.get('processStatus',{}).get('aktuellSedanDatum'),
                 'share_info_with_employers': body.get('medgivande',{}).get('infoTillArbetsgivare'),
                 'phone': body.get('kontaktuppgifter',{}).get('telefonBostad'),
