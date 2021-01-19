@@ -65,7 +65,7 @@ class edi_message(models.Model):
             if record.model_record and record.model_record._name == 'edi.ace_workitem':
                 record.af_wi_start = record.model_record.appointment_id.start
                 record.af_wi_stop = record.model_record.appointment_id.stop
-                record.af_wi_pnr = record.sudo().model_record.appointment_id.partner_id.company_registry
+                record.af_wi_pnr = record.sudo().model_record.appointment_id.partner_id.social_sec_nr
                 record.af_wi_type = record.model_record.appointment_id.type_id
                 if record.state == "sent":
                     body = json.loads(record.body)
