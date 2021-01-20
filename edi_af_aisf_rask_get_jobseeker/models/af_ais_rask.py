@@ -73,6 +73,7 @@ class ResPartner(models.Model):
             'email': res.get('kontaktuppgifter',{}).get('epost'),
             'office_id': office_id,
             'state_id': res_country_state_id,
+            'education_level': education_level_id,
             'registered_through': registered_through,
             'user_id': users_id,
             'sms_reminders': res.get('medgivande',{}).get('paminnelseViaSms'),
@@ -87,10 +88,7 @@ class ResPartner(models.Model):
         res_partner = self.env['res.partner'].create(jobseeker_dict)
 
         if sun_id:
-                res_partner.education_ids = [(4, self.env['res.partner.education'].create({
-                    'sun_id': sun_id,
-                    'education_level_id': education_level_id
-                }))]
+            res_partner.sun_ids = [(4, sun_id)]
 
         for address in res.get('kontaktuppgifter',{}).get('adresser',{}):
             streetaddress = address.get('gatuadress')

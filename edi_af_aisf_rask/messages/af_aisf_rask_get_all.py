@@ -105,6 +105,7 @@ class edi_message(models.Model):
                 'email': body.get('kontaktuppgifter',{}).get('epost'),
                 'office_id': office_obj.id if office_obj else False,
                 'state_id': res_countr_state_obj.id,
+                'education_level': education_level_obj,
                 'registered_through': registered_through,
                 'user_id': users_obj,
                 'sms_reminders': body.get('medgivande',{}).get('paminnelseViaSms'),
@@ -122,10 +123,7 @@ class edi_message(models.Model):
                 res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
 
             if sun_obj:
-                res_partner_obj.education_ids = [(6,0, self.env['res.partner.education'].create({
-                    'sun_id': sun_obj,
-                    'education_level_id': education_level_obj
-                }))]
+                res_partner_obj.sun_ids = [(6, 0, [sun_obj.id])]
 
             own_or_foreign_address_given = False
             for address in body.get('kontaktuppgifter',{}).get('adresser', {}):
