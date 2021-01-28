@@ -87,10 +87,13 @@ class ResPartner(models.Model):
         res_partner = self.env['res.partner'].create(jobseeker_dict)
 
         if sun_id:
-                res_partner.education_ids = [(4, self.env['res.partner.education'].create({
-                    'sun_id': sun_id,
-                    'education_level_id': education_level_id
-                }))]
+                res_partner.education_ids = [(
+                    4, 
+                    self.env['res.partner.education'].create({
+                        'sun_id': sun_id,
+                        'education_level_id': education_level_id
+                    }).id
+                )]
 
         for address in res.get('kontaktuppgifter',{}).get('adresser',{}):
             streetaddress = address.get('gatuadress')

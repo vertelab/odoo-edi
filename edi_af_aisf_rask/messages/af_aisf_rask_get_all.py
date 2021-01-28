@@ -122,10 +122,14 @@ class edi_message(models.Model):
                 res_partner_obj = self.env['res.partner'].create(jobseeker_dict)
 
             if sun_obj:
-                res_partner_obj.education_ids = [(6,0, self.env['res.partner.education'].create({
-                    'sun_id': sun_obj.id,
-                    'education_level_id': education_level_obj
-                }))]
+                res_partner_obj.education_ids = [(
+                    6,
+                    0,
+                    self.env['res.partner.education'].create({
+                        'sun_id': sun_obj.id,
+                        'education_level_id': education_level_obj
+                    }).id
+                )]
 
             own_or_foreign_address_given = False
             for address in body.get('kontaktuppgifter',{}).get('adresser', {}):
