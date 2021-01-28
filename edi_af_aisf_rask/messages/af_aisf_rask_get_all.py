@@ -52,7 +52,7 @@ class edi_message(models.Model):
                 office_obj = False
             sun_obj = self.env['res.sun'].search([('code', '=', body.get('utbildning',{}).get('sunKod'))])
             if not sun_obj:
-                sun_obj = self.env['res.sun'].search([('code', '=', '999')]).id
+                sun_obj = self.env['res.sun'].search([('code', '=', '999')])
 
             segmenteringsval = body.get('segmentering',{}).get('segmenteringsval') 
             if segmenteringsval == "LOKAL":
@@ -123,7 +123,7 @@ class edi_message(models.Model):
 
             if sun_obj:
                 res_partner_obj.education_ids = [(6,0, self.env['res.partner.education'].create({
-                    'sun_id': sun_obj.id,
+                    'sun_id': sun_obj,
                     'education_level_id': education_level_obj
                 }))]
 

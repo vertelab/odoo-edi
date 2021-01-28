@@ -88,7 +88,7 @@ class ResPartner(models.Model):
 
         if sun_id:
                 res_partner.education_ids = [(4, self.env['res.partner.education'].create({
-                    'sun_id': sun_id.id,
+                    'sun_id': sun_id,
                     'education_level_id': education_level_id
                 }))]
 
