@@ -68,7 +68,7 @@ class edi_message(models.Model):
             if skat_obj:
                 skat_obj = skat_obj.id
             
-            education_level_obj =  self.env['res.partner.education_level'].search([('name', '=', body.get('utbildning',{}).get('utbildningsniva'))]) 
+            education_level_obj =  self.env['res.partner.education.education_level'].search([('name', '=', body.get('utbildning',{}).get('utbildningsniva'))]) 
             if education_level_obj:
                 education_level_obj = education_level_obj.id
 

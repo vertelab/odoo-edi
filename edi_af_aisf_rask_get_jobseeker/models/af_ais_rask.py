@@ -44,7 +44,7 @@ class ResPartner(models.Model):
         skat_id = db_values['res.partner.skat'].get(key, False)
 
         key = res.get('utbildning',{}).get('utbildningsniva')
-        education_level_id = db_values['res.partner.education_level'].get(key, False)
+        education_level_id = db_values['res.partner.education.education_level'].get(key, False)
 
         key = res.get('kontor',{}).get('ansvarigHandlaggareSignatur')
         users_id = db_values['res.users'].get(key, False)
