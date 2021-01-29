@@ -125,10 +125,10 @@ class edi_message(models.Model):
                 res_partner_obj.education_ids = [(
                     6,
                     0,
-                    self.env['res.partner.education'].create({
+                    [self.env['res.partner.education'].create({
                         'sun_id': sun_obj.id,
                         'education_level_id': education_level_obj
-                    }).id
+                    }).id]
                 )]
 
             own_or_foreign_address_given = False
