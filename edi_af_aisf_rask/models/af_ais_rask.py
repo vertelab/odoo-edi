@@ -38,3 +38,23 @@ class ais_as_rask_controller(models.Model):
         message = self.env['edi.message'].create(vals)
         message.pack()
         route.run()
+
+    @api.model
+    def update_jobseeker_from_file(self, path):
+        _logger.debug("called with: Path %s" % ( path ))
+
+        rownr = 0
+        iterations = 0
+        with open(path) as fh:
+            for row in fh:
+                if rownr == 0:
+                    rownr += 1
+                    continue
+
+                customer_id = row.strip()
+                self.env['res.partner'].rask_controller( customer_id, None, None, None)
+
+                iterations += 1
+                if not iterations % 500:
+                    self.env.cr.commit()
+                    _logger.info('%s Users updated' % iterations)
