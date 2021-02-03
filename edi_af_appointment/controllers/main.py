@@ -240,13 +240,13 @@ class AppointmentController(http.Controller):
             return Response("No arguments given.", status=400)
 
         if pnr:
-            partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
+            partner = request.env['res.partner'].sudo().search([('social_sec_nr', '=', pnr)])
             if not partner:
                 return Response("pnr. not found", status=404)
         if customer_nr:
             pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
             if pnr:
-                partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
+                partner = request.env['res.partner'].sudo().search([('social_sec_nr', '=', pnr)])
             if not partner:
                 return Response("customer nr. not found", status=404)
         if user_id:
@@ -330,13 +330,13 @@ class AppointmentController(http.Controller):
         if (not customer_nr and not pnr):
             return Response("No customer nr. or pnr.", status=400)        
         if pnr:
-            partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
+            partner = request.env['res.partner'].sudo().search([('social_sec_nr', '=', pnr)])
             if not partner:
                 return Response("pnr. not found", status=404)
         if customer_nr:
             pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
             if pnr:
-                partner = request.env['res.partner'].sudo().search([('company_registry', '=', pnr)])
+                partner = request.env['res.partner'].sudo().search([('social_sec_nr', '=', pnr)])
             if not partner:
                 return Response("customer nr. not found", status=404)
 

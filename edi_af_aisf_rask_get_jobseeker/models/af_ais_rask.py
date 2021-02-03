@@ -61,7 +61,7 @@ class ResPartner(models.Model):
             'firstname': res.get('arbetssokande',{}).get('fornamn','MISSING FIRSTNAME'),
             'lastname': res.get('arbetssokande',{}).get('efternamn','MISSING LASTNAME'),
             'customer_id': customer_id,
-            'company_registry': res.get('arbetssokande',{}).get('personnummer'),
+            'social_sec_nr': res.get('arbetssokande',{}).get('personnummer'),
             'customer_since': res.get('processStatus',{}).get('aktuellSedanDatum'),
             'share_info_with_employers': res.get('medgivande',{}).get('infoTillArbetsgivare'),
             'phone': res.get('kontaktuppgifter',{}).get('telefonBostad'),
