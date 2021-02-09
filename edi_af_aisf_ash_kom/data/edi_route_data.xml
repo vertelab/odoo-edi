@@ -1,4 +1,4 @@
-<openerp>
+<odoo>
     <data noupdate="0">
         <record id="ash_kom_get_all" model="edi.message.type">
             <field name="name">AF AIS-F ASH KOM: Get all</field>
@@ -13,4 +13,4 @@
             <field name="active" eval="True"/>
         </record>
     </data>
-</openerp>
+</odoo>

@@ -20,8 +20,6 @@
 ##############################################################################
 from odoo import models, fields, api, _
 
-import logging
-_logger = logging.getLogger(__name__)
 
 class edi_route(models.Model):
     _inherit = 'edi.route'

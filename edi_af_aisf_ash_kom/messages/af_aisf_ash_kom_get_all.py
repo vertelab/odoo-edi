@@ -21,7 +21,6 @@
 from odoo import models, api, _
 import ast
 import json
-
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -43,11 +42,22 @@ class edi_message(models.Model):
 
             employee_ids = []
             for employee in body.get('handlaggare'):
-                employee_ids.append(self.env['res.users'].search([(
+                sign = employee.get('handlaggare').get('signatur')
+                user = self.env['res.users'].search([(
                     'login',
                     '=',
-                    employee.get('handlaggare').get('signatur')
-                )]).employee_ids._ids)
+                    sign
+                )])
+                if not user:
+                    user = self.env['res.users'].create({
+                        'login': sign,
+                        'name': sign,
+                        'employee_ids': [(0,0,{
+                            'name': sign
+                            })]
+                        })
+                    _logger.warn("User %s missing, adding" % sign)
+                employee_ids.append(user.employee_ids._ids)
 
             department_obj.write({
                 'employee_ids': [(6,0,employee_ids)]
