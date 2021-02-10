@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="edi_af_ash_kom_controller" model="ir.actions.server">
+        <field name="name">EDI AF AIS-F ASH KOM Controller</field>
+        <field name="model_id" ref="base.model_ir_actions_server"/>
+        <field name="state">code</field>
+        <field name="code">
+            env['hr.department'].ash_kom_controller()
+      </field>
+    </record>
+    
+</odoo>
