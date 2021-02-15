@@ -36,6 +36,7 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_aisf_rask.rask_get_all').id:
             body = json.loads(self.body)
             customer_id = body.get('arbetssokande',{}).get('sokandeId')
+            _logger.debug("called with: customer_id %s " % (customer_id))
             res_partner_obj = self.env['res.partner'].search([('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
             if len(res_partner_obj) > 1:
                 res_partner_obj = res_partner_obj[0]
@@ -183,6 +184,11 @@ class edi_message(models.Model):
                 given_address_object = self.env['res.partner'].search([('parent_id', '=', res_partner_obj.id)])
                 if given_address_object:
                     given_address_object.unlink()
+
+            #TODO: As odoo-base/partner_mq_ipf/models/res_partner.py does not do a commit
+            # this explicit commit() is added. As soon as the partner_mq_ipf is corrected it
+            # should be removed
+            self._cr.commit()
 
     @api.one
     def pack(self):
