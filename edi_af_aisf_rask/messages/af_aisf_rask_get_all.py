@@ -109,10 +109,10 @@ class edi_message(models.Model):
                 'registered_through': registered_through,
                 'user_id': users_obj,
                 'sms_reminders': body.get('medgivande',{}).get('paminnelseViaSms'),
-                'next_contact': body.get('kontakt',{}).get('nastaKontaktdatum'),
+                'next_contact_date': body.get('kontakt',{}).get('nastaKontaktdatum'),
                 'next_contact_time': body.get('kontakt',{}).get('nastaKontaktTid'),
                 'next_contact_type': next_contact_type,
-                'last_contact': body.get('kontakt',{}).get('senasteKontaktdatum'),
+                'last_contact_date': body.get('kontakt',{}).get('senasteKontaktdatum'),
                 'last_contact_type': last_contact_type,
                 'is_jobseeker': True,
             }
