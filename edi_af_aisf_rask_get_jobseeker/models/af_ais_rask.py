@@ -76,10 +76,10 @@ class ResPartner(models.Model):
             'registered_through': registered_through,
             'user_id': users_id,
             'sms_reminders': res.get('medgivande',{}).get('paminnelseViaSms'),
-            'next_contact': res.get('kontakt',{}).get('nastaKontaktdatum'),
+            'next_contact_date': res.get('kontakt',{}).get('nastaKontaktdatum'),
             'next_contact_time': res.get('kontakt',{}).get('nastaKontaktTid'),
             'next_contact_type': next_contact_type,
-            'last_contact': res.get('kontakt',{}).get('senasteKontaktdatum'),
+            'last_contact_date': res.get('kontakt',{}).get('senasteKontaktdatum'),
             'last_contact_type': last_contact_type,
             'is_jobseeker': True
         }
