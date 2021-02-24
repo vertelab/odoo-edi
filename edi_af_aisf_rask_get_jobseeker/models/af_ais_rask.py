@@ -16,6 +16,7 @@ class ResPartner(models.Model):
         """
         res = db_con.call(customer_id=int(customer_id))
         if not res:
+            _logger.warning("customer_id %s not found in AIS-F/RASK" % customer_id)
             return
         customer_id = res.get('arbetssokande',{}).get('sokandeId')
         if res.get('processStatus', {}).get('skyddadePersonUppgifter'):
@@ -44,7 +45,14 @@ class ResPartner(models.Model):
         skat_id = db_values['res.partner.skat'].get(key, False)
 
         key = res.get('utbildning',{}).get('utbildningsniva')
-        education_level_id = db_values['res.partner.education.education_level'].get(key, False)
+        if key is not None:
+            try:
+                key_int = int(key)
+                education_level_id = db_values['education_level'].get(key_int, False)
+            except ValueError:
+                education_level_id = 0
+        else:
+            education_level_id = 0
 
         key = res.get('kontor',{}).get('ansvarigHandlaggareSignatur')
         users_id = db_values['res.users'].get(key, False)
@@ -88,7 +96,8 @@ class ResPartner(models.Model):
 
         if sun_id:
                 res_partner.education_ids = [(
-                    4, 
+                    6,
+                    0,
                     [self.env['res.partner.education'].create({
                         'sun_id': sun_id,
                         'education_level_id': education_level_id
