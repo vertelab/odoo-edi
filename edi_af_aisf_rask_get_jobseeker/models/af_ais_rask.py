@@ -1,4 +1,5 @@
 import logging
+import time
 
 from odoo import models, api, _
 from odoo.tools.profiler import profile
@@ -14,13 +15,17 @@ class ResPartner(models.Model):
         Relies on that customer_id does not exist in database yet.
         Adds a new res.partner in database with customer_id.
         """
+        start_time = time.time()
         res = db_con.call(customer_id=int(customer_id))
+        end_time = time.time()
+        time_for_call_to_rask = end_time - start_time
+
         if not res:
             _logger.warning("customer_id %s not found in AIS-F/RASK" % customer_id)
-            return
+            return time_for_call_to_rask
         customer_id = res.get('arbetssokande',{}).get('sokandeId')
         if res.get('processStatus', {}).get('skyddadePersonUppgifter'):
-            return
+            return time_for_call_to_rask
 
         key = res.get('kontaktuppgifter',{}).get('hemkommunKod')
         res_country_state_id = db_values['res.country.state'].get(key)
@@ -140,3 +145,5 @@ class ResPartner(models.Model):
                         'country_id': country_id,
                     }
                     self.env['res.partner'].create(given_address_dict)
+
+        return time_for_call_to_rask
