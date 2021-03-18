@@ -14,6 +14,7 @@ BASE_DURATION = 30.0
 # RESERVED_TIMEOUT is the default time before a reservation times out.
 RESERVED_TIMEOUT = 300.0
 
+
 class AppointmentController(http.Controller):
 
     def is_int(self, string):
@@ -243,7 +244,7 @@ class AppointmentController(http.Controller):
             partner = request.env['res.partner'].sudo().search([('social_sec_nr', '=', pnr)])
             if not partner:
                 return Response("pnr. not found", status=404)
-        if customer_nr:
+        elif customer_nr:
             pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
             if pnr:
                 partner = request.env['res.partner'].sudo().search([('social_sec_nr', '=', pnr)])
@@ -333,7 +334,7 @@ class AppointmentController(http.Controller):
             partner = request.env['res.partner'].sudo().search([('social_sec_nr', '=', pnr)])
             if not partner:
                 return Response("pnr. not found", status=404)
-        if customer_nr:
+        elif customer_nr:
             pnr = request.env['af.ipf.endpoint'].sudo().get_pnr(customer_nr)
             if pnr:
                 partner = request.env['res.partner'].sudo().search([('social_sec_nr', '=', pnr)])
