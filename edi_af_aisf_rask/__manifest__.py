@@ -21,11 +21,15 @@
 
 {
     'name': 'EDI AF AIS-F RASK',
-    'version': '12.0.0.1.1',
+    'version': '12.0.0.2.0',
     'category': 'edi',
     'summary': 'EDI AF AIS-F RASK - synchronize arbetssökande in AF CRM with AIS-F ASH by calling RASK',
     'licence': 'AGPL-3',
-    'description': """ """,
+    'description': """
+EDI AF AIS-F RASK
+===================================================================
+v12.0.0.2.0 AFC-1937: Added support for c/o addresses
+    """,
     'author': 'Arbetsförmedlingen',
     'website': 'http://www.arbetsformedlingen.se',
     'depends': ['partner_view_360', 'edi_route_ipf','partner_education'],
