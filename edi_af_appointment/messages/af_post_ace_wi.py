@@ -27,16 +27,17 @@ _logger = logging.getLogger(__name__)
 
 LOCAL_TZ = 'Europe/Stockholm'
 
-class edi_message(models.Model):
-    _inherit='edi.message'
-            
+
+class EdiMessage(models.Model):
+    _inherit = 'edi.message'
+
     @api.one
     def unpack(self):
         if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_ace_wi').id: 
             # don't do anything
             pass
         else:
-            super(edi_message, self).unpack()
+            super(EdiMessage, self).unpack()
 
     @api.one
     def pack(self):
@@ -74,4 +75,4 @@ class edi_message(models.Model):
             })
             
         else:
-            super(edi_message, self).pack()
+            super(EdiMessage, self).pack()

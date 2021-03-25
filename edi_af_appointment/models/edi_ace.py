@@ -21,14 +21,12 @@
 
 from odoo import models, fields, api, _
 import logging
-from datetime import datetime
 
-# import zeep
 
 _logger = logging.getLogger(__name__)
 
 
-class edi_ace_workitem(models.Model):
+class EdiAceWorkitem(models.Model):
     _name = "edi.ace_workitem"
 
     name = fields.Char(string="Name")
@@ -40,7 +38,7 @@ class edi_ace_workitem(models.Model):
     errand = fields.Many2one(comodel_name="edi.ace_errand", string="ACE errand")
 
 
-class edi_ace_queue(models.Model):
+class EdiAceQueue(models.Model):
     _name = "edi.ace_queue"
 
     name = fields.Char(string="Name")
@@ -49,7 +47,7 @@ class edi_ace_queue(models.Model):
     )
 
 
-class edi_ace_errand(models.Model):
+class EdiAceErrand(models.Model):
     _name = "edi.ace_errand"
 
     name = fields.Char(string="Name", size=25, trim=True)
@@ -84,6 +82,7 @@ class edi_ace_errand(models.Model):
         help="Change current user to be responsible for this client, and get permanent rights that goes with it",
     )
     office_code = fields.Char(string="Office code")
+    priority = fields.Integer(string='Send priority')
 
     @api.model
     def escalate_jobseeker_access(self, partner, errand_id, user):
@@ -117,7 +116,13 @@ class edi_ace_errand(models.Model):
         return res
 
 
-class calendar_appointment_type(models.Model):
+class CalendarAppointment(models.Model):
+    _inherit = "calendar.appointment"
+
+    ace_priority = fields.Integer(string='ACE priority', related='type_id.ace_errand_id.priority')
+
+
+class CalendarAppointmentType(models.Model):
     _inherit = "calendar.appointment.type"
 
     ace_queue_id = fields.One2many(
