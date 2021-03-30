@@ -98,6 +98,7 @@ msg.pack()
         <field name="reason_code" />
         <field name="interval" />
         <field name="client_responsible" />
+        <field name="priority" />
       </tree>
     </field>
   </record>
