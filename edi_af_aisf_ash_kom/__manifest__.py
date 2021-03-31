@@ -25,7 +25,10 @@
     'category': 'edi',
     'summary': 'EDI AF AIS-F ASH KOM - sync offices to officers',
     'licence': 'AGPL-3',
-    'description': """ """,
+    'description': 
+    """ 
+    Runs through all departments and updates their employees from the ASH KOM API
+    """,
     'author': 'Arbetsförmedlingen',
     'website': 'http://www.arbetsformedlingen.se',
     'depends': ['partner_view_360', 'edi_route_ipf'],
