@@ -10,10 +10,9 @@ class ais_as_rask_controller(models.Model):
 
     @api.model
     def rask_controller(self, customer_id, social_security_number, former_social_security_number, message_type):
-        _logger.debug(
-            "called with: customer_id %s social_security_number: %s former_social_security_number %s message_type %s" % (
+        _logger.info(
+            "RASK-SYNC - called with: customer_id %s social_security_number: %s former_social_security_number %s message_type %s" % (
             customer_id, social_security_number, former_social_security_number, message_type))
-
         res_partner_obj = self.env['res.partner'].search(
             [('customer_id', '=', customer_id), ('is_jobseeker', '=', True)])
         if not res_partner_obj:
@@ -25,6 +24,11 @@ class ais_as_rask_controller(models.Model):
                 'is_jobseeker': True,
             }
             res_partner_obj = self.env['res.partner'].create(vals)
+            _logger.info('RASK-SYNC - jobseeker with customer-id: %s social sec no: %s did not exist, an empty res.partner object has been created' % (
+                customer_id, social_security_number))
+        else:
+            _logger.info('RASK-SYNC - jobseeker with customer-id: %s social sec no: %s already existed so it will be updated' % (
+                customer_id, social_security_number))
 
         route = self.env.ref("edi_af_aisf_rask.rask_route")
         vals = {

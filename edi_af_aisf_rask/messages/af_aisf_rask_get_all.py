@@ -42,6 +42,7 @@ class edi_message(models.Model):
                 res_partner_obj = res_partner_obj[0]
             if body.get('processStatus',{}).get('skyddadePersonUppgifter'):
                 res_partner_obj.unlink()
+                _logger.info("RASK-SYNC - jobseeker with id: % has protected information so it will not be created/updated" % (customer_id))
                 return
 
             res_countr_state_obj = self.env['res.country.state'].search(
@@ -189,6 +190,7 @@ class edi_message(models.Model):
             # this explicit commit() is added. As soon as the partner_mq_ipf is corrected it
             # should be removed
             self._cr.commit()
+            _logger.info("RASK-SYNC - jobseeker with id: %s was created/updated" % (customer_id))
 
     @api.one
     def pack(self):
