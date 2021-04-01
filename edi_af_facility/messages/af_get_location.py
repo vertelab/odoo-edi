@@ -102,14 +102,14 @@ class ediServiceNowOperation(models.Model):
             'type': 'visitation address',
             'street': self.visiting_address_street,
             'city': self.visiting_address_city,
-            'zip': self.visiting_address_zip,
+            'zip': self.visiting_address_zip.replace(" ","") if self.visiting_address_zip else False,
         }
         visitation_address = self.env['res.partner'].create(visitation_address_vals)
         mailing_address_vals = {
             'type': 'mailing address',
             'street': self.mailing_address_street,
             'city': self.mailing_address_city,
-            'zip': self.mailing_address_zip,
+            'zip': self.mailing_address_zip.replace(" ","") if self.mailing_address_zip else False,
         }
         mailing_address = self.env['res.partner'].create(mailing_address_vals)
 

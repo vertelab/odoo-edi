@@ -136,7 +136,7 @@ class edi_message(models.Model):
             own_or_foreign_address_given = False
             for address in body.get('kontaktuppgifter',{}).get('adresser', {}):
                 streetaddress = address.get('gatuadress')
-                if streetaddress: 
+                if streetaddress:
                     streetadress_array = streetaddress.split(",")
                     if len(streetadress_array) == 1:
                         street = streetadress_array[0]
@@ -144,6 +144,7 @@ class edi_message(models.Model):
                     elif len(streetadress_array) > 1:
                         street = streetadress_array[1]
                         street2 = streetadress_array[0]
+                    co_address = address.get('coAdress')
                     zip = address.get('postnummer')
                     city = address.get('postort')
                     country_name = address.get('landsadress')
@@ -155,6 +156,7 @@ class edi_message(models.Model):
                             country_obj = country_obj.id
 
                     if address.get('adressTyp') == 'FBF':
+                        res_partner_obj.address_co = co_address
                         res_partner_obj.street = street
                         res_partner_obj.street2 = street2
                         res_partner_obj.zip = zip
@@ -166,6 +168,7 @@ class edi_message(models.Model):
                         if not given_address_object:
                             given_address_dict = {
                                 'parent_id': res_partner_obj.id,
+                                'address_co': co_address,
                                 'street': street,
                                 'street2': street2,
                                 'zip': zip,
@@ -175,6 +178,7 @@ class edi_message(models.Model):
                             }
                             self.env['res.partner'].create(given_address_dict)
                         else:
+                            given_address_object.address_co = co_address
                             given_address_object.street = street
                             given_address_object.street2 = street2
                             given_address_object.zip = zip

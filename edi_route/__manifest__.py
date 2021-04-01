@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI Routes',
-    'version': '0.1',
+    'version': '12.0.1.0.0',
     'category': 'edi',
     'summary': 'Routes for EDI',
     'licence': 'AGPL-3',

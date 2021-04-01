@@ -21,11 +21,14 @@
 
 {
     "name": "EDI AF Appointment",
-    "version": "0.1",
+    "version": "12.0.0.2.0",
     "category": "edi",
     "summary": "EDI AF Appointment - support for appointments ",
     "licence": "AGPL-3",
-    "description": """ """,
+    'description': """
+v12.0.0.1.1 AFC-1536 - Added support for calls to API with both pnr and customer_nr being sent at the same time. \n
+v12.0.0.2.0 AFC-1905 - Added option to prioritise the order in which WI are sent to Telia ACE in. \n
+""",
     "author": "Vertel AB",
     "website": "http://www.vertel.se",
     "depends": [
@@ -42,7 +45,6 @@
         "data/edi.ace_errand.csv",
         "views/edi_af_appointment_views.xml",
         "views/edi_message_view.xml",
-        # 'data/res_users.xml',
         "data/scheduled_meeting_reminder.xml",
     ],
     "application": False,
