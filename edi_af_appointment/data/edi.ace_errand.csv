@@ -159,7 +159,7 @@ edi_ace_errand.errand_W24,W24,Bed åt UGA STOM,Mycket Stark,,1,29,,,999
 edi_ace_errand.errand_W25,W25,Besl åt JOB STOM,Mycket Stark,,1,29,,,999
 edi_ace_errand.errand_W26,W26,Besl åt UGA STOM,Mycket Stark,,1,29,,,999
 edi_ace_errand.errand_W27,W27,Första Plan STOM,Mycket Stark,True,365,29,calendar_meeting_type.type_26,0248,3
-edi_ace_errand.errand_W28,W28,Uppföl Plan STOM,Mycket Stark,,1,29,calendar_meeting_type.type_27,0248,999
+edi_ace_errand.errand_W28,W28,Uppföl Plan STOM,Mycket Stark,,1,29,calendar_meeting_type.type_27,0248,10
 edi_ace_errand.errand_W29,W29,Val AF STOM,Mycket Stark,,1,29,,,999
 edi_ace_errand.errand_W30,W30,Val FA KROM Klar,Mycket Stark,,1,29,,,999
 edi_ace_errand.errand_W31,W31,GemensamP_STOM,Mycket Stark,,1,29,,,999
@@ -169,5 +169,8 @@ edi_ace_errand.errand_W34,W34,Resultat1 STOM,Mycket Stark,,1,29,,,999
 edi_ace_errand.errand_W35,W35,Resultat2 STOM,Mycket Stark,,1,29,,,999
 edi_ace_errand.errand_W36,W36,Slutred_STOM,Mycket Stark,,1,29,,,999
 edi_ace_errand.errand_W37,W37,Bedöm Behov Plan,Mycket Stark,,1,29,,,999
+edi_ace_errand.errand_W59,W59,Första plan ung,Mycket Stark,True,365,29,calendar_meeting_type.type_201,0248,6
+edi_ace_errand.errand_W60,W60,Möte Karriär,Mycket Stark,,1,29,calendar_meeting_type.type_202,0248,1
+edi_ace_errand.errand_W61,W61,Möte AUB,Mycket Stark,,1,29,calendar_meeting_type.type_203,0248,2
 edi_ace_errand.errand_v44,v44,Fakturafrågor,Stark,,1,28,,,999
 edi_ace_errand.errand_v45,v45,Programfrågor,Stark,,1,28,,,999
