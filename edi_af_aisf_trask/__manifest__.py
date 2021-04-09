@@ -21,11 +21,17 @@
 
 {
     'name': 'EDI AF TRASK Arbetssökande',
-    'version': '0.1',
+    'version': '12.0.1.0.0',
     'category': 'edi',
     'summary': 'EDI AF TRASK arbetssökande - support for jobseekers ',
     'licence': 'AGPL-3',
-    'description': """ """,
+    'description': """
+EDI AF TRASK Arbetssökande
+===============================================================================
+This module handles integration with AF TRASK-system.\n
+v12.0.0.0.1: Versions before good version control \n
+v12.0.1.0.0 AFC-1920: Minor fixes with regards to the new structure\n
+""",
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': [
