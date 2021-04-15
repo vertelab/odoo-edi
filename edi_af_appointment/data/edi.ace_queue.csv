@@ -6,3 +6,6 @@ edi_ace_queue.AS_PlansKROMW,"AS_PlansKROMW",calendar_meeting_type.type_24
 edi_ace_queue.AS_UppfKROMW,"AS_UppfKROMW",calendar_meeting_type.type_25
 edi_ace_queue.AS_PlansSTOMW,"AS_PlansSTOMW",calendar_meeting_type.type_26
 edi_ace_queue.AS_UppfSTOMW,"AS_UppfSTOMW",calendar_meeting_type.type_27
+edi_ace_queue.AS_Planung,"AS_Planung",calendar_meeting_type.type_201
+edi_ace_queue.AS_Karriar,"AS_Karriar",calendar_meeting_type.type_202
+edi_ace_queue.AS_AUB,"AS_AUB",calendar_meeting_type.type_203
