@@ -31,7 +31,10 @@ LOCAL_TZ = 'Europe/Stockholm'
 
 class ediServiceNowOperation(models.Model):
     _name = "edi.service_now_operation"
-
+    """
+    Model to hold all values from the integration
+    with methods to compute the correct odoo values for them.
+    """
     name = fields.Char(string="Name")
     
 
@@ -75,6 +78,10 @@ class ediServiceNowOperation(models.Model):
     
     @api.one
     def compute_department_id(self):
+        """
+        Finds the department by office code,
+        If none is found, creates one.
+        """
         department = self.env['hr.department'].search([('office_code','=', self.office_code)])
         if department:
             self.department_id = department.id
@@ -84,6 +91,9 @@ class ediServiceNowOperation(models.Model):
 
     @api.one
     def compute_accessibilies(self, operation_id, accessibility_list):
+        """
+        Creates accessibility objects from the accessibility_list for operation_id
+        """
         for accessibility in accessibility_list:
             accessibility['operation_id'] = operation_id.id
             self.env['hr.location.accessibility'].create(
@@ -95,6 +105,11 @@ class ediServiceNowOperation(models.Model):
 
     @api.one
     def compute_location_id(self, department_id):
+        """
+        Creates operation and location and ties them together 
+        and ties operation to department_id
+        or updates existing operation and location data if they already exist
+        """
         location = self.env['hr.location'].search([('location_code', '=', self.campus_location_code)])
         operation = self.env['hr.operation'].search([('operation_code','=',self.x500_id)])
         #create partners from fields
@@ -102,7 +117,8 @@ class ediServiceNowOperation(models.Model):
             'type': 'visitation address',
             'street': self.visiting_address_street,
             'city': self.visiting_address_city,
-            'zip': self.visiting_address_zip.replace(" ","") if self.visiting_address_zip else False,
+            'zip': self.visiting_address_zip.replace(" ","") if self.visiting_address_zip else False, 
+            #zip numbers should be stored without spaces, integration sends with spaces
         }
         visitation_address = self.env['res.partner'].create(visitation_address_vals)
         mailing_address_vals = {
@@ -183,10 +199,10 @@ class edi_message(models.Model):
             for operation_rec in body:
                 vals = {}
                 for key in operation_rec.keys():
-                    vals[key.replace('.','_')] = operation_rec[key]
-                vals['accessibilities'] = "%s" % vals['accessibilities']
-                if operation_rec['active'] == 'true':
-                    operation = self.env['edi.service_now_operation'].create(vals)
+                    vals[key.replace('.','_')] = operation_rec[key] #replace . with _ to make all keys variable names
+                vals['accessibilities'] = "%s" % vals['accessibilities'] #make the list a string to not crash on create
+                if operation_rec['active'] == 'true': 
+                    operation = self.env['edi.service_now_operation'].create(vals) 
                     operation.compute_department_id()
                     operation.compute_location_id(operation.department_id)
                     operation.compute_accessibilies(operation.operation_res_id, operation_rec['accessibilities'])
