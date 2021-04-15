@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI AF AIS-F ASH KOM',
-    'version': '0.1',
+    'version': '12.0.0.1.1',
     'category': 'edi',
     'summary': 'EDI AF AIS-F ASH KOM - sync offices to officers',
     'licence': 'AGPL-3',

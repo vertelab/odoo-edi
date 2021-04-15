@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI AF users',
-    'version': '0.1',
+    'version': '12.0.0.1.1',
     'category': 'edi',
     'summary': 'EDI AF officers - support for officers',
     'licence': 'AGPL-3',
