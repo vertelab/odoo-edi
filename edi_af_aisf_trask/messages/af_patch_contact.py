@@ -52,10 +52,10 @@ class edi_message(models.Model):
             data_dict = {}
             if obj.last_contact and obj.last_contact_type:
                 data_dict['senasteKontaktTyp'] = obj.last_contact_type # Possible values: B, T, E, P, I
-                data_dict['senasteKontaktDatum'] = obj.last_contact.strftime("%Y-%m-%d") #"2019-10-02",
+                data_dict['senasteKontaktDatum'] = obj.next_contact_date.strftime("%Y-%m-%d") #"2019-10-02",
             if obj.next_contact:
                 data_dict['nastaKontaktTyper'] = ["%s" % obj.next_contact_type] # Possible values: B, T, E, P, I
-                data_dict['nastaKontaktDatum'] = obj.next_contact.strftime("%Y-%m-%d") #"2019-12-31",
+                data_dict['nastaKontaktDatum'] = obj.next_contact_date.strftime("%Y-%m-%d") #"2019-12-31",
                 data_dict['nastaKontaktTid'] = obj.next_contact_time #"11:30",
             body_dict['data'] = data_dict
             self.body = json.dumps(body_dict)
