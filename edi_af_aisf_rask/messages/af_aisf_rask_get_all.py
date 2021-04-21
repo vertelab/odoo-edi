@@ -193,6 +193,8 @@ class edi_message(models.Model):
             # this explicit commit() is added. As soon as the partner_mq_ipf is corrected it
             # should be removed
             self._cr.commit()
+        else:
+            super(edi_message, self).unpack()
 
     @api.one
     def pack(self):
