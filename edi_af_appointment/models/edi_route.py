@@ -19,11 +19,10 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-import base64
-from datetime import datetime
 import json
 import logging
 _logger = logging.getLogger(__name__)
+
 
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 
@@ -53,6 +52,50 @@ class edi_route(models.Model):
     _inherit = 'edi.route' 
     
     route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules'), ('edi_af_ace_wi', 'AF ACE WI')])
+
+    def _appointment_schedules(self, message, res):
+        # Create calendar.schedule from res
+        # res: list of dicts with list of schedules
+        # schedules: list of dicts of schedules
+        res_set = self.env["edi.message"]
+
+        for comp_day in res:
+            # assumes that there's only ever one competence
+            type_id = (
+                message.env["calendar.appointment.type"]
+                .search([("ipf_id", "=", comp_day.get("competence").get("id"))])
+                .id
+            )
+            for schedule in comp_day.get("schedules"):
+                # Create messages from result
+                schedule["type_id"] = type_id
+                # Convert dict to tuple since a dict can't be encoded to bytes type
+                body = tuple(sorted(schedule.items()))
+                vals = {
+                    "name": "Appointment schedule reply",
+                    "body": body,
+                    "edi_type": message.edi_type.id,
+                    "route_type": message.route_type,
+                }
+                res_set |= message.env["edi.message"].create(vals)
+
+        # unpack messages
+        if res_set:
+            res_set.unpack()
+
+        message.model_record.inactivate()
+
+    def _appointment_ace_wi(self, message, res):
+        # Why does these not update?
+        message.state = "received"
+        message.envelope_id.state = "received"
+        message.body = json.dumps(res)
+
+        ace_wi = message.env["edi.ace_workitem"].search([("id", "=", message.res_id)])
+        app = message.env["calendar.appointment"].search(
+            [("id", "=", ace_wi.appointment_id.id)]
+        )
+        app.state = "done"
 
 class edi_message(models.Model):
     _inherit='edi.message'

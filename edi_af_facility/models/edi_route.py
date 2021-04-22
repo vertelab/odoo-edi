@@ -19,16 +19,30 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-import base64
-from datetime import datetime
+import json
 
 import logging
 _logger = logging.getLogger(__name__)
+
 
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
     route_type = fields.Selection(selection_add=[('edi_af_location', 'AF location')]) #, ('edi_af_as_office', 'AF AS office')])
+
+    def _office_campus(self, message, res):
+        body = json.dumps(res)
+        vals = {
+            "name": "AF Facility reply",
+            "body": body,
+            "edi_type": message.edi_type.id,
+            "res_id": message.res_id,
+            "route_type": message.route_type,
+        }
+
+        res_message = message.env["edi.message"].create(vals)
+        # unpack messages
+        res_message.unpack()
 
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 

@@ -19,47 +19,97 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-import base64
-from datetime import datetime
+import json
 
 import logging
+
 _logger = logging.getLogger(__name__)
 
-class edi_envelope(models.Model):
-    _inherit = 'edi.envelope' 
-    
-    route_type = fields.Selection(selection_add=[('edi_af_as_notes_post', 'AF asok notes post'),('edi_af_as_notes_get', 'AF asok notes get')])
+
+class EdiEnvelope(models.Model):
+    _inherit = "edi.envelope"
+
+    route_type = fields.Selection(
+        selection_add=[
+            ("edi_af_as_notes_post", "AF asok notes post"),
+            ("edi_af_as_notes_get", "AF asok notes get"),
+        ]
+    )
 
     @api.one
-    def fold(self,route): # Folds messages in an envelope
+    def fold(self, route):  # Folds messages in an envelope
         # TODO: do we need to do something here?
         # for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
         #     m.envelope_id = self.id
-        envelope = super(edi_envelope,self).fold(route)
+        envelope = super(EdiEnvelope, self).fold(route)
         return envelope
 
     @api.one
     def _split(self):
-        if self.route_type == 'edi_af_schedules':
-            msg = self.env['edi.message'].create({
-                'name': 'plain',
-                'envelope_id': self.id,
-                'body': self.body,
-                'route_type': self.route_type,
-                'sender': self.sender,
-                'recipient': self.recipient,
-                #~ 'consignor_id': sender.id,
-                #~ 'consignee_id': recipient.id,
-            })
+        if self.route_type == "edi_af_schedules":
+            msg = self.env["edi.message"].create(
+                {
+                    "name": "plain",
+                    "envelope_id": self.id,
+                    "body": self.body,
+                    "route_type": self.route_type,
+                    "sender": self.sender,
+                    "recipient": self.recipient,
+                    # ~ 'consignor_id': sender.id,
+                    # ~ 'consignee_id': recipient.id,
+                }
+            )
             msg.unpack()
         self.envelope_opened()
 
-class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    
-    route_type = fields.Selection(selection_add=[('edi_af_as_notes_post', 'AF asok notes post'),('edi_af_as_notes_get', 'AF asok notes get')])
 
-class edi_message(models.Model):
-    _inherit='edi.message'
-          
-    route_type = fields.Selection(selection_add=[('edi_af_as_notes_post', 'AF asok notes post'),('edi_af_as_notes_get', 'AF asok notes get')])
+class EdiRoute(models.Model):
+    _inherit = "edi.route"
+
+    route_type = fields.Selection(
+        selection_add=[
+            ("edi_af_as_notes_post", "AF asok notes post"),
+            ("edi_af_as_notes_get", "AF asok notes get"),
+        ]
+    )
+
+    def _edi_af_as_notes_post(self, message, res):
+        res_set = self.env["edi.message"]
+        if res:
+            body = json.dumps(res)
+        else:
+            body = False
+        vals = {
+            "name": "AS Note reply",
+            "body": body,
+            "edi_type": message.edi_type.id,
+            "res_id": message.res_id,
+            "route_type": message.route_type,
+        }
+        res_message = message.env["edi.message"].create(vals)
+        # unpack messages
+        res_message.unpack()
+
+
+class EdiMessage(models.Model):
+    _inherit = "edi.message"
+
+    route_type = fields.Selection(
+        selection_add=[
+            ("edi_af_as_notes_post", "AF asok notes post"),
+            ("edi_af_as_notes_get", "AF asok notes get"),
+        ]
+    )
+
+    def _generate_headers(self, af_tracking_id):
+        get_headers = super(EdiMessage, self)._generate_headers(af_tracking_id)
+        if self.edi_type == self.env.ref("edi_af_as_notes.edi_af_as_notes_post"):
+            # Authorization with given username+password and PISA_ID using either sys or case workers signature
+            get_headers.update(
+                {
+                    "Authorization": self.route_id.af_authorization_header,
+                    # TODO: change this to signature
+                    "PISA_ID": "*sys*",
+                }
+            )
+        return get_headers

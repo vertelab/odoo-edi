@@ -19,10 +19,8 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-from datetime import datetime, timedelta
+
 import json
-import pytz
-import ast
 
 import logging
 _logger = logging.getLogger(__name__)

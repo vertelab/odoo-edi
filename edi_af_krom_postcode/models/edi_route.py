@@ -19,19 +19,32 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-import base64
-from datetime import datetime
+import json
 
 import logging
 _logger = logging.getLogger(__name__)
+
 
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
     route_type = fields.Selection(selection_add=[('edi_af_as_krom_postcode', 'AF KROM Postcode')])
 
+    def _asok_postcode(self, message, res):
+        body = json.dumps(res)
+        vals = {
+            "name": "AS krom postcode reply",
+            "body": body,
+            "edi_type": message.edi_type.id,
+            "res_id": message.res_id,
+            "route_type": message.route_type,
+        }
+        res_message = message.env["edi.message"].create(vals)
+        # unpack messages
+        res_message.unpack()
+
 class edi_message(models.Model):
-    _inherit='edi.message'
+    _inherit = 'edi.message'
           
     route_type = fields.Selection(selection_add=[('edi_af_as_krom_postcode', 'AF KROM Postcode')])
 class edi_envelope(models.Model):

@@ -19,23 +19,85 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-import base64
-from datetime import datetime
+import json
 
 import logging
+
 _logger = logging.getLogger(__name__)
 
-class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    
-    route_type = fields.Selection(selection_add=[('edi_af_aisf_trask_rask', 'AF AS rask'), ('edi_af_aisf_trask_office', 'AF AS office'), ('edi_af_aisf_trask_contact', 'AF AS contact')])
 
-class edi_envelope(models.Model):
-    _inherit = 'edi.envelope' 
-    
-    route_type = fields.Selection(selection_add=[('edi_af_aisf_trask_rask', 'AF AS rask'), ('edi_af_aisf_trask_office', 'AF AS office'), ('edi_af_aisf_trask_contact', 'AF AS contact')])
+class EdiRoute(models.Model):
+    _inherit = "edi.route"
 
-class edi_message(models.Model):
-    _inherit='edi.message'
-          
-    route_type = fields.Selection(selection_add=[('edi_af_aisf_trask_rask', 'AF AS rask'), ('edi_af_aisf_trask_office', 'AF AS office'), ('edi_af_aisf_trask_contact', 'AF AS contact')])
+    route_type = fields.Selection(
+        selection_add=[
+            ("edi_af_aisf_trask_rask", "AF AS rask"),
+            ("edi_af_aisf_trask_office", "AF AS office"),
+            ("edi_af_aisf_trask_contact", "AF AS contact"),
+        ]
+    )
+
+    def _rask_get_all(self, message, res):
+        # Get the answer from the call to AIS-F RASK
+        res_set = message.env["edi.message"]
+
+        body = json.dumps(res)
+        vals = {
+            "name": "RASK get all reply",
+            "body": body,
+            "edi_type": message.edi_type.id,
+            "res_id": message.res_id,
+            "route_type": message.route_type,
+        }
+        res_message = message.env["edi.message"].create(vals)
+        res_message.unpack()
+
+    def _asok_contact(self, message, res):
+        # Why does these not update?
+        message.state = "received"
+        message.envelope_id.state = "received"
+
+    def _asok_office(self, message, res):
+        # Get the answer from the call to AIS-F RASK
+        self._rask_get_all(message, res)
+
+
+class EdiEnvelope(models.Model):
+    _inherit = "edi.envelope"
+
+    route_type = fields.Selection(
+        selection_add=[
+            ("edi_af_aisf_trask_rask", "AF AS rask"),
+            ("edi_af_aisf_trask_office", "AF AS office"),
+            ("edi_af_aisf_trask_contact", "AF AS contact"),
+        ]
+    )
+
+
+class EdiMessage(models.Model):
+    _inherit = "edi.message"
+
+    route_type = fields.Selection(
+        selection_add=[
+            ("edi_af_aisf_trask_rask", "AF AS rask"),
+            ("edi_af_aisf_trask_office", "AF AS office"),
+            ("edi_af_aisf_trask_contact", "AF AS contact"),
+        ]
+    )
+
+    def _generate_headers(self, af_tracking_id):
+        get_headers = super(EdiMessage, self)._generate_headers(af_tracking_id)
+        if self.edi_type in [
+            self.env.ref("edi_af_aisf_trask.asok_office"),
+            self.env.ref("edi_af_aisf_trask.asok_patch_office"),
+            self.env.ref("edi_af_aisf_trask.asok_contact"),
+        ]:
+            # X-JWT-Assertion eller alternativt Authorization med given
+            # data och PISA_ID med antingen sys eller handläggares signatur
+            get_headers.update(
+                {
+                    "Authorization": self.route_id.af_authorization_header,
+                    "PISA_ID": "*sys*",
+                }
+            )
+        return get_headers
