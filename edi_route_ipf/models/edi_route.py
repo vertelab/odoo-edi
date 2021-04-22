@@ -188,12 +188,8 @@ class ipf_rest(_ipf):
         res_message.unpack()
 
     def _as_bos_krom(self, message, res):
-        _logger.warning("KROM CHECK IPF")
-
         res_set = message.env['edi.message']
-        _logger.warning("called with: ipf res_set %s " % res_set)
         body = json.dumps(res)
-        _logger.warning("called with: ipf body %s " % body)
         vals = {
             'name': "AS BOS krom postcode reply",
             'body': body,
@@ -201,12 +197,10 @@ class ipf_rest(_ipf):
             'res_id': message.res_id,
             'route_type': message.route_type,
         }
-        _logger.warning("called with 186: ipf vals %s " % vals)
         res_message = res_set.create(vals)
-        _logger.warning("called with: ipf res_message %s " % res_message)
         # unpack messages
         res_message.unpack()
-        _logger.warning("called with: ipf unpack now %")
+
     def _as_notes(self, message, res):
         # Create calendar.schedule from res
         # res: list of dicts with list of schedules
@@ -399,7 +393,7 @@ class ipf_rest(_ipf):
         # get list of occasions from res
 
         _logger.debug("ipf_rest.get() message.edi_type: %s" % message.edi_type)
-        _logger.debug("ipf_rest.get() message.edi_type: %s" )
+        _logger.debug("ipf_rest.get() message.edi_type: %s")
         if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules', raise_if_not_found=False):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi', raise_if_not_found=False):
@@ -463,11 +457,9 @@ class edi_route(models.Model):
 
     @api.multi
     def _run_in(self):
-        _logger.warning('run in ipf')
         # TODO: wait with this.
         if self.protocol == 'ipf':
             envelopes = []
-            _logger.warning("called with: ipf envelogggpes %s " % envelopes)
             try:
                 pass
             except Exception as e:
@@ -481,15 +473,11 @@ class edi_route(models.Model):
                     _logger.error('error in ipf READ')
                 finally:
                     pass
-            _logger.warning("called with: ipf envelogggpes2 %s " % envelopes)
             return envelopes
-            _logger.warning("called with: ipf envelogggpes2 %s " % envelopes)
         else:
             super(edi_route, self)._run_in()
-        _logger.warning('run IN ipf DONE')
     @api.multi
     def _run_out(self, envelopes):
-        _logger.warning('run out ipf')
         if self.protocol == 'ipf':
             if not (
                     self.af_ipf_url or self.af_ipf_port or self.af_client_id or self.af_client_secret or self.af_environment or self.af_system_id):
@@ -510,7 +498,6 @@ class edi_route(models.Model):
                                     ssl_certfile=self.ssl_certfile,
                                     ssl_keyfile=self.ssl_keyfile,
                                     )
-                        _logger.warning("called with: kromtype %s " % endpoint)
                         res_messages = endpoint.get(msg)
                         msg.state = 'sent'
                         msg.message_post(body=_("EDI Message processed."))

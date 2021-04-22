@@ -7,7 +7,7 @@
         <field name="code">
 
 route = env['edi.route'].search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_ais_bos.ais_bos_route'))])
-record = env['res.partner'].sudo().search([('customer_id', '=', '2279')])
+record = env['res.partner'].sudo().search([('customer_id', '=', '10240')])
 vals = {
   'name': 'get krom postcode msg',
   'edi_type': env.ref('edi_af_ais_bos.krom_postcode').id,
