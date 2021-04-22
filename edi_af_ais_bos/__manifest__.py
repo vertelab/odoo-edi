@@ -28,7 +28,11 @@
         Returns an enum for postnummer from IPF AIS BOS Regelverk V2 API.
         """,
     'licence': 'AGPL-3',
-    'description': """ """,
+    'description': """
+Module for BOS KROM
+================================================================================================
+v12.0.2.0.0 AFC-1950 - Implemented new version of API \n
+     """,
     'author': 'Arbetsförmedlingen',
     'website': 'https://arbetsformedlingen.se/',
     'depends': ['partner_view_360', 'edi_route_ipf'],

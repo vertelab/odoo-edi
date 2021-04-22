@@ -18,13 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from odoo import models, fields, api, _
-import base64
-from datetime import datetime
-
-import logging
-
-_logger = logging.getLogger(__name__)
+from odoo import api, fields, models, _
 
 
 class EdiRoute(models.Model):

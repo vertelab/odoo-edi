@@ -18,12 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from odoo import models, fields, api, _
 import json
-import pytz
-import ast
-
 import logging
+
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -33,7 +32,6 @@ class edi_message(models.Model):
 
     @api.one
     def unpack(self):
-        _logger.warning("KROM CHECK UNPACK")
         if self.edi_type.id == self.env.ref('edi_af_ais_bos.krom_postcode').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = json.loads(self.body.decode("utf-8"))
@@ -51,15 +49,15 @@ class edi_message(models.Model):
     def pack(self):
         if self.edi_type.id == self.env.ref('edi_af_ais_bos.krom_postcode').id:
             if not self.model_record or self.model_record._name != 'res.partner':
-                raise Warning("KROM: Attached record is not an res.partner'! {model}".format(
-                    model=self.model_record and self.model_record._name or None))
+                raise UserError(_("KROM: Attached record is not an res.partner'! {model}".format(
+                    model=self.model_record and self.model_record._name or None)))
 
             obj = self.model_record  # res.partner
             given_address = obj.child_ids.filtered(lambda r: r.type == "given address")
             if given_address:
                 postcode = given_address[0].zip
             else:
-                raise Warning("Postcode field is empty or invalid")
+                raise UserError(_("Postcode field is empty or invalid"))
 
             path = "ais-bos-regelverk/v2/krom/kromtyp-for-postnummer"
             self.body = self.edi_type.type_mapping.format(

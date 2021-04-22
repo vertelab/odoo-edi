@@ -1,4 +1,4 @@
-<openerp>
+<odoo>
     <data noupdate="1">
         <record id="ais_bos_route" model="edi.route">
             <field name="name">AF Asok: Get AIS BOS route</field>
@@ -15,4 +15,4 @@
         </record>
 
     </data>
-</openerp>
+</odoo>

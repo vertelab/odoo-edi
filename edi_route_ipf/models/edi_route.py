@@ -393,7 +393,6 @@ class ipf_rest(_ipf):
         # get list of occasions from res
 
         _logger.debug("ipf_rest.get() message.edi_type: %s" % message.edi_type)
-        _logger.debug("ipf_rest.get() message.edi_type: %s")
         if message.edi_type == message.env.ref('edi_af_appointment.appointment_schedules', raise_if_not_found=False):
             self._schedules(message, res)
         elif message.edi_type == message.env.ref('edi_af_appointment.appointment_ace_wi', raise_if_not_found=False):
