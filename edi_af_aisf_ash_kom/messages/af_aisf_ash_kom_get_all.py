@@ -62,6 +62,8 @@ class edi_message(models.Model):
             department_obj.write({
                 'employee_ids': [(6,0,employee_ids)]
             })
+        else:
+            super(edi_message, self).unpack()
 
             
 
