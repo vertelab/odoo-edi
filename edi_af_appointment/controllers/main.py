@@ -122,11 +122,15 @@ class AppointmentController(http.Controller):
         for day in occ_list:
             for slot in day:
                 for book_occ in slot:
+                    if len(book_occ) != 1:
+                        book_duration = int(len(book_occ) * BASE_DURATION)
+                    else:
+                        book_duration = int(type_id.duration)
                     vals = {
                         # change occasions from recordsets to an 'external' ID
                         "id": self.encode_bookable_occasion_id(book_occ),
                         "appointment_title": "%sm @ %s"
-                        % (int(len(book_occ) * BASE_DURATION), book_occ[0].start),
+                        % (book_duration, book_occ[0].start),
                         "appointment_channel": book_occ[0].channel.name,
                         "employee_name": book_occ[0].user_id.display_name
                         if book_occ[0].user_id
@@ -143,7 +147,7 @@ class AppointmentController(http.Controller):
                         "occasion_end": book_occ[-1].stop.strftime(
                             "%Y-%m-%dT%H:%M:%SZ"
                         ),
-                        "occasion_duration": int(len(book_occ) * BASE_DURATION),
+                        "occasion_duration": book_duration,
                     }
 
                     # Create new list and append our value if it is the first record

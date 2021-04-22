@@ -42,6 +42,7 @@ class edi_message(models.Model):
                 res_partner_obj = res_partner_obj[0]
             if body.get('processStatus',{}).get('skyddadePersonUppgifter'):
                 res_partner_obj.unlink()
+                _logger.info("RASK-SYNC - jobseeker with id: % has protected information so it will not be created/updated" % (customer_id))
                 return
 
             res_countr_state_obj = self.env['res.country.state'].search(
@@ -195,6 +196,7 @@ class edi_message(models.Model):
             self._cr.commit()
         else:
             super(edi_message, self).unpack()
+            _logger.info("RASK-SYNC - jobseeker with id: %s was created/updated" % (customer_id))
 
     @api.one
     def pack(self):

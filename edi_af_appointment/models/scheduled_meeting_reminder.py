@@ -28,7 +28,7 @@ class ScheduledMeeting(models.Model):
 
     def send_out_message(self):
         # self.env['calendar.appointment'].search([('state', '=', 'confirmed')])
-        appointment_ids = self.env['calendar.appointment'].search([('state', '=', 'confirmed')])
+        appointment_ids = self.env['calendar.appointment'].search([('state', '=', 'confirmed')], order='ace_priority')
         for record in appointment_ids:
             before_start_time = record.start - datetime.timedelta(minutes=10)
             if before_start_time.strftime('%H:%M') == datetime.datetime.now().strftime('%H:%M'):

@@ -25,7 +25,11 @@
     'category': 'edi',
     'summary': 'EDI AF facility - Find bookable offices for meetings ',
     'licence': 'AGPL-3',
-    'description': """ """,
+    'description': 
+    """
+    Asks the Service Now On Site Operations API for all operations
+    then creates or updates operations and locations.
+    """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['partner_view_360', 'edi_route_ipf'],

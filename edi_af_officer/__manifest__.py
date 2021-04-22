@@ -21,11 +21,12 @@
 
 {
     'name': 'EDI AF users',
-    'version': '0.1',
+    'version': '12.0.0.1.1',
     'category': 'edi',
     'summary': 'EDI AF officers - support for officers',
     'licence': 'AGPL-3',
     'description': """ 
+Gets and sets up user and employee information from x500 AF Person API
 odoo.conf needs to have a >1hr limit_time_real 
 ===============================================================================
 AFC-239
