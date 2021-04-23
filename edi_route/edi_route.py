@@ -229,6 +229,7 @@ class edi_message(models.Model):
     _name = 'edi.message'
     _inherit = ['mail.thread']
     _description = 'EDI Message'
+    _order = 'create_date'
 
     name = fields.Char(string="Name",required=True)
     envelope_id = fields.Many2one(comodel_name='edi.envelope', required=False)
