@@ -35,16 +35,12 @@ _logger = logging.getLogger(__name__)
 
 
 class EdiRoute(models.Model):
-    """ IPF: Class to communicate with IPF through REST
+    """IPF: Class to communicate with IPF through REST
 
     Implementations of new messages should inherit this class
     In their respective modules and add a new function called
     "_<edi.message.type external_id (without module name)>"
-    that handle the message type in order for the code to work.
-
-    Functions for messages defined in the code in this file are a
-    legacy that should be removed and moved to their respective
-    modules in further iterations of this code."""
+    that handle the message type in order for the code to work."""
 
     _inherit = "edi.route"
 
@@ -205,7 +201,6 @@ class EdiRoute(models.Model):
         get_headers = message._generate_headers(af_tracking_id)
 
         if message.body:
-            _logger.debug("edi_route: message.body: %s" % message.body)
             if type(message.body) == bytes:
                 body = message.body.decode("utf-8")
             else:
@@ -217,7 +212,7 @@ class EdiRoute(models.Model):
                 # The result of this line is never used. is this a bug?
                 # Keeping the code but commenting it for now.
                 # data_vals = json.loads(body.get("data").encode("utf-8"))
-                method = 'GET'
+                method = "GET"
                 data_vals = body.get("data")
                 base_url = body.get("base_url")
                 get_url = base_url.format(
@@ -281,7 +276,11 @@ class EdiRoute(models.Model):
         try:
             res_json = request.urlopen(req, context=ctx).read()
         except Exception as e:
-            censored_error = message.censor_error(url=get_url, headers=get_headers, method=method, data=data_vals)
+            # Logg what request generated this error, but remove sensitive
+            # information before sending it to log
+            censored_error = message.censor_error(
+                url=get_url, headers=get_headers, method=method, data=data_vals
+            )
             message.message_post(body=censored_error)
             _logger.exception(censored_error)
             raise e
@@ -291,8 +290,6 @@ class EdiRoute(models.Model):
             res = json.loads(res_json)
         else:
             res = False
-
-        _logger.debug("ipf_rest.get() message.edi_type: %s" % message.edi_type)
 
         # find the external id of our edi.message.type
         edi_type_ext_id = message.edi_type.get_external_id()[message.edi_type.id]

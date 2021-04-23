@@ -31,7 +31,7 @@ Add routes for EDI using IPF-Rest and IPF-MQ.
 Requires python libraries paramiko and pycrypto. http://www.paramiko.org/installing.html
 This functionality is tailored for AF. \n
 v12.0.1.0.0: versions before good version control \n
-v12.0.2.0.0 AFC-1766: Major overhaul of how logging is performed. \n
+v12.0.2.0.0 AFC-1766: Major overhaul of how the module works. \n
 \n
 """,
     'author': 'Vertel AB',
