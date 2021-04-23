@@ -20,27 +20,29 @@
 ##############################################################################
 
 from odoo import models, fields, api, _
-
+from urllib import parse
 import logging
 
 _logger = logging.getLogger(__name__)
 
 
 class EdiMessage(models.Model):
-    _inherit = "edi.message"
-    """ IPF: Changes to message to allow communication with IPF 
+    """IPF: Changes to message to allow communication with IPF
 
     Implementations of new messages should inherit this class
-    In their respective modules and extend functionality of 
-    the function _generate_headers() to add special headers
-    required for that message."""
+    in their respective modules and extend functionality of
+    the method _generate_headers() to add special headers
+    required for that message. Method censor_error() should also be
+    overridden. """
+
+    _inherit = "edi.message"
 
     def _generate_headers(self, af_tracking_id):
-        """This method generates headers and are used to call IPF in edi.route
+        """This method generates headers the that are used to call IPF in edi.route
         HINT:
          - use self to reach data on message
-         - use self.route_id to reach data on the route
-        """
+         - use self.route_id to reach data on the route"""
+
         get_headers = {
             "AF-Environment": self.route_id.af_environment,
             "AF-SystemId": self.route_id.af_system_id,
@@ -48,3 +50,28 @@ class EdiMessage(models.Model):
             "AF-EndUserId": "*sys*",
         }
         return get_headers
+
+    @api.model
+    def censor_error(self, url, headers, method, data=False):
+        """ The Politburo.
+        Responsible for removing sensitive information from error messages
+        before it is published in logs and to users. This method needs to
+        be overridden for each message type or the log will show the entire
+        uncensored request in case of errors. """
+        res = _(
+            "Error while sending message: URL: {url} DATA: {data} HEADERS: {headers} METHOD: {method}"
+        )
+        censored_params = {
+            'client_id': "REMOVED",
+            'client_secret': "REMOVED"
+        }
+
+        # parse URL and update censured values.
+        url_parts = list(parse.urlparse(url))
+        query = dict(parse.parse_qsl(url_parts[4]))
+        query.update(censored_params)
+        url_parts[4] = parse.urlencode(query)
+        url = parse.urlunparse(url_parts)
+
+        res = res.format(url=url, data=data, headers=headers, method=method)
+        return res

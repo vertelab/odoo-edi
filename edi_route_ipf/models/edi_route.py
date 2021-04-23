@@ -23,6 +23,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import Warning
 from urllib import request
 from urllib.error import HTTPError, URLError
+from .error import EDIBodyError, EDIUnkownMessageError
 import json
 import ssl
 import uuid
@@ -34,9 +35,6 @@ _logger = logging.getLogger(__name__)
 
 
 class EdiRoute(models.Model):
-    # TODO: maybe make this a new model sometime in the future
-    # _name = "edi.route.ipf"
-    _inherit = "edi.route"
     """ IPF: Class to communicate with IPF through REST
 
     Implementations of new messages should inherit this class
@@ -47,6 +45,8 @@ class EdiRoute(models.Model):
     Functions for messages defined in the code in this file are a
     legacy that should be removed and moved to their respective
     modules in further iterations of this code."""
+
+    _inherit = "edi.route"
 
     # address
     af_ipf_url = fields.Char(
@@ -144,21 +144,38 @@ class EdiRoute(models.Model):
                     except HTTPError as e:
                         formatted_error = f"HTTP error while sending message: {e.code} {e.reason}: {e.read()}"
                         msg.message_post(body=formatted_error)
-                        _logger.warning(f"edi.message: {msg.id}: " + formatted_error)
+                        _logger.exception(f"edi.message: {msg.id}: " + formatted_error)
                         msg.state = "canceled"
                         envelope_sent = False
                         break
                     except URLError as e:
                         formatted_error = f"URL error while sending message: {e.reason}"
                         msg.message_post(body=formatted_error)
-                        _logger.warning(f"edi.message: {msg.id}: " + formatted_error)
+                        _logger.exception(f"edi.message: {msg.id}: " + formatted_error)
+                        msg.state = "canceled"
+                        envelope_sent = False
+                        break
+                    except EDIBodyError as e:
+                        formatted_error = f"EDI error while sending message: {e}"
+                        msg.message_post(body=formatted_error)
+                        _logger.exception(f"edi.message: {msg.id}: " + formatted_error)
+                        msg.state = "canceled"
+                        envelope_sent = False
+                        break
+                    except EDIUnkownMessageError as e:
+                        formatted_error = f"EDI error while sending message: {e}"
+                        msg.message_post(body=formatted_error)
+                        _logger.exception(f"edi.message: {msg.id}: " + formatted_error)
                         msg.state = "canceled"
                         envelope_sent = False
                         break
                     except Exception as e:
-                        # TODO: better error
+                        formatted_error = f"Error while sending message: {e}"
+                        msg.message_post(body=formatted_error)
+                        _logger.exception(f"edi.message: {msg.id}: " + formatted_error)
                         msg.state = "canceled"
-                        msg.message_post(body=_("ERROR!!!"))
+                        envelope_sent = False
+                        break
                     else:
                         # Update that everything is A-OKAY.
                         msg.state = "sent"
@@ -173,15 +190,13 @@ class EdiRoute(models.Model):
             super(EdiRoute, self)._run_out(envelopes)
 
     def send_request(self, message):
-        """ Method used for creating and sending REST request to IPF
-        based on the information in the edi message and route. """
+        """Method used for creating and sending REST request to IPF based on the information in the edi message and route."""
 
         def is_json(json_str):
             """ Checks if a str is a json or not. """
             try:
                 return json.loads(json_str)
-            # TODO: PEP 8: E722 do not use bare 'except'
-            except:
+            except json.JSONDecodeError:
                 return False
 
         # Generate a unique tracking id
@@ -202,6 +217,7 @@ class EdiRoute(models.Model):
                 # The result of this line is never used. is this a bug?
                 # Keeping the code but commenting it for now.
                 # data_vals = json.loads(body.get("data").encode("utf-8"))
+                method = 'GET'
                 data_vals = body.get("data")
                 base_url = body.get("base_url")
                 get_url = base_url.format(
@@ -248,13 +264,8 @@ class EdiRoute(models.Model):
                 method = "GET"
                 data_vals = False
         else:
-            # TODO: throw error?
-            return False
+            raise EDIBodyError(_("No message.body on message."))
 
-        _logger.debug("edi_route: get_url: %s" % get_url)
-        _logger.debug("edi_route: data_vals: %s" % data_vals)
-        _logger.debug("edi_route: get_headers: %s" % get_headers)
-        _logger.debug("edi_route: method: %s" % method)
         # Build our request using url and headers
         # Request(url, data=None, headers={}, origin_req_host=None, unverifiable=False, method=None)
         if data_vals:
@@ -267,7 +278,13 @@ class EdiRoute(models.Model):
             req = request.Request(url=get_url, headers=get_headers, method=method)
         ctx = self._generate_ctx()
         # send GET and read result
-        res_json = request.urlopen(req, context=ctx).read()
+        try:
+            res_json = request.urlopen(req, context=ctx).read()
+        except Exception as e:
+            censored_error = message.censor_error(url=get_url, headers=get_headers, method=method, data=data_vals)
+            message.message_post(body=censored_error)
+            _logger.exception(censored_error)
+            raise e
 
         # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table
         if res_json:
@@ -293,8 +310,13 @@ class EdiRoute(models.Model):
                 mapped_function(message, res)
                 # i.e. _appointment_schedules(message, res)
             else:
-                # log that this is weird and move on
-                _logger.warning(
-                    f"No function found named '{mapped_function_name}' for edi.message.type '{edi_type_ext_id}'"
+                # raise error
+                error_msg = _(
+                    "No function found named '{mapped_function_name}' for edi.message.type '{edi_type_ext_id}'"
                 )
-                # TODO: throw error?
+                raise EDIUnkownMessageError(
+                    error_msg.format(
+                        mapped_function_name=mapped_function_name,
+                        edi_type_ext_id=edi_type_ext_id,
+                    )
+                )
