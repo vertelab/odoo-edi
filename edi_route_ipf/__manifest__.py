@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI Routes IPF',
-    'version': '12.0.2.0.0',
+    'version': '12.0.2.1.0',
     'category': 'edi',
     'summary': 'Routes for EDI using IPF',
     'licence': 'AGPL-3',
@@ -32,6 +32,7 @@ Requires python libraries paramiko and pycrypto. http://www.paramiko.org/install
 This functionality is tailored for AF. \n
 v12.0.1.0.0: versions before good version control \n
 v12.0.2.0.0 AFC-1766: Major overhaul of how the module works. \n
+v12.0.2.1.0 AFC-1767: Implemented edi.log model. \n
 \n
 """,
     'author': 'Vertel AB',

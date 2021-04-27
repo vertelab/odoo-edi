@@ -34,8 +34,17 @@ class EdiMessage(models.Model):
     the method _generate_headers() to add special headers
     required for that message. Method censor_error() should also be
     overridden. """
-
     _inherit = "edi.message"
+
+    log_id = fields.One2many(comodel_name='edi.log', inverse_name='message_id', string='Log')
+
+    @api.model
+    def create(self, values):
+        res = super(EdiMessage, self).create(values)
+        log_vals = {'message_id': res.id}
+        log = self.env['edi.log'].create(log_vals)
+        res.log_id = log
+        return res
 
     def _generate_headers(self, af_tracking_id):
         """This method generates headers the that are used to call IPF in edi.route
@@ -75,3 +84,9 @@ class EdiMessage(models.Model):
 
         res = res.format(url=url, data=data, headers=headers, method=method)
         return res
+
+    @api.one
+    def message_post(self, **kwargs):
+        # Update the log object with the new message as well.
+        self.log_id.message_post(**kwargs)
+        return super(EdiMessage, self).message_post(**kwargs)

@@ -19,7 +19,6 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-from datetime import datetime, timedelta
 import json
 
 import logging
@@ -59,10 +58,10 @@ class EdiMessage(models.Model):
                 'errand': obj.errand.code,
                 'customer': {
                     'id': {
-                        'pnr': obj.appointment_id.partner_id.social_sec_nr.replace('-', '')
+                        'pnr': (obj.appointment_id.partner_id.social_sec_nr or '').replace('-', '')
                     },
-                    'phone_mobile': (obj.appointment_id.partner_id.mobile or obj.appointment_id.partner_id.phone).replace(' ', ''),
-                    'phone_home': obj.appointment_id.partner_id.phone.replace(' ', '')
+                    'phone_mobile': (obj.appointment_id.partner_id.mobile or obj.appointment_id.partner_id.phone or '').replace(' ', ''),
+                    'phone_home': (obj.appointment_id.partner_id.phone or '').replace(' ', '')
                 }
             }
             self.body = json.dumps(body_dict)
