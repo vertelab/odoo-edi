@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI Routes',
-    'version': '12.0.1.0.0',
+    'version': '12.0.1.1.0',
     'category': 'edi',
     'summary': 'Routes for EDI',
     'licence': 'AGPL-3',
@@ -117,7 +117,9 @@ How to connect a context (edi.route.caller) to a message
             if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:
             ...
 
-
+v12.0.1.0.0: versions before good version control \n
+v12.0.1.1.0 AFC-1766: Added order for edi.message model, create_date. \n
+\n
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',

@@ -1,0 +1,201 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* edi_route_ipf
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20210127\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-23 11:19+0000\n"
+"PO-Revision-Date: 2021-04-23 11:19+0000\n"
+"Last-Translator: Daniel Eriksson <daniel.eriksson@vertel.se>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__af_authorization_header
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_route_form
+msgid "AF-Authorization header"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__af_environment
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_route_form
+msgid "AF-Environment"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__af_system_id
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_route_form
+msgid "AF-SystemId"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_route_form
+msgid "Client ID"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__af_client_id
+msgid "Client Id"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_route_form
+msgid "Client Secret"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__af_client_secret
+msgid "Client secret"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_message_type__type_mapping
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_type_form
+msgid "Data mapping"
+msgstr "Datamappning"
+
+#. module: edi_route_ipf
+#: model:ir.model,name:edi_route_ipf.model_edi_message
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_message_tree_inherited
+msgid "EDI Message"
+msgstr "EDI Meddelande"
+
+#. module: edi_route_ipf
+#: model:ir.model,name:edi_route_ipf.model_edi_message_type
+msgid "EDI Message Type"
+msgstr "EDI Meddelandetyp"
+
+#. module: edi_route_ipf
+#: model:ir.model,name:edi_route_ipf.model_edi_route
+msgid "EDI Route"
+msgstr "EDI Rutt"
+
+#. module: edi_route_ipf
+#: code:addons/edi_route_ipf/models/edi_message.py:61
+#, python-format
+msgid "Error while sending message: URL: {url} DATA: {data} HEADERS: {headers} METHOD: {method}"
+msgstr "Error när meddelandet skickades: URL: {url} DATA: {data} HEADERS: {headers} METHOD: {method}"
+
+#. module: edi_route_ipf
+#: selection:edi.route,protocol:0
+msgid "IPF"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__af_ipf_url
+msgid "IPF API URL"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__af_ipf_port
+msgid "IPF API port"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_route_form
+msgid "IPF port"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_route_form
+msgid "IPF url"
+msgstr ""
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_message_type__type_mapping
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_message_type__type_target
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_route__af_authorization_header
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_route__af_client_id
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_route__af_client_secret
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_route__af_environment
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_route__af_ipf_port
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_route__af_ipf_url
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_route__af_system_id
+msgid "If you need help you shouldn't be changing this"
+msgstr ""
+
+#. module: edi_route_ipf
+#: code:addons/edi_route_ipf/models/edi_route.py:178
+#, python-format
+msgid "Message sent successfully."
+msgstr "Meddelandet skickades."
+
+#. module: edi_route_ipf
+#: selection:edi.route,ssl_protocol:0
+msgid "Mutual verification (mTLS)"
+msgstr ""
+
+#. module: edi_route_ipf
+#: code:addons/edi_route_ipf/models/edi_route.py:311
+#, python-format
+msgid "No function found named '{mapped_function_name}' for edi.message.type '{edi_type_ext_id}'"
+msgstr "Ingen funktion hittad med namnet '{mapped_function_name}' för edi.message.type '{edi_type_ext_id}'"
+
+#. module: edi_route_ipf
+#: code:addons/edi_route_ipf/models/edi_route.py:262
+#, python-format
+msgid "No message.body on message."
+msgstr "Inget message.body för meddelande."
+
+#. module: edi_route_ipf
+#: selection:edi.route,ssl_protocol:0
+msgid "No verification"
+msgstr "Ingen verifiering"
+
+#. module: edi_route_ipf
+#: selection:edi.route,protocol:0
+msgid "None"
+msgstr "Ingen"
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_route__ssl_certfile
+msgid "Path of the X.509 certificate file in PEM(Privacy Enhanced Email) format"
+msgstr "Sökväg till X.509 certifikatfilen in PEM(Privacy Enhanced Email)-format"
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,help:edi_route_ipf.field_edi_route__ssl_keyfile
+msgid "Path of the X.509 private key of the certificate"
+msgstr "Sökväg till X.509 privatnyckelfil för certifikatet"
+
+#. module: edi_route_ipf
+#: code:addons/edi_route_ipf/models/edi_route.py:131
+#, python-format
+msgid "Please setup AF IPF Information"
+msgstr "Vänligen konfigurera IPF-information"
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__protocol
+msgid "Protocol"
+msgstr "Protokoll"
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__ssl_certfile
+msgid "SSL Cert File Path"
+msgstr "SSL Certifikatfil"
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__ssl_keyfile
+msgid "SSL Key File Path"
+msgstr "SSL Nyckelfil"
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_route__ssl_protocol
+msgid "SSL-Protocol"
+msgstr "SSL-Protokoll"
+
+#. module: edi_route_ipf
+#: selection:edi.route,ssl_protocol:0
+msgid "Simple verification"
+msgstr "Enkel verifiering"
+
+#. module: edi_route_ipf
+#: model:ir.model.fields,field_description:edi_route_ipf.field_edi_message_type__type_target
+#: model_terms:ir.ui.view,arch_db:edi_route_ipf.view_edi_type_form
+msgid "Target"
+msgstr "Mål"
+

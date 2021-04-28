@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Odoo, Open Source Management Solution, third party addon
+#    Copyright (C) 2004-2021 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,24 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from odoo import models, fields, api, _
-import base64
-from datetime import datetime
 
-import logging
-_logger = logging.getLogger(__name__)
+class EDIBodyError(Exception):
+    """Base class for exceptions in this module."""
+    pass
 
-class edi_route(models.Model):
-    _inherit = 'edi.route' 
-    
-    route_type = fields.Selection(selection_add=[('edi_af_as_segment', 'AF AS segment')])
-
-class edi_message(models.Model):
-    _inherit='edi.message'
-          
-    route_type = fields.Selection(selection_add=[('edi_af_as_segment', 'AF AS segment')])
-class edi_envelope(models.Model):
-    _inherit = 'edi.envelope' 
-    
-    route_type = fields.Selection(selection_add=[('edi_af_as_segment', 'AF AS segment')])
-
+class EDIUnkownMessageError(Exception):
+    """Base class for exceptions in this module."""
+    pass

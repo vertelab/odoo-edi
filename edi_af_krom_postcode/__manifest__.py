@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2021 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -21,14 +21,22 @@
 
 {
     'name': 'EDI AF KROM Postcode',
-    'version': '12.0.1.0.0',
+    'version': '12.0.2.0.0',
     'category': 'edi',
     'summary': """
         Check if a postcode is valid for KROM.\n
         Returns a boolean for postnummer from IPF AIS BOS Regelverk API.
         """,
     'licence': 'AGPL-3',
-    'description': """ """,
+    'description': """   
+Check if a postcode is valid for KROM.\n
+Returns a boolean for postnummer from IPF AIS BOS Regelverk API. \n  
+================================================================================================ \n
+This functionality is tailored for AF. \n
+v12.0.1.0.0: versions before good version control \n
+v12.0.2.0.0 AFC-1766: Major overhaul of how the module works. \n
+\n
+""",
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['partner_view_360', 'edi_route_ipf'],
