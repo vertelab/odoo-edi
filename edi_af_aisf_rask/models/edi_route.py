@@ -21,19 +21,31 @@
 from odoo import models, fields, api, _
 
 import logging
+
 _logger = logging.getLogger(__name__)
 
-class edi_route(models.Model):
-    _inherit = 'edi.route'
 
-    route_type = fields.Selection(selection_add=[('edi_af_as_rask', 'AF AS rask')])
+class EdiRoute(models.Model):
+    _inherit = "edi.route"
 
-class edi_envelope(models.Model):
-    _inherit = 'edi.envelope'
+    route_type = fields.Selection(selection_add=[("edi_af_as_rask", "AF AS rask")])
 
-    route_type = fields.Selection(selection_add=[('edi_af_as_rask', 'AF AS rask')])
 
-class edi_message(models.Model):
-    _inherit = 'edi.message'
+class EdiEnvelope(models.Model):
+    _inherit = "edi.envelope"
 
-    route_type = fields.Selection(selection_add=[('edi_af_as_rask', 'AF AS rask')])
+    route_type = fields.Selection(selection_add=[("edi_af_as_rask", "AF AS rask")])
+
+
+class EdiMessage(models.Model):
+    _inherit = "edi.message"
+
+    route_type = fields.Selection(selection_add=[("edi_af_as_rask", "AF AS rask")])
+
+    def _generate_headers(self, af_tracking_id):
+        get_headers = super(EdiMessage, self)._generate_headers(af_tracking_id)
+        if self.edi_type == self.env.ref("edi_af_aisf_rask.rask_get_all"):
+            # HTTP-header with this key and value is required for AS with protected identity
+            get_headers.update({"PISA_ID": "*sys*"})
+
+        return get_headers

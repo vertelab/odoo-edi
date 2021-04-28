@@ -19,11 +19,10 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-import base64
-from datetime import datetime
 
 import logging
 _logger = logging.getLogger(__name__)
+
 
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 
@@ -58,6 +57,19 @@ class edi_route(models.Model):
     _inherit = 'edi.route' 
     
     route_type = fields.Selection(selection_add=[('edi_af_organisation', 'AF Organisation')])
+
+    def _ag_organisation(self, message, res):
+        body = tuple(sorted(res))
+        vals = {
+            "name": "AS Org reply",
+            "body": body,
+            "edi_type": message.edi_type.id,
+            "res_id": message.res_id.id,
+            "route_type": message.route_type,
+        }
+        res_message = message.env["edi.message"].create(vals)
+        # unpack messages
+        res_message.unpack()
 
 class edi_message(models.Model):
     _inherit='edi.message'

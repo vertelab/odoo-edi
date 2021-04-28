@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI AF users',
-    'version': '12.0.0.1.1',
+    'version': '12.0.1.0.0',
     'category': 'edi',
     'summary': 'EDI AF officers - support for officers',
     'licence': 'AGPL-3',
@@ -29,9 +29,11 @@
 Gets and sets up user and employee information from x500 AF Person API
 odoo.conf needs to have a >1hr limit_time_real 
 ===============================================================================
-AFC-239
-
-    """,
+This functionality is tailored for AF. \n
+v12.0.0.1.1: versions before good version control (AFC-239)\n
+v12.0.1.0.0 AFC-1766: Major overhaul of how the module works. \n
+\n
+""",
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['partner_view_360', 'edi_route_ipf','hr_360_view', 'auth_saml_af'],

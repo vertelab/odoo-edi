@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2021 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -21,7 +21,7 @@
 
 {
     "name": "EDI AF Appointment",
-    "version": "12.0.0.2.2",
+    "version": "12.0.1.0.0",
     "category": "edi",
     "summary": "EDI AF Appointment - support for appointments ",
     "licence": "AGPL-3",
@@ -31,6 +31,7 @@ v12.0.0.1.1 AFC-1536: Added support for calls to API with both pnr and customer_
 v12.0.0.2.0 AFC-1905: Added option to prioritise the order in which WI are sent to Telia ACE in. \n
 v12.0.0.2.1 AFC-1805: Duration of PDM occasions now handled differently. \n
 v12.0.0.2.2 AFC-1715: Added support for new appointment types. \n
+v12.0.1.0.0 AFC-1766: Major overhaul of how the module works. \n
 """,
     "author": "Vertel AB",
     "website": "http://www.vertel.se",
