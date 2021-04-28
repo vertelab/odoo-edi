@@ -36,6 +36,10 @@ class edi_message(models.Model):
 
     @api.one
     def unpack(self):
+        """
+        Creates or updates user and connected employee and connects it to department
+        if department can't be found, doesn't create or update
+        """
         if self.edi_type.id == self.env.ref('edi_af_officer.get_officer').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = json.loads(self.body.decode("utf-8"))
@@ -45,7 +49,7 @@ class edi_message(models.Model):
                 if i == 500:
                     i = 0
                     self.env.cr.commit()
-                workplaceNumber = officer.get('workplaceNumber')
+                workplaceNumber = officer.get('workplaceNumber') # one location
                 if workplaceNumber:
                     workplaceNumber = int(workplaceNumber)
                 operation = self.env['hr.operation'].search([('workplace_number','=', workplaceNumber)])
@@ -55,7 +59,7 @@ class edi_message(models.Model):
                 if not office:
                     _logger.info("office number %s not in database, creating" % officer.get('officeCode'))
                     office = self.env['hr.department'].create({'name': officer.get('officeCode'), 'office_code': officer.get('officeCode'), 'note': _('Missing in AIS-F')})
-                if office and len(office) == 1:
+                if office and len(office) == 1: # hr.department should have a constraint added to it so length doesn't need to be checked
                     # parent_id = False
                     # parent_user_id = self.env['res.users'].search([('login','=',officer.get('managerSignature'))])
                     # if not parent_user_id:

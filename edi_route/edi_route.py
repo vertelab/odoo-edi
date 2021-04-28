@@ -652,6 +652,7 @@ class edi_route(models.Model):
                     message += '\n' + ''.join(traceback.format_exception(e[0], e[1], e[2]))
             else:
                 message += '\n' + ''.join(traceback.format_exception(error_info[0], error_info[1], error_info[2]))
+        _logger.warning(message)
         user = self.env['res.users'].browse(self._uid)
         self.env['mail.message'].create({
                 'body': html_line_breaks(message),

@@ -32,6 +32,10 @@ class edi_message(models.Model):
 
     @api.one
     def unpack(self):
+        """
+        Updates a department with employees
+        if an employee can't be found create it.
+        """
         if self.edi_type.id == self.env.ref('edi_af_aisf_ash_kom.ash_kom_get_all').id:
             body = json.loads(self.body)
             department_obj = self.env['hr.department'].search([(
