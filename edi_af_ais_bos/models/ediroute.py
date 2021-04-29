@@ -18,13 +18,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+import json
+import logging
+
 from odoo import api, fields, models, _
+
+_logger = logging.getLogger(__name__)
 
 
 class EdiRoute(models.Model):
     _inherit = 'edi.route'
+    _logger.warning("BOS.EDIROUTE")
 
     route_type = fields.Selection(selection_add=[('edi_af_as_ais_bos', 'AF AS Kromtype')])
+
+    def _krom_postcode(self, message, res):
+        body = json.dumps(res)
+        vals = {
+            'name': "AS BOS krom postcode reply",
+            'body': body,
+            'edi_type': message.edi_type.id,
+            'res_id': message.res_id,
+            'route_type': message.route_type,
+        }
+        res_message = message.env["edi.message"].create(vals)
+        # unpack messages
+        res_message.unpack()
 
 
 class EdiMessage(models.Model):

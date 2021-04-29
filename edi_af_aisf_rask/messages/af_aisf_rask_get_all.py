@@ -196,7 +196,6 @@ class edi_message(models.Model):
             self._cr.commit()
         else:
             super(edi_message, self).unpack()
-            _logger.info("RASK-SYNC - jobseeker with id: %s was created/updated" % (customer_id))
 
     @api.one
     def pack(self):
