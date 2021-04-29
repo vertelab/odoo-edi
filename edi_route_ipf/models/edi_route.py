@@ -114,12 +114,12 @@ class EdiRoute(models.Model):
     def _run_out(self, envelopes):
         if self.protocol == "ipf":
             if not (
-                self.af_ipf_url
-                or self.af_ipf_port
-                or self.af_client_id
-                or self.af_client_secret
-                or self.af_environment
-                or self.af_system_id
+                    self.af_ipf_url
+                    or self.af_ipf_port
+                    or self.af_client_id
+                    or self.af_client_secret
+                    or self.af_environment
+                    or self.af_system_id
             ):
                 raise Warning(
                     _("Please setup AF IPF Information")
