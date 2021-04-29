@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_edi_log_tree" model="ir.ui.view">
+        <field name="name">edi.log.ace.tree</field>
+        <field name="model">edi.log</field>
+        <field name="priority" eval="1"/>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree string="ACE Message" colors="black:state in ('sent','received');blue:state=='progress';red:state=='canceled'">
+                <field name="name" string="Tracking Id"/>
+                <field name="message_type"/>
+                <field name="af_ace_type"/>
+                <field name="af_ace_social_sec"/>
+                <field name="af_ace_recid"/>
+                <field name="af_ace_conid"/>
+                <field name="af_ace_mailuid"/>
+                <field name="state"/>
+                <field name="write_date"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_edi_log_form" model="ir.ui.view">
+        <field name="name">edi.log.ace.form</field>
+        <field name="model">edi.log</field>
+        <field name="priority" eval="1"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="ACE message log">
+                <sheet>
+                    <header>
+                        <field name="state" nolabel="1" widget="statusbar"/>
+                    </header>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" default_focus="1" placeholder="Name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="af_ace_social_sec"/>
+                            <field name="af_ace_type"/>
+                            <field name="af_ace_recid"/>
+                            <field name="af_ace_conid"/>
+                            <field name="af_ace_mailuid"/>
+                        </group>
+                        <group>
+                            <field name="message_type"/>
+                            <field name="write_date"/>
+                            <field name="create_date"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_edi_log_search" model="ir.ui.view">
+        <field name="name">edi.log.ace.search</field>
+        <field name="model">edi.log</field>
+        <field name="arch" type="xml">
+            <search string="Rules">
+                <field name="af_ace_social_sec" />
+                <field name="af_ace_type"/>
+                <field name="af_ace_recid"/>
+                <field name="af_ace_conid"/>
+                <field name="af_ace_mailuid"/>
+                <field name="state" />
+                <filter
+                        name="state_canceled"
+                        domain="[['state','=','canceled']]"
+                        string="Canceled"
+                />
+                <filter
+                        name="state_sent"
+                        domain="[['state','=','sent']]"
+                        string="Sent"
+                />
+                <filter
+                        name="state_not_canceled"
+                        domain="[['state','!=','canceled']]"
+                        string="Not canceled"
+                />
+                <filter
+                        name="state_not_canceled_or_sent"
+                        domain="[['state','!=','canceled'], ['state','!=','sent']]"
+                        string="Not canceled or sent"
+                />
+                <group expand="0" string="Group By...">
+                    <filter
+                            name="group_by_af_ace_type"
+                            string="Appointment type"
+                            domain="[]"
+                            context="{'group_by':'af_ace_type'}"
+                    />
+                    <filter
+                            name="group_by_af_ace_conid"
+                            string="Contact Id"
+                            domain="[]"
+                            context="{'group_by':'af_ace_conid'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_edi_log_ace" model="ir.actions.act_window">
+        <field name="name">ACE Message log</field>
+        <field name="res_model">edi.log</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_edi_log_tree"/>
+        <field name="domain" eval="[('message_id.edi_type', '=', ref('edi_af_appointment.appointment_ace_wi'))]"/>
+        <field name="search_view_id" ref="view_edi_log_search"/>
+    </record>
+
+    <record id="action_view_edi_log_ace_tree" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="action_edi_log_ace"/>
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_edi_log_tree"/>
+    </record>
+
+    <record id="action_view_edi_log_ace_form" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="action_edi_log_ace"/>
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_edi_log_form"/>
+    </record>
+
+    <menuitem action="action_edi_log_ace" id="menu_action_edi_log" parent="calendar_af.menu_admin" sequence="50"
+              groups="af_security.af_meeting_admin"/>
+</odoo>

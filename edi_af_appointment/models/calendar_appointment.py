@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Odoo, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2015 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2021 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -23,38 +23,42 @@ from odoo import models, fields, api, _
 import datetime
 
 
-class ScheduledMeeting(models.Model):
-    _inherit = 'calendar.appointment'
+class CalendarAppointment(models.Model):
+    _inherit = "calendar.appointment"
 
     def send_out_message(self):
-        # self.env['calendar.appointment'].search([('state', '=', 'confirmed')])
-        appointment_ids = self.env['calendar.appointment'].search([('state', '=', 'confirmed')], order='ace_priority')
+        route = self.env.ref("edi_af_appointment.ace_wi")
+        edi_type = self.env.ref("edi_af_appointment.appointment_ace_wi")
+        appointment_ids = self.env["calendar.appointment"].search(
+            [("state", "=", "confirmed")], order="ace_priority"
+        )
         for record in appointment_ids:
             before_start_time = record.start - datetime.timedelta(minutes=10)
-            if before_start_time.strftime('%H:%M') == datetime.datetime.now().strftime('%H:%M'):
+            if before_start_time <= datetime.datetime.now():
                 if record.partner_id.phone:
-                    text = "Test-text"
+                    text = "Temp-text"
                     queue = record.type_id.ace_queue_id
                     errand = record.type_id.ace_errand_id
 
                     vals = {
-                    'name': "IPF request",
-                    'text': text,
-                    'appointment_id': record.id,
-                    'queue': queue.id,
-                    'errand': errand.id,
+                        "name": "IPF request",
+                        "text": text,
+                        "appointment_id": record.id,
+                        "queue": queue.id,
+                        "errand": errand.id,
                     }
-                    ace_wi = self.env['edi.ace_workitem'].create(vals)
+                    ace_wi = self.env["edi.ace_workitem"].create(vals)
 
                     vals = {
-                    'name': 'ACE post',
-                    'edi_type': self.env.ref('edi_af_appointment.appointment_ace_wi').id,
-                    'model': ace_wi._name,
-                    'res_id': ace_wi.id,
-                    'route_id': self.env.ref("edi_af_appointment.ace_wi").id,
-                    'route_type': 'edi_af_ace_wi',
+                        "name": "ACE post",
+                        "edi_type": edi_type.id,
+                        "model": ace_wi._name,
+                        "res_id": ace_wi.id,
+                        "route_id": route.id,
+                        "route_type": "edi_af_ace_wi",
                     }
-                    msg = self.env['edi.message'].create(vals)
+                    msg = self.env["edi.message"].create(vals)
                     msg.pack()
                 else:
-                    record.state = 'canceled'
+                    record.state = "canceled"
+        route.run()

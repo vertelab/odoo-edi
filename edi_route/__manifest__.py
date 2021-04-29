@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2021 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI Routes',
-    'version': '12.0.1.1.0',
+    'version': '12.0.1.2.0',
     'category': 'edi',
     'summary': 'Routes for EDI',
     'licence': 'AGPL-3',
@@ -119,6 +119,7 @@ How to connect a context (edi.route.caller) to a message
 
 v12.0.1.0.0: versions before good version control \n
 v12.0.1.1.0 AFC-1766: Added order for edi.message model, create_date. \n
+v12.0.1.2.0 AFC-1767: Added translations. \n
 \n
 """,
     'author': 'Vertel AB',
