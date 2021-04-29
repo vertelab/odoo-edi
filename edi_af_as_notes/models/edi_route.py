@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution, third party addon
-#    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2004-2021 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -36,32 +36,6 @@ class EdiEnvelope(models.Model):
         ]
     )
 
-    @api.one
-    def fold(self, route):  # Folds messages in an envelope
-        # TODO: do we need to do something here?
-        # for m in self.env['edi.message'].search([('envelope_id','=',None),('route_id','=',route.id)]):
-        #     m.envelope_id = self.id
-        envelope = super(EdiEnvelope, self).fold(route)
-        return envelope
-
-    @api.one
-    def _split(self):
-        if self.route_type == "edi_af_schedules":
-            msg = self.env["edi.message"].create(
-                {
-                    "name": "plain",
-                    "envelope_id": self.id,
-                    "body": self.body,
-                    "route_type": self.route_type,
-                    "sender": self.sender,
-                    "recipient": self.recipient,
-                    # ~ 'consignor_id': sender.id,
-                    # ~ 'consignee_id': recipient.id,
-                }
-            )
-            msg.unpack()
-        self.envelope_opened()
-
 
 class EdiRoute(models.Model):
     _inherit = "edi.route"
@@ -87,7 +61,6 @@ class EdiRoute(models.Model):
             "route_type": message.route_type,
         }
         res_message = message.env["edi.message"].create(vals)
-        # unpack messages
         res_message.unpack()
 
 
@@ -104,7 +77,8 @@ class EdiMessage(models.Model):
     def _generate_headers(self, af_tracking_id):
         get_headers = super(EdiMessage, self)._generate_headers(af_tracking_id)
         if self.edi_type == self.env.ref("edi_af_as_notes.edi_af_as_notes_post"):
-            # Authorization with given username+password and PISA_ID using either sys or case workers signature
+            # Authorization with given username+password and PISA_ID
+            # using either sys or case workers signature
             get_headers.update(
                 {
                     "Authorization": self.route_id.af_authorization_header,
@@ -113,3 +87,12 @@ class EdiMessage(models.Model):
                 }
             )
         return get_headers
+
+    def censor_error(self, url, headers, method, data=False):
+        # Remove Authorization token from headers before logging message
+        censored_headers = {
+            "Authorization": "REMOVED",
+        }
+        headers.update(censored_headers)
+        res = super(EdiMessage, self).censor_error(url, headers, method, data)
+        return res
