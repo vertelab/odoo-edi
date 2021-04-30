@@ -5,7 +5,7 @@ from odoo import models, api
 _logger = logging.getLogger(__name__)
 
 
-class ais_as_rask_controller(models.Model):
+class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     @api.model
@@ -24,11 +24,11 @@ class ais_as_rask_controller(models.Model):
                 'is_jobseeker': True,
             }
             res_partner_obj = self.env['res.partner'].create(vals)
-            _logger.info('RASK-SYNC - jobseeker with customer-id: %s social sec no: %s did not exist, an empty res.partner object has been created' % (
-                customer_id, social_security_number))
+            _logger.info('RASK-SYNC - jobseeker with id: %s social sec no: %s did not exist, an empty res.partner object has been created' % (
+                res_partner_obj.id, social_security_number))
         else:
-            _logger.info('RASK-SYNC - jobseeker with customer-id: %s social sec no: %s already existed so it will be updated' % (
-                customer_id, social_security_number))
+            _logger.info('RASK-SYNC - jobseeker with id: %s social sec no: %s already existed so it will be updated' % (
+                res_partner_obj.id, social_security_number))
 
         route = self.env.ref("edi_af_aisf_rask.rask_route")
         vals = {

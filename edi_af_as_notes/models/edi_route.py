@@ -48,20 +48,7 @@ class EdiRoute(models.Model):
     )
 
     def _edi_af_as_notes_post(self, message, res):
-        res_set = self.env["edi.message"]
-        if res:
-            body = json.dumps(res)
-        else:
-            body = False
-        vals = {
-            "name": "AS Note reply",
-            "body": body,
-            "edi_type": message.edi_type.id,
-            "res_id": message.res_id,
-            "route_type": message.route_type,
-        }
-        res_message = message.env["edi.message"].create(vals)
-        res_message.unpack()
+        message.state = "received"
 
 
 class EdiMessage(models.Model):
