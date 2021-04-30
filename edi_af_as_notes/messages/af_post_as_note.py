@@ -31,16 +31,6 @@ class edi_message(models.Model):
     _inherit = "edi.message"
 
     @api.one
-    def unpack(self):
-        if self.edi_type.id == self.env.ref("edi_af_as_notes.edi_af_as_notes_post").id:
-            # decode string and convert string to tuple, convert tuple to dict
-            body = False
-            if self.body:
-                body = json.loads(self.body.decode("utf-8"))
-        else:
-            super(edi_message, self).unpack()
-
-    @api.one
     def pack(self):
         if self.edi_type.id == self.env.ref("edi_af_as_notes.edi_af_as_notes_post").id:
             if (

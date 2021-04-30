@@ -19,7 +19,7 @@
 #
 ##############################################################################
 from odoo import models, fields, api, _
-
+import json
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -30,6 +30,10 @@ class EdiRoute(models.Model):
 
     route_type = fields.Selection(selection_add=[("edi_af_as_rask", "AF AS rask")])
 
+    def _rask_get_all(self, message, res):
+        # Get the answer from the call to AIS-F RASK
+        message.body = json.dumps(res)
+        message.unpack()
 
 class EdiEnvelope(models.Model):
     _inherit = "edi.envelope"
@@ -49,3 +53,7 @@ class EdiMessage(models.Model):
             get_headers.update({"PISA_ID": "*sys*"})
 
         return get_headers
+
+    def censor_error(self, url, headers, method, data=False):
+        res = super(EdiMessage, self).censor_error(url, headers, method, data)
+        return res
