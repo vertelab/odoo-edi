@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI AF AS Notes',
-    'version': '12.0.2.0.0',
+    'version': '12.0.2.0.1',
     'category': 'edi',
     'summary': 'EDI AF  ',
     'licence': 'AGPL-3',
@@ -30,6 +30,7 @@
 This functionality is tailored for AF. \n
 v12.0.1.0.0: versions before good version control \n
 v12.0.2.0.0 AFC-1766: Major overhaul of how the module works. \n
+v12.0.2.0.1 AFC-2155: Removed the Authorization header before logging \n
 \n
 """,
     'author': 'Vertel AB',
