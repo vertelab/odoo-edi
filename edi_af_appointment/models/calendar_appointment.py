@@ -30,7 +30,7 @@ class CalendarAppointment(models.Model):
         route = self.env.ref("edi_af_appointment.ace_wi")
         edi_type = self.env.ref("edi_af_appointment.appointment_ace_wi")
         appointment_ids = self.env["calendar.appointment"].search(
-            [("state", "=", "confirmed")], order="ace_priority"
+            [("state", "=", "confirmed"), ("type_id.ace_errand_id", "!=", False)], order="ace_priority"
         )
         for record in appointment_ids:
             before_start_time = record.start - datetime.timedelta(minutes=10)
