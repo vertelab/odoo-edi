@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI AF AIS BOS',
-    'version': '12.0.2.0.0',
+    'version': '12.0.2.0.1',
     'category': 'edi',
     'summary': """
         Check if a postcode is valid for KROM.\n
@@ -32,6 +32,7 @@
 Module for BOS KROM
 ================================================================================================
 v12.0.2.0.0 AFC-1950 - Implemented new version of API \n
+v12.0.2.0.1 AFC-1950 - Updated index file \n
      """,
     'author': 'Arbetsförmedlingen',
     'website': 'https://arbetsformedlingen.se/',
