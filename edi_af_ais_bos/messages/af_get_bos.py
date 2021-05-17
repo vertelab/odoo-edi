@@ -37,9 +37,9 @@ class edi_message(models.Model):
             body = json.loads(self.body.decode("utf-8"))
 
             # Get values Krom
-            kromtype = body.get("kromTyp")
-            if kromtype:
-                self.env['res.partner'].browse(self.res_id).kromtype = kromtype
+            match_area = body.get("kromTyp")
+            if match_area:
+                self.env['res.partner'].browse(self.res_id).match_area = match_area
             else:
                 pass
         else:

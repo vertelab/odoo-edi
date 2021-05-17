@@ -30,7 +30,7 @@ class EdiRoute(models.Model):
     _inherit = 'edi.route'
     _logger.warning("BOS.EDIROUTE")
 
-    route_type = fields.Selection(selection_add=[('edi_af_as_ais_bos', 'AF AS Kromtype')])
+    route_type = fields.Selection(selection_add=[('edi_af_as_ais_bos', 'AF KROM Postcode')])
 
     def _krom_postcode(self, message, res):
         body = json.dumps(res)
@@ -49,10 +49,10 @@ class EdiRoute(models.Model):
 class EdiMessage(models.Model):
     _inherit = 'edi.message'
 
-    route_type = fields.Selection(selection_add=[('edi_af_as_ais_bos', 'AF AS Kromtype')])
+    route_type = fields.Selection(selection_add=[('edi_af_as_ais_bos', 'AF KROM Postcode')])
 
 
 class EdiEnvelope(models.Model):
     _inherit = 'edi.envelope'
 
-    route_type = fields.Selection(selection_add=[('edi_af_as_ais_bos', 'AF AS Kromtype')])
+    route_type = fields.Selection(selection_add=[('edi_af_as_ais_bos', 'AF KROM Postcode')])
