@@ -5,3 +5,6 @@ access_edi_ace_errand_user,access_edi_ace_errand,model_edi_ace_errand,edi_route.
 access_edi_ace_errand_manager,access_edi_ace_errand,model_edi_ace_errand,edi_route.group_edi_manager,1,1,1,1
 access_edi_ace_workitem_user,access_edi_ace_workitem,model_edi_ace_workitem,edi_route.group_edi_user,1,0,0,0
 access_edi_ace_workitem_manager,access_edi_ace_workitem,model_edi_ace_workitem,edi_route.group_edi_manager,1,1,1,1
+access_edi_log_ace_meeting_admin,access_edi_log_ace,model_edi_log,af_security.af_meeting_admin,1,0,0,0
+access_edi_log_ace_meeting_admin,access_edi_log_ace,model_edi_log,af_security.af_meeting_admin,1,0,0,0
+access_edi_log_manager,edi.log.manager.access,model_edi_log,edi_route.group_edi_manager,1,1,1,1

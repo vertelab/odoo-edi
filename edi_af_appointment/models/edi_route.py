@@ -29,24 +29,6 @@ class edi_envelope(models.Model):
     
     route_type = fields.Selection(selection_add=[('edi_af_schedules', 'AF schedules'), ('edi_af_ace_wi', 'AF ACE WI')])
 
-    @api.one
-    def fold(self,route): # Folds messages in an envelope
-        envelope = super(edi_envelope,self).fold(route)
-        return envelope
-
-    @api.one
-    def _split(self):
-        if self.route_type == 'edi_af_schedules':
-            msg = self.env['edi.message'].create({
-                'name': 'plain',
-                'envelope_id': self.id,
-                'body': self.body,
-                'route_type': self.route_type,
-                'sender': self.sender,
-                'recipient': self.recipient,
-            })
-            msg.unpack()
-        self.envelope_opened()
 
 class edi_route(models.Model):
     _inherit = 'edi.route' 

@@ -45,29 +45,23 @@ class EdiRoute(models.Model):
     _inherit = "edi.route"
 
     # address
-    af_ipf_url = fields.Char(
-        string="IPF API URL", help="If you need help you shouldn't be changing this"
-    )
-    af_ipf_port = fields.Char(
-        string="IPF API port", help="If you need help you shouldn't be changing this"
-    )
+    af_ipf_url = fields.Char(string="IPF API URL", help="The URL for IPF")
+    af_ipf_port = fields.Char(string="IPF API port", help="The port for the IPF URL")
     # id and secret
-    af_client_id = fields.Char(
-        string="Client Id", help="If you need help you shouldn't be changing this"
-    )
+    af_client_id = fields.Char(string="Client Id", help="Value for the client_id param")
     af_client_secret = fields.Char(
-        string="Client secret", help="If you need help you shouldn't be changing this"
+        string="Client secret", help="Value for the client_secret param"
     )
     # headers
     af_environment = fields.Char(
-        string="AF-Environment", help="If you need help you shouldn't be changing this"
+        string="AF-Environment", help="Value for the AF-Environment header"
     )
     af_system_id = fields.Char(
-        string="AF-SystemId", help="If you need help you shouldn't be changing this"
+        string="AF-SystemId", help="Value for the AF-SystemId header"
     )
     af_authorization_header = fields.Char(
         string="AF-Authorization header",
-        help="If you need help you shouldn't be changing this",
+        help="Value for the AF-Authorization header",
     )
 
     protocol = fields.Selection(selection_add=[("ipf", "IPF")])
@@ -186,7 +180,8 @@ class EdiRoute(models.Model):
             super(EdiRoute, self)._run_out(envelopes)
 
     def send_request(self, message):
-        """Method used for creating and sending REST request to IPF based on the information in the edi message and route."""
+        """Method used for creating and sending REST request to IPF based
+        on the information in the edi message and route."""
 
         def is_json(json_str):
             """ Checks if a str is a json or not. """
@@ -285,7 +280,8 @@ class EdiRoute(models.Model):
             _logger.exception(censored_error)
             raise e
 
-        # Convert json to python format: https://docs.python.org/3/library/json.html#json-to-py-table
+        # Convert json to python format:
+        # https://docs.python.org/3/library/json.html#json-to-py-table
         if res_json:
             res = json.loads(res_json)
         else:

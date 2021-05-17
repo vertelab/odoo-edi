@@ -1,0 +1,424 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* edi_af_appointment
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20210127\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-27 14:43+0000\n"
+"PO-Revision-Date: 2021-04-27 14:43+0000\n"
+"Last-Translator: Daniel Eriksson <daniel.eriksson@vertel.se>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,interval:0
+msgid "1 day"
+msgstr "1 dag"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,interval:0
+msgid "1 week"
+msgstr "1 vecka"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,interval:0
+msgid "100 days"
+msgstr "100 dagar"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,interval:0
+msgid "2 weeks"
+msgstr "2 veckor"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,interval:0
+msgid "30 days"
+msgstr "30 dagar"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,interval:0
+msgid "60 days"
+msgstr "60 dagar"
+
+#. module: edi_af_appointment
+#: model:ir.ui.menu,name:edi_af_appointment.menu_edi_ace
+msgid "ACE"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.actions.act_window,name:edi_af_appointment.action_edi_ace_errand
+msgid "ACE Errand"
+msgstr "ACE Ärende"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_tree
+msgid "ACE Message"
+msgstr "ACE Meddelande"
+
+#. module: edi_af_appointment
+#: model:ir.actions.act_window,name:edi_af_appointment.action_edi_log_ace
+#: model:ir.ui.menu,name:edi_af_appointment.menu_action_edi_log
+msgid "ACE Message log"
+msgstr "ACE Meddelandelog"
+
+#. module: edi_af_appointment
+#: model:ir.actions.act_window,name:edi_af_appointment.action_edi_ace_queue
+msgid "ACE Queue"
+msgstr "ACE Kö"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_calendar_appointment_type__ace_errand_id
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__errand
+msgid "ACE errand"
+msgstr "ACE Ärende"
+
+#. module: edi_af_appointment
+#: model:ir.ui.menu,name:edi_af_appointment.menu_edi_ace_errand
+msgid "ACE errands"
+msgstr "ACE Ärenden"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_form
+msgid "ACE message log"
+msgstr "ACE Meddelandelog"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_calendar_appointment__ace_priority
+msgid "ACE priority"
+msgstr "ACE Prioritering"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_calendar_appointment_type__ace_queue_id
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__queue
+msgid "ACE queue"
+msgstr "ACE Kö"
+
+#. module: edi_af_appointment
+#: model:ir.ui.menu,name:edi_af_appointment.menu_edi_ace_queue
+msgid "ACE queues"
+msgstr "ACE Köer"
+
+#. module: edi_af_appointment
+#: model:ir.actions.server,name:edi_af_appointment.ir_cron_calendar_schedule_reminder_ir_actions_server
+#: model:ir.cron,cron_name:edi_af_appointment.ir_cron_calendar_schedule_reminder
+#: model:ir.cron,name:edi_af_appointment.ir_cron_calendar_schedule_reminder
+msgid "ACE send WI"
+msgstr "ACE skicka WI"
+
+#. module: edi_af_appointment
+#: selection:edi.envelope,route_type:0
+#: selection:edi.message,route_type:0
+#: selection:edi.route,route_type:0
+msgid "AF ACE WI"
+msgstr ""
+
+#. module: edi_af_appointment
+#: selection:edi.envelope,route_type:0
+#: selection:edi.message,route_type:0
+#: selection:edi.route,route_type:0
+msgid "AF schedules"
+msgstr "AF scheman"
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_calendar_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__appointment_id
+msgid "Appointment"
+msgstr "Möte"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_search
+msgid "Appointment type"
+msgstr "Mötestyp"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_search
+msgid "Canceled"
+msgstr "Avbruten"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,help:edi_af_appointment.field_edi_ace_errand__client_responsible
+msgid "Change current user to be responsible for this client, and get permanent rights that goes with it"
+msgstr "Ändra ansvarig handläggare för kunden och tilldela permanenta rättigheter."
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__client_responsible
+msgid "Client Responsible"
+msgstr "Ansvarig handläggare"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_log__af_ace_conid
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_search
+msgid "Contact Id"
+msgstr "Kontakt ID"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_message__af_wi_conid
+msgid "Contact id"
+msgstr "Kontakt ID"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__create_uid
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_queue__create_uid
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__create_uid
+msgid "Created by"
+msgstr "Skapad av"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__create_date
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_queue__create_date
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__create_date
+msgid "Created on"
+msgstr "Skapad den"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__display_name
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_queue__display_name
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__display_name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: edi_af_appointment
+#: model:ir.actions.server,name:edi_af_appointment.af_edi_ace_wi
+msgid "EDI AF ACE work item post"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.actions.server,name:edi_af_appointment.af_edi_schedule
+msgid "EDI AF Get schedule"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_edi_envelope
+msgid "EDI Envelope"
+msgstr "EDI Brev"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_ace_errand_tree
+msgid "EDI Errand"
+msgstr "EDI Ärende"
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_edi_message
+msgid "EDI Message"
+msgstr "EDI Meddelande"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_ace_queue_tree
+msgid "EDI Queue"
+msgstr "EDI Kö"
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_edi_route
+msgid "EDI Route"
+msgstr "EDI Rutt"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_log__af_ace_mailuid
+msgid "Email Uid"
+msgstr "Email UID"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_message__af_wi_mailuid
+msgid "Email uid"
+msgstr "Email UID"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_message__af_wi_stop
+msgid "End time"
+msgstr "Sluttid"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__code
+msgid "Errand Code"
+msgstr "Ärendekod"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_search
+msgid "Group By..."
+msgstr "Gruppera efter"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__id
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_queue__id
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__id
+msgid "ID"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__interval
+msgid "Interval"
+msgstr "Intervall"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_log__af_ace_social_sec
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_message__af_wi_pnr
+msgid "Jobseeker"
+msgstr "Arbetssökande"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand____last_update
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_queue____last_update
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem____last_update
+msgid "Last Modified on"
+msgstr "Senast redigerad"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__write_uid
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_queue__write_uid
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__write_uid
+msgid "Last Updated by"
+msgstr "Senast uppdaterad av"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__write_date
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_queue__write_date
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__write_date
+msgid "Last Updated on"
+msgstr "Senast uppdaterad"
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_edi_log_ace
+msgid "Log of EDI ACE message"
+msgstr "Log av EDI ACE meddelanden"
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_edi_log
+msgid "Log of EDI message"
+msgstr "Log av EDI meddelanden"
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_calendar_appointment_type
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__app_type_id
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_queue__app_type_id
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_log__af_ace_type
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_message__af_wi_type
+msgid "Meeting type"
+msgstr "Mötestyp"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,right_type:0
+msgid "Mycket Stark"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__name
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_queue__name
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__name
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_form
+msgid "Name"
+msgstr "Namn"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,right_type:0
+msgid "None"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_search
+msgid "Not canceled"
+msgstr "Ej avbruten"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_search
+msgid "Not canceled or sent"
+msgstr "Ej avbruten eller skickad"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__office_code
+msgid "Office code"
+msgstr "Kontorskod"
+
+#. module: edi_af_appointment
+#: selection:edi.envelope,route_type:0
+#: selection:edi.message,route_type:0
+#: selection:edi.route,route_type:0
+msgid "Plain"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__reason_code
+msgid "Reason Code"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_log__af_ace_recid
+msgid "Request Id"
+msgstr "Request ID"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_message__af_wi_reqid
+msgid "Request id"
+msgstr "Request ID"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__right_type
+msgid "Right Type"
+msgstr "Rättighetstyp"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_envelope__route_type
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_message__route_type
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_route__route_type
+msgid "Route Type"
+msgstr "Rutt-typ"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_search
+msgid "Rules"
+msgstr "Regler"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_errand__priority
+msgid "Send priority"
+msgstr "Sändprioritering"
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_search
+msgid "Sent"
+msgstr "Skickat"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,right_type:0
+msgid "Stark"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_message__af_wi_start
+msgid "Start time"
+msgstr "Starttid"
+
+#. module: edi_af_appointment
+#: model:ir.model.fields,field_description:edi_af_appointment.field_edi_ace_workitem__text
+msgid "Text"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model_terms:ir.ui.view,arch_db:edi_af_appointment.view_edi_log_tree
+msgid "Tracking Id"
+msgstr "Tracking ID"
+
+#. module: edi_af_appointment
+#: selection:edi.ace_errand,interval:0
+msgid "a Year"
+msgstr "Ett år"
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_edi_ace_errand
+msgid "edi.ace_errand"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_edi_ace_queue
+msgid "edi.ace_queue"
+msgstr ""
+
+#. module: edi_af_appointment
+#: model:ir.model,name:edi_af_appointment.model_edi_ace_workitem
+msgid "edi.ace_workitem"
+msgstr ""
+

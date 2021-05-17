@@ -229,7 +229,7 @@ class edi_message(models.Model):
     _name = 'edi.message'
     _inherit = ['mail.thread']
     _description = 'EDI Message'
-    _order = 'create_date'
+    _order = 'create_date DESC'
 
     name = fields.Char(string="Name",required=True)
     envelope_id = fields.Many2one(comodel_name='edi.envelope', required=False)
@@ -756,7 +756,7 @@ class edi_route_lines(models.Model):
             # orm
             'env': self.env,
             # Exceptions
-            'Warning': openerp.exceptions.Warning,
+            'Warning': odoo.exceptions.Warning,
         })
         return values
 

@@ -32,7 +32,7 @@
 Module for BOS KROM
 ================================================================================================
 v12.0.2.0.0 AFC-1950 - Implemented new version of API \n
-v12.0.2.0.1 AFC-1950 - Updated index file \n
+v12.0.2.0.1 AFC-1950 - Replaced match_area and updated index file \n
      """,
     'author': 'Arbetsförmedlingen',
     'website': 'https://arbetsformedlingen.se/',

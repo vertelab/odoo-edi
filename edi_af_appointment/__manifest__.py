@@ -21,7 +21,7 @@
 
 {
     "name": "EDI AF Appointment",
-    "version": "12.0.1.0.0",
+    "version": "12.0.1.1.0",
     "category": "edi",
     "summary": "EDI AF Appointment - support for appointments ",
     "licence": "AGPL-3",
@@ -32,6 +32,7 @@ v12.0.0.2.0 AFC-1905: Added option to prioritise the order in which WI are sent 
 v12.0.0.2.1 AFC-1805: Duration of PDM occasions now handled differently. \n
 v12.0.0.2.2 AFC-1715: Added support for new appointment types. \n
 v12.0.1.0.0 AFC-1766: Major overhaul of how the module works. \n
+v12.0.1.1.0 AFC-1767: Implemented a special view and menuitem for calendar_af users to monitor ACE messages. \n
 """,
     "author": "Vertel AB",
     "website": "http://www.vertel.se",
@@ -48,7 +49,7 @@ v12.0.1.0.0 AFC-1766: Major overhaul of how the module works. \n
         "data/edi.ace_queue.csv",
         "data/edi.ace_errand.csv",
         "views/edi_af_appointment_views.xml",
-        "views/edi_message_view.xml",
+        "views/edi_log_ace_view.xml",
         "data/scheduled_meeting_reminder.xml",
     ],
     "application": False,
