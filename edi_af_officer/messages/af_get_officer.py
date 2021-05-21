@@ -60,6 +60,8 @@ class edi_message(models.Model):
                     _logger.info("office number %s not in database, creating" % officer.get('officeCode'))
                     office = self.env['hr.department'].create({'name': officer.get('officeCode'), 'office_code': officer.get('officeCode'), 'note': _('Missing in AIS-F')})
                 if office and len(office) == 1: # hr.department should have a constraint added to it so length doesn't need to be checked
+                    # Non functional code below attempts to add a manager as parent_id for user
+                    # and creates said manager if it doesn't already exist
                     # parent_id = False
                     # parent_user_id = self.env['res.users'].search([('login','=',officer.get('managerSignature'))])
                     # if not parent_user_id:
@@ -81,19 +83,21 @@ class edi_message(models.Model):
                     # else:
                     #     _logger.info("manager's user account was found but no employee record, this should not occur. Manager signature: %s, employee signature: %s" % (parent_user_id.login, officer.get('userName')))
                     vals = {
-                    'firstname': officer.get('firstName'),
-                    'lastname': officer.get('lastName'),
-                    'login': officer.get('userName'),
-                    'email': officer.get('mail'),
-                    'phone': officer.get('telephoneNumber'),
-                    'mobile': officer.get('mobileNumber'),
-                    'employee': True,
-                    'saml_uid': officer.get('userName'),
-                    'action_id': self.env.ref("hr_360_view.search_jobseeker_wizard").id,
-                    'groups_id': [(6, 0, [self.env.ref('base.group_user').id])],
-                    'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth'),
+                        'firstname': officer.get('firstName'),
+                        'lastname': officer.get('lastName'),
+                        'login': officer.get('userName'),
+                        'email': officer.get('mail'),
+                        'phone': officer.get('telephoneNumber'),
+                        'mobile': officer.get('mobileNumber'),
+                        'employee': True,
+                        'saml_uid': officer.get('userName'),
+                        'action_id': self.env.ref("hr_360_view.search_jobseeker_wizard").id,
+                        'groups_id': [(6, 0, [self.env.ref('base.group_user').id])],
+                        'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth'),
+                        'tz': 'Europe/Stockholm',
+                        'lang': 'sv_SE',
                     }
-                    user = self.env['res.users'].search([('login','=',vals['login'])])
+                    user = self.env['res.users'].search([('login', '=', vals['login'])])
                     employee_vals = {
                         'firstname': vals['firstname'],
                         'lastname': vals['lastname'],

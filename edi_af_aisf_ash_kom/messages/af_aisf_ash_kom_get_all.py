@@ -38,34 +38,85 @@ class edi_message(models.Model):
         """
         if self.edi_type.id == self.env.ref('edi_af_aisf_ash_kom.ash_kom_get_all').id:
             body = json.loads(self.body)
-            department_obj = self.env['hr.department'].search([(
-                'office_code',
-                '=',
-                body.get('kontor').get('kontorKod')
-            )])
-
-            employee_ids = []
-            for employee in body.get('handlaggare'):
-                sign = employee.get('handlaggare').get('signatur')
-                user = self.env['res.users'].search([(
-                    'login',
+            office_vals = body.get('kontor')
+            if office_vals:
+                department_obj = self.env['hr.department'].search([(
+                    'office_code',
                     '=',
-                    sign
+                    office_vals.get('kontorKod')
                 )])
-                if not user:
-                    user = self.env['res.users'].create({
-                        'login': sign,
-                        'name': sign,
-                        'employee_ids': [(0,0,{
-                            'name': sign
-                            })]
-                        })
-                    _logger.warn("User %s missing, adding" % sign)
-                employee_ids.append(user.employee_ids._ids)
+                state_id = self.env['res.country.state'].search([('code', '=', office_vals.get('kommunKod'))])
+                partner_vals = { # partner for aditional information
+                    'name': office_vals.get('namn'),
+                    'email': office_vals.get('externEpost'),
+                    'phone': office_vals.get('telefonnummer'),
+                    'street': office_vals.get('besoksadress'),
+                    'street2': office_vals.get('utdelningsadress'),
+                    'zip': office_vals.get('postnummer'),
+                    'city': office_vals.get('postort'),
+                    'state_id': state_id.id if state_id else False
+                }
+                if not department_obj:
+                    department_obj = self.env['hr.department'].create({
+                        'name': office_vals.get('namn'),
+                        'office_code': office_vals.get('kontorKod')
+                    })
+                    external_xmlid = '__ais-f_import__.office_%s' % office_vals.get('kontorKod')
+                    self.env['ir.model.data'].create({
+                        'name': external_xmlid.split('.')[1],
+                        'module': external_xmlid.split('.')[0],
+                        'model': department_obj._name,
+                        'res_id': department_obj.id
+                    })
+                partner_id = department_obj.partner_id
+                if not partner_id:
+                    partner_id = self.env['res.partner'].create(partner_vals)
+                    department_obj.write({
+                        'partner_id': partner_id
+                    })
+                else:
+                    partner_id.write(partner_vals)
+                department_obj.write({'name': office_vals.get('namn')})
 
-            department_obj.write({
-                'employee_ids': [(6,0,employee_ids)]
-            })
+                employee_ids = []
+                for employee in body.get('handlaggare'):
+                    employee_vals = employee.get('handlaggare')
+                    sign = employee_vals.get('signatur')
+                    user = self.env['res.users'].search([(
+                        'login',
+                        '=',
+                        sign
+                    )])
+                    if not user:
+                        user = self.env['res.users'].with_context(no_reset_password=True).create({
+                            'login': sign,
+                            'firstname': employee_vals.get('fornamn'),
+                            'lastname': employee_vals.get('efternamn'),
+                            'saml_uid': sign,
+                            'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth'),
+                            'tz': 'Europe/Stockholm',
+                            'lang': 'sv_SE',
+                            'groups_id': [(6, 0, [self.env.ref('base.group_user').id])],
+                            'employee': True,
+                            'employee_ids': [(0, 0, {
+                                'firstname': employee_vals.get('fornamn'),
+                                'lastname': employee_vals.get('efternamn'),
+                                })]
+                            })
+                        _logger.debug("User %s missing, adding" % sign)
+                        external_xmlid = '__ais-f_import__.user_%s' % sign
+                        self.env['ir.model.data'].create({
+                            'name': external_xmlid.split('.')[1],
+                            'module': external_xmlid.split('.')[0],
+                            'model': user._name,
+                            'res_id': user.id
+                        })
+                    employee_ids.append(user.employee_ids._ids)
+                department_obj.write({
+                    'employee_ids': [(6, 0, employee_ids)]
+                })
+            else:
+                _logger.error('No "kontor" in body')
         else:
             super(edi_message, self).unpack()
 
