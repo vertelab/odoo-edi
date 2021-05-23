@@ -117,7 +117,10 @@ msg.pack()
     <field name="view_id" ref="view_edi_ace_errand_tree" />
   </record>
 
-  <menuitem id="menu_edi_ace" name="ACE" parent="edi_route.menu_edi" sequence="1"/>
-  <menuitem id="menu_edi_ace_queue" name="ACE queues" parent="edi_af_appointment.menu_edi_ace" action='action_edi_ace_queue' />
-  <menuitem id="menu_edi_ace_errand" name="ACE errands" parent="edi_af_appointment.menu_edi_ace" action='action_edi_ace_errand' />
+  <menuitem id="menu_edi_ace" name="ACE" parent="calendar_af.menu_admin" sequence="100"
+            groups="af_security.af_meeting_admin"/>
+  <menuitem id="menu_edi_ace_queue" name="ACE queues" parent="edi_af_appointment.menu_edi_ace"
+            action='action_edi_ace_queue' sequence="10" groups="af_security.af_meeting_admin"/>
+  <menuitem id="menu_edi_ace_errand" name="ACE errands" parent="edi_af_appointment.menu_edi_ace"
+            action='action_edi_ace_errand' sequence="20" groups="af_security.af_meeting_admin"/>
 </odoo>
