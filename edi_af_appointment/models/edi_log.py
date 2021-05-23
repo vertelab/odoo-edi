@@ -31,38 +31,37 @@ class EdiLog(models.Model):
     _inherit = "edi.log"
 
     af_ace_type = fields.Char(
-        string="Meeting type", compute="_compute_log_data", store=True
+        string="Meeting type", compute="_compute_log_data", store=True, compute_sudo=True
     )
     af_ace_social_sec = fields.Char(
-        string="Jobseeker", compute="_compute_log_data", store=True
+        string="Jobseeker", compute="_compute_log_data", store=True, compute_sudo=True
     )
     af_ace_recid = fields.Char(
-        string="Request Id", compute="_compute_log_data", store=True
+        string="Request Id", compute="_compute_log_data", store=True, compute_sudo=True
     )
     af_ace_conid = fields.Char(
-        string="Contact Id", compute="_compute_log_data", store=True
+        string="Contact Id", compute="_compute_log_data", store=True, compute_sudo=True
     )
     af_ace_mailuid = fields.Char(
-        string="Email Uid", compute="_compute_log_data", store=True
+        string="Email Uid", compute="_compute_log_data", store=True, compute_sudo=True
     )
 
     def _compute_log_data(self):
         super(EdiLog, self)._compute_log_data()
         # complement data from super with ACE-specific data
         for record in self:
-            sudo_message = record.message_id.sudo()
-            if sudo_message.edi_type == self.env.ref(
+            if record.message_id.edi_type == self.env.ref(
                 "edi_af_appointment.appointment_ace_wi"
             ):
                 # ace_wi = self.env[sudo_message.model].browse(sudo_message.res_id).sudo()
                 record.af_ace_type = (
-                    sudo_message.model_record.appointment_id.type_id.name
+                    record.message_id.model_record.appointment_id.type_id.name
                 )
                 record.af_ace_social_sec = (
-                    sudo_message.model_record.appointment_id.partner_id.social_sec_nr
+                    record.message_id.model_record.appointment_id.partner_id.social_sec_nr
                 )
                 if record.state == "sent":
-                    body = json.loads(sudo_message.body)
+                    body = json.loads(record.message_id.body)
                     record.af_ace_recid = body.get("requestId")
                     record.af_ace_conid = body.get("contactId")
                     record.af_ace_mailuid = body.get("emailUid")

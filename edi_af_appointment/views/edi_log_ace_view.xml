@@ -114,7 +114,7 @@
         <field name="res_model">edi.log</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="view_edi_log_tree"/>
-        <field name="domain" eval="[('message_id.edi_type', '=', ref('edi_af_appointment.appointment_ace_wi'))]"/>
+        <field name="domain" eval="[('edi_type', '=', ref('edi_af_appointment.appointment_ace_wi'))]"/>
         <field name="search_view_id" ref="view_edi_log_search"/>
     </record>
 
@@ -132,6 +132,6 @@
         <field name="view_id" ref="view_edi_log_form"/>
     </record>
 
-    <menuitem action="action_edi_log_ace" id="menu_action_edi_log" parent="calendar_af.menu_admin" sequence="50"
+    <menuitem action="action_edi_log_ace" id="menu_action_edi_log" parent="edi_af_appointment.menu_edi_ace" sequence="30"
               groups="af_security.af_meeting_admin"/>
 </odoo>

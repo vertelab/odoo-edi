@@ -45,6 +45,7 @@ v12.0.1.1.0 AFC-1767: Implemented a special view and menuitem for calendar_af us
     "external_dependencies": {},
     "data": [
         "security/ir.model.access.csv",
+        "security/security.xml",
         "data/edi_route_data.xml",
         "data/edi.ace_queue.csv",
         "data/edi.ace_errand.csv",
