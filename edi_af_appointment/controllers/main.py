@@ -453,6 +453,12 @@ class AppointmentController(http.Controller):
                 request.env["res.partner"].sudo().search([("social_sec_nr", "=", pnr)])
             )
             if not partner:
+                vals = {
+                    'name': 'Unknown jobseeker',
+                    'is_jobseeker': True,
+                    'social_sec_nr': pnr,
+                }
+                request.env["res.partner"].create(vals)
                 return Response("pnr. not found", status=404)
         elif customer_nr:
             pnr = request.env["af.ipf.endpoint"].sudo().get_pnr(customer_nr)
