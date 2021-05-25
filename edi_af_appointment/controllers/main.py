@@ -454,7 +454,7 @@ class AppointmentController(http.Controller):
             )
             if not partner:
                 vals = {
-                    'name': 'Unkown jobseeker',
+                    'name': 'Unknown jobseeker',
                     'is_jobseeker': True,
                     'social_sec_nr': pnr,
                 }
