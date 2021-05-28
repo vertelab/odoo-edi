@@ -36,12 +36,14 @@ class EdiLog(models.Model):
     _description = "Log of EDI message"
     _order = "create_date DESC"
 
-    name = fields.Char(string="Name", compute="_compute_log_data", store=True)
+    name = fields.Char(string="Name", compute="_compute_log_data", store=True, compute_sudo=True)
     message_id = fields.Many2one(
         comodel_name="edi.message", string="Message", required=True
     )
+    edi_type = fields.Integer(string="EDI Type Id", compute="_compute_log_data",
+                                    store=True, compute_sudo=True)
     message_type = fields.Char(
-        string="Message type", compute="_compute_log_data", store=True
+        string="Message type", compute="_compute_log_data", store=True, compute_sudo=True
     )
     state = fields.Selection(
         string="State",
@@ -53,12 +55,13 @@ class EdiLog(models.Model):
         ],
         compute="_compute_log_data",
         store=True,
+        compute_sudo=True
     )
 
     @api.depends("message_id.state")
     def _compute_log_data(self):
         for record in self:
-            sudo_message = record.message_id.sudo()
-            record.name = sudo_message.name
-            record.message_type = sudo_message.edi_type.name
-            record.state = sudo_message.state
+            record.edi_type = record.message_id.edi_type.id
+            record.name = record.message_id.name
+            record.message_type = record.message_id.edi_type.name
+            record.state = record.message_id.state

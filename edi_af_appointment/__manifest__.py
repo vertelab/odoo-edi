@@ -21,7 +21,7 @@
 
 {
     "name": "EDI AF Appointment",
-    "version": "12.0.1.1.0",
+    "version": "12.0.1.3.0",
     "category": "edi",
     "summary": "EDI AF Appointment - support for appointments ",
     "licence": "AGPL-3",
@@ -33,6 +33,8 @@ v12.0.0.2.1 AFC-1805: Duration of PDM occasions now handled differently. \n
 v12.0.0.2.2 AFC-1715: Added support for new appointment types. \n
 v12.0.1.0.0 AFC-1766: Major overhaul of how the module works. \n
 v12.0.1.1.0 AFC-1767: Implemented a special view and menuitem for calendar_af users to monitor ACE messages. \n
+v12.0.1.2.0 AFC-2298: Fixed edi.log access rights. Fixed menu locations and access rights. \n
+v12.0.1.3.0 AFC-2169: Can now book meetings on non-existing jobseekers. \n
 """,
     "author": "Vertel AB",
     "website": "http://www.vertel.se",
@@ -45,6 +47,7 @@ v12.0.1.1.0 AFC-1767: Implemented a special view and menuitem for calendar_af us
     "external_dependencies": {},
     "data": [
         "security/ir.model.access.csv",
+        "security/security.xml",
         "data/edi_route_data.xml",
         "data/edi.ace_queue.csv",
         "data/edi.ace_errand.csv",
