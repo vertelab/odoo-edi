@@ -50,19 +50,13 @@ class edi_message(models.Model):
             body_dict['method'] = 'PATCH'
             
             data_dict = {}
-            # TODO: Don't we have more than one way to store these
-            #  dates? Compare to the next_contact calculation in
-            #  partner_daily_notes. This looks like it just syncs the
-            #  AIS-F times back to AIS-F, which seems redundant. I
-            #  can't even find this URL in IPF. Is it correct?
-            if obj.last_contact_date and obj.last_contact_type:
-                data_dict['senasteKontaktTyp'] = obj.last_contact_type # Possible values: B, T, E, P, I
-                # TODO: This used to say obj.next_contact_date. That seemed plain wrong.
-                data_dict['senasteKontaktDatum'] = obj.last_contact_date.strftime("%Y-%m-%d")  # "2019-10-02",
-            if obj.next_contact_type and obj.next_contact_date and obj.next_contact_time:
-                data_dict['nastaKontaktTyper'] = ["%s" % obj.next_contact_type] # Possible values: B, T, E, P, I
-                data_dict['nastaKontaktDatum'] = obj.next_contact_date.strftime("%Y-%m-%d")  # "2019-12-31",
-                data_dict['nastaKontaktTid'] = obj.next_contact_time  # "11:30",
+            if obj.last_contact_type and obj.last_contact_app:
+                data_dict['senasteKontaktTyp'] = obj.last_contact_type_app  # Possible values: B, T, E, P, I
+                data_dict['senasteKontaktDatum'] = obj.last_contact_app.date().strftime("%Y-%m-%d")  # "2019-10-02",
+            if obj.next_contact_type and obj.next_contact_app:
+                data_dict['nastaKontaktTyper'] = ["%s" % obj.last_contact_type_app]  # Possible values: B, T, E, P, I
+                data_dict['nastaKontaktDatum'] = obj.next_contact_app.date().strftime("%Y-%m-%d")  # "2019-12-31",
+                data_dict['nastaKontaktTid'] = obj.next_contact_app.time().strftime("%H:%M")  # "11:30",
             body_dict['data'] = data_dict
             self.body = json.dumps(body_dict)
 
