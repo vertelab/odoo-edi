@@ -5,7 +5,7 @@ from odoo import models, api
 _logger = logging.getLogger(__name__)
 
 
-class ais_ash_kom_controller(models.Model):
+class HrDepartment(models.Model):
     _inherit = 'hr.department'
 
     @api.model
