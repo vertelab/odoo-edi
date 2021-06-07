@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI AF TRASK Arbetssökande',
-    'version': '12.0.2.0.1',
+    'version': '12.0.2.0.2',
     'category': 'edi',
     'summary': 'EDI AF TRASK arbetssökande - support for jobseekers ',
     'licence': 'AGPL-3',
@@ -33,7 +33,8 @@ This functionality is tailored for AF. \n
 v12.0.1.0.0: versions before good version control \n
 v12.0.1.0.1 AFC-2123: Updated module to work together with changes in other modules. \n
 v12.0.2.0.0 AFC-1766: Major overhaul of how the module works. \n
-v12.0.2.0.1 AFC-2228: Fixed bug in message.
+v12.0.2.0.1 AFC-2228: Fixed bug in message. \n
+v12.0.2.0.2 AFC-2137: Fixed behaviour of this code. \n
 \n
 """,
     'author': 'Vertel AB',
