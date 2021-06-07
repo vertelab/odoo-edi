@@ -33,7 +33,7 @@ class edi_route(models.Model):
     def _get_officer(self, message, res):
         body = json.dumps(res)
         vals = {
-            "name": "AS office reply",
+            "name": "Officer reply",
             "body": body,
             "edi_type": message.edi_type.id,
             "res_id": message.res_id,
