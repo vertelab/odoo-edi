@@ -43,6 +43,19 @@ class edi_route(models.Model):
         # unpack messages
         res_message.unpack()
 
+    def _get_all_officers(self, message, res):
+        body = json.dumps(res)
+        vals = {
+            "name": "Officers reply",
+            "body": body,
+            "edi_type": message.edi_type.id,
+            "res_id": message.res_id,
+            "route_type": message.route_type,
+        }
+        res_message = message.env["edi.message"].create(vals)
+        # unpack messages
+        res_message.unpack()
+
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 
     
