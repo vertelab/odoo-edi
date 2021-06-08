@@ -41,7 +41,7 @@ class ResPartner(models.Model):
                 current_user = request.env.user.id
             else:
                 current_user = self.env.user.id
-            if user_id and user_id != current_user or not (request and current_user == SUPERUSER_ID):
+            if user_id and user_id != current_user and current_user != SUPERUSER_ID:
                 if user_id != self.user_id.id:
                     route = self.env.ref("edi_af_aisf_trask.asok_office_route")
 
