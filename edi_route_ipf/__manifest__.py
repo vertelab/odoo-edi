@@ -21,27 +21,30 @@
 
 {
     'name': 'EDI Routes IPF',
-    'version': '0.1',
+    'version': '12.0.2.2.0',
     'category': 'edi',
     'summary': 'Routes for EDI using IPF',
     'licence': 'AGPL-3',
     'description': """
 Add routes for EDI using IPF-Rest and IPF-MQ.
-
+================================================================================================
 Requires python libraries paramiko and pycrypto. http://www.paramiko.org/installing.html
+This functionality is tailored for AF. \n
+v12.0.1.0.0: versions before good version control \n
+v12.0.2.0.0 AFC-1766: Major overhaul of how the module works. \n
+v12.0.2.1.0 AFC-1767: Implemented edi.log model. \n
+v12.0.2.2.0 AFC-2298: Fixed edi.log access rights. \n
+\n
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
     'depends': ['edi_route',],
-#    'external_dependencies': {
-#        'python': ['paramiko','Crypto'],
-#    },
     'data': [ 
         'views/edi_route_view.xml', 
+        'views/edi_message_view.xml', 
         'views/edi_type_view.xml',
     ],
     'application': False,
     'installable': True,
- #   'demo': ['calendar_ics_demo.xml',],
 }
 # vim:expandtab:smartindent:tabstop=4s:softtabstop=4:shiftwidth=4:

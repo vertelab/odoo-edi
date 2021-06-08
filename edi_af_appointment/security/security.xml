@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<odoo>
+    <data>
+
+        <!-- =====Bemanningshandläggare mötesbokning===== -->
+        <record id="af_rule_edi_log_meeting_admin" model="ir.rule">
+            <field name="name">edi.log - Meeting Admin</field>
+            <field name="model_id" ref="resource.model_resource_calendar_leaves"/>
+            <field name="domain_force">[('id', '=', user.env.ref('edi_af_appointment.appointment_ace_wi').id)]</field>
+            <field name="groups" eval="[(4, ref('af_security.af_meeting_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+
+    </data>
+
+</odoo>

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="af_edi_as_notes" model="ir.actions.server">
+        <field name="name">EDI AF post note</field>
+        <field name="model_id" ref="base.model_ir_actions_server"/>
+        <field name="state">code</field>
+        <field name="code">
+route = env['edi.route'].sudo().search([('id', '=', env['ir.model.data'].xmlid_to_res_id('edi_af_as_notes.asok_note_post_route'))])
+officer = env['res.users'].sudo().search([('login','=','xxaoj')])
+note_vals = {
+    'name': "Ombokat första planeringssamtal PDM. Orsak: Arbete",
+    'note': "Ombokat första planeringssamtal lokalkontor: 2019-12-22 kl 16:00, 0248 xxaoj. Orsak: Arbete",
+    'note_date': "2020-10-13",
+    'administrative_officer': officer.id,
+    'is_confidential': False,
+    'note_type': env['res.partner.note.type'].sudo().browse(1).id,
+    'office_id': env['hr.department'].search([('office_code','=','0248')]).id,
+    'partner_id': env['res.partner'].sudo().search([('customer_id','=','2280')]).id,
+    'appointment_id': env['calendar.appointment'].browse(1).id,
+}
+
+record = env['res.partner.notes'].sudo().create(note_vals)
+
+vals = {
+  'name': 'post note msg',
+  'edi_type': env.ref('edi_af_as_notes.edi_af_as_notes_post').id,
+  'model': record._name,
+  'res_id': record.id,
+  'route_id': route.id,
+  'route_type': 'edi_af_as_notes_post',
+}
+
+message = env['edi.message'].sudo().create(vals)
+message.sudo().pack()
+route.sudo().run()
+        
+        
+        </field>
+    </record>
+
+ 
+</odoo>

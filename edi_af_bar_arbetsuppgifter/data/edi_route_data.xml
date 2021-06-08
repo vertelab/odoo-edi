@@ -1,0 +1,25 @@
+<openerp>
+    <data noupdate="1">
+
+        <record id="bar_route" model="edi.route">
+            <field name="name">AF Bär route</field>
+            <field name="partner_id" ref="base.main_partner"/>
+            <field name="active" eval="True"/>
+            <field name="protocol">ipf</field>
+            <field name="route_type">edi_af_bar</field>
+        </record>
+
+        <record id="bar" model="edi.message.type">
+            <field name="name"></field>
+            <field name="target"></field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}&amp;</field>
+        </record>
+
+        <record id="edi_af_bar" model="edi.message.type">
+            <field name="name">AF Bär route</field>
+            <field name="target">ais-f-daganteckningar/v1/anteckning</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record> 
+
+    </data>
+</openerp>

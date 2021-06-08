@@ -37,7 +37,6 @@ class edi_message(models.Model):
         if self.edi_type.id == self.env.ref('edi_af_appointment.appointment_schedules').id:
             # decode string and convert string to tuple, convert tuple to dict
             body = dict(ast.literal_eval(self.body.decode("utf-8")))
-            
             start_time = datetime.strptime(body.get('start_time'), "%Y-%m-%dT%H:%M:%SZ")
             stop_time = datetime.strptime(body.get('end_time'), "%Y-%m-%dT%H:%M:%SZ")
 
@@ -63,14 +62,15 @@ class edi_message(models.Model):
                     'name': type_id.name,
                     'start': start_time_utc,
                     'stop': stop_time_utc,
-                    'duration': 30.0,
+                    'duration': 0.5,
                     'scheduled_agents': int(body.get('scheduled_agents')), # number of agents supposed to be available for this. Can sometimes be float.
                     'forecasted_agents': int(body.get('forecasted_agents')), # May be implemented at a later date. Can sometimes be float.
                     'type_id': type_id.id,
                     'channel': type_id.channel.id,
                 }
                 schedule_id = self.env['calendar.schedule'].create(vals)
-            # TODO: maybe move this
+            # TODO: this is run once for every schedule now. 
+            # It only has to be run once per day and meeting type
             schedule_id.create_occasions()
         
         else:
@@ -84,12 +84,11 @@ class edi_message(models.Model):
 
             obj = self.model_record
             self.body = self.edi_type.type_mapping.format(
-                path = "appointments/v1/resource-planning/competencies/schedules",
+                path = "appointments/v2/resource-planning/competencies/schedules",
                 from_date = obj.start.strftime("%Y-%m-%dT%H:%M:%SZ"), # 2020-03-17T00:00:00Z
                 to_date = obj.stop.strftime("%Y-%m-%dT%H:%M:%SZ"), # 2020-03-25T00:00:00Z
                 comp = obj.type_id.ipf_id, # ded72445-e5d3-4e21-a356-aad200dac83d
             )
-
             envelope = self.env['edi.envelope'].create({
                 'name': 'Appointment schedules request',
                 'route_id': self.route_id.id,
@@ -100,7 +99,6 @@ class edi_message(models.Model):
                 # 'edi_message_ids': [(6, 0, msg_ids)]
                 'edi_message_ids': [(6, 0, [self.id])]
             })
-
             # TODO: Decide if we want to fold here?
             # envelope.fold()
             

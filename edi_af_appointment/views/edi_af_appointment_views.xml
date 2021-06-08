@@ -29,4 +29,98 @@ msg = env['edi.message'].create(vals)
 msg.pack()
 cal_schedule.inactivate()</field>
     </record>
+
+    <record id="af_edi_ace_wi" model="ir.actions.server">
+        <field name="name">EDI AF ACE work item post</field>
+        <field name="model_id" ref="base.model_ir_actions_server"/>
+        <field name="state">code</field>
+        <field name="code">text = "Test-text"
+app = env['calendar.appointment'].search([('id', '=', 23)])
+queue = app.type_id.ace_queue_id
+errand = app.type_id.ace_errand_id
+
+vals = {
+  'name': "IPF request",
+  'text': text,
+  'appointment_id': app.id,
+  'queue': queue.id,
+  'errand': errand.id
+}
+ace_wi = env['edi.ace_workitem'].create(vals)
+
+vals = {
+  'name': 'ACE TEST!',
+  'edi_type': env.ref('edi_af_appointment.appointment_ace_wi').id,
+  'model': ace_wi._name,
+  'res_id': ace_wi.id,
+  'route_id': env.ref('edi_af_appointment.ace_wi').id,
+  'route_type': 'edi_af_ace_wi',
+}
+msg = env['edi.message'].create(vals)
+msg.pack()
+      </field>
+    </record>
+
+  <record model="ir.ui.view" id="view_edi_ace_queue_tree">
+    <field name="name">EDI Queue</field>
+    <field name="model">edi.ace_queue</field>
+    <field name="arch" type="xml">
+      <tree string="EDI Queue">
+        <field name="name" />
+        <field name="app_type_id" />
+      </tree>
+    </field>
+  </record>
+
+  <record id="action_edi_ace_queue" model="ir.actions.act_window">
+    <field name="name">ACE Queue</field>
+    <field name="res_model">edi.ace_queue</field>
+    <field name="view_mode">tree,form</field>
+    <field name="view_id" ref="view_edi_ace_queue_tree" />
+  </record>
+
+  <record model="ir.actions.act_window.view" id="action_edi_ace_queue_tree">
+    <field name="act_window_id" ref="action_edi_ace_queue" />
+    <field name="sequence" eval="2" />
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="view_edi_ace_queue_tree" />
+  </record>
+
+  <record model="ir.ui.view" id="view_edi_ace_errand_tree">
+    <field name="name">EDI errand</field>
+    <field name="model">edi.ace_errand</field>
+    <field name="arch" type="xml">
+      <tree string="EDI Errand">
+        <field name="name" />
+        <field name="app_type_id" />
+        <field name="right_type" />
+        <field name="code" />
+        <field name="reason_code" />
+        <field name="interval" />
+        <field name="client_responsible" />
+        <field name="priority" />
+      </tree>
+    </field>
+  </record>
+
+  <record id="action_edi_ace_errand" model="ir.actions.act_window">
+    <field name="name">ACE Errand</field>
+    <field name="res_model">edi.ace_errand</field>
+    <field name="view_mode">tree,form</field>
+    <field name="view_id" ref="view_edi_ace_errand_tree" />
+  </record>
+
+  <record model="ir.actions.act_window.view" id="action_edi_ace_errand_tree">
+    <field name="act_window_id" ref="action_edi_ace_errand" />
+    <field name="sequence" eval="2" />
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="view_edi_ace_errand_tree" />
+  </record>
+
+  <menuitem id="menu_edi_ace" name="ACE" parent="calendar_af.menu_admin" sequence="100"
+            groups="af_security.af_meeting_admin"/>
+  <menuitem id="menu_edi_ace_queue" name="ACE queues" parent="edi_af_appointment.menu_edi_ace"
+            action='action_edi_ace_queue' sequence="10" groups="af_security.af_meeting_admin"/>
+  <menuitem id="menu_edi_ace_errand" name="ACE errands" parent="edi_af_appointment.menu_edi_ace"
+            action='action_edi_ace_errand' sequence="20" groups="af_security.af_meeting_admin"/>
 </odoo>

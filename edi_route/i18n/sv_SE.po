@@ -1,0 +1,925 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* edi_route
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20210127\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-28 09:28+0000\n"
+"PO-Revision-Date: 2021-04-28 09:28+0000\n"
+"Last-Translator: Daniel Eriksson <daniel.eriksson@vertel.se>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__envelope_count
+msgid "# envelopes"
+msgstr "# brev"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_count
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_count
+#: model:ir.model.fields,field_description:edi_route.field_res_partner__edi_message_count
+#: model:ir.model.fields,field_description:edi_route.field_res_users__edi_message_count
+msgid "# messages"
+msgstr "# meddelanden"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_needaction
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_needaction
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_needaction
+msgid "Action Needed"
+msgstr "Åtgärd krävs"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__active
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_search
+msgid "Active"
+msgstr "Aktiv"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__application
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+msgid "Application"
+msgstr "Applikation"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line__name
+msgid "Application Reference"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_attachment_count
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_attachment_count
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_attachment_count
+msgid "Attachment Count"
+msgstr "Antal bilagor"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__body
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__body
+msgid "Body"
+msgstr "Bulk"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__caller_id
+msgid "Caller ID"
+msgstr ""
+
+#. module: edi_route
+#: sql_constraint:edi.route.caller:0
+msgid "Caller ID must be unique!"
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:699
+#: code:addons/edi_route/edi_route.py:709
+#, python-format
+msgid "Caller ID not found: %s; kwargs %s"
+msgstr ""
+
+#. module: edi_route
+#: selection:edi.envelope,state:0
+#: selection:edi.message,state:0
+msgid "Canceled"
+msgstr "Avbruten"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__carrier_id
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+msgid "Carrier"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_message__carrier_id
+msgid "Carrier - the party transporting the goods between two points."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_form
+msgid "Check"
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_envelope
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_envelope_route
+msgid "Click to schedule a new EDI Envelope."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_message
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_message_envelope
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_message_partner
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_message_route
+msgid "Click to schedule a new EDI Message."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_caller
+msgid "Click to schedule a new EDI Route Caller."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_route
+msgid "Click to schedule a new EDI Route."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_type
+msgid "Click to schedule a new EDI Type."
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__consignee_id
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+msgid "Consignee"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_message__consignee_id
+msgid "Consignee - the party receiving the goods."
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__consignor_id
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+msgid "Consignor"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_message__consignor_id
+msgid "Consignor - the party sending the goods."
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model,name:edi_route.model_res_partner
+msgid "Contact"
+msgstr "Kontakt"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line__create_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__create_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__create_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_message_type__create_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__create_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_caller__create_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__create_uid
+msgid "Created by"
+msgstr "Skapad av"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line__create_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__create_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__create_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_message_type__create_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__create_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_caller__create_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__create_date
+msgid "Created on"
+msgstr "Skapad den"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_form
+msgid "Cron settings"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__date
+msgid "Date"
+msgstr "Datum"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line__display_name
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__display_name
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__display_name
+#: model:ir.model.fields,field_description:edi_route.field_edi_message_type__display_name
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__display_name
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_caller__display_name
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__display_name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_form
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_form
+msgid "Draft"
+msgstr "Utkast"
+
+#. module: edi_route
+#: model:ir.module.category,name:edi_route.module_category_edi_management
+#: model:ir.ui.menu,name:edi_route.menu_edi
+#: model:ir.ui.menu,name:edi_route.menu_edi_configuration
+msgid "EDI"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model,name:edi_route.model_edi_application_line
+msgid "EDI Application Line"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_res_partner__edi_application_lines
+#: model:ir.model.fields,field_description:edi_route.field_res_users__edi_application_lines
+msgid "EDI Applications"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.ui.menu,name:edi_route.menu_edi_caller_configuration
+msgid "EDI Caller"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.actions.act_window,name:edi_route.action_edi_envelope
+#: model:ir.actions.act_window,name:edi_route.action_edi_envelope_route
+#: model:ir.model,name:edi_route.model_edi_envelope
+#: model:ir.ui.menu,name:edi_route.menu_edi_envelope_configuration
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_form
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_tree
+msgid "EDI Envelope"
+msgstr "EDI Brev"
+
+#. module: edi_route
+#: model:res.groups,name:edi_route.group_edi_manager
+msgid "EDI Manager"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.actions.act_window,name:edi_route.action_edi_message
+#: model:ir.actions.act_window,name:edi_route.action_edi_message_envelope
+#: model:ir.actions.act_window,name:edi_route.action_edi_message_partner
+#: model:ir.actions.act_window,name:edi_route.action_edi_message_route
+#: model:ir.model,name:edi_route.model_edi_message
+#: model:ir.ui.menu,name:edi_route.menu_edi_message_configuration
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_form
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_tree
+msgid "EDI Message"
+msgstr "EDI Meddelande"
+
+#. module: edi_route
+#: model:ir.model,name:edi_route.model_edi_message_type
+msgid "EDI Message Type"
+msgstr "EDI Meddelandetyp"
+
+#. module: edi_route
+#: model:ir.actions.act_window,name:edi_route.action_edi_route
+#: model:ir.model,name:edi_route.model_edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__route_id
+#: model:ir.ui.menu,name:edi_route.menu_edi_route_configuration
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_form
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_tree
+msgid "EDI Route"
+msgstr "EDI Rutt"
+
+#. module: edi_route
+#: model:ir.actions.act_window,name:edi_route.action_edi_caller
+#: model:ir.model,name:edi_route.model_edi_route_caller
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_caller_tree
+msgid "EDI Route Caller"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.actions.server,name:edi_route.ir_cron_edi_route_ir_actions_server
+#: model:ir.cron,cron_name:edi_route.ir_cron_edi_route
+#: model:ir.cron,name:edi_route.ir_cron_edi_route
+msgid "EDI Route runs"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.actions.act_window,name:edi_route.action_edi_type
+#: model:ir.ui.menu,name:edi_route.menu_edi_type_configuration
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_type_form
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_type_tree
+msgid "EDI Type"
+msgstr "EDI-typ"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_partner_form
+msgid "EDI Types"
+msgstr "EDI-typer"
+
+#. module: edi_route
+#: model:res.groups,name:edi_route.group_edi_user
+msgid "EDI User"
+msgstr "EDI-användare"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__edi_message_ids
+msgid "Edi Message"
+msgstr "EDI-meddelande"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line__edi_type
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__edi_type
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+msgid "Edi Type"
+msgstr "EDI-typ"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__envelope_id
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+msgid "Envelope"
+msgstr "Brev"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_form
+msgid "Envelopes"
+msgstr "Brev"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_follower_ids
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_follower_ids
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_follower_ids
+msgid "Followers"
+msgstr "Följare"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_channel_ids
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_channel_ids
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_channel_ids
+msgid "Followers (Channels)"
+msgstr "Följare (Kanaler)"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_partner_ids
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_partner_ids
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Följare (kontakter)"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__forwarder_id
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+msgid "Forwarder"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_message__forwarder_id
+msgid "Forwarder - the party planning the transport on behalf of the consignor or consignee."
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__frequency_quant
+msgid "Frequency"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__frequency_uom
+msgid "Frequency Uom"
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_search
+msgid "Group By"
+msgstr "Gruppera efter"
+
+#. module: edi_route
+#: model:ir.module.category,description:edi_route.module_category_edi_management
+msgid "Helps you handle EDI messages, envelopes and routes.."
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line__id
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__id
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__id
+#: model:ir.model.fields,field_description:edi_route.field_edi_message_type__id
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__id
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_caller__id
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__id
+msgid "ID"
+msgstr ""
+
+#. module: edi_route
+#: selection:edi.route,protocol:0
+msgid "IPF"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_envelope__message_unread
+#: model:ir.model.fields,help:edi_route.field_edi_message__message_unread
+#: model:ir.model.fields,help:edi_route.field_edi_route__message_unread
+msgid "If checked new messages require your attention."
+msgstr "Om ikryssad nya meddelanden som kräver din uppmärksamhet"
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_envelope__message_needaction
+#: model:ir.model.fields,help:edi_route.field_edi_message__message_needaction
+#: model:ir.model.fields,help:edi_route.field_edi_route__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Om den är markerad så finns det meddelanden som kräver din uppmärksamhet."
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_envelope__message_has_error
+#: model:ir.model.fields,help:edi_route.field_edi_message__message_has_error
+#: model:ir.model.fields,help:edi_route.field_edi_route__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_search
+msgid "Inactive"
+msgstr "Inaktiv"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__recipient
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__recipient
+msgid "Interchange Recipient"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__sender
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__sender
+msgid "Interchange Sender"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_is_follower
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_is_follower
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_is_follower
+msgid "Is Follower"
+msgstr "Är följare"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line____last_update
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope____last_update
+#: model:ir.model.fields,field_description:edi_route.field_edi_message____last_update
+#: model:ir.model.fields,field_description:edi_route.field_edi_message_type____last_update
+#: model:ir.model.fields,field_description:edi_route.field_edi_route____last_update
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_caller____last_update
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line____last_update
+msgid "Last Modified on"
+msgstr "Senast redigerad"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line__write_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__write_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__write_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_message_type__write_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__write_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_caller__write_uid
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__write_uid
+msgid "Last Updated by"
+msgstr "Senast uppdaterad av"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line__write_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__write_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__write_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_message_type__write_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__write_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_caller__write_date
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__write_date
+msgid "Last Updated on"
+msgstr "Senast uppdaterad"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__run_sequence
+msgid "Last run id"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_main_attachment_id
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_main_attachment_id
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+msgid "Message"
+msgstr "Meddelande"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_has_error
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_has_error
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_ids
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_ids
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_ids
+#: model:ir.model.fields,field_description:edi_route.field_res_partner__edi_message_ids
+#: model:ir.model.fields,field_description:edi_route.field_res_users__edi_message_ids
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_form
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_form
+#: model_terms:ir.ui.view,arch_db:edi_route.view_partner_form
+msgid "Messages"
+msgstr "Meddelanden"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__model
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+msgid "Model"
+msgstr "Modell"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+msgid "My Urls"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__name
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__name
+#: model:ir.model.fields,field_description:edi_route.field_edi_message_type__name
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__name
+msgid "Name"
+msgstr "Namn"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__next_run
+msgid "Next run"
+msgstr ""
+
+#. module: edi_route
+#: selection:edi.route,protocol:0
+msgid "None"
+msgstr "Ingen"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_needaction_counter
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_needaction_counter
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Antal åtgärder"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_has_error_counter
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_has_error_counter
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_has_error_counter
+msgid "Number of error"
+msgstr "Antal fel"
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_envelope__message_needaction_counter
+#: model:ir.model.fields,help:edi_route.field_edi_message__message_needaction_counter
+#: model:ir.model.fields,help:edi_route.field_edi_route__message_needaction_counter
+msgid "Number of messages which requires an action"
+msgstr "Antal meddelanden som kräver en åtgärd"
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_envelope__message_has_error_counter
+#: model:ir.model.fields,help:edi_route.field_edi_message__message_has_error_counter
+#: model:ir.model.fields,help:edi_route.field_edi_route__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_envelope__message_unread_counter
+#: model:ir.model.fields,help:edi_route.field_edi_message__message_unread_counter
+#: model:ir.model.fields,help:edi_route.field_edi_route__message_unread_counter
+msgid "Number of unread messages"
+msgstr "Antal olästa meddelanden"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_form
+msgid "Outgoing message types"
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_form
+msgid "Pack"
+msgstr "Packa"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_application_line__partner_id
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+msgid "Partner"
+msgstr "Samarbetspartner"
+
+#. module: edi_route
+#: selection:edi.envelope,route_type:0
+#: selection:edi.message,route_type:0
+#: selection:edi.route,route_type:0
+msgid "Plain"
+msgstr ""
+
+#. module: edi_route
+#: selection:edi.envelope,state:0
+#: selection:edi.message,state:0
+msgid "Progress"
+msgstr "Bearbetas"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__protocol
+msgid "Protocol"
+msgstr "Protokoll"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_form
+msgid "Protocol settings"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__route_line_ids
+msgid "Python Acctions"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__code
+msgid "Python Action"
+msgstr ""
+
+#. module: edi_route
+#: selection:edi.envelope,state:0
+#: selection:edi.message,state:0
+msgid "Received"
+msgstr "Mottagen"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+msgid "Recipient"
+msgstr "Mottagare"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__model_record
+msgid "Record"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__ref
+msgid "Reference"
+msgstr "Referens"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__res_id
+msgid "Res"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__route_id
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__route_id
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_search
+msgid "Route"
+msgstr "Rutt"
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:214
+#, python-format
+msgid "Route %s type %s #%s %s messages created\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:191
+#, python-format
+msgid "Route %s type %s #%s Error %s\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:139
+#, python-format
+msgid "Route %s type %s %s messages created\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:372
+#, python-format
+msgid "Route %s type %s %s messages packed\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:319
+#, python-format
+msgid "Route %s type %s %s messages unpacked\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:202
+#, python-format
+msgid "Route %s type %s Error #%s %s\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:90
+#: code:addons/edi_route/edi_route.py:102
+#: code:addons/edi_route/edi_route.py:114
+#: code:addons/edi_route/edi_route.py:127
+#: code:addons/edi_route/edi_route.py:179
+#: code:addons/edi_route/edi_route.py:280
+#: code:addons/edi_route/edi_route.py:292
+#: code:addons/edi_route/edi_route.py:304
+#, python-format
+msgid "Route %s type %s Error %s\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:361
+#: code:addons/edi_route/edi_route.py:571
+#: code:addons/edi_route/edi_route.py:615
+#, python-format
+msgid "Route %s type %s IOError %s\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:349
+#: code:addons/edi_route/edi_route.py:560
+#: code:addons/edi_route/edi_route.py:604
+#, python-format
+msgid "Route %s type %s Type Error %s\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:338
+#: code:addons/edi_route/edi_route.py:550
+#: code:addons/edi_route/edi_route.py:594
+#, python-format
+msgid "Route %s type %s Value Error %s\n"
+""
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__route_type
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__route_type
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__route_type
+msgid "Route Type"
+msgstr "Rutt-typ"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_form
+msgid "Run"
+msgstr "Kör"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+msgid "Search EDI Envelope"
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_search
+msgid "Search EDI Message"
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_search
+msgid "Search EDI Route"
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+msgid "Sender"
+msgstr ""
+
+#. module: edi_route
+#: selection:edi.envelope,state:0
+#: selection:edi.message,state:0
+msgid "Sent"
+msgstr "Skickat"
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_form
+msgid "Split"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__state
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__state
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_envelope_search
+msgid "State"
+msgstr "Status"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__test_mode
+msgid "Test Mode"
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_caller
+msgid "The Caller in creates EDI-messages."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_envelope
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_envelope_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_message
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_message_envelope
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_message_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_route
+msgid "The Routes in delivers and receives EDI-messages."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_message_partner
+msgid "The Routes in delivers and recieves EDI-messages."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.actions.act_window,help:edi_route.action_edi_type
+msgid "The Types of EDI-messages."
+msgstr "Typerna av EDI-meddelanden"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__to_export
+msgid "To Export"
+msgstr ""
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__to_import
+msgid "To Import"
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_route_search
+msgid "Type"
+msgstr "Typ"
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_route_line__caller_id
+msgid "Unique ID representing the method that should trigger this action, eg. 'sale.order.action_invoice_create'."
+msgstr ""
+
+#. module: edi_route
+#: model_terms:ir.ui.view,arch_db:edi_route.view_edi_message_form
+msgid "Unpack"
+msgstr "Packa upp"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_unread
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_unread
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_unread
+msgid "Unread Messages"
+msgstr "Olästa meddelanden"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_envelope__message_unread_counter
+#: model:ir.model.fields,field_description:edi_route.field_edi_message__message_unread_counter
+#: model:ir.model.fields,field_description:edi_route.field_edi_route__message_unread_counter
+msgid "Unread Messages Counter"
+msgstr "Räknare olästa meddelanden"
+
+#. module: edi_route
+#: model:ir.model.fields,help:edi_route.field_edi_application_line__name
+msgid "Used sometimes in envelop as Interchange Control Ref"
+msgstr ""
+
+#. module: edi_route
+#: selection:edi.route,frequency_uom:0
+msgid "day"
+msgstr "dag"
+
+#. module: edi_route
+#: model:ir.model,name:edi_route.model_edi_route_line
+msgid "edi.route.line"
+msgstr ""
+
+#. module: edi_route
+#: selection:edi.route,frequency_uom:0
+msgid "hour"
+msgstr "timme"
+
+#. module: edi_route
+#: selection:edi.route,frequency_uom:0
+msgid "min"
+msgstr ""
+
+#. module: edi_route
+#: selection:edi.route,frequency_uom:0
+msgid "month"
+msgstr "månad"
+
+#. module: edi_route
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_caller__name
+#: model:ir.model.fields,field_description:edi_route.field_edi_route_line__name
+msgid "name"
+msgstr "namn"
+
+#. module: edi_route
+#: model:res.groups,comment:edi_route.group_edi_user
+msgid "the user can create messages."
+msgstr "användaren kan skapa meddelanden "
+
+#. module: edi_route
+#: model:res.groups,comment:edi_route.group_edi_manager
+msgid "the user can manage routes."
+msgstr "användaren kan administrera rutter."
+
+#. module: edi_route
+#: selection:edi.route,frequency_uom:0
+msgid "week"
+msgstr "vecka"
+
+#. module: edi_route
+#: code:addons/edi_route/edi_route.py:406
+#: code:addons/edi_route/edi_route.py:414
+#, python-format
+msgid "{type} <a href='/web#model={model}&id={id}'>{message}</a> created\n"
+""
+msgstr ""
+

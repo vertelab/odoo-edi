@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="update_customer_number" model="ir.actions.server">
+        <field name="name">Update Customer Number</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="state">code</field>
+        <field name="groups_id" eval="[(4, ref('base.group_system'))]"/>
+        <field name="code">
+for partner in records:
+    partner.rask_controller(partner.customer_id,partner.social_sec_nr,None,'edi_af_as_rask')</field>
+    </record>
+
+    <function name="create_action" model="ir.actions.server">
+        <value model="ir.actions.server" search="[
+            ('id', 'in', [ref('update_customer_number')]),
+            ]"/>
+    </function>
+
+    <record id="update_customer_number_all" model="ir.actions.server">
+        <field name="name">Update ALL Customer Number</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="state">code</field>
+        <field name="groups_id" eval="[(4, ref('base.group_system'))]"/>
+        <field name="code">
+partners = env["res.partner"].sudo().search([('is_jobseeker', '=', True)])
+for partner in partners:
+    partner.rask_controller(partner.customer_id,partner.social_sec_nr,None,'edi_af_as_rask')</field>
+    </record>
+
+    <function name="create_action" model="ir.actions.server">
+        <value model="ir.actions.server" search="[
+            ('id', 'in', [ref('update_customer_number_all')]),
+            ]"/>
+    </function>
+</odoo>
+
