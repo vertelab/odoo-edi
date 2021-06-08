@@ -20,6 +20,8 @@
 ##############################################################################
 
 from odoo import models, fields, api, _
+from odoo.http import request
+from odoo import SUPERUSER_ID
 
 import logging
 
@@ -32,22 +34,43 @@ class ResPartner(models.Model):
     @api.one
     def write(self, vals):
         # Overwrite write method to catch changes to user_id
-        user_id = vals.get("user_id", False)
-        if user_id and user_id != self.env.user.id:
-            if user_id != self.user_id.id:
-                route = self.env.ref("edi_af_aisf_trask.asok_office_route")
+        if self.is_jobseeker:
+            user_id = vals.get("user_id", False)
+            request = self._get_request_object()
+            if request:
+                current_user = request.env.user.id
+            else:
+                current_user = self.env.user.id
+            if user_id and user_id != current_user or not (request and current_user == SUPERUSER_ID):
+                if user_id != self.user_id.id:
+                    route = self.env.ref("edi_af_aisf_trask.asok_office_route")
 
-                msg_vals = {
-                    "name": "patch office msg",
-                    "edi_type": self.env.ref("edi_af_aisf_trask.asok_patch_office").id,
-                    "model": self._name,
-                    "res_id": self.id,
-                    "route_id": route.id,
-                    "route_type": "edi_af_aisf_trask_office",
-                }
+                    msg_vals = {
+                        "name": "patch office msg",
+                        "edi_type": self.env.ref("edi_af_aisf_trask.asok_patch_office").id,
+                        "model": self._name,
+                        "res_id": self.id,
+                        "route_id": route.id,
+                        "route_type": "edi_af_aisf_trask_office",
+                    }
 
-                message = self.env["edi.message"].create(msg_vals)
-                message.pack()
-                route.run()
+                    message = self.env["edi.message"].create(msg_vals)
+                    message.pack()
+                    route.run()
 
         super(ResPartner, self).write(vals)
+
+
+    def _get_request_object(self):
+        """ Fetch the current request object, if one exists. We often run
+        this code in sudo, so self.env.user is not reliable, but the
+        request object always has the actual user.
+        """
+        try:
+            # Poke the bear
+            request.env
+            # It's alive!
+            return request
+        except Exception:
+            # No request is available
+            return False
