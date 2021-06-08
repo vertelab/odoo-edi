@@ -77,11 +77,9 @@ class edi_message(models.Model):
                 else:
                     partner_id.write(partner_vals)
                 department_obj.write({'name': office_vals.get('namn')})
-
                 employee_ids = []
-                for employee in body.get('handlaggare'):
-                    employee_vals = employee.get('handlaggare')
-                    sign = employee_vals.get('signatur')
+                for employee in body.get('handlaggare').get('handlaggare'):
+                    sign = employee.get('signatur')
                     user = self.env['res.users'].search([(
                         'login',
                         '=',
@@ -90,8 +88,8 @@ class edi_message(models.Model):
                     if not user:
                         user = self.env['res.users'].with_context(no_reset_password=True).create({
                             'login': sign,
-                            'firstname': employee_vals.get('fornamn'),
-                            'lastname': employee_vals.get('efternamn'),
+                            'firstname': employee.get('fornamn'),
+                            'lastname': employee.get('efternamn'),
                             'saml_uid': sign,
                             'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth'),
                             'tz': 'Europe/Stockholm',
@@ -99,8 +97,8 @@ class edi_message(models.Model):
                             'groups_id': [(6, 0, [self.env.ref('base.group_user').id])],
                             'employee': True,
                             'employee_ids': [(0, 0, {
-                                'firstname': employee_vals.get('fornamn'),
-                                'lastname': employee_vals.get('efternamn'),
+                                'firstname': employee.get('fornamn'),
+                                'lastname': employee.get('efternamn'),
                                 })]
                             })
                         _logger.debug("User %s missing, adding" % sign)
