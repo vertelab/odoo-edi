@@ -40,7 +40,8 @@ v12.0.2.0.1 AFC-2228: Fixed bug in message.
     'website': 'http://www.vertel.se',
     'depends': [
         'edi_route_ipf',
-        'edi_af_appointment'
+        'edi_af_appointment',
+        'partner_view_360',
         ],
     'external_dependencies': {
     },
