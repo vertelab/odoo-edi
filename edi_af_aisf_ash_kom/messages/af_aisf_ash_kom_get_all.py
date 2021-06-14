@@ -45,7 +45,13 @@ class edi_message(models.Model):
                     '=',
                     office_vals.get('kontorKod')
                 )])
-                state_id = self.env['res.country.state'].search([('code', '=', office_vals.get('kommunKod'))])
+                state_id = self.env['res.country.state'].search([
+                    (
+                        'code',
+                        '=',
+                        office_vals.get('kommunKod')
+                    )
+                ])
                 partner_vals = { # partner for aditional information
                     'name': office_vals.get('namn'),
                     'email': office_vals.get('externEpost'),
@@ -61,7 +67,9 @@ class edi_message(models.Model):
                         'name': office_vals.get('namn'),
                         'office_code': office_vals.get('kontorKod')
                     })
-                    external_xmlid = '__ais-f_import__.office_%s' % office_vals.get('kontorKod')
+                    external_xmlid = '__ais-f_import__.office_%s' % office_vals.get(
+                        'kontorKod'
+                    )
                     self.env['ir.model.data'].create({
                         'name': external_xmlid.split('.')[1],
                         'module': external_xmlid.split('.')[0],
@@ -91,10 +99,19 @@ class edi_message(models.Model):
                             'firstname': employee.get('fornamn'),
                             'lastname': employee.get('efternamn'),
                             'saml_uid': sign,
-                            'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth'),
+                            'saml_provider_id':
+                                self.env['ir.model.data'].xmlid_to_res_id(
+                                    'auth_saml_af.provider_shibboleth'
+                                ),
                             'tz': 'Europe/Stockholm',
                             'lang': 'sv_SE',
-                            'groups_id': [(6, 0, [self.env.ref('base.group_user').id])],
+                            'groups_id': [
+                                (
+                                    6,
+                                    0,
+                                    [self.env.ref('base.group_user').id]
+                                )
+                            ],
                             'employee': True,
                             'employee_ids': [(0, 0, {
                                 'firstname': employee.get('fornamn'),
@@ -126,8 +143,9 @@ class edi_message(models.Model):
             obj = self.model_record
 
             self.body = self.edi_type.type_mapping.format(
-                path="ash-kontor-och-medarbetare/v1/kontor/{office_code}/handlaggare".format(
-                    office_code=obj.office_code)
+                path="ash-kontor-och-medarbetare/v1/kontor/"
+                     "{office_code}/handlaggare".format(
+                        office_code=obj.office_code)
             )
             envelope = self.env['edi.envelope'].create({
                 'name': 'ASH KOM all information request',

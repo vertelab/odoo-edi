@@ -14,7 +14,13 @@ class HrDepartment(models.Model):
         Relies on that office_code does not exist in database yet.
         Adds a new hr.department in database with office_code.
         """
-        hr_department_obj = self.env['hr.department'].search([('office_code', '=', office_code)])
+        hr_department_obj = self.env['hr.department'].search([
+            (
+                'office_code',
+                '=',
+                office_code
+            )
+        ])
 
         if not hr_department_obj:
             hr_department_obj = self.env['hr.department'].create({

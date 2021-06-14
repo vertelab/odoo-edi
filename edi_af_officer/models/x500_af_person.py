@@ -14,7 +14,13 @@ class af_person_controller(models.Model):
         Relies on that office_code does not exist in database yet.
         Adds a new hr.department in database with office_code.
         """
-        route = self.env['edi.route'].sudo().search([('id', '=', self.env['ir.model.data'].xmlid_to_res_id('edi_af_officer.get_all_officers_route'))])
+        route = self.env['edi.route'].sudo().search([
+            (
+                'id',
+                '=',
+                self.env['ir.model.data'].xmlid_to_res_id('edi_af_officer.get_all_officers_route')
+            )
+        ])
 
         record = self.env['res.users'].sudo().search([('login', '=', signature)])
 
@@ -37,7 +43,15 @@ class af_person_controller(models.Model):
         Relies on that office_code does not exist in database yet.
         Adds a new hr.department in database with office_code.
         """
-        route = self.env['edi.route'].sudo().search([('id', '=', self.env['ir.model.data'].xmlid_to_res_id('edi_af_officer.get_officer_route'))])
+        route = self.env['edi.route'].sudo().search([
+            (
+                'id',
+                '=',
+                self.env['ir.model.data'].xmlid_to_res_id(
+                    'edi_af_officer.get_officer_route'
+                )
+            )
+        ])
 
         record = self.env['res.users'].sudo().search([('login', '=', signature)])
 

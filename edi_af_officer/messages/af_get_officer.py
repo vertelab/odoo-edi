@@ -43,7 +43,12 @@ class edi_message(models.Model):
         office = self.env['hr.department'].search([('office_code','=',officer.get('officeCode'))])
         if not office:
             _logger.info("office number %s not in database, creating" % officer.get('officeCode'))
-            office = self.env['hr.department'].create({'name': officer.get('officeCode'), 'office_code': officer.get('officeCode'), 'note': _('Missing in AIS-F')})
+            office = self.env['hr.department'].create(
+                {
+                    'name': officer.get('officeCode'),
+                    'office_code': officer.get('officeCode'),
+                    'note': _('Missing in AIS-F')
+                 })
         if office and len(office) == 1: # hr.department should have a constraint added to it so length doesn't need to be checked
             # Non functional code below attempts to add a manager as parent_id for user
             # and creates said manager if it doesn't already exist
@@ -76,9 +81,13 @@ class edi_message(models.Model):
                 'mobile': officer.get('mobileNumber'),
                 'employee': True,
                 'saml_uid': officer.get('userName'),
-                'action_id': self.env.ref("hr_360_view.search_jobseeker_wizard").id,
+                'action_id':
+                    self.env.ref("hr_360_view.search_jobseeker_wizard").id,
                 'groups_id': [(6, 0, [self.env.ref('base.group_user').id])],
-                'saml_provider_id': self.env['ir.model.data'].xmlid_to_res_id('auth_saml_af.provider_shibboleth'),
+                'saml_provider_id':
+                    self.env['ir.model.data'].xmlid_to_res_id(
+                        'auth_saml_af.provider_shibboleth'
+                    ),
                 'tz': 'Europe/Stockholm',
                 'lang': 'sv_SE',
             }
@@ -108,7 +117,9 @@ class edi_message(models.Model):
                     'res_id': user.id
                 })
         else:
-            _logger.warn("office number %s not found for %s, not creating" % (officer.get('officeCode'), officer.get('userName')))
+            _logger.warning("office number %s not found for %s, not creating"
+                            % (officer.get('officeCode'),
+                               officer.get('userName')))
 
     @api.one
     def unpack(self):
@@ -134,9 +145,16 @@ class edi_message(models.Model):
 
     @api.one
     def pack(self):
-        if self.edi_type.id == self.env.ref('edi_af_officer.get_officer').id or self.edi_type.id == self.env.ref('edi_af_officer.get_all_officers').id:
+        if self.edi_type.id == self.env.ref(
+                    'edi_af_officer.get_officer'
+                ).id or self.edi_type.id == self.env.ref(
+                    'edi_af_officer.get_all_officers'
+                ).id:
             if not self.model_record or self.model_record._name != 'res.users':
-                raise Warning("Appointment: Attached record is not a res.users! {model}".format(model=self.model_record and self.model_record._name or None))
+                raise Warning("Appointment: Attached record is not "
+                              "a res.users! {model}".format(model=self.model_record
+                                                            and self.model_record._name
+                                                            or None))
 
             obj = self.model_record #res.users
             if self.edi_type.id == self.env.ref('edi_af_officer.get_all_officers').id:
