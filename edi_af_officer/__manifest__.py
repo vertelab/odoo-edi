@@ -36,7 +36,7 @@ v12.0.1.0.0 AFC-1766: Major overhaul of how the module works. \n
 """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['partner_view_360', 'edi_route_ipf','hr_360_view', 'auth_saml_af'],
+    'depends': ['partner_view_360', 'edi_route_ipf', 'hr_360_view', 'auth_saml_af'],
     'external_dependencies': {
     },
     'data': [

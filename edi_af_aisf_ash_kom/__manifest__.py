@@ -27,11 +27,11 @@
     'licence': 'AGPL-3',
     'description': 
     """ 
-    Runs through all departments and updates their employees from the ASH KOM API
+    Runs through all departments and updates their information from the ASH KOM API
     """,
     'author': 'Arbetsförmedlingen',
     'website': 'http://www.arbetsformedlingen.se',
-    'depends': ['partner_view_360', 'edi_route_ipf'],
+    'depends': ['partner_view_360', 'edi_route_ipf', 'hr_360_view', 'auth_saml_af'],
     'external_dependencies': {
     },
     'data': [

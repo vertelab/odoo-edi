@@ -1,4 +1,4 @@
-<openerp>
+<odoo>
     <data noupdate="1">
 
         <record id="get_officer_route" model="edi.route">
@@ -15,5 +15,11 @@
             <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
         </record>
 
+        <record id="get_all_officers" model="edi.message.type">
+            <field name="name">AF: Get all officers</field>
+            <field name="target">x500-af-person/v1/af-persons</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
+        </record>
+
     </data>
-</openerp>
+</odoo>

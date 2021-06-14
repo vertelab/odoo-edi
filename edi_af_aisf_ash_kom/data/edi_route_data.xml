@@ -3,7 +3,7 @@
         <record id="ash_kom_get_all" model="edi.message.type">
             <field name="name">AF AIS-F ASH KOM: Get all</field>
             <field name="target">ash-kontor-och-medarbetare/v1/kontor/{office_code}/handlaggare</field>
-            <field name="type_mapping">{{url}}:{{port}}/{path}&amp;client_id={{client}}&amp;client_secret={{secret}}</field>
+            <field name="type_mapping">{{url}}:{{port}}/{path}?client_id={{client}}&amp;client_secret={{secret}}</field>
         </record>
 
         <record id="ash_kom_route" model="edi.route">
