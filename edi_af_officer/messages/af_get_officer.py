@@ -29,26 +29,23 @@ _logger = logging.getLogger(__name__)
 LOCAL_TZ = 'Europe/Stockholm'
 
 class edi_message(models.Model):
-    _inherit='edi.message'
+    _inherit = 'edi.message'
 
     #TODO: add managerSignature as parent_id, if it doesn't exist create a new user with that login
 
     def add_update_user(self, officer):
-        workplaceNumber = officer.get('workplaceNumber') # one location
+        workplaceNumber = officer.get('workplaceNumber', "0") # one location
         if workplaceNumber:
             workplaceNumber = int(workplaceNumber)
-        operation = self.env['hr.operation'].search([('workplace_number','=', workplaceNumber)])
+        operation = self.env['hr.operation'].search([
+            ('workplace_number', '=', workplaceNumber)
+        ])
         if not operation:
             _logger.info("No operation with workplace number: %s" % workplaceNumber)
-        office = self.env['hr.department'].search([('office_code','=',officer.get('officeCode'))])
-        if not office:
-            _logger.info("office number %s not in database, creating" % officer.get('officeCode'))
-            office = self.env['hr.department'].create(
-                {
-                    'name': officer.get('officeCode'),
-                    'office_code': officer.get('officeCode'),
-                    'note': _('Missing in AIS-F')
-                 })
+        office_code = officer.get('officeCode', "").zfill(4)
+        office = self.env['hr.department'].search([
+            ('office_code', '=', office_code)
+        ])
         if office and len(office) == 1: # hr.department should have a constraint added to it so length doesn't need to be checked
             # Non functional code below attempts to add a manager as parent_id for user
             # and creates said manager if it doesn't already exist
