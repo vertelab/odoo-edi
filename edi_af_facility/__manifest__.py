@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI AF Facility',
-    'version': '12.0.2.0.0',
+    'version': '12.0.2.1.0',
     'category': 'edi',
     'summary': 'EDI AF facility - Find bookable offices for meetings ',
     'licence': 'AGPL-3',
@@ -33,6 +33,7 @@ then creates or updates operations and locations. \n
 This functionality is tailored for AF. \n
 v12.0.1.0.0: versions before good version control \n
 v12.0.2.0.0 AFC-1766: Major overhaul of how the module works. \n
+v12.0.2.1.0 AFC-2487: No longer creates if department can't be found \n
 \n
 """,
     'author': 'Vertel AB',
