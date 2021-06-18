@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI AF users',
-    'version': '12.0.1.0.0',
+    'version': '12.0.1.1.0',
     'category': 'edi',
     'summary': 'EDI AF officers - support for officers',
     'licence': 'AGPL-3',
@@ -32,6 +32,7 @@ odoo.conf needs to have a >1hr limit_time_real
 This functionality is tailored for AF. \n
 v12.0.0.1.1: versions before good version control (AFC-239)\n
 v12.0.1.0.0 AFC-1766: Major overhaul of how the module works. \n
+v12.0.1.1.0 AFC-2487: No longer creates missing offices. \n
 \n
 """,
     'author': 'Vertel AB',

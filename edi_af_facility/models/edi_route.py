@@ -28,7 +28,7 @@ _logger = logging.getLogger(__name__)
 class edi_route(models.Model):
     _inherit = 'edi.route' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_location', 'AF location')]) #, ('edi_af_as_office', 'AF AS office')])
+    route_type = fields.Selection(selection_add=[('edi_af_location', 'AF location')])
 
     def _office_campus(self, message, res):
         body = json.dumps(res)
@@ -47,9 +47,9 @@ class edi_route(models.Model):
 class edi_envelope(models.Model):
     _inherit = 'edi.envelope' 
     
-    route_type = fields.Selection(selection_add=[('edi_af_location', 'AF location')]) #, ('edi_af_as_office', 'AF AS office')])
+    route_type = fields.Selection(selection_add=[('edi_af_location', 'AF location')])
 
 class edi_message(models.Model):
     _inherit='edi.message'
           
-    route_type = fields.Selection(selection_add=[('edi_af_location', 'AF location')]) #, ('edi_af_as_office', 'AF AS office')])
+    route_type = fields.Selection(selection_add=[('edi_af_location', 'AF location')])
