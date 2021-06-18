@@ -36,7 +36,6 @@ class ediServiceNowOperation(models.Model):
     with methods to compute the correct odoo values for them.
     """
     name = fields.Char(string="Name")
-    
 
     department_id = fields.Many2one(comodel_name='hr.department', string="Department")
     location_id = fields.Many2one(comodel_name='hr.location', string="Location")
@@ -46,7 +45,6 @@ class ediServiceNowOperation(models.Model):
     personal_service_opening = fields.Char()
     office_code = fields.Char()
     organisational_belonging = fields.Char()
-    accessibilies = fields.Char()
     active = fields.Char()
     name = fields.Char()
     phone_hours = fields.Char()
@@ -82,15 +80,15 @@ class ediServiceNowOperation(models.Model):
         Finds the department by office code,
         If none is found, creates one.
         """
-        department = self.env['hr.department'].search([('office_code','=', self.office_code)])
+        office_code = self.office_code.zfill(4)
+        department = self.env['hr.department'].search([('office_code', '=', office_code)])
         if department:
             self.department_id = department.id
         else:
-            _logger.info("office number %s not in database, creating" % self.office_code)
-            self.department_id = self.env['hr.department'].create({'name': self.office_code, 'office_code': self.office_code, 'note': _('Missing in AIS-F')}).id
+            _logger.info("office number %s not in database, not creating" % self.office_code)
 
     @api.one
-    def compute_accessibilies(self, operation_id, accessibility_list):
+    def compute_accessibilities(self, operation_id, accessibility_list):
         """
         Creates accessibility objects from the accessibility_list for operation_id
         """
@@ -111,7 +109,7 @@ class ediServiceNowOperation(models.Model):
         or updates existing operation and location data if they already exist
         """
         location = self.env['hr.location'].search([('location_code', '=', self.campus_location_code)])
-        operation = self.env['hr.operation'].search([('operation_code','=',self.x500_id)])
+        operation = self.env['hr.operation'].search([('operation_code', '=', self.x500_id)])
         #create partners from fields
         visitation_address_vals = {
             'type': 'visitation address',
@@ -199,13 +197,14 @@ class edi_message(models.Model):
             for operation_rec in body:
                 vals = {}
                 for key in operation_rec.keys():
-                    vals[key.replace('.','_')] = operation_rec[key] #replace . with _ to make all keys variable names
+                    vals[key.replace('.', '_')] = operation_rec[key] #replace . with _ to make all keys variable names
                 vals['accessibilities'] = "%s" % vals['accessibilities'] #make the list a string to not crash on create
                 if operation_rec['active'] == 'true': 
                     operation = self.env['edi.service_now_operation'].create(vals) 
                     operation.compute_department_id()
-                    operation.compute_location_id(operation.department_id)
-                    operation.compute_accessibilies(operation.operation_res_id, operation_rec['accessibilities'])
+                    if operation.department_id:
+                        operation.compute_location_id(operation.department_id)
+                        operation.compute_accessibilities(operation.operation_res_id, operation_rec['accessibilities'])
         else:
             super(edi_message, self).unpack()
         
