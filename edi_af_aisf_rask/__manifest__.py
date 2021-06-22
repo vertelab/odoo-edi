@@ -20,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'Depreciated EDI AF AIS-F RASK',
+    'name': 'EDI AF AIS-F RASK',
     'version': '12.0.1.0.0',
     'category': 'edi',
     'summary': 'EDI AF AIS-F RASK - synchronize arbetssökande in AF CRM with AIS-F ASH by calling RASK',
@@ -33,7 +33,7 @@ v12.0.1.0.0 AFC-1766: Major overhaul of how the module works. \n
     """,
     'author': 'Arbetsförmedlingen',
     'website': 'http://www.arbetsformedlingen.se',
-    'depends': [],
+    'depends': ['partner_view_360', 'edi_route_ipf','partner_education'],
     'external_dependencies': {
     },
     'data': [

@@ -20,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'Depreciated EDI AF AIS-F RASK Get Jobseeker',
+    'name': 'EDI AF AIS-F RASK Get Jobseeker',
     'version': '12.0.0.1.1',
     'category': 'edi',
     'summary': 'EDI AF AIS-F RASK Get Jobseeker',
@@ -28,7 +28,7 @@
     'description': """ """,
     'author': 'Arbetsförmedlingen',
     'website': 'http://www.arbetsformedlingen.se',
-    'depends': [],
+    'depends': ['partner_view_360', 'af_ipf', 'partner_education'],
     'external_dependencies': {
     },
     'data': [
