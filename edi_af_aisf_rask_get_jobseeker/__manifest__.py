@@ -28,7 +28,7 @@
     'description': """ """,
     'author': 'Arbetsförmedlingen',
     'website': 'http://www.arbetsformedlingen.se',
-    'depends': ['partner_view_360', 'af_ipf', 'partner_education'],
+    'depends': [],
     'external_dependencies': {
     },
     'data': [
