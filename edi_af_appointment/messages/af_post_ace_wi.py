@@ -60,8 +60,13 @@ class EdiMessage(models.Model):
                     'id': {
                         'pnr': (obj.appointment_id.partner_id.social_sec_nr or '').replace('-', '')
                     },
-                    'phone_mobile': (obj.appointment_id.partner_id.mobile or obj.appointment_id.partner_id.phone or '').replace(' ', ''),
-                    'phone_home': (obj.appointment_id.partner_id.phone or '').replace(' ', '')
+                    'phone_mobile': (
+                            obj.appointment_id.partner_id.mobile or
+                            obj.appointment_id.partner_id.phone or
+                            '').replace(' ', '').replace('-', ''),
+                    'phone_home': (
+                            obj.appointment_id.partner_id.phone or
+                            '').replace(' ', '').replace('-', '')
                 }
             }
             self.body = json.dumps(body_dict)
