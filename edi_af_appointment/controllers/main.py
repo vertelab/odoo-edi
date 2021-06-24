@@ -123,9 +123,9 @@ class AppointmentController(http.Controller):
             for slot in day:
                 for book_occ in slot:
                     if len(book_occ) != 1:
-                        book_duration = int(len(book_occ) * BASE_DURATION)
+                        book_duration = int(len(book_occ) * BASE_DURATION) * 60
                     else:
-                        book_duration = int(type_id.duration)
+                        book_duration = int(type_id.duration) * 60
                     vals = {
                         # change occasions from recordsets to an 'external' ID
                         "id": self.encode_bookable_occasion_id(book_occ),

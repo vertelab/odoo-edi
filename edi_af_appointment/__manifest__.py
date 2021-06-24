@@ -21,7 +21,7 @@
 
 {
     "name": "EDI AF Appointment",
-    "version": "12.0.1.3.0",
+    "version": "12.0.1.3.1",
     "category": "edi",
     "summary": "EDI AF Appointment - support for appointments ",
     "licence": "AGPL-3",
@@ -35,6 +35,7 @@ v12.0.1.0.0 AFC-1766: Major overhaul of how the module works. \n
 v12.0.1.1.0 AFC-1767: Implemented a special view and menuitem for calendar_af users to monitor ACE messages. \n
 v12.0.1.2.0 AFC-2298: Fixed edi.log access rights. Fixed menu locations and access rights. \n
 v12.0.1.3.0 AFC-2169: Can now book meetings on non-existing jobseekers. \n
+v12.0.1.3.1 AFC-2526: Changed Occasions duration to seconds instead of minutes. \n
 """,
     "author": "Vertel AB",
     "website": "http://www.vertel.se",
