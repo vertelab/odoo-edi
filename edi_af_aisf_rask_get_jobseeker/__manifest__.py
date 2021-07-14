@@ -20,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'Depreciated EDI AF AIS-F RASK Get Jobseeker',
+    'name': 'Depreciated  EDI AF AIS-F RASK Get Jobseeker',
     'version': '12.0.0.1.1',
     'category': 'edi',
     'summary': 'EDI AF AIS-F RASK Get Jobseeker',

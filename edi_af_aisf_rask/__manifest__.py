@@ -20,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'Depreciated EDI AF AIS-F RASK',
+    'name': 'Depreciated  EDI AF AIS-F RASK',
     'version': '12.0.1.0.0',
     'category': 'edi',
     'summary': 'EDI AF AIS-F RASK - synchronize arbetssökande in AF CRM with AIS-F ASH by calling RASK',
