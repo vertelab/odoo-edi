@@ -21,13 +21,14 @@
 
 {
     'name': 'EDI AF AIS-F ASH KOM',
-    'version': '12.0.0.1.1',
+    'version': '12.0.0.1.2',
     'category': 'edi',
     'summary': 'EDI AF AIS-F ASH KOM - sync offices to officers',
     'licence': 'AGPL-3',
     'description': 
     """ 
-    Runs through all departments and updates their information from the ASH KOM API
+Runs through all departments and updates their information from the ASH KOM API\n
+12.0.0.1.2 - fixed a bug that stopped new hr.departments from being created
     """,
     'author': 'Arbetsförmedlingen',
     'website': 'http://www.arbetsformedlingen.se',

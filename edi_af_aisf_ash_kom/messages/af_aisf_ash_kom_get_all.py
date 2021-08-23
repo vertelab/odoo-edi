@@ -80,7 +80,7 @@ class edi_message(models.Model):
                 if not partner_id:
                     partner_id = self.env['res.partner'].create(partner_vals)
                     department_obj.write({
-                        'partner_id': partner_id
+                        'partner_id': partner_id.id
                     })
                 else:
                     partner_id.write(partner_vals)
