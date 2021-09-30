@@ -18,7 +18,7 @@ class EdiLogLine(models.Model):
     log_message_state = fields.Selection(
         [
             ("created", "Created"),
-            ("staged", "Processing"),
+            ("processing", "Processing"),
             ("sent", "Sent"),
             ("delivered", "Delivered"),
             ("done", "Done"),

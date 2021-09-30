@@ -31,7 +31,7 @@
         <field name="arch" type="xml">
             <form string="Envelope">
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="created,staged,sent,delivered,canceled,done"/>
+                    <field name="state" widget="statusbar" statusbar_visible="created,processing,sent,delivered,canceled,done"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -94,5 +94,5 @@
         <field name="view_id" ref="view_edi_envelope_form"/>
     </record>
 
-    <menuitem action="action_edi_envelope" name="Envelopes" id="menu_edi_envelope" parent="menu_edi" sequence="2" groups=""/>
+    <menuitem action="action_edi_envelope" name="Envelopes" id="menu_edi_envelope" parent="menu_edi" sequence="11" groups=""/>
 </odoo>

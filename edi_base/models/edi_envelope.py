@@ -16,7 +16,7 @@ class EdiEnvelope(models.Model):
     state = fields.Selection(
         [
             ("created", "Created"),
-            ("staged", "Processing"),
+            ("processing", "Processing"),
             ("sent", "Sent"),
             ("delivered", "Delivered"),
             ("done", "Done"),
@@ -27,7 +27,7 @@ class EdiEnvelope(models.Model):
     message_ids = fields.One2many(
         comodel_name="edi.message", inverse_name="envelope_id", string="Messages"
     )
-    type_id = fields.Many2one(comodel_name="edi.type", required=True)
+    type_id = fields.Many2one(comodel_name="edi.type")
     log_count = fields.Integer(compute="_log_count", string="no. logs")
 
     def _route_default(self):
@@ -41,6 +41,10 @@ class EdiEnvelope(models.Model):
     )
 
     def _log_count(self):
-        self.log_count = self.env["edi.log"].search_count(
-            [("message_id.envelop_id", "=", self.id)]
-        )
+        for rec in self:
+            rec.log_count = self.env["edi.log"].search_count(
+                [("message_id.envelope_id", "=", rec.id)]
+            )
+
+    def send(self):
+        pass

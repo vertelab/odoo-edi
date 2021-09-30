@@ -100,5 +100,5 @@
         <field name="view_id" ref="view_edi_route_form"/>
     </record>
 
-    <menuitem action="action_edi_route" name="Routes" id="menu_edi_route" parent="menu_edi" sequence="1" groups=""/>
+    <menuitem action="action_edi_route" name="Routes" id="menu_edi_route" parent="menu_edi" sequence="10" groups=""/>
 </odoo>

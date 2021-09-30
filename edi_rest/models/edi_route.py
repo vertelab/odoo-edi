@@ -15,10 +15,16 @@ _logger = logging.getLogger(__name__)
 class EdiRouteRest(models.Model):
     _inherit = "edi.route"
 
+    url = fields.Char(string='URL')
     protocol = fields.Selection(selection_add=[('rest', 'REST')])
+    rest_api = fields.Many2one(comodel_name='edi.rest.api', string='REST API')
 
     def run_out(self):
         res = super(EdiRouteRest, self).run_out()
+        return res
+
+    def run_in(self):
+        res = super(EdiRouteRest, self).run_in()
         return res
 
     def _generate_tracking_id(self):

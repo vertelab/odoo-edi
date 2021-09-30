@@ -22,7 +22,7 @@
         <field name="arch" type="xml">
             <form string="Log">
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="created,staged,sent,delivered,canceled,done"/>
+                    <field name="state" widget="statusbar" statusbar_visible="created,processing,sent,delivered,canceled,done"/>
                 </header>
                 <sheet>
                     <div class="oe_title oe_left">
@@ -82,5 +82,5 @@
         <field name="view_id" ref="view_edi_log_form"/>
     </record>
 
-    <menuitem action="action_edi_log" name="Logs" id="menu_edi_log" parent="menu_edi" sequence="3" groups=""/>
+    <menuitem action="action_edi_log" name="Logs" id="menu_edi_log" parent="menu_edi" sequence="20" groups=""/>
 </odoo>

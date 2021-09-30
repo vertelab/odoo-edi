@@ -9,4 +9,4 @@ _logger = logging.getLogger(__name__)
 class EdiTypeRest(models.Model):
     _inherit = "edi.type"
 
-    protocol = fields.Selection(string='Protocols', selection=[('rest', 'REST')])
+    pass

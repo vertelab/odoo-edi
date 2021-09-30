@@ -24,7 +24,7 @@ class EdiLog(models.Model):
     state = fields.Selection(
         [
             ("created", "Created"),
-            ("staged", "Processing"),
+            ("processing", "Processing"),
             ("sent", "Sent"),
             ("delivered", "Delivered"),
             ("done", "Done"),

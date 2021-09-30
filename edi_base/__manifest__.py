@@ -35,6 +35,7 @@ Framework for EDI communication in Odoo.
         "views/edi_envelope_view.xml",
         "views/edi_route_view.xml",
         "views/edi_log_view.xml",
+        "views/edi_type_view.xml",
     ],
     "demo": [],
     "installable": True,

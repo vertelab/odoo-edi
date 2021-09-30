@@ -30,7 +30,10 @@ Framework for REST via EDI communication in Odoo.
     "depends": [
         "edi_base",
     ],
-    "data": [],
+    "data": [
+        "views/edi_route_view.xml",
+        "views/edi_type_view.xml",
+    ],
     "demo": [],
     "installable": True,
     "application": False,

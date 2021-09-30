@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- <record id="view_edi_type_form_rest" model="ir.ui.view">
+        <field name="name">edi.type.form.inherit</field>
+        <field name="model">edi.type</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="edi_base.view_edi_type_form"/>
+        <field name="arch" type="xml">
+            <field name="route_id" position="after">
+                <field name="endpoint" attrs="{'invisible': [('protocol', '!=', 'rest')]}"/>
+            </field>
+        </field>
+    </record> -->
+</odoo>
