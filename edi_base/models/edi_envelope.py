@@ -13,6 +13,9 @@ class EdiEnvelope(models.Model):
     )
 
     name = fields.Char(string="Name", required=True)
+    sender = fields.Many2one(comodel_name='res.partner', string='Interchange Sender')
+    recipient = fields.Many2one(comodel_name='res.partner', string='Interchange Recipient')
+    ref = fields.Char('Reference')
     state = fields.Selection(
         [
             ("created", "Created"),
@@ -25,7 +28,7 @@ class EdiEnvelope(models.Model):
         default="created",
     )
     message_ids = fields.One2many(
-        comodel_name="edi.message", inverse_name="envelope_id", string="Messages"
+        comodel_name="edi.message", inverse_name="edi_envelope_id", string="Messages"
     )
     type_id = fields.Many2one(comodel_name="edi.type")
     log_count = fields.Integer(compute="_log_count", string="no. logs")
@@ -43,7 +46,7 @@ class EdiEnvelope(models.Model):
     def _log_count(self):
         for rec in self:
             rec.log_count = self.env["edi.log"].search_count(
-                [("message_id.envelope_id", "=", rec.id)]
+                [("message_id.edi_envelope_id", "=", rec.id)]
             )
 
     def send(self):

@@ -11,7 +11,7 @@ class EdiMessage(models.Model):
     _description = "A single message to be sent in an envelope"
 
     name = fields.Char(string="Name", required=True)
-    state = fields.Selection(
+    edi_state = fields.Selection(
         [
             ("created", "Created"),
             ("processing", "Processing"),
@@ -22,11 +22,10 @@ class EdiMessage(models.Model):
         ],
         default="created",
     )
-    route_id = fields.Many2one(
+    edi_route_id = fields.Many2one(
         comodel_name="edi.route", required=True, default="_route_default"
     )
-    envelope_id = fields.Many2one(comodel_name="edi.envelope", required=True)
-    type_id = fields.Many2one(comodel_name="edi.type", required=True)
+    edi_envelope_id = fields.Many2one(comodel_name="edi.envelope", required=True)
 
     def _route_default(self):
         for rec in self:

@@ -6,6 +6,8 @@ from odoo import _, api, fields, models
 _logger = logging.getLogger(__name__)
 
 
+# TODO: probably delete / remove this whole file
+
 class EdiEngine(models.Model):
     _name = "edi.engine"
     _description = "Engine for EDI functionality"

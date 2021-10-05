@@ -6,7 +6,5 @@ from odoo import _, api, fields, models
 _logger = logging.getLogger(__name__)
 
 
-class EdiTypeRest(models.Model):
-    _inherit = "edi.type"
-
-    pass
+class EdiEnvelopeRest(models.Model):
+    _inherit = "edi.envelope"

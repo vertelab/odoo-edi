@@ -20,22 +20,20 @@
 ##############################################################################
 
 {
-    "name": "EDI Base",
+    "name": "EDI Kontorsdatabasen",
     "description": """
-Framework for EDI communication in Odoo.
+Adds support for the REST API Kontorsdatabasen for the EDI framework in Odoo.
 14.0.0.0.0 - Initial version
     """,
     "category": "EDI",
     "version": "14.0.0.0.0",
     "depends": [
-        "base",
+        "edi_protocol_rest",
+        "hr",
     ],
     "data": [
-        "views/edi_base_view.xml",
-        "views/edi_envelope_view.xml",
-        "views/edi_route_view.xml",
-        "views/edi_log_view.xml",
-        # "views/edi_type_view.xml",
+        "data/edi_rest_api_data.xml",
+        "data/edi_route_data.xml",
     ],
     "demo": [],
     "installable": True,

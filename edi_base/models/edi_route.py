@@ -56,31 +56,3 @@ class EdiRoute(models.Model):
             envelopes = rec.envelope_ids.filtered(lambda r: r.state in ["created", "processing"])
             for envelope in envelopes:
                 envelope.send()
-
-        # envelopes = self.envelope_ids.filtered(lambda r: r.state in ["created", "processing"])
-        # envelopes.write({"state": "processing"})
-        # for envelope in envelopes:
-        #     # find the external id of our edi.message.type
-        #     edi_type_ext_id = envelope.type_id.get_external_id()[envelope.type_id.id]
-        #     # i.e. edi_type_ext_id = "???.???"
-        #     # make sure we found a match
-        #     if edi_type_ext_id:
-        #         mapped_function_name = "_" + edi_type_ext_id.replace(".", "_")
-        #         # i.e. mapped_function_name = "???"
-        #         # check that we have a function matching the name we got from external id
-        #         if hasattr(self, mapped_function_name):
-        #             # fetch the function
-        #             mapped_function = getattr(self, mapped_function_name)
-        #             # call the function
-        #             mapped_function(envelope)
-        #             # i.e. ????(envelope)
-        #         else:
-        #             error_msg = _(
-        #                 "No function found named '{mapped_function_name}' for edi.type '{edi_type_ext_id}'"
-        #             )
-        #             raise EDIUnkownMessageError(
-        #                 error_msg.format(
-        #                     mapped_function_name=mapped_function_name,
-        #                     edi_type_ext_id=edi_type_ext_id,
-        #                 )
-        #             )

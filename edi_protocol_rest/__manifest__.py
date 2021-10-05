@@ -20,15 +20,16 @@
 ##############################################################################
 
 {
-    "name": "EDI REST",
+    "name": "EDI Protocol REST",
     "description": """
-Framework for REST via EDI communication in Odoo.
+Implements a framework for REST calls via EDI in Odoo.
 14.0.0.0.0 - Initial version
     """,
     "category": "EDI",
     "version": "14.0.0.0.0",
     "depends": [
         "edi_base",
+        "rest_base",
     ],
     "data": [
         "views/edi_route_view.xml",

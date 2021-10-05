@@ -1,0 +1,11 @@
+<odoo>
+    <data noupdate="1">
+        <record id="route_kontorsdatabasen" model="edi.route">
+            <field name="name">Kontorsdatabasen</field>
+            <field name="is_active" eval="True"/>
+            <field name="protocol">rest</field>
+            <field name="url">https://??????????.???</field>
+            <field name="rest_api" ref="api_rest_kontorsdatabasen"/>
+        </record>
+    </data>
+</odoo>
