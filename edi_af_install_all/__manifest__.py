@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI AF Install modules',
-    'version': '0.1',
+    'version': '12.0.0.0.2',
     'category': 'edi',
     'summary': 'EDI AF  ',
     'licence': 'AGPL-3',
@@ -31,12 +31,11 @@
     'depends': [
         'af_data_ais-f_loader',
         'edi_af_aisf_trask',
-        'edi_af_ag',
         'edi_af_appointment',
-        'edi_af_aisf_rask',
         'edi_af_as_notes',
         'edi_af_officer',
         'edi_af_facility',
+        'edi_af_aisf_ash_kom',
         ],
     'external_dependencies': {
     },
