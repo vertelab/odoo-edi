@@ -26,6 +26,7 @@ class EdiMessage(models.Model):
         comodel_name="edi.route", required=True, default="_route_default"
     )
     edi_envelope_id = fields.Many2one(comodel_name="edi.envelope", required=True)
+    edi_body = fields.Binary(string='Body')  # maybe use ir.attachement instead?
 
     def _route_default(self):
         for rec in self:

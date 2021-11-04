@@ -15,7 +15,8 @@ class EdiRoute(models.Model):
 
     name = fields.Char(string="Name", required=True)
     is_active = fields.Boolean(string="Active", default=True)
-    protocol = fields.Selection(string='Protocol', selection=[])
+    # TODO: rename protocol, remove?
+    # protocol = fields.Selection(string="Protocol", selection=[])
     frequency = fields.Integer(
         string="Frequency", help="Number of minutes between each execution."
     )
@@ -23,6 +24,7 @@ class EdiRoute(models.Model):
     envelope_ids = fields.One2many(
         comodel_name="edi.envelope", inverse_name="route_id", string="Envelopes"
     )
+    type_id = fields.Many2one(comodel_name="edi.type", string="Type")
     envelope_count = fields.Integer(compute="_envelope_count", string="no. envelopes")
     log_count = fields.Integer(compute="_log_count", string="no. logs")
 
@@ -40,19 +42,18 @@ class EdiRoute(models.Model):
 
     def check_connection(self):
         """Check connection"""
-        # TODO implement
         return False
 
     def route_is_active_button(self):
         for rec in self:
             rec.is_active = not rec.is_active
 
-    def run_in(self):
+    def _run_in(self):
+        """Find & process incoming messages for route"""
         pass
 
-    def run_out(self):
-        """Process messages on route"""
-        for rec in self:
-            envelopes = rec.envelope_ids.filtered(lambda r: r.state in ["created", "processing"])
-            for envelope in envelopes:
-                envelope.send()
+    def _run_out(self, envelopes):
+        """Process outgoing messages on route"""
+        for envelope in envelopes:
+            envelope.fold()
+            envelope.send()

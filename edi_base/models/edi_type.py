@@ -8,8 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class EdiType(models.Model):
     _name = "edi.type"
-    _description = "Mixin into model to add support for REST"
+    _description = "Represents a type of EDI"
 
     name = fields.Char(string='Name')
-    route_id = fields.Many2one(comodel_name='edi.route', string='Route')
-    protocol = fields.Selection(string='Protocols', selection=[])
+    route_ids = fields.One2many(comodel_name='edi.route', inverse_name='type_id', string='Routes')

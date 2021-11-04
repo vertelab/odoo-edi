@@ -13,9 +13,12 @@ class EdiEnvelope(models.Model):
     )
 
     name = fields.Char(string="Name", required=True)
-    sender = fields.Many2one(comodel_name='res.partner', string='Interchange Sender')
-    recipient = fields.Many2one(comodel_name='res.partner', string='Interchange Recipient')
-    ref = fields.Char('Reference')
+    sender_id = fields.Many2one(comodel_name="res.partner", string="Interchange Sender")
+    recipient_id = fields.Many2one(
+        comodel_name="res.partner", string="Interchange Recipient"
+    )
+    ref = fields.Char("Reference")
+    body = fields.Binary(string="Body")
     state = fields.Selection(
         [
             ("created", "Created"),
@@ -31,6 +34,7 @@ class EdiEnvelope(models.Model):
         comodel_name="edi.message", inverse_name="edi_envelope_id", string="Messages"
     )
     type_id = fields.Many2one(comodel_name="edi.type")
+    protocol = fields.Selection(string="Protocol", selection=[])
     log_count = fields.Integer(compute="_log_count", string="no. logs")
 
     def _route_default(self):
@@ -50,4 +54,12 @@ class EdiEnvelope(models.Model):
             )
 
     def send(self):
+        """Send the envelope"""
         pass
+
+    @api.model
+    def recieve(self):
+        """Check for new envelopes, create new if any are found and
+        return them in a RecordSet"""
+        res = self.env['edi.envelope']
+        return res

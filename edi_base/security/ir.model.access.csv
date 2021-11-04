@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_edi_envelope,access_edi_envelope,model_edi_envelope,base.group_user,1,0,0,0
+access_edi_log,access_edi_log,model_edi_log,base.group_user,1,0,0,0
+access_edi_log_line,access_edi_log_line,model_edi_log_line,base.group_user,1,0,0,0
+access_edi_type,access_edi_type,model_edi_type,base.group_user,1,0,0,0
+access_edi_message,access_edi_message,model_edi_message,base.group_user,1,0,0,0
+access_edi_route,access_edi_route,model_edi_route,base.group_user,1,0,0,0

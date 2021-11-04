@@ -11,3 +11,8 @@ class EdiProtoRest(models.Model):
 
     protocol = fields.Selection(selection_add=[('rest', 'REST')])
     rest_api = fields.Many2one(comodel_name='rest.api', string='REST API')
+
+    def check_connection(self):
+        """Check connection"""
+        # TODO implement
+        return False
