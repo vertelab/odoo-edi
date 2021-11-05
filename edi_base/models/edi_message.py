@@ -11,20 +11,22 @@ class EdiMessage(models.Model):
     _description = "A single message to be sent in an envelope"
 
     name = fields.Char(string="Name", required=True)
-    body = fields.Binary(string='Body')  # maybe use ir.attachement instead?
-    carrier_id = fields.Many2one('res.partner', string="Carrier")
-    consignee_id = fields.Many2one('res.partner', string="Consignee")
-    consignor_id = fields.Many2one('res.partner', string="Consignor")
+    body = fields.Binary(string="Body")  # maybe use ir.attachement instead?
+    carrier_id = fields.Many2one(comodel_name="res.partner", string="Carrier")
+    consignee_id = fields.Many2one(comodel_name="res.partner", string="Consignee")
+    consignor_id = fields.Many2one(comodel_name="res.partner", string="Consignor")
     envelope_id = fields.Many2one(comodel_name="edi.envelope", required=True)
-    forwarder_id = fields.Many2one('res.partner', string="Forwarder")
-    direction = fields.Selection([('in', 'In'), ('out', 'Out')], string="Direction")
-    message_type_id = fields.Many2one('edi.message.type', string="Message Type")
-    protocol_id = fields.Many2one('edi.protocol', string="Protocol")
-    recipient_id = fields.Many2one('res.partner', string="Recipient")
+    forwarder_id = fields.Many2one(comodel_name="res.partner", string="Forwarder")
+    direction = fields.Selection([("in", "In"), ("out", "Out")], string="Direction")
+    message_type_id = fields.Many2one(
+        comodel_name="edi.message.type", string="Message Type"
+    )
+    protocol_id = fields.Many2one(comodel_name="edi.protocol", string="Protocol")
+    recipient_id = fields.Many2one(comodel_name="res.partner", string="Recipient")
     route_id = fields.Many2one(
         comodel_name="edi.route", required=True, default="_route_default"
     )
-    sender_id = fields.Many2one('res.partner', string="Sender")
+    sender_id = fields.Many2one(comodel_name="res.partner", string="Sender")
 
     state = fields.Selection(
         [
