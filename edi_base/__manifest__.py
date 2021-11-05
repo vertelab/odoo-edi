@@ -33,6 +33,7 @@ Framework for EDI communication in Odoo.
     "data": [
         "views/edi_base_view.xml",
         "views/edi_envelope_view.xml",
+        "views/edi_message_view.xml",
         "views/edi_route_view.xml",
         "views/edi_log_view.xml",
         # "views/edi_type_view.xml",
