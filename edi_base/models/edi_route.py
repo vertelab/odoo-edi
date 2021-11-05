@@ -24,10 +24,9 @@ class EdiRoute(models.Model):
     envelope_ids = fields.One2many(
         comodel_name="edi.envelope", inverse_name="route_id", string="Envelopes"
     )
-    type_id = fields.Many2one(comodel_name="edi.type", string="Type")
     envelope_count = fields.Integer(compute="_envelope_count", string="no. envelopes")
     log_count = fields.Integer(compute="_log_count", string="no. logs")
-    process_id = fields.Many2one('edi.process', string="Process")
+    process_id = fields.Many2one("edi.process", string="Process")
 
     def _envelope_count(self):
         for rec in self:
@@ -74,3 +73,17 @@ class EdiRoute(models.Model):
     def run(self):
         self._run_in()
         self._run_out(self.envelope_ids)
+
+
+class EdiProcess(models.Model):
+    _name = "edi.process"
+    _description = "EDI Process"
+
+    name = fields.Char(string="Name")
+
+
+class EdiProtocol(models.Model):
+    _name = "edi.protocol"
+    _description = "EDI Protocol"
+
+    name = fields.Char(string="Name")

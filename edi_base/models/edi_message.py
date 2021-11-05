@@ -11,13 +11,13 @@ class EdiMessage(models.Model):
     _description = "A single message to be sent in an envelope"
 
     name = fields.Char(string="Name", required=True)
-    edi_body = fields.Binary(string='Body')  # maybe use ir.attachement instead?
+    body = fields.Binary(string='Body')  # maybe use ir.attachement instead?
     carrier_id = fields.Many2one('res.partner', string="Carrier")
     consignee_id = fields.Many2one('res.partner', string="Consignee")
     consignor_id = fields.Many2one('res.partner', string="Consignor")
-    edi_envelope_id = fields.Many2one(comodel_name="edi.envelope", required=True)
+    envelope_id = fields.Many2one(comodel_name="edi.envelope", required=True)
     forwarder_id = fields.Many2one('res.partner', string="Forwarder")
-    edi_direction = fields.Selection([('in', 'In'), ('out', 'Out')], string="Direction")
+    direction = fields.Selection([('in', 'In'), ('out', 'Out')], string="Direction")
     message_type_id = fields.Many2one('edi.message.type', string="Message Type")
     protocol_id = fields.Many2one('edi.protocol', string="Protocol")
     recipient_id = fields.Many2one('res.partner', string="Recipient")
@@ -26,7 +26,7 @@ class EdiMessage(models.Model):
     )
     sender_id = fields.Many2one('res.partner', string="Sender")
 
-    edi_state = fields.Selection(
+    state = fields.Selection(
         [
             ("created", "Created"),
             ("processing", "Processing"),
