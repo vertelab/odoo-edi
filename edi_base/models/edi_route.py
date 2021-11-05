@@ -27,6 +27,7 @@ class EdiRoute(models.Model):
     type_id = fields.Many2one(comodel_name="edi.type", string="Type")
     envelope_count = fields.Integer(compute="_envelope_count", string="no. envelopes")
     log_count = fields.Integer(compute="_log_count", string="no. logs")
+    process_id = fields.Many2one('edi.process', string="Process")
 
     def _envelope_count(self):
         for rec in self:
@@ -52,8 +53,24 @@ class EdiRoute(models.Model):
         """Find & process incoming messages for route"""
         pass
 
+    def run_in(self):
+        try:
+            self._run_in()
+        except Exception as e:
+            pass
+
     def _run_out(self, envelopes):
         """Process outgoing messages on route"""
         for envelope in envelopes:
             envelope.fold()
             envelope.send()
+
+    def run_out(self):
+        try:
+            self._run_out(self.envelope_ids)
+        except Exception as e:
+            pass
+
+    def run(self):
+        self._run_in()
+        self._run_out(self.envelope_ids)

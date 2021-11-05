@@ -4,3 +4,4 @@ from . import edi_log_line
 from . import edi_type
 from . import edi_message
 from . import edi_route
+from . import mixins

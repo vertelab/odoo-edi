@@ -12,3 +12,17 @@ class EdiType(models.Model):
 
     name = fields.Char(string='Name')
     route_ids = fields.One2many(comodel_name='edi.route', inverse_name='type_id', string='Routes')
+
+
+class EdiProcess(models.Model):
+    _name = "edi.process"
+    _description = "EDI Process"
+
+    name = fields.Char(string='Name')
+
+
+class EdiProtocol(models.Model):
+    _name = "edi.protocol"
+    _description = "EDI Protocol"
+
+    name = fields.Char(string='Name')

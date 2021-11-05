@@ -34,7 +34,7 @@ class EdiEnvelope(models.Model):
         comodel_name="edi.message", inverse_name="edi_envelope_id", string="Messages"
     )
     type_id = fields.Many2one(comodel_name="edi.type")
-    protocol = fields.Selection(string="Protocol", selection=[])
+    protocol_id = fields.Many2one('edi.protocol', string="Protocol")
     log_count = fields.Integer(compute="_log_count", string="no. logs")
 
     def _route_default(self):
@@ -63,3 +63,12 @@ class EdiEnvelope(models.Model):
         return them in a RecordSet"""
         res = self.env['edi.envelope']
         return res
+
+    def fold(self):
+        self._fold()
+
+    def _fold(self):
+        for message in self.message_ids:
+            message.pack()
+
+
