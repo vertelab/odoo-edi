@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+        <record id="edi_message_type_contrl" model="edi.message.type">
+            <field name="name">CONTRL</field>
+        </record>
+        <record id="edi_message_type_orders" model="edi.message.type">
+            <field name="name">ORDERS</field>
+        </record>
+        <record id="edi_message_type_ordrsp" model="edi.message.type">
+            <field name="name">ORDRSP</field>
+        </record>
+        <record id="edi_message_type_orderk" model="edi.message.type">
+            <field name="name">ORDERK</field>
+        </record>
+        <record id="edi_message_type_desadv" model="edi.message.type">
+            <field name="name">DESADV</field>
+        </record>
+        <record id="edi_message_type_invoic" model="edi.message.type">
+            <field name="name">INVOIC</field>
+        </record>
+        <record id="edi_message_type_gs1" model="edi.message.type">
+            <field name="name">GS1</field>
+        </record>
+    </data>
+</odoo>

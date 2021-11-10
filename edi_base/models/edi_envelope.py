@@ -57,7 +57,7 @@ class EdiEnvelope(models.Model):
         pass
 
     @api.model
-    def recieve(self):
+    def receive(self):
         """Check for new envelopes, create new if any are found and
         return them in a RecordSet"""
         res = self.env['edi.envelope']
