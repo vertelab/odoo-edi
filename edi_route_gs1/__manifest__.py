@@ -32,8 +32,6 @@ Framework for EDI Route for GS1.
         "edi_base"
     ],
     "data": [
-        'data/edi_message_type.xml',
-
     ],
     "demo": [],
     "installable": True,

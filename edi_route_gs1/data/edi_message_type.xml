@@ -18,8 +18,5 @@
         <record id="edi_message_type_invoic" model="edi.message.type">
             <field name="name">INVOIC</field>
         </record>
-        <record id="edi_message_type_gs1" model="edi.message.type">
-            <field name="name">GS1</field>
-        </record>
     </data>
 </odoo>
