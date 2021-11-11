@@ -1,0 +1,7 @@
+<odoo>
+    <data>
+        <record id="ftp_edi_protocol_type" model="edi.protocol">
+            <field name="name">FTP</field>
+        </record>
+    </data>
+</odoo>
