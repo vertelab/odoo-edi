@@ -34,6 +34,9 @@ EDI Protocol - FTP in Odoo.
     "data": [
         "data/data.xml",
     ],
+    'external_dependencies': {
+        'python': ['paramiko', 'pycrypto'],
+    },
     "demo": [],
     "installable": True,
     "application": False,
