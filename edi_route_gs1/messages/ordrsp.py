@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    OpenERP, Open Source Management Solution, third party addon
+#    Odoo, Open Source Management Solution, third party addon
 #    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api, _
+from odoo import models, fields, api, _
 import base64
 from datetime import datetime
 import sys
@@ -37,7 +37,6 @@ def _check_order_status(order):
 class edi_message(models.Model):
     _inherit='edi.message'
 
-    @api.one
     def _pack(self):
         _logger.debug('pack ORDRSP')
         super(edi_message, self)._pack()
@@ -96,7 +95,6 @@ class edi_message(models.Model):
         if msg:
             self.body = base64.b64encode(self._gs1_encode_msg(msg))
 
-    @api.one
     def _unpack(self):
         _logger.debug('unpack ORDRSP')
         #~ if self.edi_type.id == self.env.ref('edi_gs1.edi_message_type_ordrsp').id:

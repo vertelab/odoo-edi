@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    OpenERP, Open Source Management Solution, third party addon
+#    odoo, Open Source Management Solution, third party addon
 #    Copyright (C) 2004-2016 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api, _
+from odoo import models, fields, api, _
 import base64
 from datetime import datetime
 #https://www.stylusstudio.com/edifact/frames.htm
@@ -67,7 +67,6 @@ UNS     Avslutar orderrad.
 UNT     Avslutar ordermeddelandet.
 """
 
-    @api.one
     def _unpack(self):
         _logger.info('unpack (orders.py) %s %s' % (self.edi_type, self))
         super(edi_message, self)._unpack()
