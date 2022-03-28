@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem name="EDI" id="menu_edi" sequence="100" groups="" />
+    <menuitem name="EDI" id="menu_edi" sequence="290" groups="" />
 </odoo>

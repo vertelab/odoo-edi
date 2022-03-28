@@ -18,7 +18,6 @@
             <tree string="Envelopes">
                 <field name="name"/>
                 <field name="route_id"/>
-                <field name="type_id"/>
                 <field name="state"/>
             </tree>
         </field>
@@ -56,7 +55,8 @@
                         </group>
                         <group>
                             <field name="route_id"/>
-                            <field name="type_id"/>
+                            <field name="protocol_id"/>
+                            <field name="body"/>
                         </group>
                     </group>
                     <notebook>
@@ -65,7 +65,10 @@
                                 <field name="message_ids" readonly="1">
                                     <tree string="Messages" readonly="1">
                                         <field name="name"/>
-                                        <field name="edi_state"/>
+                                        <field name="message_type_id"/>
+                                        <field name="direction"/>
+                                        <field name="state"/>
+                                        <field name="body"/>
                                     </tree>
                                 </field>
                             </group>
