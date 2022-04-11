@@ -5,14 +5,14 @@ from lxml.etree import Element, SubElement, QName, tostring
 from lxml.isoschematron import Schematron
 
 from odoo import fields, models, api
-
-#TODO: Check if odoo.api is atually nessesary
+#TODO: Check if odoo.api and odoo.fields is atually nessesary
 
 
 class XMLNamespaces:
     cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+
 
 NSMAP={'cac':XMLNamespaces.cac, 'cbc':XMLNamespaces.cbc, None:XMLNamespaces.empty}
 
@@ -38,11 +38,6 @@ def create_SubElement (parent, tag, text=None, attriName=None, attriValue=None):
 
     return result
 
-"""
-    if key != None:
-        for key, value in attrib.items():
-            result.set(key, value)
-"""
 
 def convert_field(  tree,
                     fullParent, 
@@ -85,7 +80,6 @@ def read_CSV(filename):
     return instructions
 
 
-
 def create_invoice ():
     """
     #           Full Parents  , Tag                     , Static Text, [attribute], datamodule, datamodel text field 
@@ -104,27 +98,12 @@ def create_invoice ():
                 ['Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity'    , 'RegistrationName'           , 'Vertel Company LTD', '', '', '', '', '', ''],
                 ['Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity'    , 'CompanyID'           , '9876543210', '', '', '', '', '', '']]
 """
-
-
-
     invoice = etree.Element("Invoice", nsmap=NSMAP)
-
 
     for n in read_CSV('/usr/share/odoo-edi/edi_peppol/data/instruction.toPeppol.csv'):
         convert_field(invoice, n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8], n[9])
 
-
     documentcurrencycode = invoice.xpath('/Invoice/cbc:DocumentCurrencyCode', namespaces=XNS)[0]
-
-    #create_SubElement(invoice.xpath('/Invoice', namespaces=XNS)[0], 'CustomizationID', "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0")
-    #create_SubElement(invoice, 'ProfileID', "urn:fdc:peppol.eu:2017:poacc:billing:97:1.0")
-    #create_SubElement(invoice, 'ID', "123456")
-    #create_SubElement(invoice, 'IssueDate', "2020-03-05")
-    #create_SubElement(invoice, 'DueDate', "2020-06-05")
-    #create_SubElement(invoice, 'InvoiceTypeCode', "380")
-    #documentcurrencycode = create_SubElement(invoice, 'DocumentCurrencyCode', "SEK")
-    #create_SubElement(invoice, 'BuyerReference', 'abs1234')
-
 
 #AccountingSupplierParty
     #accountingsupplierparty = create_SubElement(invoice, 'AccountingSupplierParty')
@@ -207,32 +186,7 @@ def create_invoice ():
     invoicelinePrice = create_SubElement(invoiceline, 'Price')
     create_SubElement(invoicelinePrice, 'PriceAmount', '5', 'currencyID', documentcurrencycode.text)
 
-
-
-
-
     return invoice
-
-
-
-
-
-
-
-
-
-#XNS={   'cac':'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2',   
-#        'cbc':'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2',
-#        'empty':'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2'}
-
-
-#print(tree.xpath('//Invoice/cbc:ID/text()', namespaces=XNS))
-
-#print(tree.xpath('//Invoice/cbc:ID', namespaces={   'cac':'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2',   
-#                                                    'cbc':'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2',
-#                                                    'empty':'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2'}))
-#print(tree.xpath("/*[local-name() = 'Invoice']/*[local-name() = 'ID']"))
-
 
 
 """"

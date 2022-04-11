@@ -1,7 +1,6 @@
 import sys
 import os
 
-#sys.path.append("/usr/lib")
 sys.path.append("/home/bjornhayer/libsaxon-HEC-11.3/Saxon.C.API/python-saxon")
 VALIDATE = True
 try:
@@ -18,7 +17,6 @@ def validate_peppol (msg, type=None):
         validate_peppol_invoice(msg)
 
     return None
-
 
 
 def validate_peppol_invoice (msg):
@@ -63,9 +61,6 @@ def validate_peppol_invoice (msg):
                                            stylesheet_file="/usr/share/odoo-edi/edi_peppol/data/temp/stylesheet-PEPPOL.xslt",
                                            output_file="/usr/share/odoo-edi/edi_peppol/data/temp/report-PEPPOL-" + msgName + ".xml")
 
-
-
-
 #Checking of validation reports contents
 
     validationSuccessfull = True
@@ -89,8 +84,6 @@ def validate_peppol_invoice (msg):
     return validationSuccessfull
 
 
-
-
 def validate_report_print(schema, name):
     validationSuccessfull = True
 
@@ -104,14 +97,12 @@ def validate_report_print(schema, name):
     return validationSuccessfull
 
 
-
 def validate_cleanup(full=False):
     if full:
         os.remove("/usr/share/odoo-edi/edi_peppol/data/temp/*")
     else:
         os.remove("/usr/share/odoo-edi/edi_peppol/data/temp/stylesheet-TC434.xslt")
         os.remove("/usr/share/odoo-edi/edi_peppol/data/temp/stylesheet-PEPPOL.xslt")
-
 
 
 def validate_report(report):
