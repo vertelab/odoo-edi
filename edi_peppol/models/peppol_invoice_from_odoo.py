@@ -110,7 +110,7 @@ def create_invoice ():
     invoice = etree.Element("Invoice", nsmap=NSMAP)
 
 
-    for n in read_CSV('../data/instruction.toPeppol.csv'):
+    for n in read_CSV('/usr/share/odoo-edi/edi_peppol/data/instruction.toPeppol.csv'):
         convert_field(invoice, n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8], n[9])
 
 
