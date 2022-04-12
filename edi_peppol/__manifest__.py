@@ -46,7 +46,7 @@
              'data/PEPPOL-EN16931-UBL.sch',
              'data/iso_schematron_skeleton_for_saxon.xsl',
              'data/instruction.toPeppol.csv'],
-    'installable': 'True',
+    'installable': 'False',
     'application': 'False',
 }
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
