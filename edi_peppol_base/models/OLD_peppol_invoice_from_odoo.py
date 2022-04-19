@@ -1,3 +1,4 @@
+"""
 import csv
 
 from lxml import etree, html
@@ -115,7 +116,7 @@ def adjust_instructions(header, instructions):
     for h in header:
         
         if header == 'fullParents':
-            """
+            
             for i in instructions:
 
                 splitParent = i[h].split('/')
@@ -125,7 +126,7 @@ def adjust_instructions(header, instructions):
                     for p in splitParent[1:]:
                         newParent =+ '/cac:' + p
                     i[h] = newParent
-            """
+            
 
     return instructions
 
@@ -135,13 +136,13 @@ def adjust_instructions(header, instructions):
 def create_invoice ():
     invoice = etree.Element("Invoice", nsmap=NSMAP)
 
-    for n in read_CSV('/usr/share/odoo-edi/edi_peppol/data/instruction.toPeppol.csv'):
+    for n in read_CSV('/usr/share/odoo-edi/edi_peppol_base/data/instruction.toPeppol.csv'):
         convert_field(invoice, n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8], n[9], n[10])
 
     return invoice
 
 
-""""
+
 class ToPeppolInstructions(models.Model):
     _description = "Instructions for converting Odoo objects into PEPPOL. Each row is corresponds to one 'field' in PEPPOL"
     _name = 'instruction.toPeppol'

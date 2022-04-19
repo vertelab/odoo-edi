@@ -1,7 +1,7 @@
 id,specialFunction,fullParent,tag,staticText,datamodule,datamoduleField,attributeName,attributeFixedText,attirbuteDatamodule,attributeDatamoduleField
 toPeppol_1,,Invoice,CustomizationID,urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0,,,,,,
 toPeppol_2,,Invoice,ProfileID,urn:fdc:peppol.eu:2017:poacc:billing:03:1.0,,,,,,
-toPeppol_3,,Invoice,ID,123456,,,,,,
+toPeppol_3,,Invoice,ID,v2,,,,,,
 toPeppol_4,,Invoice,IssueDate,2020-03-05,,,,,,
 toPeppol_5,,Invoice,DueDate,2020-06-05,,,,,,
 toPeppol_6,,Invoice,DocumentCurrencyCode,SEK,,,,,,

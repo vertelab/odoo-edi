@@ -21,8 +21,8 @@
 ##############################################################################
 
 {
-    'name': 'EDI PEPPOL',
-    'summary': 'Module for sending and reciving PEPPOL',
+    'name': 'EDI PEPPOL validate',
+    'summary': 'Module for validating PEPPOL XML files',
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',
@@ -36,7 +36,7 @@
         Implements a Framework for PEPPOL communication in Odoo.
         14.0.0.0.0 - Initial version
     """,
-    'depends': ['base','account','edi_peppol_base'],
+    'depends': ['base'],
     # Saxon-C-HE?
     #'external_dependencies': {
     #    'python': ['xlrd'],
@@ -46,7 +46,7 @@
              #'data/PEPPOL-EN16931-UBL.sch',
              #'data/iso_schematron_skeleton_for_saxon.xsl',
              #'data/instruction.toPeppol.csv',
-             'views/account_invoice_view.xml',
+             #'views/account_invoice_view.xml',
              ],
     'installable': 'True',
     'application': 'False',
