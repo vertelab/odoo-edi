@@ -10,7 +10,8 @@ _logger.warning("BEFORE saxonc import")
 sys.path.append("/usr/share/libsaxon-HEC-11.3/Saxon.C.API/python-saxon")
 VALIDATE = True
 try:
-    import saxonc
+    raise ImportError
+    #import saxonc
 except ImportError:
     VALIDATE = False
     _logger.warning("saxonc import FAILED!")
