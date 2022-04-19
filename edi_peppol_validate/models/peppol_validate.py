@@ -7,11 +7,14 @@ _logger = logging.getLogger(__name__)
 
 _logger.warning("BEFORE saxonc import")
 
-sys.path.append("/usr/share/libsaxon-HEC-11.3/Saxon.C.API/python-saxon")
+
+#sys.path.append("/usr/lib")
+#sys.path.append("/usr/share/libsaxon-HEC-11.3/Saxon.C.API/python-saxon")
+os.environ["SAXONC_HOME"] = '/usr/share/libsaxon-HEC-11.3'
+os.environ["PYTHONPATH"] = '/usr/share/libsaxon-HEC-11.3/Saxon.C.API/python-saxon'
 VALIDATE = True
 try:
-    raise ImportError
-    #import saxonc
+    import saxonc
 except ImportError:
     VALIDATE = False
     _logger.warning("saxonc import FAILED!")
