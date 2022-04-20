@@ -1,9 +1,13 @@
+#from datetime import date, datetime
+import datetime
 import os, logging, csv
+from jmespath import search
 
 from lxml import etree, html
 from lxml.etree import Element, SubElement, QName, tostring
 from lxml.isoschematron import Schematron
 from odoo import models, api, _, fields
+from odoorpc import ODOO
 
 #from peppol_invoice_from_odoo import create_invoice
 #from edi_peppol_validate import validate_peppol
@@ -25,11 +29,12 @@ XNS={   'cac':XMLNamespaces.cac,
 ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
 
-class Peppol(models.Model):
-    _name = "peppol.peppol"
+class Peppol_Base(models.Model):
+    _name = "peppol.base"
+    _description = "Base module which contains functions to assist in converting between PEPPOL and Odoo."
 
-    def test(self):
-        _logger.warning("Hej!")
+    #def test(self):
+    #    _logger.warning("Hej!")
 
 
     def create_SubElement (self, parent, tag, text=None, attri_name=None, attri_value=None):
@@ -49,7 +54,7 @@ class Peppol(models.Model):
         return result
 
 
-    def print_element(self, ele, msg='', verbose=False):
+    def log_element(self, ele, msg='', verbose=False):
         if len(ele) == 0:
             if verbose:
                 _logger.warning("No element found to print!")
@@ -60,7 +65,47 @@ class Peppol(models.Model):
             str = "Elment Tag: " + ele[0].tag
             if ele[0].text is not None:
                 str =+ "  | Element Text: " + ele[0].text
-            print(msg + str)
+            _logger.warning(msg + str)
+
+
+    def getfield(self, lookup, inst=None):
+        _logger.warning("Trying to parse: " + lookup)
+
+        if inst is None:
+            inst = self
+
+        l = lookup.split(',', 1)
+        current = l[0] 
+        field = inst[current.rsplit('.', 1)[1]]
+
+        if len(l) == 1:
+            #bs = self.browse(current.rsplit('.', 1)[1])
+            return field
+        else:
+            inst = inst.browse(current.rsplit('.', 1)[1])    
+            return self.getfield(l[1], inst)
+
+
+
+
+        #value = self
+        #for part in field_name.split('.'):
+        #    value = getattr(value, field_name)
+        #return value
+
+
+
+
+    def convert_to_string(self, value):
+        _logger.warning(type(value))
+        if isinstance(value, str):
+            return value
+        elif isinstance(value, datetime.date):
+            return value.strftime("%Y-%m-%d")
+
+        _logger.error("Type of variable is not being handled like it should!")
+        return None
+        
 
 
     def convert_field(  self,
@@ -89,6 +134,38 @@ class Peppol(models.Model):
 
     #Add the new element
         new_element = self.create_SubElement(tree.xpath(path, namespaces=XNS)[0], tag, static_text, attribute_name,  attributeFixedText)
+
+    #Add data from odoo to element
+        if datamodule != "" and datamodule_field != "":
+            #tmp = self.env[datamodule].browse(datamodule_field)
+            #currency_row = self.env[datamodule].search([(datamodule_field, '=', )])
+            #_logger.warning(currency_row)
+            #_logger.warning(f"{datamodule_field=}")
+            #_logger.warning(self.fstr(datamodule_field))
+            #_logger.warning(self.env[datamodule].browse(datamodule_field))
+            #new_element.text = datamodule_fieldf"{self.currency_id.name=}"
+
+            _logger.warning("Datamodule_field is: " + datamodule_field)
+            value = self.getfield(datamodule_field)
+            _logger.warning(value)
+            #if datamodule == "account.move":
+            #    value = self[datamodule_field]
+            #else: 
+            #    value = self.datamodule[datamodule_field]
+            new_element.text = self.convert_to_string(value)
+            #_logger.warning(new_element.text)
+
+
+
+        #def foo(self, fields):
+        #    field, *rest fields.split(',')
+        #    if rest:
+                
+
+
+
+#self.env['account.move'].browse ('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+
 
     #Run any special functions on the newly created Element
     #    functionList = special_function.split(',')
@@ -139,14 +216,14 @@ class Peppol(models.Model):
 
     def invoice_to_peppol(self):
         tree = etree.ElementTree(self.create_invoice())
-        _logger.warning("XML has ID: " + tree.xpath('/Invoice/cbc:ID/text()', namespaces=XNS)[0])
+        #_logger.warning("XML has ID: " + tree.xpath('/Invoice/cbc:ID/text()', namespaces=XNS)[0])
         tree.write('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml', xml_declaration=True, encoding='UTF-8', pretty_print=True)
 
-        
-
-        self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
-        self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/base-example.xml')
-
+        _logger.error("NO VALIDATION IS DONE!")
+        #_logger.warning("Starting validation attemps")
+        #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+        #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/base-example.xml')
+        #_logger.warning("Finished validation attemps")
 
 #if __name__ == "__main__":
 #    main()    

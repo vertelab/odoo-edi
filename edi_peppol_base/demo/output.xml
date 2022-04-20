@@ -2,10 +2,10 @@
 <Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
   <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</cbc:CustomizationID>
   <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:03:1.0</cbc:ProfileID>
-  <cbc:ID>v2</cbc:ID>
-  <cbc:IssueDate>2020-03-05</cbc:IssueDate>
-  <cbc:DueDate>2020-06-05</cbc:DueDate>
-  <cbc:DocumentCurrencyCode>SEK</cbc:DocumentCurrencyCode>
+  <cbc:ID>INV/2022/04/0001</cbc:ID>
+  <cbc:IssueDate>2022-04-07</cbc:IssueDate>
+  <cbc:DueDate>2022-05-07</cbc:DueDate>
+  <cbc:DocumentCurrencyCode>INV/2022/04/0001</cbc:DocumentCurrencyCode>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
   <cbc:BuyerReference>abs1234</cbc:BuyerReference>
   <cac:AccountingSupplierParty>
