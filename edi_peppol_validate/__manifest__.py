@@ -37,10 +37,9 @@
         14.0.0.0.0 - Initial version
     """,
     'depends': ['base'],
-    # Saxon-C-HE?
-    #'external_dependencies': {
-    #    'python': ['xlrd'],
-    #},
+    'external_dependencies': {
+        'python': ['saxonpy'],
+    },
     'data': [#'data/stylesheet-ubl.xslt',
              #'data/CEN-EN16931-UBL.sch',
              #'data/PEPPOL-EN16931-UBL.sch',
