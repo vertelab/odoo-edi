@@ -1,6 +1,6 @@
 #from datetime import date, datetime
 import datetime
-import os, logging, csv
+import os, logging, csv, inspect
 from jmespath import search
 
 from lxml import etree, html
@@ -57,10 +57,10 @@ class Peppol_Base(models.Model):
     def log_element(self, ele, msg='', verbose=False):
         if len(ele) == 0:
             if verbose:
-                _logger.warning("No element found to print!")
+                _logger.warning(inspect.currentframe().f_code.co_name + ": " + "No element found to print!")
         elif len(ele) > 1:
             if verbose:
-                _logger.warning("More then one element found to print!")
+                _logger.warning(inspect.currentframe().f_code.co_name + ": " + "More then one element found to print!")
         else:
             str = "Elment Tag: " + ele[0].tag
             if ele[0].text is not None:
@@ -69,41 +69,42 @@ class Peppol_Base(models.Model):
 
 
     def getfield(self, lookup, inst=None):
-        _logger.warning("Trying to parse: " + lookup)
+        _logger.warning(inspect.currentframe().f_code.co_name + ": " + "Trying to parse: " + lookup)
 
         if inst is None:
             inst = self
 
         l = lookup.split(',', 1)
-        current = l[0] 
-        field = inst[current.rsplit('.', 1)[1]]
+        current_module = l[0].rsplit('.', 1)[0] 
+        current_field_name = l[0].rsplit('.', 1)[1]
+        current_field_value = inst[current_field_name]
+
+        _logger.warning(inspect.currentframe().f_code.co_name + ": " + f"{current_module=}")
+        _logger.warning(inspect.currentframe().f_code.co_name + ": " + f"{current_field_name=}")
+        _logger.warning(inspect.currentframe().f_code.co_name + ": " + f"{current_field_value=}")
+        _logger.warning(inspect.currentframe().f_code.co_name + ": " + f"{len(l)=}")
 
         if len(l) == 1:
-            #bs = self.browse(current.rsplit('.', 1)[1])
-            return field
+            return current_field_value
         else:
-            inst = inst.browse(current.rsplit('.', 1)[1])    
+            ln = l[1].split(',', 1)
+            next_module = ln[0].rsplit('.', 1)[0] 
+            _logger.warning(inspect.currentframe().f_code.co_name + ": " + f"{next_module=}")
+            inst = inst.env[next_module].browse(current_field_value.id)
+            _logger.warning(inspect.currentframe().f_code.co_name + ": " + f"{inst=}")    
             return self.getfield(l[1], inst)
 
 
-
-
-        #value = self
-        #for part in field_name.split('.'):
-        #    value = getattr(value, field_name)
-        #return value
-
-
-
-
     def convert_to_string(self, value):
-        _logger.warning(type(value))
+        _logger.warning(f"{type(value)=}")
         if isinstance(value, str):
             return value
         elif isinstance(value, datetime.date):
             return value.strftime("%Y-%m-%d")
+        elif isinstance(value, float):
+            return str(round(value,2))
 
-        _logger.error("Type of variable is not being handled like it should!")
+        _logger.error(inspect.currentframe().f_code.co_name + ": " + "Type of variable is not being handled like it should!")
         return None
         
 
@@ -136,37 +137,12 @@ class Peppol_Base(models.Model):
         new_element = self.create_SubElement(tree.xpath(path, namespaces=XNS)[0], tag, static_text, attribute_name,  attributeFixedText)
 
     #Add data from odoo to element
-        if datamodule != "" and datamodule_field != "":
-            #tmp = self.env[datamodule].browse(datamodule_field)
-            #currency_row = self.env[datamodule].search([(datamodule_field, '=', )])
-            #_logger.warning(currency_row)
-            #_logger.warning(f"{datamodule_field=}")
-            #_logger.warning(self.fstr(datamodule_field))
-            #_logger.warning(self.env[datamodule].browse(datamodule_field))
-            #new_element.text = datamodule_fieldf"{self.currency_id.name=}"
-
-            _logger.warning("Datamodule_field is: " + datamodule_field)
+        if datamodule_field != "":
+            _logger.warning(inspect.currentframe().f_code.co_name + ": " + "Datamodule_field is: " + datamodule_field)
             value = self.getfield(datamodule_field)
-            _logger.warning(value)
-            #if datamodule == "account.move":
-            #    value = self[datamodule_field]
-            #else: 
-            #    value = self.datamodule[datamodule_field]
+            _logger.warning(f"{value=}")
             new_element.text = self.convert_to_string(value)
-            #_logger.warning(new_element.text)
-
-
-
-        #def foo(self, fields):
-        #    field, *rest fields.split(',')
-        #    if rest:
                 
-
-
-
-#self.env['account.move'].browse ('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
-
-
     #Run any special functions on the newly created Element
     #    functionList = special_function.split(',')
 
@@ -219,7 +195,7 @@ class Peppol_Base(models.Model):
         #_logger.warning("XML has ID: " + tree.xpath('/Invoice/cbc:ID/text()', namespaces=XNS)[0])
         tree.write('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml', xml_declaration=True, encoding='UTF-8', pretty_print=True)
 
-        _logger.error("NO VALIDATION IS DONE!")
+        _logger.error(inspect.currentframe().f_code.co_name + ": " + "NO VALIDATION IS DONE!")
         #_logger.warning("Starting validation attemps")
         #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
         #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/base-example.xml')

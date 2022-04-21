@@ -5,7 +5,7 @@
   <cbc:ID>INV/2022/04/0001</cbc:ID>
   <cbc:IssueDate>2022-04-07</cbc:IssueDate>
   <cbc:DueDate>2022-05-07</cbc:DueDate>
-  <cbc:DocumentCurrencyCode>INV/2022/04/0001</cbc:DocumentCurrencyCode>
+  <cbc:DocumentCurrencyCode>SEK</cbc:DocumentCurrencyCode>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
   <cbc:BuyerReference>abs1234</cbc:BuyerReference>
   <cac:AccountingSupplierParty>
@@ -13,7 +13,7 @@
       <cbc:EndpointID schemeID="0088">7300010000001</cbc:EndpointID>
       <cac:PostalAddress>
         <cac:Country>
-          <cbc:IdentificationCode>SE</cbc:IdentificationCode>
+          <cbc:IdentificationCode>AL</cbc:IdentificationCode>
         </cac:Country>
       </cac:PostalAddress>
       <cac:PartyTaxScheme>
@@ -23,7 +23,7 @@
         </cac:TaxScheme>
       </cac:PartyTaxScheme>
       <cac:PartyLegalEntity>
-        <cbc:RegistrationName>Vertel Company LTD</cbc:RegistrationName>
+        <cbc:RegistrationName>YourCompany</cbc:RegistrationName>
       </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingSupplierParty>
@@ -32,18 +32,18 @@
       <cbc:EndpointID schemeID="0088">7300010000018</cbc:EndpointID>
       <cac:PostalAddress>
         <cac:Country>
-          <cbc:IdentificationCode>SE</cbc:IdentificationCode>
+          <cbc:IdentificationCode>US</cbc:IdentificationCode>
         </cac:Country>
       </cac:PostalAddress>
       <cac:PartyLegalEntity>
-        <cbc:RegistrationName>Generic Company LTD</cbc:RegistrationName>
+        <cbc:RegistrationName>Deco Addict</cbc:RegistrationName>
       </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingCustomerParty>
   <cac:TaxTotal>
-    <cbc:TaxAmount currencyID="SEK">12.5</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="SEK">198.0</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">50</cbc:TaxableAmount>
+      <cbc:TaxableAmount currencyID="SEK">990.0</cbc:TaxableAmount>
       <cbc:TaxAmount currencyID="SEK">12.5</cbc:TaxAmount>
       <cac:TaxCategory>
         <cbc:ID>S</cbc:ID>
