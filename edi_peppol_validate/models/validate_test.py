@@ -27,10 +27,10 @@ _logger = logging.getLogger(__name__)
 VALIDATE = True
 try:
     #import saxonpy
-    from saxonpy import PySaxonProcessor
+    import saxonpy
     _logger.warning("saxonpy import statement done")
-    with PySaxonProcessor(license=False) as proc:
-        _logger.warning(proc.version)
+    #with PySaxonProcessor(license=False) as proc:
+    #    _logger.warning(proc.version)
     #_logger.warning(os.listdir('/usr/share/odoo-edi/edi_peppol_validate/models/python_saxon'))
 
     #from saxonpy import PySaxonProcessor
@@ -73,7 +73,7 @@ def validate_peppol (msg, type=None):
 
 def validate_peppol_invoice (msg):
     if not VALIDATE:
-        _logger.warning("Validation was not performed as Saxon-c could not be importet. Is Saxon-C installed?")
+        _logger.warning("Validation was not performed as saxonpy could not be importet. Is saxonpy installed?")
         return False
 
 
@@ -85,6 +85,9 @@ def validate_peppol_invoice (msg):
     #_logger.warning("Before import PySaxonProcessor")
     #from saxonpy import PySaxonProcessor
     #_logger.warning("AFter import PySaxonProcessor")
+
+    _logger.warning(f"{msg=}")
+    _logger.warning(f"{msgName=}")
 
 #Creation of validation reports
     with saxonpy.PySaxonProcessor(license=False) as proc:
@@ -175,4 +178,4 @@ def validate_report(report):
     return lines
 
 
-#validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')

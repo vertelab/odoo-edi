@@ -89,7 +89,8 @@ class PeppolValidate(models.Model):
         #msgName = msg.rsplit('/', 1)[-1].split('.')[0]
         msgName = os.path.basename(msg)
 
-
+        _logger.warning(f"{msg=}")
+        _logger.warning(f"{msgName=}")
         #_logger.warning("Before import PySaxonProcessor")
         
         #_logger.warning("After import PySaxonProcessor")
@@ -137,7 +138,6 @@ class PeppolValidate(models.Model):
 
         if not self.validate_report_log("/usr/share/odoo-edi/edi_peppol_validate/data/temp/report-PEPPOL-" + msgName + ".xml", "PEPPOL"):
             validation_successfull = False
-
 
 
         self.validate_cleanup()

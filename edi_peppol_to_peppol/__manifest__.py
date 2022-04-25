@@ -21,8 +21,8 @@
 ##############################################################################
 
 {
-    'name': 'EDI PEPPOL base',
-    'summary': 'Base module for sending and reciving PEPPOL',
+    'name': 'EDI PEPPOL to PEPPOL',
+    'summary': 'Module for converting from Odoo to PEPPOL',
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',
@@ -33,10 +33,10 @@
     #'license': 'AGPL-3',
     'website': 'https://vertel.se/apps/odoo-edi/edi_peppol/',
     'description': """
-        Implements a Framework for PEPPOL communication in Odoo.
+        Implements the shared functions needed for from-Odoo to-PEPPOL conversion, within the greater PEPPOL framework.
         14.0.0.0.0 - Initial version
     """,
-    'depends': ['base','account', 'edi_peppol_validate'],
+    'depends': ['base', 'account', 'edi_peppol_base'],
     # Saxon-C-HE?
     #'external_dependencies': {
     #    'python': ['xlrd'],
@@ -48,7 +48,7 @@
              #'data/instruction.toPeppol.csv',
              #'views/account_invoice_view.xml',
              ],
-    'installable': 'True',
+    'installable': 'False',
     'application': 'False',
 }
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
