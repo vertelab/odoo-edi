@@ -21,6 +21,7 @@ class XMLNamespaces:
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
 
+
 NSMAP={'cac':XMLNamespaces.cac, 'cbc':XMLNamespaces.cbc, None:XMLNamespaces.empty}
 
 XNS={   'cac':XMLNamespaces.cac,   
@@ -34,57 +35,108 @@ class Peppol_To_Invoice(models.Model):
     _inherit = ["peppol.topeppol"]
     _description = "Module for converting invoice from Odoo to PEPPOL"
 
-
     def create_invoice(self):
         currency = self.getfield('account.move.currency_id,res.currency.name')
         invoice = etree.Element("Invoice", nsmap=NSMAP)
 
-        _logger.warning("Running Create_Invoice!")
-
-        #I am Fake!
-        self.convert_field(invoice, 'Invoice', 'NotReal', datamodule='account.move.Idontexist')
-
-        #Invoice Instructions
+    #Invoice Instructions
         self.convert_field(invoice, 'Invoice', 'CustomizationID', text='urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0')
         self.convert_field(invoice, 'Invoice', 'ProfileID', text='urn:fdc:peppol.eu:2017:poacc:billing:04:1.0')
         self.convert_field(invoice, 'Invoice', 'ID', datamodule='account.move.name')
         self.convert_field(invoice, 'Invoice', 'IssueDate', datamodule='account.move.invoice_date')
         self.convert_field(invoice, 'Invoice', 'DueDate', datamodule='account.move.invoice_date_due')
-        self.convert_field(invoice, 'Invoice', 'DocumentCurrencyCode', datamodule='account.move.currency_id,res.currency.name')
         self.convert_field(invoice, 'Invoice', 'InvoiceTypeCode', text='380')
+        #Not handled: Note: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-Note/
+        #Not handled: TaxPointDate: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-TaxPointDate/
+        self.convert_field(invoice, 'Invoice', 'DocumentCurrencyCode', datamodule='account.move.currency_id,res.currency.name')
+        #Not handled: TaxCurrencyCode: Does this exist? Maybe in the account.move.line? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-TaxCurrencyCode/
+        #Not handled: AccountingCost: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-AccountingCost/
         self.convert_field(invoice, 'Invoice', 'BuyerReference', text='abs1234')
 
-        #Accounting Supplier Party Instructions
-        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party', 'EndpointID', datamodule='account.move.company_id,res.company.vat', attri='schemeID:9955') #TODO: No error check here! Assumed to be swedish VAT number!
-        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country', 'IdentificationCode', datamodule='account.move.company_id,res.company.country_id,res.country.code')
-        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme', 'CompanyID', text='SE123456789012')
-        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme', 'ID', text='VAT')
+    #Invoice Period Instructions
+        #Not handled: InvoicePeriod/StartDate: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoicePeriod/cbc-StartDate/
+        #Not handled: InvoicePeriod/EndDate: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoicePeriod/cbc-EndDate/
+        #Not handled: InvoicePeriod/DescriptionCode: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoicePeriod/cbc-DescriptionCode/
 
-        #Accounting Customer Party Instructions
+    #Order Reference Instructions
+        #This is wrong and does not work. purchase_id refers to autocomplete and not a previous order. self.convert_field(invoice, 'Invoice/cac:OrderReference', 'ID', datamodule='account.move.purchase_id,purchase.order.name') 
+        #Not handled: OrderReference/SalesOrderID: maybe something to do with account.move.purchase_id,purchase.order.order_line? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-OrderReference/cbc-SalesOrderID/
+
+    #BillingRefernce
+        #Not handled: BillingReference/InvoiceDocumentReference/ID: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-BillingReference/cac-InvoiceDocumentReference/cbc-ID/
+        #Not handled: BillingReference/InvoiceDocumentReference/IssueDate: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-BillingReference/cac-InvoiceDocumentReference/cbc-IssueDate/
+
+    #None of the below are handled
+        #DespatchDocumentReference
+        #ReceiptDocumentReference
+        #OriginatorDocumentReference
+        #ContractDocumentReference
+        #AdditionalDocumentReference
+        #ProjectReference
+    #None of the above are handled
+
+    #Accounting Supplier Party Instructions
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party', 'EndpointID', datamodule='account.move.company_id,res.company.vat', attri='schemeID:9955') #TODO: No error check here! Assumed to be swedish VAT number!
+        #Not handled: AccountingSupplierParty/Party/PartyIdentification/ID: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyIdentification/
+        #Not handled: AccountingSupplierParty/Party/PartyName/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyName/cbc-Name/
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress', 'StreetName', text=self.get_company_street('account.move.company_id,res.company.street')[0])
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress', 'AdditionalStreetName', datamodule='account.move.company_id,res.company.street2')
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress', 'CityName', datamodule='account.move.company_id,res.company.city')
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress', 'PostalZone', datamodule='account.move.company_id,res.company.zip')
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress', 'CountrySubentity', datamodule='account.move.company_id,res.company.state_id,res.country.state.name')
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:AddressLine', 'Line', text=self.get_company_street('account.move.company_id,res.company.street')[1])
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country', 'IdentificationCode', datamodule='account.move.company_id,res.company.country_id,res.country.code')
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme', 'CompanyID', datamodule='account.move.company_id,res.company.vat')
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme', 'ID', text='VAT')
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity', 'RegistrationName', datamodule='account.move.company_id,res.company.name')
+        #Not Handled: AccountingSupplierParty/Party/PartyLegalEntity/CompanyID: Might be Organisation number. Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyID/
+        #Not Handled: AccountingSupplierParty/Party/PartyLegalEntity/CompanyLegalForm: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyLegalForm/
+        #Not Handled: AccountingSupplierParty/Party/Contact/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-Contact/cbc-Name/
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:Contact', 'Telephone', datamodule='account.move.company_id,res.company.phone')
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:Contact', 'ElectronicMail', datamodule='account.move.company_id,res.company.email')        
+
+    #Accounting Customer Party Instructions
         self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party', 'EndpointID', datamodule='account.move.partner_id,res.partner.vat', attri='schemeID:9955')#TODO: No error check here! Assumed to be swedish VAT number!
+        #Not handled: AccountingCustomerParty/Party/PartyIdentification/ID: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PartyIdentification/
+        #Not handled: AccountingCustomerParty/Party/PartyName/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PartyName/
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress', 'StreetName', text=self.get_company_street('account.move.partner_id,res.partner.street')[0])
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress', 'AdditionalStreetName', datamodule='account.move.partner_id,res.partner.street2')
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress', 'CityName', datamodule='account.move.partner_id,res.partner.city')
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress', 'PostalZone', datamodule='account.move.partner_id,res.partner.zip')
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress', 'CountrySubentity', datamodule='account.move.partner_id,res.partner.state_id,res.country.state.name')
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:AddressLine', 'Line', text=self.get_company_street('account.move.partner_id,res.partner.street')[1])
         self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:Country', 'IdentificationCode', datamodule='account.move.partner_id,res.partner.country_id,res.country.code')
+#CONTINIUE FROM HERE!
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyTaxScheme', 'CompanyID', datamodule='account.move.partner_id,res.partner.vat')
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme', 'ID', text='VAT')
         self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity', 'RegistrationName', datamodule='account.move.partner_id,res.partner.name')
 
-        #Tax Total Instructions
+    #Tax Total Instructions
         self.convert_field(invoice, 'Invoice/cac:TaxTotal', 'TaxAmount', datamodule='account.move.amount_tax', attri='currencyID:'+currency)
-        self.convert_field(invoice, 'Invoice/cac:TaxTotal/cac:TaxSubtotal', 'TaxableAmount', datamodule='account.move.amount_total', attri='currencyID:'+currency)
-        self.convert_field(invoice, 'Invoice/cac:TaxTotal/cac:TaxSubtotal', 'TaxAmount', datamodule='account.move.amount_tax', attri='currencyID:'+currency)
-        self.convert_field(invoice, 'Invoice/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory', 'ID', text='S')
-        self.convert_field(invoice, 'Invoice/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory', 'Percent', text='25')
-        self.convert_field(invoice, 'Invoice/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme', 'ID', text='VAT')
 
-        #Legal Monetary Total
+        for vat_rate in self.get_all_different_vat_rates():
+            new_tax_subtotal = etree.Element(QName(NSMAP['cac'], 'TaxSubtotal'), nsmap=NSMAP)
+
+            self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal', 'TaxableAmount', text=self.get_taxable_amount_for_vat_rate(vat_rate), attri='currencyID:'+currency)
+            self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal', 'TaxAmount', text=self.get_tax_amount_for_vat_rate(vat_rate), attri='currencyID:'+currency)
+            self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal/cac:TaxCategory', 'ID', text='S')
+            self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal/cac:TaxCategory', 'Percent', text=vat_rate)
+            self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme', 'ID', text='VAT')
+
+            invoice.xpath('/Invoice/cac:TaxTotal', namespaces=XNS)[0].append(new_tax_subtotal)
+
+    #Legal Monetary Total
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'LineExtensionAmount', text=str(self.get_line_extension_amount()), attri='currencyID:'+currency)
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'TaxExclusiveAmount', datamodule='account.move.amount_untaxed', attri='currencyID:'+currency)
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'TaxInclusiveAmount', datamodule='account.move.amount_total', attri='currencyID:'+currency)
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'PayableAmount', datamodule='account.move.amount_residual', attri='currencyID:'+currency)
+        self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'PrepaidAmount', text=self.get_prepaid_amount(), attri='currencyID:'+currency)
 
-        #Invoice Line
+    #Invoice Line
         #TODO: Instead of using 'recordset' here, it aught to be possible to enter the path to the wanted datafield using only the datamodule and the current id from 'line'.
         n = 0
         for line in self['invoice_line_ids']:
             n += 1
-
             new_line = etree.Element(QName(NSMAP['cac'], 'InvoiceLine'), nsmap=NSMAP)
 
             self.convert_field(new_line, 'cac:InvoiceLine', 'ID', text=str(n), recordset=line)
@@ -98,12 +150,53 @@ class Peppol_To_Invoice(models.Model):
 
             invoice.append(new_line)
 
+    #Cleanup
+        if self.remove_empty_elements(invoice) is None:
+            return None  
+
         return invoice
 
-
+#Helper Functions
     def get_line_extension_amount(self):
         amount = 0
         for line in self['invoice_line_ids']:
             amount += self.getfield('account.move.line.price_subtotal', line)
-
         return amount
+
+    def get_prepaid_amount(self):
+        prepaid_amount = self.getfield('account.move.amount_total') - self.getfield('account.move.amount_residual')
+        if prepaid_amount == 0:
+            prepaid_amount = None
+        return prepaid_amount
+    
+    def get_all_different_vat_rates(self):
+        unique_vats = set()
+        for line in self['invoice_line_ids']:
+            unique_vats.add(self.getfield('account.move.line.tax_ids,account.tax.amount', line))
+        return unique_vats
+
+    def get_taxable_amount_for_vat_rate(self, vat_rate):
+        taxable_amount = 0
+        for line in self['invoice_line_ids']:
+            if self.getfield('account.move.line.tax_ids,account.tax.amount', line) == vat_rate:
+                taxable_amount += self.getfield('account.move.line.price_subtotal', line)
+        return taxable_amount
+
+    def get_tax_amount_for_vat_rate(self, vat_rate):
+        tax_amount = 0
+        for line in self['invoice_line_ids']:
+            if self.getfield('account.move.line.tax_ids,account.tax.amount', line) == vat_rate:
+                tax_amount += (self.getfield('account.move.line.price_total', line) - self.getfield('account.move.line.price_subtotal', line) ) 
+        return tax_amount
+
+    def get_company_street(self, location):
+        original_streets = self.getfield(location)
+        streets = original_streets.split(',')
+        if len(streets) == 0:
+            return [None, None]
+        elif len(streets) == 1:
+            return [streets[0], None]
+        elif len(streets) > 2:
+            _logger.Error(inspect.currentframe().f_code.co_name + ": A unexpected amount of commas where found in '" + f"{original_streets}" + "'. Only one or zero commas was expected.")
+        
+        return streets

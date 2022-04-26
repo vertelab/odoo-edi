@@ -21,6 +21,7 @@ class XMLNamespaces:
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
 
+
 NSMAP={'cac':XMLNamespaces.cac, 'cbc':XMLNamespaces.cbc, None:XMLNamespaces.empty}
 
 XNS={   'cac':XMLNamespaces.cac,   
@@ -32,7 +33,6 @@ ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 class Peppol_Base(models.Model):
     _name = "peppol.base"
     _description = "Base module which contains functions to assist in converting between PEPPOL and Odoo."
-
 
     def log_element(self, ele, msg='', verbose=False):
         if len(ele) == 0:
@@ -47,15 +47,15 @@ class Peppol_Base(models.Model):
                 str =+ "  | Element Text: " + ele[0].text
             _logger.warning(msg + str)
 
-
     def convert_to_string(self, value):
-        #_logger.warning(f"{type(value)=}")
         if isinstance(value, str):
             return value
         elif isinstance(value, datetime.date):
             return value.strftime("%Y-%m-%d")
         elif isinstance(value, float):
             return str(round(value,2))
+        elif isinstance(value, int):
+            return str(value)
 
-        _logger.error(inspect.currentframe().f_code.co_name + ": " + "Type of variable is not being handled like it should!")
+        _logger.error(inspect.currentframe().f_code.co_name + ": " + "Variable of type " + str(f"{type(value)}") + " is not being handled like it should!")
         return None

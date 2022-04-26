@@ -5,33 +5,57 @@
   <cbc:ID>INV/2022/04/0002</cbc:ID>
   <cbc:IssueDate>2022-04-25</cbc:IssueDate>
   <cbc:DueDate>2022-06-09</cbc:DueDate>
-  <cbc:DocumentCurrencyCode>SEK</cbc:DocumentCurrencyCode>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>SEK</cbc:DocumentCurrencyCode>
   <cbc:BuyerReference>abs1234</cbc:BuyerReference>
   <cac:AccountingSupplierParty>
     <cac:Party>
       <cbc:EndpointID schemeID="9955">SE556936370701</cbc:EndpointID>
       <cac:PostalAddress>
+        <cbc:StreetName>250 Executive Park Blvd</cbc:StreetName>
+        <cbc:CityName>Mjölby</cbc:CityName>
+        <cbc:PostalZone>94134</cbc:PostalZone>
+        <cbc:CountrySubentity>Östergötlands län</cbc:CountrySubentity>
+        <cac:AddressLine>
+          <cbc:Line>Suite 3400</cbc:Line>
+        </cac:AddressLine>
         <cac:Country>
-          <cbc:IdentificationCode>AL</cbc:IdentificationCode>
+          <cbc:IdentificationCode>SE</cbc:IdentificationCode>
         </cac:Country>
       </cac:PostalAddress>
       <cac:PartyTaxScheme>
-        <cbc:CompanyID>SE123456789012</cbc:CompanyID>
+        <cbc:CompanyID>SE556936370701</cbc:CompanyID>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
       </cac:PartyTaxScheme>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>YourCompany</cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+      <cac:Contact>
+        <cbc:Telephone>+1 (650) 555-0111</cbc:Telephone>
+        <cbc:ElectronicMail>info@yourcompany.com</cbc:ElectronicMail>
+      </cac:Contact>
     </cac:Party>
   </cac:AccountingSupplierParty>
   <cac:AccountingCustomerParty>
     <cac:Party>
       <cbc:EndpointID schemeID="9955">SE556033428501</cbc:EndpointID>
       <cac:PostalAddress>
+        <cbc:StreetName>4557 De Silva St</cbc:StreetName>
+        <cbc:CityName>Fremont</cbc:CityName>
+        <cbc:PostalZone>94538</cbc:PostalZone>
+        <cbc:CountrySubentity>California</cbc:CountrySubentity>
         <cac:Country>
           <cbc:IdentificationCode>US</cbc:IdentificationCode>
         </cac:Country>
       </cac:PostalAddress>
+      <cac:PartyTaxScheme>
+        <cbc:CompanyID>SE556033428501</cbc:CompanyID>
+        <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:PartyTaxScheme>
       <cac:PartyLegalEntity>
         <cbc:RegistrationName>Azure Interior</cbc:RegistrationName>
       </cac:PartyLegalEntity>
@@ -40,11 +64,22 @@
   <cac:TaxTotal>
     <cbc:TaxAmount currencyID="SEK">183.9</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">1085.9</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">183.9</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">582.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">145.5</cbc:TaxAmount>
       <cac:TaxCategory>
         <cbc:ID>S</cbc:ID>
-        <cbc:Percent>25</cbc:Percent>
+        <cbc:Percent>25.0</cbc:Percent>
+        <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="SEK">320.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">38.4</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:ID>S</cbc:ID>
+        <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
@@ -56,6 +91,7 @@
     <cbc:TaxExclusiveAmount currencyID="SEK">902.0</cbc:TaxExclusiveAmount>
     <cbc:TaxInclusiveAmount currencyID="SEK">1085.9</cbc:TaxInclusiveAmount>
     <cbc:PayableAmount currencyID="SEK">765.9</cbc:PayableAmount>
+    <cbc:PrepaidAmount currencyID="SEK">320.0</cbc:PrepaidAmount>
   </cac:LegalMonetaryTotal>
   <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
