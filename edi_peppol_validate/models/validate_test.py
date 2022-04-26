@@ -178,4 +178,4 @@ def validate_report(report):
     return lines
 
 
-validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+validate_peppol('/usr/share/odoo-edi/edi_peppol/demo/output.xml')

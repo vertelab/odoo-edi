@@ -55,15 +55,14 @@ class Peppol_To_Invoice(models.Model):
         self.convert_field(invoice, 'Invoice', 'BuyerReference', text='abs1234')
 
         #Accounting Supplier Party Instructions
-        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party', 'EndpointID', datamodule='account.move.company_id,res.company.vat', attri='schemeID:9955')
+        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party', 'EndpointID', datamodule='account.move.company_id,res.company.vat', attri='schemeID:9955') #TODO: No error check here! Assumed to be swedish VAT number!
         self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country', 'IdentificationCode', datamodule='account.move.company_id,res.company.country_id,res.country.code')
         self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme', 'CompanyID', text='SE123456789012')
         self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme', 'ID', text='VAT')
 
         #Accounting Customer Party Instructions
-        self.convert_field(invoice, 'Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity', 'RegistrationName', datamodule='account.move.company_id,res.company.name')
-        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party', 'EndpointID', datamodule='account.move.partner_id,res.partner.vat', attri='schemeID:9955')
-        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity', 'IdentificationCode', datamodule='account.move.partner_id,res.partner.country_id,res.country.code')
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party', 'EndpointID', datamodule='account.move.partner_id,res.partner.vat', attri='schemeID:9955')#TODO: No error check here! Assumed to be swedish VAT number!
+        self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:Country', 'IdentificationCode', datamodule='account.move.partner_id,res.partner.country_id,res.country.code')
         self.convert_field(invoice, 'Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity', 'RegistrationName', datamodule='account.move.partner_id,res.partner.name')
 
         #Tax Total Instructions
@@ -99,8 +98,8 @@ class Peppol_To_Invoice(models.Model):
 
             invoice.append(new_line)
 
-
         return invoice
+
 
     def get_line_extension_amount(self):
         amount = 0
@@ -108,17 +107,3 @@ class Peppol_To_Invoice(models.Model):
             amount += self.getfield('account.move.line.price_subtotal', line)
 
         return amount
-
-
-    """
-    def convert_field_line( self,
-                            n,
-                            tree,
-                            fullParent, 
-                            tag, 
-                            text=None, 
-                            datamodule=None, 
-                            attri=None, 
-                            attirbute_datamodule=None, 
-                            attribute_datamodule_field=None):
-    """

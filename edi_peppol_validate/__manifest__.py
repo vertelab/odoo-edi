@@ -39,7 +39,7 @@
     'depends': ['base'],
     'external_dependencies': {
         'python': ['saxonpy'],
-    },
+    },#TODO: Fix data so it includes the .sch and .xslt files!
     'data': [#'data/stylesheet-ubl.xslt',
              #'data/CEN-EN16931-UBL.sch',
              #'data/PEPPOL-EN16931-UBL.sch',

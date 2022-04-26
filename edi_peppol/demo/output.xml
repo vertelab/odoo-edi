@@ -2,18 +2,18 @@
 <Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
   <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</cbc:CustomizationID>
   <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:04:1.0</cbc:ProfileID>
-  <cac:ID>INV/2022/04/0002</cac:ID>
-  <cac:IssueDate>2022-04-25</cac:IssueDate>
-  <cac:DueDate>2022-06-09</cac:DueDate>
-  <cac:DocumentCurrencyCode>SEK</cac:DocumentCurrencyCode>
+  <cbc:ID>INV/2022/04/0002</cbc:ID>
+  <cbc:IssueDate>2022-04-25</cbc:IssueDate>
+  <cbc:DueDate>2022-06-09</cbc:DueDate>
+  <cbc:DocumentCurrencyCode>SEK</cbc:DocumentCurrencyCode>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
   <cbc:BuyerReference>abs1234</cbc:BuyerReference>
   <cac:AccountingSupplierParty>
     <cac:Party>
-      <cac:EndpointID schemeID="9955">SE556936370701</cac:EndpointID>
+      <cbc:EndpointID schemeID="9955">SE556936370701</cbc:EndpointID>
       <cac:PostalAddress>
         <cac:Country>
-          <cac:IdentificationCode>AL</cac:IdentificationCode>
+          <cbc:IdentificationCode>AL</cbc:IdentificationCode>
         </cac:Country>
       </cac:PostalAddress>
       <cac:PartyTaxScheme>
@@ -22,25 +22,26 @@
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
       </cac:PartyTaxScheme>
-      <cac:PartyLegalEntity>
-        <cac:RegistrationName>YourCompany</cac:RegistrationName>
-      </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingSupplierParty>
   <cac:AccountingCustomerParty>
     <cac:Party>
-      <cac:EndpointID schemeID="9955">SE556033428501</cac:EndpointID>
+      <cbc:EndpointID schemeID="9955">SE556033428501</cbc:EndpointID>
+      <cac:PostalAddress>
+        <cac:Country>
+          <cbc:IdentificationCode>US</cbc:IdentificationCode>
+        </cac:Country>
+      </cac:PostalAddress>
       <cac:PartyLegalEntity>
-        <cac:IdentificationCode>US</cac:IdentificationCode>
-        <cac:RegistrationName>Azure Interior</cac:RegistrationName>
+        <cbc:RegistrationName>Azure Interior</cbc:RegistrationName>
       </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingCustomerParty>
   <cac:TaxTotal>
-    <cac:TaxAmount currencyID="SEK">183.9</cac:TaxAmount>
+    <cbc:TaxAmount currencyID="SEK">183.9</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cac:TaxableAmount currencyID="SEK">1085.9</cac:TaxableAmount>
-      <cac:TaxAmount currencyID="SEK">183.9</cac:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">1085.9</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">183.9</cbc:TaxAmount>
       <cac:TaxCategory>
         <cbc:ID>S</cbc:ID>
         <cbc:Percent>25</cbc:Percent>
@@ -52,62 +53,62 @@
   </cac:TaxTotal>
   <cac:LegalMonetaryTotal>
     <cbc:LineExtensionAmount currencyID="SEK">902.0</cbc:LineExtensionAmount>
-    <cac:TaxExclusiveAmount currencyID="SEK">902.0</cac:TaxExclusiveAmount>
-    <cac:TaxInclusiveAmount currencyID="SEK">1085.9</cac:TaxInclusiveAmount>
-    <cac:PayableAmount currencyID="SEK">765.9</cac:PayableAmount>
+    <cbc:TaxExclusiveAmount currencyID="SEK">902.0</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="SEK">1085.9</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="SEK">765.9</cbc:PayableAmount>
   </cac:LegalMonetaryTotal>
   <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
-    <cac:InvoicedQuantity unitCode="C62">3.0</cac:InvoicedQuantity>
-    <cac:LineExtensionAmount currencyID="SEK">441.0</cac:LineExtensionAmount>
+    <cbc:InvoicedQuantity unitCode="C62">3.0</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="SEK">441.0</cbc:LineExtensionAmount>
     <cac:Item>
-      <cac:Name>[E-COM06] Hörnskrivbord höger sitt</cac:Name>
+      <cbc:Name>[E-COM06] Hörnskrivbord höger sitt</cbc:Name>
       <cac:ClassifiedTaxCategory>
         <cbc:ID>S</cbc:ID>
-        <cac:Percent>25.0</cac:Percent>
+        <cbc:Percent>25.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
       </cac:ClassifiedTaxCategory>
     </cac:Item>
     <cac:Price>
-      <cac:PriceAmount currencyID="SEK">147.0</cac:PriceAmount>
+      <cbc:PriceAmount currencyID="SEK">147.0</cbc:PriceAmount>
     </cac:Price>
   </cac:InvoiceLine>
   <cac:InvoiceLine>
     <cbc:ID>2</cbc:ID>
-    <cac:InvoicedQuantity unitCode="C62">1.0</cac:InvoicedQuantity>
-    <cac:LineExtensionAmount currencyID="SEK">320.0</cac:LineExtensionAmount>
+    <cbc:InvoicedQuantity unitCode="C62">1.0</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="SEK">320.0</cbc:LineExtensionAmount>
     <cac:Item>
-      <cac:Name>[E-COM07] Stort skåp</cac:Name>
+      <cbc:Name>[E-COM07] Stort skåp</cbc:Name>
       <cac:ClassifiedTaxCategory>
         <cbc:ID>S</cbc:ID>
-        <cac:Percent>12.0</cac:Percent>
+        <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
       </cac:ClassifiedTaxCategory>
     </cac:Item>
     <cac:Price>
-      <cac:PriceAmount currencyID="SEK">320.0</cac:PriceAmount>
+      <cbc:PriceAmount currencyID="SEK">320.0</cbc:PriceAmount>
     </cac:Price>
   </cac:InvoiceLine>
   <cac:InvoiceLine>
     <cbc:ID>3</cbc:ID>
-    <cac:InvoicedQuantity unitCode="C62">3.0</cac:InvoicedQuantity>
-    <cac:LineExtensionAmount currencyID="SEK">141.0</cac:LineExtensionAmount>
+    <cbc:InvoicedQuantity unitCode="C62">3.0</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="SEK">141.0</cbc:LineExtensionAmount>
     <cac:Item>
-      <cac:Name>[E-COM10] Pedalhink</cac:Name>
+      <cbc:Name>[E-COM10] Pedalhink</cbc:Name>
       <cac:ClassifiedTaxCategory>
         <cbc:ID>S</cbc:ID>
-        <cac:Percent>25.0</cac:Percent>
+        <cbc:Percent>25.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
       </cac:ClassifiedTaxCategory>
     </cac:Item>
     <cac:Price>
-      <cac:PriceAmount currencyID="SEK">47.0</cac:PriceAmount>
+      <cbc:PriceAmount currencyID="SEK">47.0</cbc:PriceAmount>
     </cac:Price>
   </cac:InvoiceLine>
 </Invoice>
