@@ -152,16 +152,21 @@ class Peppol_To_Invoice(models.Model):
             self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal/cac:TaxCategory', 'Percent', text=vat_rate[0])
             self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme', 'ID', text='VAT')
 
+            #TODO: Make this skip if this vat is 'false' for some reason.
+            #if XPATH
+
             invoice.xpath('/Invoice/cac:TaxTotal', namespaces=XNS)[0].append(new_tax_subtotal)
 
     #Legal Monetary Total
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'LineExtensionAmount', text=str(self.get_line_extension_amount()), attri='currencyID:'+currency)
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'TaxExclusiveAmount', datamodule='account.move.amount_untaxed', attri='currencyID:'+currency)
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'TaxInclusiveAmount', datamodule='account.move.amount_total', attri='currencyID:'+currency)
-        #Allow
-        self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'PayableAmount', datamodule='account.move.amount_residual', attri='currencyID:'+currency)
+        #Not Handled: LegalMonetaryTotal/AllowanceTotalAmount: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-AllowanceTotalAmount/
+        #Not Handled: LegalMonetaryTotal/ChargeTotalAmount: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-ChargeTotalAmount/
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'PrepaidAmount', text=self.get_prepaid_amount(), attri='currencyID:'+currency)
-
+        #Not Handled: LegalMonetaryTotal/PayableRoundingAmount: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-PayableRoundingAmount/
+        self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'PayableAmount', datamodule='account.move.amount_residual', attri='currencyID:'+currency)
+    
     #Invoice Line
         #TODO: Instead of using 'recordset' here, it aught to be possible to enter the path to the wanted datafield using only the datamodule and the current id from 'line'.
         n = 0
@@ -169,10 +174,25 @@ class Peppol_To_Invoice(models.Model):
             n += 1
             new_line = etree.Element(QName(NSMAP['cac'], 'InvoiceLine'), nsmap=NSMAP)
 
+            #_logger.warning(f"{(self.getfield('account.move.line.display_type', line))=}")
+            if self.getfield('account.move.line.display_type', line) != False:
+                continue
+                #pass
+                #self.convert_field(new_line, 'cac:InvoiceLine', 'ID', text=str(n), recordset=line)
+                #self.convert_field(new_line, 'cac:InvoiceLine/cac:Item', 'Name', datamodule='account.move.line.name', recordset=line)
+            #else:
             self.convert_field(new_line, 'cac:InvoiceLine', 'ID', text=str(n), recordset=line)
+            #Not Handled: InvoiceLine/Note: This does not exist built into the line, but as a seperate line. https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/
             self.convert_field(new_line, 'cac:InvoiceLine', 'InvoicedQuantity', datamodule='account.move.line.quantity', attri='unitCode:C62', recordset=line)
             self.convert_field(new_line, 'cac:InvoiceLine', 'LineExtensionAmount', text=self.get_line_extension_amount_per_line(line), attri='currencyID:'+currency)
-            self.convert_field(new_line, 'cac:InvoiceLine/cac:Item', 'Name', datamodule='account.move.line.name', recordset=line)
+            #Not Handled: InvoiceLine/AccountingCost: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cbc-AccountingCost/
+            #Not Handled: InvoiceLine/InvoicePeriod/StartDate: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-InvoicePeriod/cbc-StartDate/
+            #Not Handled: InvoiceLine/InvoicePeriod/EndDate: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-InvoicePeriod/
+            #Not Handled: InvoiceLine/OrderLineReference/LineID: Needs an Order Referance to be handled. https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-OrderLineReference/cbc-LineID/
+            #Not Handled: InvoiceLine/DocumentReference: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-DocumentReference/
+            #Not Handled: InvoiceLine/AllowanceCharge: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/
+            self.convert_field(new_line, 'cac:InvoiceLine/cac:Item', 'Description', datamodule='account.move.line.name', recordset=line)
+            self.convert_field(new_line, 'cac:InvoiceLine/cac:Item', 'Name', datamodule='account.move.line.product_id,product.product.name', recordset=line)
             self.convert_field(new_line, 'cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory', 'ID', text=self.translate_tax_category_to_peppol(self.getfield('account.move.line.tax_ids,account.tax.name', line)))
             self.convert_field(new_line, 'cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory', 'Percent', datamodule='account.move.line.tax_ids,account.tax.amount', recordset=line)
             self.convert_field(new_line, 'cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cac:TaxScheme', 'ID', text='VAT', recordset=line)
@@ -189,11 +209,11 @@ class Peppol_To_Invoice(models.Model):
 #Helper Functions
     def get_line_extension_amount(self):
         amount = 0
-        _logger.error(f"{self['invoice_line_ids']=}")
+        #_logger.error(f"{self['invoice_line_ids']=}")
         for line in self['invoice_line_ids']:
             #self.getfield('account.move.line.price_subtotal', line)
             amount += self.getfield('account.move.line.price_subtotal', line)
-        _logger.error(f"Found {amount=}")
+        #_logger.error(f"Found {amount=}")
         return amount
 
     def get_prepaid_amount(self):
@@ -204,9 +224,11 @@ class Peppol_To_Invoice(models.Model):
     
     def get_all_different_vat_rates(self):
         unique_vats = set()
+        _logger.error(f"{self['invoice_line_ids']=}")
         for line in self['invoice_line_ids']:
-            unique_vats.add((  self.getfield('account.move.line.tax_ids,account.tax.amount', line), 
-                                    self.translate_tax_category_to_peppol(self.getfield('account.move.line.tax_ids,account.tax.name', line))))
+            unique_vats.add((   self.getfield('account.move.line.tax_ids,account.tax.amount', line), 
+                                self.translate_tax_category_to_peppol(self.getfield('account.move.line.tax_ids,account.tax.name', line))))
+        _logger.error(f"{unique_vats=}")        
         return unique_vats
 
     def get_taxable_amount_for_vat_rate(self, vat_rate):

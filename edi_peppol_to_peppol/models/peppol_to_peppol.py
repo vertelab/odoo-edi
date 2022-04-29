@@ -88,7 +88,7 @@ class Peppol_To_Peppol(models.Model):
         else:
             ln = l[1].split(',', 1)
             next_module = ln[0].rsplit('.', 1)[0] 
-            #_logger.warning(inspect.currentframe().f_code.co_name + ": " + f"{next_module=}")
+            #_logger.warning(inspect.currentframe().f_code.co_name + ": Next inst is: " + f"{current_field_value.id=}")
             inst = inst.env[next_module].browse(current_field_value.id)
             #_logger.warning(inspect.currentframe().f_code.co_name + ": " + f"{inst=}")    
             return self.getfield(l[1], inst)

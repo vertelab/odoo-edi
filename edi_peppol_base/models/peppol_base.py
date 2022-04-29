@@ -72,8 +72,10 @@ class Peppol_Base(models.Model):
             "FVEU0" : "Z",
             "FVUEU0" : "Z"
         }
-        output = tax_category_dict[input]       
-        if output is None:
+        output = None
+        try:
+            output = tax_category_dict[input]       
+        except:
             _logger.error(inspect.currentframe().f_code.co_name + ": " + " Tax code of " + str(f"{input=}") + " could not be translated!")
         return output
 
