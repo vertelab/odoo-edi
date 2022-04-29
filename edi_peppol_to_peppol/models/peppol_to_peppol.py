@@ -174,13 +174,53 @@ class Peppol_To_Peppol(models.Model):
                 parent = elem.getparent()
                 if len(list(elem)) == 0 and elem.text is None:
                 #if elem is None and elem.text is None:
-                    _logger.warning(inspect.currentframe().f_code.co_name + ": Removing element: " + f"{elem.tag}")
+                    _logger.warning(inspect.currentframe().f_code.co_name + ": Removing empty element: " + f"{elem.tag}")
                     parent.remove(elem)
                     removal_done = True
             n += 1
             #_logger.warning(inspect.currentframe().f_code.co_name + ": removal loops done: " + f"{n}")
             if n > 10000:
-                _logger.error(inspect.currentframe().f_code.co_name + ": More loops then 10000 done. Exiting function to avoid infinite loop")
+                _logger.error(inspect.currentframe().f_code.co_name + ": More loops then 10000 done. Exiting function to avoid infinite loop.")
                 return None
 
         return tree
+
+    def convert_party(self, tree, full_parent, datamodulepath):
+        full_parent += '/cac:Party'
+        self.convert_field(tree, full_parent, 'EndpointID', datamodule=datamodulepath + '.vat', attri='schemeID:9955') #TODO: No error check here! Assumed to be swedish VAT number!
+        #Not handled: full_parent + /PartyIdentification/ID: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyIdentification/
+        #Not handled: full_parent + /PartyName/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyName/cbc-Name/
+        self.convert_address(tree, full_parent, datamodulepath)
+        self.convert_field(tree, full_parent + '/cac:PartyTaxScheme', 'CompanyID', datamodule=datamodulepath + '.vat')
+        self.convert_field(tree, full_parent + '/cac:PartyTaxScheme/cac:TaxScheme', 'ID', text='VAT')
+        self.convert_field(tree, full_parent + '/cac:PartyLegalEntity', 'RegistrationName', datamodule=datamodulepath + '.name')
+        #Not Handled: full_parent + /PartyLegalEntity/CompanyID: Might be Organisation number. Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyID/
+        #Not Handled: full_parent + /PartyLegalEntity/CompanyLegalForm: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyLegalForm/
+        #Not Handled: full_parent + /Contact/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-Contact/cbc-Name/
+        self.convert_field(tree, full_parent + '/cac:Contact', 'Telephone', datamodule=datamodulepath + '.phone')
+        self.convert_field(tree, full_parent + '/cac:Contact', 'ElectronicMail', datamodule=datamodulepath + '.email') 
+
+    def convert_address(self, tree, full_parent, datamodulepath):
+        full_parent += '/cac:PostalAddress'
+        self.convert_field(tree, full_parent, 'StreetName', text=self.get_company_street(datamodulepath + '.street')[0])
+        self.convert_field(tree, full_parent, 'AdditionalStreetName', datamodule=datamodulepath + '.street2')
+        self.convert_field(tree, full_parent, 'CityName', datamodule=datamodulepath + '.city')
+        self.convert_field(tree, full_parent, 'PostalZone', datamodule=datamodulepath + '.zip')
+        self.convert_field(tree, full_parent, 'CountrySubentity', datamodule=datamodulepath + '.state_id,res.country.state.name')
+        self.convert_field(tree, full_parent + '/cac:AddressLine', 'Line', text=self.get_company_street(datamodulepath + '.street')[1])
+        self.convert_field(tree, full_parent + '/cac:Country', 'IdentificationCode', datamodule=datamodulepath + '.country_id,res.country.code')
+
+    def get_company_street(self, location):
+        original_streets = self.getfield(location)        
+        try:    
+            streets = original_streets.split(',')
+        except:
+            return [None, None]
+        if len(streets) == 0:
+            return [None, None]
+        elif len(streets) == 1:
+            return [streets[0], None]
+        elif len(streets) > 2:
+            _logger.Error(inspect.currentframe().f_code.co_name + ": A unexpected amount of commas where found in '" + f"{original_streets}" + "'. Only one or zero commas was expected.")
+        
+        return streets

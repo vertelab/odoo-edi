@@ -21,6 +21,9 @@ class Account_Move(models.Model):
 
         #self.test()
 
+        for x in self.invoice_line_ids:
+            _logger.warning(x.read())
+
         self.to_peppol()
 
 

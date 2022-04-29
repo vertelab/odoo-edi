@@ -7,7 +7,7 @@ from odoo import models, api, _, fields
 
 _logger = logging.getLogger(__name__)
 
-_logger.warning("BEFORE saxonpy import")
+#_logger.warning("BEFORE saxonpy import")
 
 
 #sys.path.append("/usr/share")
@@ -59,9 +59,10 @@ try:
 except ImportError as e:
     VALIDATE = False    
     _logger.warning(e)
-    _logger.warning("saxonpy import FAILED!")
+    #_logger.warning("saxonpy import FAILED!")
 else:
-    _logger.warning("saxonpy import SUCCEDED!")
+    #_logger.warning("saxonpy import SUCCEDED!")
+    pass
 
 #_logger.warning("AFTER saxonc import")
 

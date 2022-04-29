@@ -59,3 +59,22 @@ class Peppol_Base(models.Model):
 
         _logger.error(inspect.currentframe().f_code.co_name + ": " + "Variable of type " + str(f"{type(value)}") + " is not being handled like it should!")
         return None
+
+    def translate_tax_category_to_peppol(self, input):
+        tax_category_dict = {
+            "MP1" : "S",
+            "MP1i" : "S",
+            "MP2" : "S",
+            "MP2i" : "S",
+            "MP3" : "S",
+            "MP3i" : "S",
+            "MF" : "Z",
+            "FVEU0" : "Z",
+            "FVUEU0" : "Z"
+        }
+        output = tax_category_dict[input]       
+        if output is None:
+            _logger.error(inspect.currentframe().f_code.co_name + ": " + " Tax code of " + str(f"{input=}") + " could not be translated!")
+        return output
+
+
