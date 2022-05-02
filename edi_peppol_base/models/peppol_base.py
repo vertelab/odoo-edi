@@ -34,19 +34,6 @@ class Peppol_Base(models.Model):
     _name = "peppol.base"
     _description = "Base module which contains functions to assist in converting between PEPPOL and Odoo."
 
-    def log_element(self, ele, msg='', verbose=False):
-        if len(ele) == 0:
-            if verbose:
-                _logger.warning(inspect.currentframe().f_code.co_name + ": " + "No element found to print!")
-        elif len(ele) > 1:
-            if verbose:
-                _logger.warning(inspect.currentframe().f_code.co_name + ": " + "More then one element found to print!")
-        else:
-            str = "Elment Tag: " + ele[0].tag
-            if ele[0].text is not None:
-                str =+ "  | Element Text: " + ele[0].text
-            _logger.warning(msg + str)
-
     def convert_to_string(self, value):
         if isinstance(value, str):
             return value
@@ -57,7 +44,9 @@ class Peppol_Base(models.Model):
         elif isinstance(value, int):
             return str(value)
 
-        _logger.error(inspect.currentframe().f_code.co_name + ": " + "Variable of type " + str(f"{type(value)}") + " is not being handled like it should!")
+        _logger.error(inspect.currentframe().f_code.co_name + 
+                      ": Variable of type " + str(f"{type(value)}") + 
+                      " is not being handled like it should!")
         return None
 
     def translate_tax_category_to_peppol(self, input):
@@ -76,7 +65,10 @@ class Peppol_Base(models.Model):
         try:
             output = tax_category_dict[input]       
         except:
-            _logger.error(inspect.currentframe().f_code.co_name + ": " + " Tax code of " + str(f"{input=}") + " could not be translated!")
+            _logger.error(inspect.currentframe().f_code.co_name + 
+                          ": Tax code of " + 
+                          str(f"{input=}") + 
+                          " could not be translated!")
         return output
 
 

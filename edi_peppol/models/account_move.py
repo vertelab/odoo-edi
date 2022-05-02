@@ -4,7 +4,6 @@ from odoo import models, api, _, fields
 from lxml import etree, html
 from lxml.etree import Element, SubElement, QName, tostring
 
-
 _logger = logging.getLogger(__name__)
 
 class Account_Move(models.Model):
@@ -14,27 +13,14 @@ class Account_Move(models.Model):
 
 
     def peppol_button(self):
-        _logger.warning("Clicked the Button!")
-        _logger.warning(f"{self.name=}")
-        #currency_row = self.env["res.currency"].browse(self.currency_id.id)
-        #_logger.warning(f"{self.currency_id.name=}")
-
-        #self.test()
-
-        #for x in self.invoice_line_ids:
-        #    _logger.warning(x.read())
-
         self.to_peppol()
 
-
-
-
-        #_logger.warning(peppol_main.main())
         return None
 
     
     def to_peppol(self):
-        tree = etree.ElementTree(self.create_invoice())#self.env['peppol.toinvoice'].create_invoice())
+        tree = etree.ElementTree(self.create_invoice())
+        #self.env['peppol.toinvoice'].create_invoice())
         #_logger.warning("XML has ID: " + tree.xpath('/Invoice/cbc:ID/text()', namespaces=XNS)[0])
         #tree = etree.ElementTree(self.create_order())
         
