@@ -17,7 +17,8 @@ class XMLNamespaces:
 NSMAP={'cac':XMLNamespaces.cac, 'cbc':XMLNamespaces.cbc, None:XMLNamespaces.empty}
 
 XNS={   'cac':XMLNamespaces.cac,   
-        'cbc':XMLNamespaces.cbc}
+        'cbc':XMLNamespaces.cbc,   
+        'ubl':XMLNamespaces.empty}
 
 ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
@@ -37,6 +38,80 @@ class Peppol_From_Peppol(models.Model):
             return None
         else:
             return tree
+
+    def set_odoo_data(self, tree, destination, xmlpath=None, text=None):
+        if xmlpath is not None:
+            value = self.get_xml_value(tree, xmlpath)
+        else:
+            value = text
+
+        if value is None:
+            _logger.error(inspect.currentframe().f_code.co_name + ": " +
+            "Returned None!")
+            return None
+
+        try:
+            self.set_odoo_value(destination, value)
+        except Exception as e:
+            _logger.error(inspect.currentframe().f_code.co_name + ": " + 
+            "Tried to export value to odoo, but failed to, due to: ")
+            _logger.error(e)
+
+    def get_xml_value(self, tree, xmlpath, iteration=0):
+        _logger.error(inspect.currentframe().f_code.co_name + ": " +
+        f"{xmlpath=}")
+        try:
+            value = tree.xpath(xmlpath, namespaces=XNS)[iteration].text
+        except Exception as e:
+            _logger.error(inspect.currentframe().f_code.co_name + ": " + 
+            "Tried to import a xml value, but it failed to, due to: ")
+            _logger.error(e)
+            return None
+        else:
+            return value
+
+    """
+            if len(value) == 0:
+                _logger.error(inspect.currentframe().f_code.co_name + ": " +
+                "Returned None!")
+                return None
+            else:
+                try:
+                    _logger.error(f"{value=}")
+                    return value
+                except:
+                    _logger.error(inspect.currentframe().f_code.co_name + ": " + 
+                    "Tried to import a xml value, but it failed to, due to: ")  
+                    _logger.error(e)                 
+        return None
+    """
+
+    def set_odoo_value(self, destination, value, inst=None):
+        _logger.error(inspect.currentframe().f_code.co_name)
+
+
+        if destination is None or value is None:
+            _logger.error(inspect.currentframe().f_code.co_name + ": " +
+            "Returned None!")
+            return None
+
+        if inst is None:
+            inst = self        
+
+        d = destination.split(',', 1)
+        current_module = d[0].rsplit('.', 1)[0] 
+        current_field_name = d[0].rsplit('.', 1)[1]
+
+        if len(d) == 1:
+            inst[current_field_name] = value
+            return True
+        else:
+            return None #TODO: This should work recursively.
+        
+
+    def get_currency_by_name(self):
+        return self.env['res.currency'].search([('name', '=', 'SEK')]).id
+        
 
     """
     def create_SubElement (self, 

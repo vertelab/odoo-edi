@@ -5,7 +5,7 @@
 #from lxml.etree import Element, SubElement, QName, tostring
 #from lxml.isoschematron import Schematron
 
-import logging, inspect
+import logging, inspect, datetime
 
 from lxml import etree
 
@@ -24,7 +24,8 @@ class XMLNamespaces:
 NSMAP={'cac':XMLNamespaces.cac, 'cbc':XMLNamespaces.cbc, None:XMLNamespaces.empty}
 
 XNS={   'cac':XMLNamespaces.cac,   
-        'cbc':XMLNamespaces.cbc}
+        'cbc':XMLNamespaces.cbc,   
+        'ubl':XMLNamespaces.empty}
 
 ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
@@ -37,11 +38,16 @@ class Peppol_From_Invoice(models.Model):
 
     #Base function for importing a Odoo Invoice, from a PEPPOL Invoice.
     def import_invoice(self, tree):
-        _logger.error(inspect.currentframe().f_code.co_name + ": " + 
-            "Trying to run import_invoice on tree, but it is not fully implemented!")
-        self.auto_post = True
 
-        
+        self.set_odoo_data(tree, 'account.move.invoice_date', 
+                          xmlpath='/ubl:Invoice/cbc:IssueDate')
+        self.set_odoo_data(tree, 'account.move.invoice_date_due', 
+                           '/ubl:Invoice/cbc:DueDate')
+        self.set_odoo_data(tree, 'account.move.currency_id',
+                           text=self.get_currency_by_name())
+
+        #_logger.error(self.currency_id)
+        #_logger.error(self.get_currency_by_name())
 
     """
     #Base function for converting a Odoo Invoice, to a PEPPOL Invoice.

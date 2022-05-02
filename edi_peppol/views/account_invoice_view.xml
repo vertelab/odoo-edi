@@ -10,14 +10,14 @@
                     name="to_peppol_button"
                     string="Export to PEPPOL"
                     help="Create a XML file from the invoice which follows the PEPPOL protocol."
-                    attrs="{'invisible': [('state', '!=', 'posted')]}"
+                    attrs="{'invisible': ['|', ('state', '!=', 'posted'), ('move_type', '!=', 'out_invoice')]}"
                 />
                 <button
                     type="object"
                     name="from_peppol_button"
                     string="Import from PEPPOL"
                     help="Imports a XML file, which follows the PEPPOL protocol, and writes its data to the current invoice."
-                    attrs="{'invisible': [('state', '=', 'posted')]}"
+                    attrs="{'invisible': ['|', ('state', '=', 'posted'), ('move_type', '!=', 'in_invoice')]}"
                 />
             </button>
         </field>

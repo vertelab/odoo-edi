@@ -49,6 +49,16 @@ class Peppol_Base(models.Model):
                       " is not being handled like it should!")
         return None
 
+    """
+    def convert_to_type(self, value, type):
+        if type is datetime.date:
+            return value
+        _logger.error(inspect.currentframe().f_code.co_name + 
+                      ": Variable of type " + str(f"{type(value)}") + 
+                      " is not being handled like it should!")
+        return None    
+    """
+    
     def translate_tax_category_to_peppol(self, input):
         tax_category_dict = {
             "MP1" : "S",

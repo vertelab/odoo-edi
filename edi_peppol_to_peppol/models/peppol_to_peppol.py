@@ -79,16 +79,11 @@ class Peppol_To_Peppol(models.Model):
 
     def convert_field(  self,
                         tree,
-                        #special_function,
                         fullParent, 
                         tag, 
                         text=None, 
                         datamodule=None, 
-                        #datamodule_field=None, 
-                        attri=None, 
-                        #attri_text=None, 
-                        attirbute_datamodule=None, 
-                        attribute_datamodule_field=None,
+                        attri=None,  
                         recordset=None,
                         expects_bool=None,
                         ):
