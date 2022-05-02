@@ -2,9 +2,9 @@
 <Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
   <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</cbc:CustomizationID>
   <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:04:1.0</cbc:ProfileID>
-  <cbc:ID>INV/2022/04/0002</cbc:ID>
-  <cbc:IssueDate>2022-04-29</cbc:IssueDate>
-  <cbc:DueDate>2022-05-31</cbc:DueDate>
+  <cbc:ID>INV/2022/05/0003</cbc:ID>
+  <cbc:IssueDate>2022-05-02</cbc:IssueDate>
+  <cbc:DueDate>2022-06-01</cbc:DueDate>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
   <cbc:DocumentCurrencyCode>SEK</cbc:DocumentCurrencyCode>
   <cbc:BuyerReference>abs1234</cbc:BuyerReference>
@@ -40,37 +40,35 @@
   </cac:AccountingSupplierParty>
   <cac:AccountingCustomerParty>
     <cac:Party>
-      <cbc:EndpointID schemeID="9955">SE556033428501</cbc:EndpointID>
       <cac:PostalAddress>
-        <cbc:StreetName>4557 De Silva St</cbc:StreetName>
-        <cbc:CityName>Fremont</cbc:CityName>
-        <cbc:PostalZone>94538</cbc:PostalZone>
+        <cbc:StreetName>77 Santa Barbara Rd</cbc:StreetName>
+        <cbc:CityName>Pleasant Hill</cbc:CityName>
+        <cbc:PostalZone>94523</cbc:PostalZone>
         <cbc:CountrySubentity>California</cbc:CountrySubentity>
         <cac:Country>
           <cbc:IdentificationCode>US</cbc:IdentificationCode>
         </cac:Country>
       </cac:PostalAddress>
       <cac:PartyTaxScheme>
-        <cbc:CompanyID>SE556033428501</cbc:CompanyID>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
       </cac:PartyTaxScheme>
       <cac:PartyLegalEntity>
-        <cbc:RegistrationName>Azure Interior</cbc:RegistrationName>
+        <cbc:RegistrationName>Deco Addict</cbc:RegistrationName>
       </cac:PartyLegalEntity>
       <cac:Contact>
-        <cbc:Telephone>(870)-931-0505</cbc:Telephone>
-        <cbc:ElectronicMail>azure.Interior24@example.com</cbc:ElectronicMail>
+        <cbc:Telephone>(603)-996-3829</cbc:Telephone>
+        <cbc:ElectronicMail>deco.addict82@example.com</cbc:ElectronicMail>
       </cac:Contact>
     </cac:Party>
   </cac:AccountingCustomerParty>
   <cac:Delivery>
     <cac:DeliveryLocation>
       <cac:Address>
-        <cbc:StreetName>4557 De Silva St</cbc:StreetName>
-        <cbc:CityName>Fremont</cbc:CityName>
-        <cbc:PostalZone>94538</cbc:PostalZone>
+        <cbc:StreetName>77 Santa Barbara Rd</cbc:StreetName>
+        <cbc:CityName>Pleasant Hill</cbc:CityName>
+        <cbc:PostalZone>94523</cbc:PostalZone>
         <cbc:CountrySubentity>California</cbc:CountrySubentity>
         <cac:Country>
           <cbc:IdentificationCode>US</cbc:IdentificationCode>
@@ -78,39 +76,14 @@
       </cac:Address>
     </cac:DeliveryLocation>
   </cac:Delivery>
-  <cac:PaymentTerms>
-    <cbc:Note>This is a 'condition'!</cbc:Note>
-  </cac:PaymentTerms>
   <cac:TaxTotal>
-    <cbc:TaxAmount currencyID="SEK">917.35</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="SEK">11.75</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">474.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">0.0</cbc:TaxAmount>
-      <cac:TaxCategory>
-        <cbc:ID>Z</cbc:ID>
-        <cbc:Percent>0.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:TaxCategory>
-    </cac:TaxSubtotal>
-    <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">3631.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">907.75</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">47.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">11.75</cbc:TaxAmount>
       <cac:TaxCategory>
         <cbc:ID>S</cbc:ID>
         <cbc:Percent>25.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:TaxCategory>
-    </cac:TaxSubtotal>
-    <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">80.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">9.6</cbc:TaxAmount>
-      <cac:TaxCategory>
-        <cbc:ID>S</cbc:ID>
-        <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
@@ -118,20 +91,20 @@
     </cac:TaxSubtotal>
   </cac:TaxTotal>
   <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="SEK">4185.0</cbc:LineExtensionAmount>
-    <cbc:TaxExclusiveAmount currencyID="SEK">4185.0</cbc:TaxExclusiveAmount>
-    <cbc:TaxInclusiveAmount currencyID="SEK">5102.35</cbc:TaxInclusiveAmount>
-    <cbc:PayableAmount currencyID="SEK">5102.35</cbc:PayableAmount>
+    <cbc:LineExtensionAmount currencyID="SEK">47.0</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="SEK">47.0</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="SEK">58.75</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="SEK">58.75</cbc:PayableAmount>
   </cac:LegalMonetaryTotal>
   <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
-    <cbc:InvoicedQuantity unitCode="C62">2.0</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="SEK">3598.0</cbc:LineExtensionAmount>
+    <cbc:InvoicedQuantity unitCode="C62">1.0</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="SEK">47.0</cbc:LineExtensionAmount>
     <cac:Item>
-      <cbc:Description>A REALLY LONG DESCRIPTION OF A LARGE TABLE. IT IS LONG AND TABLE-LIKE.</cbc:Description>
-      <cbc:Name>Stort skrivbord</cbc:Name>
+      <cbc:Description>[E-COM10] Pedalhink</cbc:Description>
+      <cbc:Name>Pedalhink</cbc:Name>
       <cac:SellersItemIdentification>
-        <cbc:ID>E-COM09</cbc:ID>
+        <cbc:ID>E-COM10</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
         <cbc:ID>S</cbc:ID>
@@ -142,76 +115,7 @@
       </cac:ClassifiedTaxCategory>
     </cac:Item>
     <cac:Price>
-      <cbc:PriceAmount currencyID="SEK">1799.0</cbc:PriceAmount>
-      <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
-    </cac:Price>
-  </cac:InvoiceLine>
-  <cac:InvoiceLine>
-    <cbc:ID>2</cbc:ID>
-    <cbc:InvoicedQuantity unitCode="C62">6.0</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="SEK">474.0</cbc:LineExtensionAmount>
-    <cac:Item>
-      <cbc:Description>[E-COM08] Förvaringslåda</cbc:Description>
-      <cbc:Name>Förvaringslåda</cbc:Name>
-      <cac:SellersItemIdentification>
-        <cbc:ID>E-COM08</cbc:ID>
-      </cac:SellersItemIdentification>
-      <cac:ClassifiedTaxCategory>
-        <cbc:ID>Z</cbc:ID>
-        <cbc:Percent>0.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:ClassifiedTaxCategory>
-    </cac:Item>
-    <cac:Price>
-      <cbc:PriceAmount currencyID="SEK">79.0</cbc:PriceAmount>
-      <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
-    </cac:Price>
-  </cac:InvoiceLine>
-  <cac:InvoiceLine>
-    <cbc:ID>3</cbc:ID>
-    <cbc:InvoicedQuantity unitCode="C62">2.0</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="SEK">33.0</cbc:LineExtensionAmount>
-    <cac:Item>
-      <cbc:Description>[E-COM12] Konferensstol (KONFIG) (Steel)</cbc:Description>
-      <cbc:Name>Konferensstol (KONFIG)</cbc:Name>
-      <cac:SellersItemIdentification>
-        <cbc:ID>E-COM12</cbc:ID>
-      </cac:SellersItemIdentification>
-      <cac:ClassifiedTaxCategory>
-        <cbc:ID>S</cbc:ID>
-        <cbc:Percent>25.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:ClassifiedTaxCategory>
-    </cac:Item>
-    <cac:Price>
-      <cbc:PriceAmount currencyID="SEK">16.5</cbc:PriceAmount>
-      <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
-    </cac:Price>
-  </cac:InvoiceLine>
-  <cac:InvoiceLine>
-    <cbc:ID>4</cbc:ID>
-    <cbc:InvoicedQuantity unitCode="C62">2.0</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="SEK">80.0</cbc:LineExtensionAmount>
-    <cac:Item>
-      <cbc:Description>[FURN_8888] Kontorslampa</cbc:Description>
-      <cbc:Name>Kontorslampa</cbc:Name>
-      <cac:SellersItemIdentification>
-        <cbc:ID>FURN_8888</cbc:ID>
-      </cac:SellersItemIdentification>
-      <cac:ClassifiedTaxCategory>
-        <cbc:ID>S</cbc:ID>
-        <cbc:Percent>12.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:ClassifiedTaxCategory>
-    </cac:Item>
-    <cac:Price>
-      <cbc:PriceAmount currencyID="SEK">40.0</cbc:PriceAmount>
+      <cbc:PriceAmount currencyID="SEK">47.0</cbc:PriceAmount>
       <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
     </cac:Price>
   </cac:InvoiceLine>

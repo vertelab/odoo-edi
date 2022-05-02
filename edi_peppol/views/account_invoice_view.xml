@@ -7,9 +7,17 @@
             <button name="action_invoice_sent" position="before">
                 <button
                     type="object"
-                    name="peppol_button"
-                    string="Send via PEPPOL"
-                    help="TODO!"
+                    name="to_peppol_button"
+                    string="Export to PEPPOL"
+                    help="Create a XML file from the invoice which follows the PEPPOL protocol."
+                    attrs="{'invisible': [('state', '!=', 'posted')]}"
+                />
+                <button
+                    type="object"
+                    name="from_peppol_button"
+                    string="Import from PEPPOL"
+                    help="Imports a XML file, which follows the PEPPOL protocol, and writes its data to the current invoice."
+                    attrs="{'invisible': [('state', '=', 'posted')]}"
                 />
             </button>
         </field>

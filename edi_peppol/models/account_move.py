@@ -12,11 +12,13 @@ class Account_Move(models.Model):
     _description = "Module that facilitates convertion of buissness messages from and to PEPPOL."
 
 
-    def peppol_button(self):
+    def to_peppol_button(self):
         self.to_peppol()
-
         return None
 
+    def from_peppol_button(self):
+        _logger.error("Import Peppol button pressed, but no function is being called!")
+        return None
     
     def to_peppol(self):
         tree = etree.ElementTree(self.create_invoice())
