@@ -21,8 +21,8 @@
 ##############################################################################
 
 {
-    'name': 'EDI PEPPOL',
-    'summary': 'Module for sending and reciving PEPPOL',
+    'name': 'EDI PEPPOL from PEPPOL',
+    'summary': 'Module for importing from PEPPOL into Odoo',
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',
@@ -33,10 +33,10 @@
     #'license': 'AGPL-3',
     'website': 'https://vertel.se/apps/odoo-edi/edi_peppol/',
     'description': """
-        Implements a Framework for PEPPOL communication in Odoo.
+        Implements the shared functions needed for from-PEPPOL to-Odoo conversion, within the greater PEPPOL framework.
         14.0.0.0.0 - Initial version
     """,
-    'depends': ['base', 'l10n_se', 'edi_peppol_to_invoice', 'edi_peppol_to_order', 'edi_peppol_from_invoice'],
+    'depends': ['base', 'l10n_se', 'edi_peppol_base'],
     # Saxon-C-HE?
     #'external_dependencies': {
     #    'python': ['xlrd'],
@@ -46,9 +46,9 @@
              #'data/PEPPOL-EN16931-UBL.sch',
              #'data/iso_schematron_skeleton_for_saxon.xsl',
              #'data/instruction.toPeppol.csv',
-             'views/account_invoice_view.xml',
+             #'views/account_invoice_view.xml',
              ],
-    'installable': 'True',
+    'installable': 'False',
     'application': 'False',
 }
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

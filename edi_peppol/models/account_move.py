@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class Account_Move(models.Model):
     _name = "account.move"
-    _inherit = ["account.move", "peppol.toinvoice", "peppol.toorder"]
+    _inherit = ["account.move", "peppol.toinvoice", "peppol.toorder", "peppol.frominvoice"]
     _description = "Module that facilitates convertion of buissness messages from and to PEPPOL."
 
 
@@ -17,9 +17,9 @@ class Account_Move(models.Model):
         return None
 
     def from_peppol_button(self):
-        _logger.error("Import Peppol button pressed, but no function is being called!")
+        self.from_peppol()
         return None
-    
+  
     def to_peppol(self):
         tree = etree.ElementTree(self.create_invoice())
         #self.env['peppol.toinvoice'].create_invoice())
@@ -32,3 +32,11 @@ class Account_Move(models.Model):
         #_logger.warning("Starting validation attemps")
 
         #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+
+    def from_peppol(self):
+        tree = self.parse_xml('/usr/share/odoo-edi/edi_peppol/demo/output.xml')
+
+        if tree is None:
+            return None
+
+        self.import_invoice(tree)

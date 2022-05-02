@@ -36,7 +36,7 @@
         Implements the conversion of invoices from from-Odoo to-PEPPOL, within the greater PEPPOL framework.
         14.0.0.0.0 - Initial version
     """,
-    'depends': ['base', 'account', 'edi_peppol_to_peppol'],
+    'depends': ['base', 'l10n_se', 'edi_peppol_to_peppol'],
     # Saxon-C-HE?
     #'external_dependencies': {
     #    'python': ['xlrd'],

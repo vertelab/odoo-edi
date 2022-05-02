@@ -36,7 +36,7 @@
         Implements the shared functions needed for from-Odoo to-PEPPOL conversion, within the greater PEPPOL framework.
         14.0.0.0.0 - Initial version
     """,
-    'depends': ['base', 'account', 'edi_peppol_base'],
+    'depends': ['base', 'l10n_se', 'edi_peppol_base'],
     # Saxon-C-HE?
     #'external_dependencies': {
     #    'python': ['xlrd'],

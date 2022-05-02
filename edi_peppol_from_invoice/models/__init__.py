@@ -1,0 +1,1 @@
+from . import peppol_from_invoice
