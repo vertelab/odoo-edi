@@ -37,17 +37,8 @@
         14.0.0.0.0 - Initial version
     """,
     'depends': ['base','l10n_se', 'edi_peppol_validate'],
-    # Saxon-C-HE?
-    #'external_dependencies': {
-    #    'python': ['xlrd'],
-    #},
-    'data': [#'data/stylesheet-ubl.xslt',
-             #'data/CEN-EN16931-UBL.sch',
-             #'data/PEPPOL-EN16931-UBL.sch',
-             #'data/iso_schematron_skeleton_for_saxon.xsl',
-             #'data/instruction.toPeppol.csv',
-             #'views/account_invoice_view.xml',
-             ],
+    'data': ['security/ir.model.access.csv',
+            ],
     'installable': 'True',
     'application': 'False',
 }

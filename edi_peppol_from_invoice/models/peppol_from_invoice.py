@@ -38,6 +38,17 @@ class Peppol_From_Invoice(models.Model):
 
     #Base function for importing a Odoo Invoice, from a PEPPOL Invoice.
     def import_invoice(self, tree):
+        _logger.error("Now returning the ir.actions.act_window!")
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "res.currency",
+            "views": [[False, "tree"], [False, "form"]],
+            "target": "new",
+            "domain": [("id", "=", "18")],
+        }
+
+
+
 
         self.set_odoo_data(tree, 'account.move.invoice_date', 
                           xmlpath='/ubl:Invoice/cbc:IssueDate')

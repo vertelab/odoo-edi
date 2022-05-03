@@ -47,6 +47,8 @@
              #'data/iso_schematron_skeleton_for_saxon.xsl',
              #'data/instruction.toPeppol.csv',
              'views/account_invoice_view.xml',
+             'views/peppol_wizard_form.xml',
+             'security/ir.model.access.csv',
              ],
     'installable': 'True',
     'application': 'False',
