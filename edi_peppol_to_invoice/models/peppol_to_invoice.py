@@ -15,18 +15,17 @@ from odoorpc import ODOO
 
 _logger = logging.getLogger(__name__)
 
-class XMLNamespaces:
+class NSMAPS:
     cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
 
+    NSMAP={'cac':cac, 'cbc':cbc, None:empty}
 
-NSMAP={'cac':XMLNamespaces.cac, 'cbc':XMLNamespaces.cbc, None:XMLNamespaces.empty}
+    XNS={'cac':cac,   
+         'cbc':cbc}
 
-XNS={   'cac':XMLNamespaces.cac,   
-        'cbc':XMLNamespaces.cbc}
-
-ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
+    ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
 
 # This class handles spesificly the conversion of a Odoo Invoice, to a PEPPOL Invoice.
@@ -38,7 +37,7 @@ class Peppol_To_Invoice(models.Model):
     #Base function for converting a Odoo Invoice, to a PEPPOL Invoice.
     def create_invoice(self):
         currency = self.getfield('account.move.currency_id,res.currency.name')
-        invoice = etree.Element("Invoice", nsmap=NSMAP)
+        invoice = etree.Element("Invoice", nsmap=NSMAPS.NSMAP)
 
         self.convert_field(invoice, 'Invoice', 'CustomizationID', 
                            text='urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0')
@@ -119,7 +118,7 @@ class Peppol_To_Invoice(models.Model):
                            attri='currencyID:'+currency)
 
         for vat_rate in self.get_all_different_vat_rates():
-            new_tax_subtotal = etree.Element(etree.QName(NSMAP['cac'], 'TaxSubtotal'), nsmap=NSMAP)
+            new_tax_subtotal = etree.Element(etree.QName(NSMAPS.NSMAP['cac'], 'TaxSubtotal'), nsmap=NSMAPS.NSMAP)
 
             self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal', 'TaxableAmount', 
                                text=self.get_taxable_amount_for_vat_rate(vat_rate[0]), 
@@ -142,7 +141,7 @@ class Peppol_To_Invoice(models.Model):
             #TODO: Make this skip if this vat is 'false' for some reason.
             #if XPATH
 
-            invoice.xpath('/Invoice/cac:TaxTotal', namespaces=XNS)[0].append(new_tax_subtotal)
+            invoice.xpath('/Invoice/cac:TaxTotal', namespaces=NSMAPS.XNS)[0].append(new_tax_subtotal)
 
         #Legal Monetary Total
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'LineExtensionAmount', 
@@ -169,7 +168,7 @@ class Peppol_To_Invoice(models.Model):
         n = 0
         for line in self['invoice_line_ids']:
             n += 1
-            new_line = etree.Element(etree.QName(NSMAP['cac'], 'InvoiceLine'), nsmap=NSMAP)
+            new_line = etree.Element(etree.QName(NSMAPS.NSMAP['cac'], 'InvoiceLine'), nsmap=NSMAPS.NSMAP)
 
             if self.getfield('account.move.line.display_type', line) != False:
                 continue
@@ -178,7 +177,7 @@ class Peppol_To_Invoice(models.Model):
                 #self.convert_field(new_line, 'cac:InvoiceLine', 'ID', text=str(n), recordset=line)
                 #self.convert_field(new_line, 'cac:InvoiceLine/cac:Item', 'Name', datamodule='account.move.line.name', recordset=line)
             #else:
-            self.convert_field(new_line, 'cac:InvoiceLine', 'ID', 
+            self.convert_field(new_line, 'cac:InvoiceLine', 'ID',  
                                text=str(n), 
                                recordset=line)
             #Not Handled: InvoiceLine/Note: This does not exist built into the line, but as a seperate line. https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/

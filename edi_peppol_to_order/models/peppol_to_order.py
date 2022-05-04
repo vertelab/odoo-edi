@@ -16,17 +16,17 @@ from odoorpc import ODOO
 
 _logger = logging.getLogger(__name__)
 
-class XMLNamespaces:
+class NSMAPS:
     cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
 
-NSMAP={'cac':XMLNamespaces.cac, 'cbc':XMLNamespaces.cbc, None:XMLNamespaces.empty}
+    NSMAP={'cac':cac, 'cbc':cbc, None:empty}
 
-XNS={   'cac':XMLNamespaces.cac,   
-        'cbc':XMLNamespaces.cbc}
+    XNS={'cac':cac,   
+         'cbc':cbc}
 
-ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
+    ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
 
 class Peppol_To_Order(models.Model):
@@ -36,7 +36,7 @@ class Peppol_To_Order(models.Model):
 
 
     def create_order(self):
-        invoice = etree.Element("Invoice", nsmap=NSMAP)
+        invoice = etree.Element("Invoice", nsmap=NSMAPS.NSMAP)
 
         _logger.warning("Running Create_Order!")
 

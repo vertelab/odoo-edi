@@ -8,21 +8,19 @@ from odoorpc import ODOO
 
 _logger = logging.getLogger(__name__)
 
-class XMLNamespaces:
+class NSMAPS:
     cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
 
+    NSMAP={'cac':cac, 'cbc':cbc, None:empty}
 
-NSMAP={'cac':XMLNamespaces.cac, 'cbc':XMLNamespaces.cbc, None:XMLNamespaces.empty}
+    XNS={'cac':cac,   
+         'cbc':cbc}
 
-XNS={   'cac':XMLNamespaces.cac,   
-        'cbc':XMLNamespaces.cbc}
+    ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
-ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
-
-
-class Peppol_To_Peppol(models.Model):
+class Peppol_To_Peppol(models.TransientModel):
     _name = "peppol.topeppol"
     _inherit = ["peppol.base"]
     _description = "Module for converting from Odoo to PEPPOL"
@@ -38,7 +36,7 @@ class Peppol_To_Peppol(models.Model):
         else:
             nsp = 'cbc'
 
-        result = etree.SubElement(parent, etree.QName(NSMAP[nsp], tag))
+        result = etree.SubElement(parent, etree.QName(NSMAPS.NSMAP[nsp], tag))
         if value is not None:
             result.text = self.convert_to_string(value).strip()
 
@@ -49,6 +47,7 @@ class Peppol_To_Peppol(models.Model):
 
         return result
 
+    """
     def getfield(self, lookup, inst=None):
 
         if lookup is None:
@@ -76,7 +75,8 @@ class Peppol_To_Peppol(models.Model):
             next_module = ln[0].rsplit('.', 1)[0] 
             inst = inst.env[next_module].browse(current_field_value.id)  
             return self.getfield(l[1], inst)
-
+    """
+    
     def convert_field(  self,
                         tree,
                         fullParent, 
@@ -105,8 +105,8 @@ class Peppol_To_Peppol(models.Model):
         path = '/'
         for parent in parents:
             if parent != "Invoice":
-                if len(tree.xpath(path + '/' + parent, namespaces=XNS)) == 0:
-                    self.create_SubElement(tree.xpath(path, namespaces=XNS)[0], 
+                if len(tree.xpath(path + '/' + parent, namespaces=NSMAPS.XNS)) == 0:
+                    self.create_SubElement(tree.xpath(path, namespaces=NSMAPS.XNS)[0], 
                                            parent.split(':')[1])
             path = path + '/' + parent
 
@@ -124,7 +124,7 @@ class Peppol_To_Peppol(models.Model):
         new_element = None
         if value != None:
             new_element = self.create_SubElement(tree.xpath(path, 
-                                                            namespaces=XNS)[0],
+                                                            namespaces=NSMAPS.XNS)[0],
                                                             tag, 
                                                             value, 
                                                             attribute[0], 

@@ -7,7 +7,8 @@
 
 import logging, inspect, datetime
 
-from lxml import etree
+from lxml import etree, objectify
+from numpy import percentile
 
 from odoo import models, api, _, fields
 from odoorpc import ODOO
@@ -15,19 +16,19 @@ from odoorpc import ODOO
 
 _logger = logging.getLogger(__name__)
 
-class XMLNamespaces:
+class NSMAPS:
     cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
 
+    NSMAP={'cac':cac, 'cbc':cbc, 'ubl':empty}
 
-NSMAP={'cac':XMLNamespaces.cac, 'cbc':XMLNamespaces.cbc, None:XMLNamespaces.empty}
+    XNS={'cac':cac,   
+         'cbc':cbc,
+         'ubl':empty}
 
-XNS={   'cac':XMLNamespaces.cac,   
-        'cbc':XMLNamespaces.cbc,   
-        'ubl':XMLNamespaces.empty}
+    ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
-ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
 
 # This class handles spesificly the conversion of a Odoo Invoice, to a PEPPOL Invoice.
@@ -38,6 +39,7 @@ class Peppol_From_Invoice(models.Model):
 
     #Base function for importing a Odoo Invoice, from a PEPPOL Invoice.
     def import_invoice(self, tree):
+        """
         _logger.error("Now returning the ir.actions.act_window!")
         return {
             "type": "ir.actions.act_window",
@@ -46,16 +48,51 @@ class Peppol_From_Invoice(models.Model):
             "target": "new",
             "domain": [("id", "=", "18")],
         }
-
-
-
-
+        """
+        #Basic Fields
         self.set_odoo_data(tree, 'account.move.invoice_date', 
                           xmlpath='/ubl:Invoice/cbc:IssueDate')
         self.set_odoo_data(tree, 'account.move.invoice_date_due', 
                            '/ubl:Invoice/cbc:DueDate')
         self.set_odoo_data(tree, 'account.move.currency_id',
                            text=self.get_currency_by_name())
+
+        #Check own Company
+        correct_company = self.is_company_info_correct(tree, 'account.move.company_id', 
+                                                       xmlpath='/ubl:Invoice/cac:AccountingCustomerParty/cac:Party')
+        if correct_company != True:
+            return self.user_choice_window("Could not confirm this invoice is for this company.")
+
+        #Check and import Partner Company
+        partner_id = self.find_company_id(tree, 
+                                          xmlpath='/ubl:Invoice/cac:AccountingSupplierParty/cac:Party')
+        if partner_id is None:
+            return self.user_choice_window("Could not find selling company in the database.")
+        self.set_odoo_data(tree, 'account.move.partner_id', 
+                           text=partner_id)    
+        correct_company = self.is_company_info_correct(tree, 'account.move.partner_id', 
+                                                       xmlpath='/ubl:Invoice/cac:AccountingSupplierParty/cac:Party')
+        if correct_company != True:
+            return self.user_choice_window("Found discrepency between the data of the selling company in the invoice, and the selling company in the database.")                   
+
+        #Check and import item lines.
+        for xmlline in tree.xpath('/ubl:Invoice/cac:InvoiceLine', namespaces=NSMAPS.XNS):
+
+            #name = line.xpath('./cac:Item/cbc:Name', namespaces=NSMAPS.XNS)[0].text
+            #percent = line.xpath('./cac:Item/cac:ClassifiedTaxCategory/cbc:Percent', namespaces=NSMAPS.XNS)[0].text
+            #price = line.xpath('./cac:Price/cbc:PriceAmount', namespaces=NSMAPS.XNS)[0].text
+            #sellers_id = line.xpath('./cac:Item/cac:SellersItemIdentification/cbc:ID', namespaces=NSMAPS.XNS)[0].text
+            #_logger.error(f"{name=}" + " | " + f"{percent=}" + " | " + f"{price=}")
+            #_logger.error(f"{sellers_id=}")
+            #product.product.name
+            #items = self.env['product.product'].search([('default_code', '=', sellers_id)])
+
+            #_logger.error(f"{items=}")
+
+            line = self.env['account.move.line'].create([{'name': 'TESTING!'},{'move_id': self.id}])
+            #move_id=self.id, name="TESTING!"
+            self.append_odoo_data(tree, 'account.move.invoice_line_ids', text=line.id)
+
 
         #_logger.error(self.currency_id)
         #_logger.error(self.get_currency_by_name())

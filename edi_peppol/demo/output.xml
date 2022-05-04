@@ -10,6 +10,32 @@
   <cbc:BuyerReference>abs1234</cbc:BuyerReference>
   <cac:AccountingSupplierParty>
     <cac:Party>
+      <cbc:EndpointID schemeID="9955">SE810354746201</cbc:EndpointID>
+      <cac:PostalAddress>
+        <cbc:StreetName>Storgatan 12</cbc:StreetName>
+        <cbc:CityName>Ängelholms kommun</cbc:CityName>
+        <cbc:PostalZone>262 64</cbc:PostalZone>
+        <cac:Country>
+          <cbc:IdentificationCode>SE</cbc:IdentificationCode>
+        </cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyTaxScheme>
+        <cbc:CompanyID>SE810354746201</cbc:CompanyID>
+        <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:PartyTaxScheme>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>SE Company</cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+      <cac:Contact>
+        <cbc:Telephone>+46 70 123 45 67</cbc:Telephone>
+        <cbc:ElectronicMail>info@company.seexample.com</cbc:ElectronicMail>
+      </cac:Contact>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
       <cbc:EndpointID schemeID="9955">SE556936370701</cbc:EndpointID>
       <cac:PostalAddress>
         <cbc:StreetName>250 Executive Park Blvd</cbc:StreetName>
@@ -37,63 +63,25 @@
         <cbc:ElectronicMail>info@yourcompany.com</cbc:ElectronicMail>
       </cac:Contact>
     </cac:Party>
-  </cac:AccountingSupplierParty>
-  <cac:AccountingCustomerParty>
-    <cac:Party>
-      <cbc:EndpointID schemeID="9955">SE556033428501</cbc:EndpointID>
-      <cac:PostalAddress>
-        <cbc:StreetName>4557 De Silva St</cbc:StreetName>
-        <cbc:CityName>Fremont</cbc:CityName>
-        <cbc:PostalZone>94538</cbc:PostalZone>
-        <cbc:CountrySubentity>California</cbc:CountrySubentity>
-        <cac:Country>
-          <cbc:IdentificationCode>US</cbc:IdentificationCode>
-        </cac:Country>
-      </cac:PostalAddress>
-      <cac:PartyTaxScheme>
-        <cbc:CompanyID>SE556033428501</cbc:CompanyID>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:PartyTaxScheme>
-      <cac:PartyLegalEntity>
-        <cbc:RegistrationName>Azure Interior</cbc:RegistrationName>
-      </cac:PartyLegalEntity>
-      <cac:Contact>
-        <cbc:Telephone>(870)-931-0505</cbc:Telephone>
-        <cbc:ElectronicMail>azure.Interior24@example.com</cbc:ElectronicMail>
-      </cac:Contact>
-    </cac:Party>
   </cac:AccountingCustomerParty>
   <cac:Delivery>
     <cac:DeliveryLocation>
       <cac:Address>
-        <cbc:StreetName>4557 De Silva St</cbc:StreetName>
-        <cbc:CityName>Fremont</cbc:CityName>
-        <cbc:PostalZone>94538</cbc:PostalZone>
-        <cbc:CountrySubentity>California</cbc:CountrySubentity>
+        <cbc:StreetName>250 Executive Park Blvd</cbc:StreetName>
+        <cbc:CityName>Mjölby</cbc:CityName>
+        <cbc:PostalZone>94134</cbc:PostalZone>
+        <cbc:CountrySubentity>Östergötlands län</cbc:CountrySubentity>
+        <cac:AddressLine>
+          <cbc:Line>Suite 3400</cbc:Line>
+        </cac:AddressLine>
         <cac:Country>
-          <cbc:IdentificationCode>US</cbc:IdentificationCode>
+          <cbc:IdentificationCode>SE</cbc:IdentificationCode>
         </cac:Country>
       </cac:Address>
     </cac:DeliveryLocation>
   </cac:Delivery>
-  <cac:PaymentTerms>
-    <cbc:Note>This is a 'condition'!</cbc:Note>
-  </cac:PaymentTerms>
   <cac:TaxTotal>
     <cbc:TaxAmount currencyID="SEK">917.35</cbc:TaxAmount>
-    <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">80.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">9.6</cbc:TaxAmount>
-      <cac:TaxCategory>
-        <cbc:ID>S</cbc:ID>
-        <cbc:Percent>12.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:TaxCategory>
-    </cac:TaxSubtotal>
     <cac:TaxSubtotal>
       <cbc:TaxableAmount currencyID="SEK">474.0</cbc:TaxableAmount>
       <cbc:TaxAmount currencyID="SEK">0.0</cbc:TaxAmount>
@@ -111,6 +99,17 @@
       <cac:TaxCategory>
         <cbc:ID>S</cbc:ID>
         <cbc:Percent>25.0</cbc:Percent>
+        <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="SEK">80.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">9.6</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:ID>S</cbc:ID>
+        <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
