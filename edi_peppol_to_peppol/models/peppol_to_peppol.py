@@ -20,7 +20,7 @@ class NSMAPS:
 
     ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
-class Peppol_To_Peppol(models.TransientModel):
+class Peppol_To_Peppol(models.Model):
     _name = "peppol.topeppol"
     _inherit = ["peppol.base"]
     _description = "Module for converting from Odoo to PEPPOL"

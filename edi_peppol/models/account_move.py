@@ -39,6 +39,8 @@ class Account_Move(models.Model):
         #self.env['peppol.toinvoice'].create_invoice())
         #_logger.warning("XML has ID: " + tree.xpath('/Invoice/cbc:ID/text()', namespaces=XNS)[0])
         #tree = etree.ElementTree(self.create_order())
+
+        _logger.error(self.invoice_line_ids)
         
         tree.write('/usr/share/odoo-edi/edi_peppol/demo/output.xml', xml_declaration=True, encoding='UTF-8', pretty_print=True)
 
@@ -64,14 +66,18 @@ class Account_Move(models.Model):
 
         #_logger.warning(isinstance(tree.getroot(), objectify.ObjectifiedElement)) #TODO: Make this into a actual error check, as this should always be 'True'!
 
-        _logger.warning(f"{tree=}")
+        #_logger.warning(f"{tree=}")
 
         if tree is None:
             return None
 
         #return self.user_choice_window()
 
-        return self.import_invoice(tree)
+        tmp = self.import_invoice(tree)
+
+        #_logger.error(self.invoice_line_ids)
+
+        return tmp
 
 
 

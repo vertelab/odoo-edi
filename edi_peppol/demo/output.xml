@@ -32,7 +32,7 @@
         <cbc:Telephone>+46 70 123 45 67</cbc:Telephone>
         <cbc:ElectronicMail>info@company.seexample.com</cbc:ElectronicMail>
       </cac:Contact>
-    </cac:Party>
+    </cac:Party>  
   </cac:AccountingSupplierParty>
   <cac:AccountingCustomerParty>
     <cac:Party>
@@ -67,13 +67,9 @@
   <cac:Delivery>
     <cac:DeliveryLocation>
       <cac:Address>
-        <cbc:StreetName>250 Executive Park Blvd</cbc:StreetName>
-        <cbc:CityName>Mjölby</cbc:CityName>
-        <cbc:PostalZone>94134</cbc:PostalZone>
-        <cbc:CountrySubentity>Östergötlands län</cbc:CountrySubentity>
-        <cac:AddressLine>
-          <cbc:Line>Suite 3400</cbc:Line>
-        </cac:AddressLine>
+        <cbc:StreetName>Storgatan 12</cbc:StreetName>
+        <cbc:CityName>Ängelholms kommun</cbc:CityName>
+        <cbc:PostalZone>262 64</cbc:PostalZone>
         <cac:Country>
           <cbc:IdentificationCode>SE</cbc:IdentificationCode>
         </cac:Country>
@@ -81,12 +77,11 @@
     </cac:DeliveryLocation>
   </cac:Delivery>
   <cac:TaxTotal>
-    <cbc:TaxAmount currencyID="SEK">917.35</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="SEK">958.36</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">474.0</cbc:TaxableAmount>
+      <cbc:TaxableAmount currencyID="SEK">80.0</cbc:TaxableAmount>
       <cbc:TaxAmount currencyID="SEK">0.0</cbc:TaxAmount>
       <cac:TaxCategory>
-        <cbc:ID>Z</cbc:ID>
         <cbc:Percent>0.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
@@ -94,10 +89,19 @@
       </cac:TaxCategory>
     </cac:TaxSubtotal>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">3631.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">907.75</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">33.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">1.98</cbc:TaxAmount>
       <cac:TaxCategory>
-        <cbc:ID>S</cbc:ID>
+        <cbc:Percent>6.0</cbc:Percent>
+        <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="SEK">3598.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">899.5</cbc:TaxAmount>
+      <cac:TaxCategory>
         <cbc:Percent>25.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
@@ -105,10 +109,9 @@
       </cac:TaxCategory>
     </cac:TaxSubtotal>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">80.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">9.6</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">474.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">56.88</cbc:TaxAmount>
       <cac:TaxCategory>
-        <cbc:ID>S</cbc:ID>
         <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
@@ -119,8 +122,8 @@
   <cac:LegalMonetaryTotal>
     <cbc:LineExtensionAmount currencyID="SEK">4185.0</cbc:LineExtensionAmount>
     <cbc:TaxExclusiveAmount currencyID="SEK">4185.0</cbc:TaxExclusiveAmount>
-    <cbc:TaxInclusiveAmount currencyID="SEK">5102.35</cbc:TaxInclusiveAmount>
-    <cbc:PayableAmount currencyID="SEK">5102.35</cbc:PayableAmount>
+    <cbc:TaxInclusiveAmount currencyID="SEK">5143.36</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="SEK">5143.36</cbc:PayableAmount>
   </cac:LegalMonetaryTotal>
   <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
@@ -133,7 +136,6 @@
         <cbc:ID>E-COM09</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
-        <cbc:ID>S</cbc:ID>
         <cbc:Percent>25.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
@@ -156,8 +158,7 @@
         <cbc:ID>E-COM08</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
-        <cbc:ID>Z</cbc:ID>
-        <cbc:Percent>0.0</cbc:Percent>
+        <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
@@ -179,8 +180,7 @@
         <cbc:ID>E-COM12</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
-        <cbc:ID>S</cbc:ID>
-        <cbc:Percent>25.0</cbc:Percent>
+        <cbc:Percent>6.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
@@ -202,8 +202,7 @@
         <cbc:ID>FURN_8888</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
-        <cbc:ID>S</cbc:ID>
-        <cbc:Percent>12.0</cbc:Percent>
+        <cbc:Percent>0.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>

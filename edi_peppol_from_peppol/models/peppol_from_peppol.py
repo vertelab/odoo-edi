@@ -39,7 +39,9 @@ class Peppol_From_Peppol(models.Model):
             return tree
 
     def append_odoo_data(self, tree, destination, xmlpath=None, text=None):
-        self.set_odoo_data(self, tree, destination, xmlpath, text, True)
+        _logger.error(inspect.currentframe().f_code.co_name + ": " +
+                      "THIS FUNCTION IS NOT CORRECTLY IMPLEMENTED YET!")
+        self.set_odoo_data(tree, destination, xmlpath, text, True)
 
 
 
@@ -58,7 +60,8 @@ class Peppol_From_Peppol(models.Model):
             self.set_odoo_value(destination, value)
         except Exception as e:
             _logger.error(inspect.currentframe().f_code.co_name + ": " + 
-            "Tried to export value to odoo, but failed to, due to: " + f"{e}")
+            "With " + f"{append=}" + " tried to export " + f"{value=}" + " to odoo, but failed due to:")
+            _logger.exception(e)
             #_logger.error(e)
 
     def get_xml(self, tree, xmlpath, iteration=0):
@@ -143,3 +146,13 @@ class Peppol_From_Peppol(models.Model):
 
         #_logger.error(inspect.currentframe().f_code.co_name + ": " + f"{self.env['res.partner'].search([('vat', '=', endpointID),('is_company', '=', 't')]).id=}")
         return self.env['res.partner'].search([('vat', '=', endpointID),('is_company', '=', 't')]).id
+
+    def get_vat_id(self, peppol_rate):
+        odoo_vat_name = self.translate_tax_category_to_peppol(peppol_rate)
+        if odoo_vat_name:
+            #_logger.error(inspect.currentframe().f_code.co_name + ": " + f"{self.env['account.tax'].search([('name', '=', odoo_vat_name)])=}")
+            try:
+                return self.env['account.tax'].search([('name', '=', odoo_vat_name)])[0]
+            except:
+                _logger.error(inspect.currentframe().f_code.co_name + ": Was unable to find the tax group named: " + f"{odoo_vat_name=}" + " despite it being expected.")
+        return None

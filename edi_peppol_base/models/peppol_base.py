@@ -16,7 +16,20 @@ from odoorpc import ODOO
 
 _logger = logging.getLogger(__name__)
 
-class NSMAPS:
+class NSMAPF:
+    cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+    cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+    empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+
+    NSMAP={'cac':cac, 'cbc':cbc, 'ubl':empty}
+
+    XNS={'cac':cac,   
+         'cbc':cbc,
+         'ubl':empty}
+
+    ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
+
+class NSMAPT:
     cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
@@ -28,7 +41,7 @@ class NSMAPS:
 
     ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
-class Peppol_Base(models.TransientModel):
+class Peppol_Base(models.Model):
     _name = "peppol.base"
     _description = "Base module which contains functions to assist in converting between PEPPOL and Odoo."
 
@@ -47,17 +60,15 @@ class Peppol_Base(models.TransientModel):
                       " is not being handled like it should!")
         return None
     
+    # Translates the base swedish vat-taxes, from Odoo into PEPPOL format.
     def translate_tax_category_to_peppol(self, input):
         tax_category_dict = {
-            "MP1" : "S",
-            "MP1i" : "S",
-            "MP2" : "S",
-            "MP2i" : "S",
-            "MP3" : "S",
-            "MP3i" : "S",
-            "MF" : "Z",
-            "FVEU0" : "Z",
-            "FVUEU0" : "Z"
+            'MP1' : 'S',
+            'MP2' : 'S',
+            'MP3' : 'S',
+            'MF' : 'Z',
+            'FVEU0' : 'Z',
+            'FVUEU0' : 'Z',
         }
         output = None
         try:
@@ -66,7 +77,25 @@ class Peppol_Base(models.TransientModel):
             _logger.error(inspect.currentframe().f_code.co_name + 
                           ": Tax code of " + 
                           str(f"{input=}") + 
-                          " could not be translated!")
+                          " could not be translated into PEPPOL format!")
+        return output
+
+    # Translates the base swedish vat-taxes, from PEPPOL format into Odoo.
+    def translate_tax_category_to_peppol(self, input):
+        tax_category_dict = {
+            '25.0' : 'I',
+            '12.0' : 'I12',
+            '6.0' : 'I6',
+        }
+        output = None
+        #input = int(input)
+        try:
+            output = tax_category_dict[input]       
+        except:
+            _logger.error(inspect.currentframe().f_code.co_name + 
+                          ": Tax code of " + 
+                          str(f"{input=}") + 
+                          " could not be translated into Odoo format!")
         return output
 
     def user_choice_window(self, msg="No message text given!", state=None):
@@ -84,7 +113,7 @@ class Peppol_Base(models.TransientModel):
             #"views": [[False, "tree"], [False, "form"]],
             'target': 'new',
             #"domain": [("amount_total_signed", "!=", "0")],
-            'res_id': value.id
+            'res_id': value.id,
         }
     
     def getfield(self, lookup, inst=None):
@@ -102,7 +131,7 @@ class Peppol_Base(models.TransientModel):
             current_field_value = inst[current_field_name]
         except:
             _logger.warning(inspect.currentframe().f_code.co_name + ": " + 
-                            "exception found when trying to find: " + 
+                            "Exception found when trying to find: " + 
                             f"{current_field_name=}" + " for inst: " + 
                             str(f"{inst=}"))
             return None
@@ -114,3 +143,23 @@ class Peppol_Base(models.TransientModel):
             next_module = ln[0].rsplit('.', 1)[0] 
             inst = inst.env[next_module].browse(current_field_value.id)  
             return self.getfield(l[1], inst)    
+
+    #xpath command for the 'From odoo' way
+    def xpf(self, tree, path):
+        return tree.xpath(path, namespaces=NSMAPF.XNS)
+
+    #xpath command for the 'From odoo' way which returns the first found elements text
+    def xpft(self, tree, path):
+        try:
+            #_logger.warning(inspect.currentframe().f_code.co_name + ": " +
+            #                "Returning " + f"{self.xpf(tree, path)[0].text}" + 
+            #                " for " + f"{path=}")
+            return self.xpf(tree, path)[0].text
+        except BaseException as e:
+            _logger.error(inspect.currentframe().f_code.co_name + ": " + 
+                          "Exception when trying to find text for: " + 
+                            f"{path=}" + " with the exception: " + 
+                            f"{e=}")
+    #xpath command for the 'To odoo' way    
+    def xpt(self, tree, path):
+        return tree.xpath(path, namespaces=NSMAPT.XNS)
