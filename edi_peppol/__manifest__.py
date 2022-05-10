@@ -36,7 +36,7 @@
         Implements a Framework for PEPPOL communication in Odoo.
         14.0.0.0.0 - Initial version
     """,
-    'depends': ['base', 'l10n_se', 'edi_peppol_to_invoice', 'edi_peppol_to_order', 'edi_peppol_from_invoice'],
+    'depends': ['base', 'l10n_se', 'purchase', 'edi_peppol_to_invoice', 'edi_peppol_to_order', 'edi_peppol_from_invoice'],
     # Saxon-C-HE?
     #'external_dependencies': {
     #    'python': ['xlrd'],

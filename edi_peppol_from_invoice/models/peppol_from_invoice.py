@@ -84,6 +84,8 @@ class Peppol_From_Invoice(models.Model):
         # Check and import item lines.
         # TODO: Currently this line is created independently of product.product. There should be a link there. Also, make the 'inköp' module a dependancy, and get the producer/sellers-id pair from there.
         for xmlline in self.xpf(tree, '/ubl:Invoice/cac:InvoiceLine'):
+            # TODO: Do a search from the line item for a product.product, which has the same seller-id as the company this invoice came from. If none can be found, give a warning the first time this happens, then continiue with the product.product independant import.
+            #       If a product.product can be found, error check it with the incoming information, and throw a error if a missmatch is found.
             try:
                 quantity = float(self.xpft(xmlline, './cbc:InvoicedQuantity'))
                 unit_price = float(self.xpft(xmlline, './cac:Price/cbc:PriceAmount')) 
