@@ -77,42 +77,12 @@
     </cac:DeliveryLocation>
   </cac:Delivery>
   <cac:TaxTotal>
-    <cbc:TaxAmount currencyID="SEK">958.36</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="SEK">5.0</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">80.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">0.0</cbc:TaxAmount>
-      <cac:TaxCategory>
-        <cbc:Percent>0.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:TaxCategory>
-    </cac:TaxSubtotal>
-    <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">33.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">1.98</cbc:TaxAmount>
-      <cac:TaxCategory>
-        <cbc:Percent>6.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:TaxCategory>
-    </cac:TaxSubtotal>
-    <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">3598.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">899.5</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">20.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">5.0</cbc:TaxAmount>
       <cac:TaxCategory>
         <cbc:Percent>25.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:TaxCategory>
-    </cac:TaxSubtotal>
-    <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">474.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">56.88</cbc:TaxAmount>
-      <cac:TaxCategory>
-        <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
@@ -120,20 +90,20 @@
     </cac:TaxSubtotal>
   </cac:TaxTotal>
   <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="SEK">4185.0</cbc:LineExtensionAmount>
-    <cbc:TaxExclusiveAmount currencyID="SEK">4185.0</cbc:TaxExclusiveAmount>
-    <cbc:TaxInclusiveAmount currencyID="SEK">5143.36</cbc:TaxInclusiveAmount>
-    <cbc:PayableAmount currencyID="SEK">5143.36</cbc:PayableAmount>
+    <cbc:LineExtensionAmount currencyID="SEK">20.0</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="SEK">20.0</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="SEK">25.0</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="SEK">25.0</cbc:PayableAmount>
   </cac:LegalMonetaryTotal>
   <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
     <cbc:InvoicedQuantity unitCode="C62">2.0</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="SEK">3598.0</cbc:LineExtensionAmount>
+    <cbc:LineExtensionAmount currencyID="SEK">20.0</cbc:LineExtensionAmount>
     <cac:Item>
-      <cbc:Description>A REALLY LONG DESCRIPTION OF A LARGE TABLE. IT IS LONG AND TABLE-LIKE.</cbc:Description>
-      <cbc:Name>Stort skrivbord</cbc:Name>
+      <cbc:Description>En trevlig mugg.</cbc:Description>
+      <cbc:Name>Mugg</cbc:Name>
       <cac:SellersItemIdentification>
-        <cbc:ID>E-COM09</cbc:ID>
+        <cbc:ID>M001</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
         <cbc:Percent>25.0</cbc:Percent>
@@ -143,73 +113,7 @@
       </cac:ClassifiedTaxCategory>
     </cac:Item>
     <cac:Price>
-      <cbc:PriceAmount currencyID="SEK">1799.0</cbc:PriceAmount>
-      <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
-    </cac:Price>
-  </cac:InvoiceLine>
-  <cac:InvoiceLine>
-    <cbc:ID>2</cbc:ID>
-    <cbc:InvoicedQuantity unitCode="C62">6.0</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="SEK">474.0</cbc:LineExtensionAmount>
-    <cac:Item>
-      <cbc:Description>[E-COM08] Förvaringslåda</cbc:Description>
-      <cbc:Name>Förvaringslåda</cbc:Name>
-      <cac:SellersItemIdentification>
-        <cbc:ID>E-COM08</cbc:ID>
-      </cac:SellersItemIdentification>
-      <cac:ClassifiedTaxCategory>
-        <cbc:Percent>12.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:ClassifiedTaxCategory>
-    </cac:Item>
-    <cac:Price>
-      <cbc:PriceAmount currencyID="SEK">79.0</cbc:PriceAmount>
-      <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
-    </cac:Price>
-  </cac:InvoiceLine>
-  <cac:InvoiceLine>
-    <cbc:ID>3</cbc:ID>
-    <cbc:InvoicedQuantity unitCode="C62">2.0</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="SEK">33.0</cbc:LineExtensionAmount>
-    <cac:Item>
-      <cbc:Description>[E-COM12] Konferensstol (KONFIG) (Steel)</cbc:Description>
-      <cbc:Name>Konferensstol (KONFIG)</cbc:Name>
-      <cac:SellersItemIdentification>
-        <cbc:ID>E-COM12</cbc:ID>
-      </cac:SellersItemIdentification>
-      <cac:ClassifiedTaxCategory>
-        <cbc:Percent>6.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:ClassifiedTaxCategory>
-    </cac:Item>
-    <cac:Price>
-      <cbc:PriceAmount currencyID="SEK">16.5</cbc:PriceAmount>
-      <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
-    </cac:Price>
-  </cac:InvoiceLine>
-  <cac:InvoiceLine>
-    <cbc:ID>4</cbc:ID>
-    <cbc:InvoicedQuantity unitCode="C62">2.0</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="SEK">80.0</cbc:LineExtensionAmount>
-    <cac:Item>
-      <cbc:Description>[FURN_8888] Kontorslampa</cbc:Description>
-      <cbc:Name>Kontorslampa</cbc:Name>
-      <cac:SellersItemIdentification>
-        <cbc:ID>FURN_8888</cbc:ID>
-      </cac:SellersItemIdentification>
-      <cac:ClassifiedTaxCategory>
-        <cbc:Percent>0.0</cbc:Percent>
-        <cac:TaxScheme>
-          <cbc:ID>VAT</cbc:ID>
-        </cac:TaxScheme>
-      </cac:ClassifiedTaxCategory>
-    </cac:Item>
-    <cac:Price>
-      <cbc:PriceAmount currencyID="SEK">40.0</cbc:PriceAmount>
+      <cbc:PriceAmount currencyID="SEK">10.0</cbc:PriceAmount>
       <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
     </cac:Price>
   </cac:InvoiceLine>

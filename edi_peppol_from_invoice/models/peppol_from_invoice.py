@@ -84,56 +84,90 @@ class Peppol_From_Invoice(models.Model):
         # Check and import item lines.
         # TODO: Currently this line is created independently of product.product. There should be a link there. Also, make the 'inköp' module a dependancy, and get the producer/sellers-id pair from there.
         for xmlline in self.xpf(tree, '/ubl:Invoice/cac:InvoiceLine'):
+            # create a new empty line
+            """
+            line = self.env['account.move.line'].create(
+                                                {'move_id': self.id,
+                                                #'quantity': quantity, #TODO: Add the 'type' of quantity. (For example: It coudl be 'hours', or 'liters' or anything like that.)
+                                                #'name': self.xpft(xmlline, './cac:Item/cbc:Name'), #TODO: This should be description, not 'name'.
+                                                #TODO: This line should move over the name of the item
+                                                #TODO: This line should convert the taxes into the odoo tax tags
+                                                'account_id': 1253, #TODO: This is hard coded to be intra-sweden item purchases. Should be made dynamic.
+                                                'price_unit': unit_price,
+                                                #'discount': 0,
+                                                #'tax_ids': self.get_vat_id(self.xpft(xmlline, './cac:Item/cac:ClassifiedTaxCategory/cbc:Percent'))
+                                                })
+            self._recompute_dynamic_lines(True)
+
+            #line.price_unit = float(self.xpft(xmlline, './cac:Price/cbc:PriceAmount')) 
+            #self.env['account.move.line'].write({'id': line.id, 'price_unit': 99})
+            _logger.warning(line)
+            line.price_unit = 99
+            """
             # TODO: Do a search from the line item for a product.product, which has the same seller-id as the company this invoice came from. If none can be found, give a warning the first time this happens, then continiue with the product.product independant import.
             #       If a product.product can be found, error check it with the incoming information, and throw a error if a missmatch is found.
             try:
+                
                 quantity = float(self.xpft(xmlline, './cbc:InvoicedQuantity'))
                 unit_price = float(self.xpft(xmlline, './cac:Price/cbc:PriceAmount')) 
+                
                 line = self.env['account.move.line'].with_context({'check_move_validity': False}).create(
                                                          {'move_id': self.id,
-                                                          'quantity': quantity, #TODO: Add the 'type' of quantity. (For example: It coudl be 'hours', or 'liters' or anything like that.)
+                                                          #'quantity': quantity, #TODO: Add the 'type' of quantity. (For example: It coudl be 'hours', or 'liters' or anything like that.)
                                                           'name': self.xpft(xmlline, './cac:Item/cbc:Name'), #TODO: This should be description, not 'name'.
                                                           #TODO: This line should move over the name of the item
                                                           #TODO: This line should convert the taxes into the odoo tax tags
                                                           'account_id': 1253, #TODO: This is hard coded to be intra-sweden item purchases. Should be made dynamic.
+                                                          #'price_unit': unit_price,
+                                                          #'discount': 0,
+                                                          'tax_ids': self.get_vat_id(self.xpft(xmlline, './cac:Item/cac:ClassifiedTaxCategory/cbc:Percent')),
+                                                          'recompute_tax_line': True,
+                                                          })     
+
+                line.with_context({'check_move_validity': False}).write(
+                                                         {#'move_id': self.id,
+                                                          'quantity': quantity, #TODO: Add the 'type' of quantity. (For example: It coudl be 'hours', or 'liters' or anything like that.)
+                                                          #'name': self.xpft(xmlline, './cac:Item/cbc:Name'), #TODO: This should be description, not 'name'.
+                                                          #TODO: This line should move over the name of the item
+                                                          #TODO: This line should convert the taxes into the odoo tax tags
+                                                          #'account_id': 1253, #TODO: This is hard coded to be intra-sweden item purchases. Should be made dynamic.
                                                           'price_unit': unit_price,
                                                           #'discount': 0,
-                                                          'tax_ids': self.get_vat_id(self.xpft(xmlline, './cac:Item/cac:ClassifiedTaxCategory/cbc:Percent'))
-                                                          })    
+                                                          #'tax_ids': self.get_vat_id(self.xpft(xmlline, './cac:Item/cac:ClassifiedTaxCategory/cbc:Percent')),
+                                                          #'recompute_tax_line': True,
+                                                          })                                                                     
             except Exception as e:
                 _logger.exception(e)
                 raise
-        
+            
         # Add any vat journal lines
         # TODO: This must still be done.
         #       Do a search for each existant tax_ids, make a list of them, 
         #       then run through that list creating/adjusting each '2640 Ingående moms' journal line as nessesary, 
         #       for which you get the value by doing a strict 'search' and then multiplying the gotten value with the tax id's percentage..
-
+        #   Use: self._recompute_dynamic_lines(True)?    
+        
         # Creates/Adjusts the journal line for '2440 Leverantörskulder' which is nessesary in the swedish system. This can be done automaticly by Odoo, as seen if any of of the journal lines are edited manual.
         #   I am however unable to located this automatic function, and hence this is done manually.
         #   TODO: This should be made to use other existing function, as described in the comment above.
+    
+        """
         total_credit = 0
         for lines in self.env['account.move.line'].search([('move_id', '=', self.id),('account_id', '=', 1253)]):          
             total_credit += lines.debit - lines.credit
 
         existing_debt_journal_lines = self.env['account.move.line'].search([('move_id', '=', self.id),('account_id', '=', 1242)])
+        balancing = {'move_id': self.id,
+                     'credit': total_credit,
+                     'account_id': 1242, #1242 is the id for the 2440 account. #TODO: This is hard coded to work for the swedish system. Should be made dynamic.
+                     'exclude_from_invoice_tab': True,
+                     'is_rounding_line': True,
+                     'date_maturity': self.xpft(tree, '/ubl:Invoice/cbc:DueDate'),
+                     'partner_id': self.getfield('account.move.partner_id').id,
+                    }
         if existing_debt_journal_lines:
-            existing_debt_journal_lines[0].write({'move_id': self.id,
-                                                 'credit': total_credit,
-                                                 'account_id': 1242, #1242 is the id for the 2440 account. #TODO: This is hard coded to work for the swedish system. Should be made dynamic.
-                                                 'exclude_from_invoice_tab': True,
-                                                 'is_rounding_line': True,
-                                                 'date_maturity': self.xpft(tree, '/ubl:Invoice/cbc:DueDate'),
-                                                 'partner_id': self.getfield('account.move.partner_id').id,
-                                                })
+            existing_debt_journal_lines[0].write(balancing)
         else:
-            self.env['account.move.line'].create(
-                                                                                            {'move_id': self.id,
-                                                                                            'credit': total_credit,
-                                                                                            'account_id': 1242, #1242 is the id for the 2440 account. #TODO: This is hard coded to work for the swedish system. Should be made dynamic.
-                                                                                            'exclude_from_invoice_tab': True,
-                                                                                            'is_rounding_line': True,
-                                                                                            'date_maturity': self.xpft(tree, '/ubl:Invoice/cbc:DueDate'),
-                                                                                            'partner_id': self.getfield('account.move.partner_id').id
-                                                                                            })
+            self.env['account.move.line'].create(balancing)
+        """
+        

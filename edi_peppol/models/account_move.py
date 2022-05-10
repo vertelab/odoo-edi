@@ -1,4 +1,4 @@
-import logging
+import logging, traceback
 from odoo import models, api, _, fields
 
 from lxml import etree, objectify
@@ -32,6 +32,9 @@ class Account_Move(models.Model):
         return None
 
     def from_peppol_button(self):
+        #_logger.error(traceback.StackSummary.extract(traceback.walk_stack(None)))
+        #_logger.debug("The from-peppol button was just pressed!")
+        
         return self.from_peppol()
   
     def to_peppol(self):
