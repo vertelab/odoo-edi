@@ -78,8 +78,12 @@ class Peppol_From_Peppol(models.Model):
             return value
 
     def get_xml_value(self, tree, xmlpath, iteration=0):
-        return self.get_xml(tree, xmlpath, iteration).text
-
+        try:
+            value = self.get_xml(tree, xmlpath, iteration).text
+        except:
+            return None
+        return value
+        
     """
             if len(value) == 0:
                 _logger.error(inspect.currentframe().f_code.co_name + ": " +
@@ -99,9 +103,6 @@ class Peppol_From_Peppol(models.Model):
     
 
     def set_odoo_value(self, destination, value, inst=None, append=False):
-        #_logger.warning(inspect.currentframe().f_code.co_name)
-
-
         if destination is None or value is None:
             _logger.error(inspect.currentframe().f_code.co_name + ": " +
             "Returned None!")
@@ -115,12 +116,14 @@ class Peppol_From_Peppol(models.Model):
         current_field_name = d[0].rsplit('.', 1)[1]
 
         if len(d) == 1:
-            #_logger.error(inspect.currentframe().f_code.co_name + ": " + f"{value=}" + "  " + f"{inst=}" + "  " + f"{current_field_name=}")
             if append:
                 old_value = self.getfield(destination)
                 if old_value is not None and old_value != '':
                     value = self.convert_to_string(old_value) + ',' + self.convert_to_string(value)
-            inst[current_field_name] = value
+            try:
+                inst[current_field_name] = value
+            except:
+                return None
             return True
         else:
             return None #TODO: This should work recursively.
@@ -128,18 +131,45 @@ class Peppol_From_Peppol(models.Model):
     def get_currency_by_name(self):
         return self.env['res.currency'].search([('name', '=', 'SEK')]).id
         
+    # TODO: This should check more then just vat numbers, but also things like street address, phone number, and similar.    
     def is_company_info_correct(self, tree, datamodule, xmlpath):
         dm = datamodule.rsplit('.', 1)
         db_company = self[dm[1]]
         
-        #_logger.warning(f"{db_company.name=}")
         if db_company.vat != self.get_xml_value(tree, xmlpath + '/cbc:EndpointID'):
-            _logger.error(inspect.currentframe().f_code.co_name + " found the following two to not match: " + f"{db_company.vat=}" + " and " + f"{self.get_xml_value(tree, xmlpath + '/cbc:EndpointID')=}")
-            return False
+            _logger.error(inspect.currentframe().f_code.co_name + 
+                          " found the following two to not match: " + f"{db_company.vat=}" + 
+                          " and " + f"{self.get_xml_value(tree, xmlpath + '/cbc:EndpointID')=}")
+            return False, [['Own Vat-Account', db_company.vat], ['Invoice Vat-Account', self.get_xml_value(tree, xmlpath + '/cbc:EndpointID')]]
 
         #TODO: Add checks of more types of info, like: street, phone number, name, and such.
+        return True, None
 
-        return True
+    def is_product_info_correct(self, line, xml):
+        if str(line.price_unit) != str(self.xpft(xml, './cac:Price/cbc:PriceAmount')):
+            return False, [['In Odoo: Unit Price', line.price_unit],
+                           ['In Invoice: Unit Price',self.xpft(xml, './cac:Price/cbc:PriceAmount')]]    
+
+        if str(line.quantity) != str(self.xpft(xml, './cbc:InvoicedQuantity')):
+            return False, [['In Odoo: Quantity', line.quantity],
+                           ['In Invoice: Quantity',self.xpft(xml, './cbc:InvoicedQuantity')]]         
+
+        if str(line.price_subtotal) != str(self.xpft(xml, './cbc:LineExtensionAmount')):
+            return False, [['In Odoo: Subtotal', line.price_subtotal],
+                           ['In Invoice: Subtotal',self.xpft(xml, './cbc:LineExtensionAmount')]]   
+
+        xml_tax_id = self.env['account.tax'].search([('name', '=', 
+                        self.translate_tax_category_to_peppol(
+                            self.xpft(xml, './cac:Item/cac:ClassifiedTaxCategory/cbc:Percent')))])
+        if line.tax_ids.id != xml_tax_id.id:
+            return False, [['In Odoo: Tax-Group', line.tax_ids.name],
+                           ['In Invoice: Quantity', xml_tax_id.name]]           
+
+        return True, None
+
+    #def is_invoice_info_correct(self, tree):
+
+
 
     def find_company_id(self, tree, xmlpath):
         endpointID = self.get_xml_value(tree, xmlpath + '/cbc:EndpointID')

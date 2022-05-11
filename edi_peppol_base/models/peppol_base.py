@@ -87,8 +87,10 @@ class Peppol_Base(models.Model):
             '12.0' : 'I12',
             '6.0' : 'I6',
         }
+        if input is None:
+            return None
+
         output = None
-        #input = int(input)
         try:
             output = tax_category_dict[input]       
         except:
