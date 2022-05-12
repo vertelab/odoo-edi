@@ -6,22 +6,6 @@ from lxml.etree import Element, SubElement, QName, tostring
 
 _logger = logging.getLogger(__name__)
 
-"""
-# TODO: Remove if this is crecrepid!
-# XML namespace class
-class NSMAPS:
-    cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-    cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-    empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
-
-    NSMAP={'cac':cac, 'cbc':cbc, 'ubl':empty}
-
-    XNS={'cac':cac,
-         'cbc':cbc,
-         'ubl':empty}
-
-    ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
-"""
 
 class Account_Move(models.Model):
     _name = "account.move"
@@ -58,8 +42,8 @@ class Account_Move(models.Model):
 
         temp = self.import_invoice(tree)
 
-        # Debugg function
-        self.compare_account_moves(115, self.id)
+        # TODO: Remove this debugg function
+        #self.compare_account_moves(115, self.id)
 
         return temp
 

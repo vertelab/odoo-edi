@@ -132,6 +132,7 @@ class Peppol_Base(models.Model):
     #   Example: 'account.move.name'
     #   Example: 'account.move.currency_id,res.currency.name,
     # TODO: Is this function truly nesesary, or can Odoo handle it itself?
+    """
     def getfield(self, lookup, inst=None):
 
         if lookup is None:
@@ -159,6 +160,7 @@ class Peppol_Base(models.Model):
             next_module = ln[0].rsplit('.', 1)[0]
             inst = inst.env[next_module].browse(current_field_value.id)
             return self.getfield(l[1], inst)
+    """
 
     # xpath command for the 'From odoo' way
     # xpf stands for: 'XPath From'

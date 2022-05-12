@@ -1,3 +1,8 @@
+from ast import Pass
+
+
+
+
 import sys, os, logging
 
 from odoo import models, api, _, fields
@@ -28,51 +33,46 @@ _logger = logging.getLogger(__name__)
 #os.environ["SAXONC_HOME"] = '/usr/share/libsaxon-HEC-11.3'
 #os.environ["PYTHONPATH"] = '/usr/share/libsaxon-HEC-11.3/Saxon.C.API/python-saxon'
 #_logger.warning("After appends/environ, when sys.path is: " + ','.join(sys.path))
-VALIDATE = True
+#VALIDATE = True
+"""
 try:
     import saxonpy
-    #from saxonpy import *
-    #_logger.warning(dir(saxonpy))
-    #_logger.warning("saxonpy import statement done")
-    #with saxonpy.PySaxonProcessor(license=False) as proc:
-    #    _logger.warning(proc.version)
-    #_logger.warning(os.listdir('./libsaxon-HEC-11.3/Saxon.C.API/python-saxon'))
-
-    #import importlib.util as ilu
-    #folder = './libsaxon-HEC-11.3/Saxon.C.API/python-saxon'
-    #file = 'saxonc.pyx'
-    #spec = ilu.spec_from_file_location(file, folder)
-
-    #_logger.warning(spec.name)
-
-    #saxonc = ilu.module_from_spec(spec)
-    #spec.loader.exec_module(saxonc)
-
-    #from saxonpy import PySaxonProcessor
-#    pass
-    #from folder1.folder2 import python_saxon as saxonc
-    #from . import python_saxon as saxonc 
-    #from . import python_saxon
-    #_logger.warning(dir(python_saxon))
-    #saxonc = python_saxon.saxonc 
-    #raise ImportError
 except ImportError as e:
     VALIDATE = False    
-    _logger.warning(e)
-    #_logger.warning("saxonpy import FAILED!")
+    _logger.error(e)
+    _logger.error("saxonpy import FAILED!")
 else:
-    #_logger.warning("saxonpy import SUCCEDED!")
-    pass
+    VALIDATE = True
+    _logger.warning("saxonpy import SUCCEDED!")
 
-#_logger.warning("AFTER saxonc import")
-
+_logger.warning("AFTER saxonc import")
+"""
 
 class PeppolValidate(models.Model):
     _name = "peppol.validate"
     _description = "Module to validate PEPPOL xml files."
 
+    def validate_debug(self):
+        _logger.warning(f"{os.getenv('SAXONC_HOME')=}")
+        import cython
+        from saxonpy import PySaxonProcessor
+        _logger.warning("Trying to start PySaxonProcessor.")
+        _logger.warning(f"{os.getenv('SAXONC_HOME')=}")
+        try:
+            _logger.warning("Inside Try")
+            proc = PySaxonProcessor(license=False)
+            _logger.warning(proc.version)
+        except Exception as e:
+            _logger.error(e)
+        finally:
+            _logger.warning("Done with try.")
+        return None
+
 
     def validate_peppol (self, msg, type=None):
+        self.validate_debug()
+        return None
+        
         if type is None:
             type = 'invoice'
 
@@ -96,7 +96,7 @@ class PeppolValidate(models.Model):
         
         #_logger.warning("After import PySaxonProcessor")
 
-    #Creation of validation reports
+    # Creation of validation reports
         with saxonpy.PySaxonProcessor(license=False) as proc:
             _logger.warning(proc.version)
 
@@ -130,7 +130,7 @@ class PeppolValidate(models.Model):
                                             stylesheet_file="/usr/share/odoo-edi/edi_peppol_validate/data/temp/stylesheet-PEPPOL.xslt",
                                             output_file="/usr/share/odoo-edi/edi_peppol_validate/data/temp/report-PEPPOL-" + msgName + ".xml")
 
-    #Checking of validation reports contents
+    # Checking of validation reports contents
 
         validation_successfull = True
 

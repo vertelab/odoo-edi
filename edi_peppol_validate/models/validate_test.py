@@ -27,7 +27,7 @@ _logger = logging.getLogger(__name__)
 VALIDATE = True
 try:
     #import saxonpy
-    import saxonpy
+    from saxonpy import PySaxonProcessor
     _logger.warning("saxonpy import statement done")
     #with PySaxonProcessor(license=False) as proc:
     #    _logger.warning(proc.version)
@@ -90,7 +90,7 @@ def validate_peppol_invoice (msg):
     _logger.warning(f"{msgName=}")
 
 #Creation of validation reports
-    with saxonpy.PySaxonProcessor(license=False) as proc:
+    with PySaxonProcessor(license=False) as proc:
         _logger.warning(proc.version)
 
         xslt30_processor = proc.new_xslt30_processor()

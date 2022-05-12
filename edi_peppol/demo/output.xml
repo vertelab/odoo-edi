@@ -13,8 +13,10 @@
       <cbc:EndpointID schemeID="9955">SE810354746201</cbc:EndpointID>
       <cac:PostalAddress>
         <cbc:StreetName>Storgatan 12</cbc:StreetName>
+        <cbc:AdditionalStreetName>False</cbc:AdditionalStreetName>
         <cbc:CityName>Ängelholms kommun</cbc:CityName>
         <cbc:PostalZone>262 64</cbc:PostalZone>
+        <cbc:CountrySubentity>False</cbc:CountrySubentity>
         <cac:Country>
           <cbc:IdentificationCode>SE</cbc:IdentificationCode>
         </cac:Country>
@@ -39,6 +41,7 @@
       <cbc:EndpointID schemeID="9955">SE556936370701</cbc:EndpointID>
       <cac:PostalAddress>
         <cbc:StreetName>250 Executive Park Blvd</cbc:StreetName>
+        <cbc:AdditionalStreetName>False</cbc:AdditionalStreetName>
         <cbc:CityName>Mjölby</cbc:CityName>
         <cbc:PostalZone>94134</cbc:PostalZone>
         <cbc:CountrySubentity>Östergötlands län</cbc:CountrySubentity>
@@ -68,8 +71,10 @@
     <cac:DeliveryLocation>
       <cac:Address>
         <cbc:StreetName>Storgatan 12</cbc:StreetName>
+        <cbc:AdditionalStreetName>False</cbc:AdditionalStreetName>
         <cbc:CityName>Ängelholms kommun</cbc:CityName>
         <cbc:PostalZone>262 64</cbc:PostalZone>
+        <cbc:CountrySubentity>False</cbc:CountrySubentity>
         <cac:Country>
           <cbc:IdentificationCode>SE</cbc:IdentificationCode>
         </cac:Country>
@@ -82,20 +87,22 @@
   <cac:TaxTotal>
     <cbc:TaxAmount currencyID="SEK">2420.0</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">6800.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">1700.0</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">6000.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">720.0</cbc:TaxAmount>
       <cac:TaxCategory>
-        <cbc:Percent>25.0</cbc:Percent>
+        <cbc:ID>S</cbc:ID>
+        <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
       </cac:TaxCategory>
     </cac:TaxSubtotal>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">6000.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">720.0</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">6800.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">1700.0</cbc:TaxAmount>
       <cac:TaxCategory>
-        <cbc:Percent>12.0</cbc:Percent>
+        <cbc:ID>S</cbc:ID>
+        <cbc:Percent>25.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
@@ -113,12 +120,13 @@
     <cbc:InvoicedQuantity unitCode="C62">68.0</cbc:InvoicedQuantity>
     <cbc:LineExtensionAmount currencyID="SEK">6800.0</cbc:LineExtensionAmount>
     <cac:Item>
-      <cbc:Description>[SA-TA-05] Kopp</cbc:Description>
+      <cbc:Description>[SE-KO-01] Kopp</cbc:Description>
       <cbc:Name>Kopp</cbc:Name>
       <cac:SellersItemIdentification>
         <cbc:ID>SE-KO-01</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
+        <cbc:ID>S</cbc:ID>
         <cbc:Percent>25.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
@@ -141,6 +149,7 @@
         <cbc:ID>SA-TA-05</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
+        <cbc:ID>S</cbc:ID>
         <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>

@@ -8,7 +8,7 @@ from odoorpc import ODOO
 
 _logger = logging.getLogger(__name__)
 
-# TODO: This should be a central class, not a 'local' on.
+# TODO: This should be a central class, not a 'local' one.
 # XML namespace class for the 'To PEPPOL' use.
 class NSMAPS:
     cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
@@ -59,13 +59,13 @@ class Peppol_To_Peppol(models.Model):
                         fullParent,
                         tag,
                         text=None,
-                        datamodule=None,
+                        #datamodule=None,
                         attri=None,
-                        recordset=None,
+                        #recordset=None,
                         expects_bool=None,
                         ):
 
-    #Ensures attribute is set
+    # Ensures attribute is set
         if attri != None:
             attribute = attri.split(':')
             if len(attribute) == 1:
@@ -73,11 +73,12 @@ class Peppol_To_Peppol(models.Model):
         else:
             attribute = [None, None]
 
-    #Skips adding a field, if no data for said field can be found:
-        if (text is None or text == '') and self.getfield(datamodule, recordset) is None:
+    # TODO: Update comment!
+    # Skips adding a field, if no data for said field can be found:
+        if (text is None or text == ''): #and self.getfield(datamodule, recordset) is None:
             return
 
-    #Ensure that the full Parent path exists
+    # Ensure that the full Parent path exists
         parents = fullParent.split('/')
         path = '/'
         for parent in parents:
@@ -87,17 +88,21 @@ class Peppol_To_Peppol(models.Model):
                                            parent.split(':')[1])
             path = path + '/' + parent
 
-    #Fetch data from odoo to element or the static text
-        if datamodule is not None:
-            value = self.getfield(datamodule, recordset)
-            if isinstance(value, bool) and expects_bool is None:
-                value = None
-        elif text is not None:
+    # TODO: Update comment!
+    # Fetch data from odoo to element or the static text
+        #if datamodule is not None:
+        #    value = self.getfield(datamodule, recordset)
+        #    if isinstance(value, bool) and expects_bool is None:
+        #        value = None
+        #elif text is not None:
+        #    value = text
+        #else:
+        #    value = None
+        value = None
+        if text is not None:
             value = text
-        else:
-            value = None
 
-    #Add the new element
+    # Add the new element
         new_element = None
         if value != None:
             new_element = self.create_SubElement(tree.xpath(path,
@@ -137,50 +142,51 @@ class Peppol_To_Peppol(models.Model):
         return tree
 
     # Converts a 'cac:Party' from Odoo to PEPPOL
-    def convert_party(self, tree, full_parent, datamodulepath):
+    def convert_party(self, tree, full_parent, dm):
         full_parent += '/cac:Party'
         self.convert_field(tree, full_parent, 'EndpointID',
-                           datamodule=datamodulepath + '.vat',
+                           text=dm.vat,
                            attri='schemeID:9955') #TODO: No error check here! Assumed to be swedish VAT number!
         #Not handled: full_parent + /PartyIdentification/ID: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyIdentification/
         #Not handled: full_parent + /PartyName/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyName/cbc-Name/
-        self.convert_address(tree, full_parent + '/cac:PostalAddress', datamodulepath)
+        self.convert_address(tree, full_parent + '/cac:PostalAddress', dm)
         self.convert_field(tree, full_parent + '/cac:PartyTaxScheme', 'CompanyID',
-                           datamodule=datamodulepath + '.vat')
+                           text=dm.vat)
         self.convert_field(tree, full_parent + '/cac:PartyTaxScheme/cac:TaxScheme', 'ID',
                            text='VAT')
         self.convert_field(tree, full_parent + '/cac:PartyLegalEntity', 'RegistrationName',
-                           datamodule=datamodulepath + '.name')
+                           text=dm.name)
         #Not Handled: full_parent + /PartyLegalEntity/CompanyID: Might be Organisation number. Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyID/
         #Not Handled: full_parent + /PartyLegalEntity/CompanyLegalForm: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyLegalForm/
         #Not Handled: full_parent + /Contact/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-Contact/cbc-Name/
         self.convert_field(tree, full_parent + '/cac:Contact', 'Telephone',
-                           datamodule=datamodulepath + '.phone')
+                           text=dm.phone)
         self.convert_field(tree, full_parent + '/cac:Contact', 'ElectronicMail',
-                           datamodule=datamodulepath + '.email')
+                           text=dm.email)
 
     # Converts a 'cac:PostalAddress' or a 'cac:Address' from Odoo to PEPPOL
-    def convert_address(self, tree, full_parent, datamodulepath):
+    def convert_address(self, tree, full_parent, dm):
         #full_parent += '/cac:PostalAddress'
+        _logger.warning(dm)
         self.convert_field(tree, full_parent, 'StreetName',
-                           text=self.get_company_street(datamodulepath + '.street')[0])
+                           text=self.get_company_street(dm.street)[0])
         self.convert_field(tree, full_parent, 'AdditionalStreetName',
-                           datamodule=datamodulepath + '.street2')
+                           text=dm.street2)
         self.convert_field(tree, full_parent, 'CityName',
-                           datamodule=datamodulepath + '.city')
+                           text=dm.city)
         self.convert_field(tree, full_parent, 'PostalZone',
-                           datamodule=datamodulepath + '.zip')
+                           text=dm.zip)
         self.convert_field(tree, full_parent, 'CountrySubentity',
-                           datamodule=datamodulepath + '.state_id,res.country.state.name')
+                           text=dm.state_id.name)
         self.convert_field(tree, full_parent + '/cac:AddressLine', 'Line',
-                           text=self.get_company_street(datamodulepath + '.street')[1])
+                           text=self.get_company_street(dm.street)[1])
         self.convert_field(tree, full_parent + '/cac:Country', 'IdentificationCode',
-                           datamodule=datamodulepath + '.country_id,res.country.code')
+                           text=dm.country_id.code)
 
     # Gets the street address (streets[0]) and house/appartment number [streets[1]]
     #  split up in a list.
     def get_company_street(self, location):
-        original_streets = self.getfield(location)
+        original_streets = location
         streets = [None, None]
         try:
             streets = original_streets.split(',')
