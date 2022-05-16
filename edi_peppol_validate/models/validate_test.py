@@ -51,7 +51,7 @@ except ImportError as e:
     _logger.warning("saxonc import FAILED!")
 else:
     _logger.warning("saxonc import SUCCEDED!")
-    
+
 
 _logger.warning("AFTER saxonc import")
 
@@ -141,7 +141,7 @@ def validate_peppol_invoice (msg):
         _logger.warning("VALIDATION FAILED FOR: " + msg)
     else:
         _logger.warning("VALIDATION SUCCESSFUL FOR: " + msg)
-    
+
 
     return validation_successfull
 

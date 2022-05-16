@@ -1,4 +1,5 @@
 import logging, traceback, subprocess
+from multiprocessing import Process, queues
 from odoo import models, api, _, fields
 
 from lxml import etree, objectify
@@ -32,7 +33,7 @@ class Account_Move(models.Model):
                    pretty_print=True)
 
         # TODO: Should be validating here!
-        #self.validate('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+        self.validate('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
 
         #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
 
@@ -50,7 +51,7 @@ class Account_Move(models.Model):
         temp = self.import_invoice(tree)
 
         # TODO: Remove this debugg function
-        #self.compare_account_moves(115, self.id)
+        self.compare_account_moves(115, self.id)
 
         return temp
 
@@ -73,14 +74,27 @@ class Account_Move(models.Model):
     def extra_account_move_info(self, move_id):
       dict = {}
       move = self.env['account.move'].browse(move_id)
+      ingore_list = ['<lamda>', '_ids', '_origin', '_prefetch_ids', 'access_token', 'access_url',
+                     'create_date', 'date', 'display_name', 'id', 'ids', 'name', 'write_date',
+                     'highest_name', 'show_reset_to_draft', 'state']
       for a in dir(move):
         if not callable(getattr(move,a)):
           if not a.startswith('__'):
-            if not a == '<lambda>':
+            if a not in ingore_list:
               dict.update({a: getattr(move, a)})
       return dict
 
     # Validates a inputed PEPPOL 'file'
     def validate(self, file):
-      s = subprocess.check_output(["python3", "/usr/share/odoo-edi/edi_peppol_validate/models/validate_test.py", "--verbose"])
-      _logger.warning(s)
+      p = Process(target=self.validation_thread, args=())
+      p.start()
+      #p.join()
+      _logger.warning("CONTINIUING IN VALIDATE!")
+
+    def validation_thread(self):
+      _logger.warning("TRYING TO START SUBPROCESS")
+      s = subprocess.check_output(["python3", "/usr/share/odoo-edi/edi_peppol_validate/models/validate_test.py"])
+      #s = subprocess.check_output(["echo", "THIS IS A ECHO!"])
+      _logger.warning(f"{s=}")
+      _logger.warning("FINISHED SUBPROCESS")
+      #print("PRINT WORKS")

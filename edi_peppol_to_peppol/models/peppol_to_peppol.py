@@ -132,7 +132,7 @@ class Peppol_To_Peppol(models.Model):
     # Converts a 'cac:PostalAddress' or a 'cac:Address' from Odoo to PEPPOL
     def convert_address(self, tree, full_parent, dm):
         #full_parent += '/cac:PostalAddress'
-        _logger.warning(dm)
+        #_logger.warning(dm)
         self.convert_field(tree, full_parent, 'StreetName',
                            text=self.get_company_street(dm.street)[0])
         self.convert_field(tree, full_parent, 'AdditionalStreetName',

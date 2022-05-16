@@ -21,6 +21,8 @@ class Peppol_From_Invoice(models.Model):
     def import_invoice(self, tree):
         # TODO: Clear out all currently existing information from the account.move,
         #       which the export is to create itself.
+        #       As a stop-gap mesure it currently only removed all account.move.lines.
+        self.clear_old_data()
 
         # Checks that this invoice has the users current company as the 'Customer'
         #  and that the information the invoice has and the database
@@ -136,15 +138,26 @@ class Peppol_From_Invoice(models.Model):
                 _logger.exception(e)
                 raise
 
-        # Adds/updates the '2440 Leverantörskuld' which balances the invoice, as well as the tax line due to 'True' being inputet.
+        # Adds/updates the '2440 Leverantörskuld' which balances the invoice,
+        #  as well as the tax line due to 'True' being inputet.
+        # _recompute_dynamic_lines is run twice, to ensure that the account validity is tested
+        #  once all numbers have been generated.
         self.with_context({'check_move_validity': False})._recompute_dynamic_lines(True)
+        self._recompute_dynamic_lines(True)
 
         # TODO: Add check here for if the total prices and total taxes and such, do not match.
         # If so, throw a error ValidationError to the user.
-        #invoice_correct, missmached_info = self.is_invoice_info_correct(tree)
-        #if not product_correct:
+        # This might not be needed, as long as _recompute_dynamic_lines are run, and the overall
+        #  PEPPOL validation was passed..
         #    raise ValidationError('The invoice had a missmatch between what was converted, and the invoice. \n' +
         #                          'The missmatch was between: ' + '\n' +
         #                          f'{missmached_info[0][0]}' + ': ' + f'{missmached_info[0][1]}' +
         #                          '\n' + 'And' + '\n' +
         #                          f'{missmached_info[1][0]}' + ': ' + f'{missmached_info[1][1]}')
+
+    # This function should clear out 'self', which is to be a account.move,
+    #  and clear out all data in it.
+    # Currently, as a stop-gap messure, it removes all account.move.line.
+    def clear_old_data(self):
+        for line in self.line_ids:
+            line.with_context({'check_move_validity': False}).unlink()
