@@ -8,21 +8,6 @@ from odoorpc import ODOO
 
 _logger = logging.getLogger(__name__)
 
-# TODO: This should be a central class, not a 'local' one.
-# XML namespace class for the 'To PEPPOL' use.
-class NSMAPS:
-    cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-    cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-    empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
-
-    NSMAP={'cac':cac, 'cbc':cbc, 'ubl':empty}
-
-    XNS={'cac':cac,
-         'cbc':cbc,
-         'ubl':empty}
-
-    ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
-
 # Class containing functions that all From-PEPPOL-To-Odoo classes may need to use.
 class Peppol_From_Peppol(models.Model):
     _name = "peppol.frompeppol"
@@ -39,41 +24,9 @@ class Peppol_From_Peppol(models.Model):
         else:
             return tree
 
-    # TODO: This should be decrepid
-    """
-    def append_odoo_data(self, tree, destination, xmlpath=None, text=None):
-        _logger.error(inspect.currentframe().f_code.co_name + ": " +
-                      "THIS FUNCTION IS NOT CORRECTLY IMPLEMENTED YET!")
-        self.set_odoo_data(tree, destination, xmlpath, text, True)
-    """
-
-    def set_odoo_data(self, tree, destination, xmlpath=None, text=None): #, append=False):
-        if xmlpath is not None:
-            value = self.get_xml_value(tree, xmlpath)
-        else:
-            value = text
-
-        if value is None:
-            _logger.error(inspect.currentframe().f_code.co_name + ": " +
-            "Returned None!")
-            return None
-
-        try:
-            _logger.warning(inspect.currentframe().f_code.co_name + ": " +
-                            f"{destination=}" + "   " + f"{value=}")
-            destination = value
-            _logger.warning(inspect.currentframe().f_code.co_name + ": " +
-                            f"{destination=}")
-            #self.set_odoo_value(destination, value)
-        except Exception as e:
-            _logger.error(inspect.currentframe().f_code.co_name + ": " +
-            "Tried to export " + f"{value=}" + " to odoo, but failed due to:")
-            _logger.exception(e)
-            #_logger.error(e)
-
     def get_xml(self, tree, xmlpath, iteration=0):
         try:
-            value = tree.xpath(xmlpath, namespaces=NSMAPS.XNS)[iteration]
+            value = tree.xpath(xmlpath, namespaces=self.nsmapf().XNS)[iteration]
         except Exception as e:
             _logger.error(inspect.currentframe().f_code.co_name + ": " +
             "Tried to import a xml value, but it failed due to: " + f"{e}")
@@ -89,35 +42,6 @@ class Peppol_From_Peppol(models.Model):
             return None
         return value
 
-    # TODO: Is 'append' nessesary here? Decrepid overall?
-    """
-    def set_odoo_value(self, destination, value, inst=None, append=False):
-        if destination is None or value is None:
-            _logger.error(inspect.currentframe().f_code.co_name + ": " +
-            "Returned None!")
-            return None
-
-        if inst is None:
-            inst = self
-
-        d = destination.split(',', 1)
-        current_module = d[0].rsplit('.', 1)[0]
-        current_field_name = d[0].rsplit('.', 1)[1]
-
-        if len(d) == 1:
-            if append:
-                old_value = self.getfield(destination)
-                if old_value is not None and old_value != '':
-                    value = self.convert_to_string(old_value) + ',' + self.convert_to_string(value)
-            try:
-                inst[current_field_name] = value
-            except:
-                return None
-            return True
-        else:
-            return None #TODO: Should this work recursively?
-    """
-
     def get_currency_by_name(self):
         return self.env['res.currency'].search([('name', '=', 'SEK')]).id
 
@@ -128,9 +52,9 @@ class Peppol_From_Peppol(models.Model):
         #db_company = self[dm[1]]
         db_company = datamodule
 
-        _logger.warning(inspect.currentframe().f_code.co_name + " : " +
-                        f"{datamodule=}" + "   " +
-                        f"{db_company.vat=}")
+        #_logger.warning(inspect.currentframe().f_code.co_name + " : " +
+        #                f"{datamodule=}" + "   " +
+        #                f"{db_company.vat=}")
         if db_company.vat != self.get_xml_value(tree, xmlpath + '/cbc:EndpointID'):
             _logger.error(inspect.currentframe().f_code.co_name +
                           " found the following two to not match: " + f"{db_company.vat=}" +

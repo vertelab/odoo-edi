@@ -72,7 +72,7 @@ class PeppolValidate(models.Model):
     def validate_peppol (self, msg, type=None):
         self.validate_debug()
         return None
-        
+
         if type is None:
             type = 'invoice'
 
@@ -93,7 +93,7 @@ class PeppolValidate(models.Model):
         _logger.warning(f"{msg=}")
         _logger.warning(f"{msgName=}")
         #_logger.warning("Before import PySaxonProcessor")
-        
+
         #_logger.warning("After import PySaxonProcessor")
 
     # Creation of validation reports
@@ -147,7 +147,7 @@ class PeppolValidate(models.Model):
             _logger.warning("VALIDATION FAILED FOR: " + msg)
         else:
             _logger.warning("VALIDATION SUCCESSFUL FOR: " + msg)
-        
+
 
         return validation_successfull
 

@@ -43,7 +43,6 @@ class Peppol_From_Invoice(models.Model):
         new_partner_id = self.find_company_id(
                                     tree,
                                     xmlpath='/ubl:Invoice/cac:AccountingSupplierParty/cac:Party')
-        _logger.warning(f"{new_partner_id}")
         if new_partner_id is None:
             _logger.error(inspect.currentframe().f_code.co_name +
                           ':Could not find the selling company: ' +
@@ -51,12 +50,7 @@ class Peppol_From_Invoice(models.Model):
             raise ValidationError('This invoice is convering the company: ' +
                                   self.xpft(tree, '/ubl:Invoice/cac:AccountingSupplierParty/cac:Party')
                                   + '\n' + 'But no such company could found in the database.')
-        _logger.warning(inspect.currentframe().f_code.co_name + ": " +
-                            f"{self.partner_id=}" + "   " + f"{new_partner_id=}")
         self.partner_id = new_partner_id
-        _logger.warning(inspect.currentframe().f_code.co_name + ": " +
-                            f"{self.partner_id=}" + "   " + f"{new_partner_id=}")
-        #self.set_odoo_data(tree, self.partner_id, text=partner_id)
 
         correct_company, missmached_info  = self.is_company_info_correct(
                                     tree,
@@ -75,17 +69,12 @@ class Peppol_From_Invoice(models.Model):
                                   f'{missmached_info[1][0]}' + ': ' + f'{missmached_info[1][1]}')
 
 
-        # Simple fields that require no conversion.
-        self.set_odoo_data(tree, self.invoice_date,
-                           xmlpath='/ubl:Invoice/cbc:IssueDate')
-        self.set_odoo_data(tree, self.invoice_date_due,
-                           xmlpath='/ubl:Invoice/cbc:DueDate')
-        self.set_odoo_data(tree, self.currency_id,
-                           text=self.get_currency_by_name())
-        self.set_odoo_data(tree, self.ref,
-                           xmlpath='/ubl:Invoice/cbc:ID')
-        self.set_odoo_data(tree, self.narration,
-                           xmlpath='/ubl:Invoice/cac:PaymentTerms/cbc:Note')
+        # Simple fields that require no significant conversion.
+        self.invoice_date = self.get_xml_value(tree, '/ubl:Invoice/cbc:IssueDate')
+        self.invoice_date_due = self.get_xml_value(tree, '/ubl:Invoice/cbc:DueDate')
+        self.currency_id = self.get_currency_by_name()
+        self.ref = self.get_xml_value(tree, '/ubl:Invoice/cbc:ID')
+        self.narration = self.get_xml_value(tree, '/ubl:Invoice/cac:PaymentTerms/cbc:Note')
 
         # Checks and import item lines.
         for xmlline in self.xpf(tree, '/ubl:Invoice/cac:InvoiceLine'):

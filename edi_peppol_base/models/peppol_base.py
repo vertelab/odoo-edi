@@ -17,7 +17,7 @@ from odoorpc import ODOO
 _logger = logging.getLogger(__name__)
 
 # XML namespace class for the 'From PEPPOL' use.
-class NSMAPF:
+class NSMAPFC:
     cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
@@ -31,7 +31,7 @@ class NSMAPF:
     ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
 # XML namespace class for the 'To PEPPOL' use.
-class NSMAPT:
+class NSMAPTC:
     cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
     empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
@@ -48,6 +48,14 @@ class Peppol_Base(models.Model):
     _name = "peppol.base"
     _description = ("Base module which contains functions " +
                     "to assist in converting between PEPPOL and Odoo.")
+
+    # Helperfunction to access the NSMAPF class
+    def nsmapf(self):
+        return NSMAPFC
+
+    # Helperfunction to access the NSMAPF class
+    def nsmapt(self):
+        return NSMAPTC
 
     # Converts the inputet value to a string.
     # TODO: Is this decrepit?
@@ -127,45 +135,10 @@ class Peppol_Base(models.Model):
             'res_id': value.id,
         }
 
-    # Fetches a 'field' from a table in odoo.
-    # 'lookup' should be a string. Note that a new table is denoted with a ','
-    #   Example: 'account.move.name'
-    #   Example: 'account.move.currency_id,res.currency.name,
-    # TODO: Is this function truly nesesary, or can Odoo handle it itself?
-    """
-    def getfield(self, lookup, inst=None):
-
-        if lookup is None:
-            return None
-
-        if inst is None:
-            inst = self
-
-        l = lookup.split(',', 1)
-        current_module = l[0].rsplit('.', 1)[0]
-        current_field_name = l[0].rsplit('.', 1)[1]
-        try:
-            current_field_value = inst[current_field_name]
-        except:
-            _logger.warning(inspect.currentframe().f_code.co_name + ": " +
-                            "Exception found when trying to find: " +
-                            f"{current_field_name=}" + " for inst: " +
-                            str(f"{inst=}"))
-            return None
-
-        if len(l) == 1:
-            return current_field_value
-        else:
-            ln = l[1].split(',', 1)
-            next_module = ln[0].rsplit('.', 1)[0]
-            inst = inst.env[next_module].browse(current_field_value.id)
-            return self.getfield(l[1], inst)
-    """
-
     # xpath command for the 'From odoo' way
     # xpf stands for: 'XPath From'
     def xpf(self, tree, path):
-        return tree.xpath(path, namespaces=NSMAPF.XNS)
+        return tree.xpath(path, namespaces=self.nsmapf().XNS)
 
     # xpath command for the 'From odoo' way which returns the first found elements text
     # xpft stands for: 'XPath From Text'
@@ -181,4 +154,4 @@ class Peppol_Base(models.Model):
     #xpath command for the 'To odoo' way
     # xpf stands for: 'XPath To'
     def xpt(self, tree, path):
-        return tree.xpath(path, namespaces=NSMAPT.XNS)
+        return tree.xpath(path, namespaces=self.nsmapt().XNS)

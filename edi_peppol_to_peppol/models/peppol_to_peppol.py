@@ -5,22 +5,8 @@ from lxml import etree
 from odoo import models, api, _, fields
 from odoorpc import ODOO
 
-
 _logger = logging.getLogger(__name__)
 
-# TODO: This should be a central class, not a 'local' one.
-# XML namespace class for the 'To PEPPOL' use.
-class NSMAPS:
-    cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-    cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-    empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
-
-    NSMAP={'cac':cac, 'cbc':cbc, None:empty}
-
-    XNS={'cac':cac,
-         'cbc':cbc}
-
-    ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
 # Class containing functions that all From-Odoo-To-PEPPOL classes may need to use.
 class Peppol_To_Peppol(models.Model):
@@ -40,7 +26,7 @@ class Peppol_To_Peppol(models.Model):
         else:
             nsp = 'cbc'
 
-        result = etree.SubElement(parent, etree.QName(NSMAPS.NSMAP[nsp], tag))
+        result = etree.SubElement(parent, etree.QName(self.nsmapt().NSMAP[nsp], tag))
         if value is not None:
             result.text = self.convert_to_string(value).strip()
         if attri_name is not None and attri_value is not None:
@@ -83,8 +69,8 @@ class Peppol_To_Peppol(models.Model):
         path = '/'
         for parent in parents:
             if parent != "Invoice":
-                if len(tree.xpath(path + '/' + parent, namespaces=NSMAPS.XNS)) == 0:
-                    self.create_SubElement(tree.xpath(path, namespaces=NSMAPS.XNS)[0],
+                if len(tree.xpath(path + '/' + parent, namespaces=self.nsmapt().XNS)) == 0:
+                    self.create_SubElement(tree.xpath(path, namespaces=self.nsmapt().XNS)[0],
                                            parent.split(':')[1])
             path = path + '/' + parent
 
@@ -106,7 +92,7 @@ class Peppol_To_Peppol(models.Model):
         new_element = None
         if value != None:
             new_element = self.create_SubElement(tree.xpath(path,
-                                                            namespaces=NSMAPS.XNS)[0],
+                                                            namespaces=self.nsmapt().XNS)[0],
                                                             tag,
                                                             value,
                                                             attribute[0],

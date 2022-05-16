@@ -87,22 +87,22 @@
   <cac:TaxTotal>
     <cbc:TaxAmount currencyID="SEK">2420.0</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">6000.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">720.0</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">6800.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">1700.0</cbc:TaxAmount>
       <cac:TaxCategory>
         <cbc:ID>S</cbc:ID>
-        <cbc:Percent>12.0</cbc:Percent>
+        <cbc:Percent>25.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
       </cac:TaxCategory>
     </cac:TaxSubtotal>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="SEK">6800.0</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="SEK">1700.0</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="SEK">6000.0</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="SEK">720.0</cbc:TaxAmount>
       <cac:TaxCategory>
         <cbc:ID>S</cbc:ID>
-        <cbc:Percent>25.0</cbc:Percent>
+        <cbc:Percent>12.0</cbc:Percent>
         <cac:TaxScheme>
           <cbc:ID>VAT</cbc:ID>
         </cac:TaxScheme>
@@ -120,10 +120,10 @@
     <cbc:InvoicedQuantity unitCode="C62">68.0</cbc:InvoicedQuantity>
     <cbc:LineExtensionAmount currencyID="SEK">6800.0</cbc:LineExtensionAmount>
     <cac:Item>
-      <cbc:Description>[SE-KO-01] Kopp</cbc:Description>
+      <cbc:Description>[K-1] Kopp</cbc:Description>
       <cbc:Name>Kopp</cbc:Name>
       <cac:SellersItemIdentification>
-        <cbc:ID>SE-KO-01</cbc:ID>
+        <cbc:ID>K-1</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
         <cbc:ID>S</cbc:ID>
@@ -143,10 +143,10 @@
     <cbc:InvoicedQuantity unitCode="C62">12.0</cbc:InvoicedQuantity>
     <cbc:LineExtensionAmount currencyID="SEK">6000.0</cbc:LineExtensionAmount>
     <cac:Item>
-      <cbc:Description>[SA-TA-05] Talrik</cbc:Description>
+      <cbc:Description>[T-5] Talrik</cbc:Description>
       <cbc:Name>Talrik</cbc:Name>
       <cac:SellersItemIdentification>
-        <cbc:ID>SA-TA-05</cbc:ID>
+        <cbc:ID>T-5</cbc:ID>
       </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
         <cbc:ID>S</cbc:ID>

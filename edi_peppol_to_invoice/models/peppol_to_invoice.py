@@ -1,10 +1,3 @@
-#from datetime import date, datetime
-#import datetime
-#import os, logging, csv, inspect
-#from jmespath import search
-#from lxml.etree import Element, SubElement, QName, tostring
-#from lxml.isoschematron import Schematron
-
 import logging
 
 from lxml import etree
@@ -12,21 +5,7 @@ from lxml import etree
 from odoo import models, api, _, fields
 from odoorpc import ODOO
 
-
 _logger = logging.getLogger(__name__)
-
-# TODO: This should be a central class, not a 'local' on.
-class NSMAPS:
-    cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-    cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-    empty="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
-
-    NSMAP={'cac':cac, 'cbc':cbc, None:empty}
-
-    XNS={'cac':cac,
-         'cbc':cbc}
-
-    ns = {k:'{' + v + '}' for k,v in NSMAP.items()}
 
 
 # This class handles spesificly the conversion of a Odoo Invoice, to a PEPPOL Invoice.
@@ -35,10 +14,13 @@ class Peppol_To_Invoice(models.Model):
     _inherit = "peppol.topeppol"
     _description = "Module for converting invoice from Odoo to PEPPOL"
 
-    #Base function for converting a Odoo Invoice, to a PEPPOL Invoice.
+    # Base function for converting a Odoo Invoice, to a PEPPOL Invoice.
+    # TODO: This functions contains a lot of comments, including in some of its called functions
+    #  like convert_address, refering to elements that peppol may accept, but which are not
+    #  currently being converted into PEPPOL. These conversion should be done when possible.
     def create_invoice(self):
         currency = self.currency_id.name
-        invoice = etree.Element("Invoice", nsmap=NSMAPS.NSMAP)
+        invoice = etree.Element("Invoice", nsmap=self.nsmapt().NSMAP)
 
         self.convert_field(invoice, 'Invoice', 'CustomizationID',
                            text='urn:cen.eu:en16931:2017#compliant#' +
@@ -61,7 +43,7 @@ class Peppol_To_Invoice(models.Model):
                            text=self.currency_id.name)
         #Not handled: TaxCurrencyCode: Does this exist? Maybe in the account.move.line? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-TaxCurrencyCode/
         #Not handled: AccountingCost: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-AccountingCost/
-        #TODO: BuyersReferance should not be static!
+        # TODO: BuyersReferance should not be static!
         self.convert_field(invoice, 'Invoice', 'BuyerReference',
                            text='abs1234')
 
@@ -87,12 +69,12 @@ class Peppol_To_Invoice(models.Model):
             #ProjectReference
         #None of the above are handled
 
-        #Accounting Supplier Party Instructions
+        # Accounting Supplier Party Instructions
         self.convert_party(invoice,
                            'Invoice/cac:AccountingSupplierParty',
                            self.company_id)
 
-        #Accounting Customer Party Instructions
+        # Accounting Customer Party Instructions
         self.convert_party(invoice,
                            'Invoice/cac:AccountingCustomerParty',
                            self.partner_id)
@@ -101,7 +83,7 @@ class Peppol_To_Invoice(models.Model):
 
         #TaxRepresentativeParty, is this even possible in Odoo?
 
-        #Delivery Instructions
+        # Delivery Instructions
         #Not Handled: Delivery/ActualDeliveryDate: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-Delivery/cbc-ActualDeliveryDate/
         #Not Handled: Delivery/DeliveryLocation/ID: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cbc-ID/
         self.convert_address(invoice,
@@ -122,16 +104,16 @@ class Peppol_To_Invoice(models.Model):
                            attri='currencyID:'+currency)
 
         for vat_rate in self.get_all_different_vat_rates():
-            new_tax_subtotal = etree.Element(etree.QName(NSMAPS.NSMAP['cac'],
+            new_tax_subtotal = etree.Element(etree.QName(self.nsmapt().NSMAP['cac'],
                                              'TaxSubtotal'),
-                                             nsmap=NSMAPS.NSMAP)
+                                             nsmap=self.nsmapt().NSMAP)
             self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal', 'TaxableAmount',
                                text=self.get_taxable_amount_for_vat_rate(vat_rate[0]),
                                attri='currencyID:'+currency)
             self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal', 'TaxAmount',
                                text=self.get_tax_amount_for_vat_rate(vat_rate[0]),
                                attri='currencyID:'+currency)
-            #TODO: The below lines should be set based on the account-move.line.tax_ids. However, in it you can only find the information one wants in the 'name', which is in swedish. Is there a solution to this?
+            # TODO: The below lines should be set based on the account-move.line.tax_ids. However, in it you can only find the information one wants in the 'name', which is in swedish. Is there a solution to this?
             self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal/cac:TaxCategory', 'ID',
                                text=vat_rate[1])
             #TaxExemptionReasonCode
@@ -141,7 +123,7 @@ class Peppol_To_Invoice(models.Model):
             self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme',
                                'ID', text='VAT')
             invoice.xpath('/Invoice/cac:TaxTotal',
-                          namespaces=NSMAPS.XNS)[0].append(new_tax_subtotal)
+                          namespaces=self.nsmapt().XNS)[0].append(new_tax_subtotal)
 
         #Legal Monetary Total
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'LineExtensionAmount',
@@ -163,14 +145,14 @@ class Peppol_To_Invoice(models.Model):
                            text=self.amount_residual,
                            attri='currencyID:'+currency)
 
-        #Invoice Line
-        #TODO: Instead of using 'recordset' here, it aught to be possible to enter the path to the wanted datafield using only the datamodule and the current id from 'line'.
+        # Invoice Line
+        # TODO: Instead of using 'recordset' here, it aught to be possible to enter the path to the wanted datafield using only the datamodule and the current id from 'line'.
         n = 0
         for line in self['invoice_line_ids']:
             n += 1
-            new_line = etree.Element(etree.QName(NSMAPS.NSMAP['cac'],
+            new_line = etree.Element(etree.QName(self.nsmapt().NSMAP['cac'],
                                      'InvoiceLine'),
-                                     nsmap=NSMAPS.NSMAP)
+                                     nsmap=self.nsmapt().NSMAP)
 
             # This line prevents lines that are 'notes' or 'sections' from being handled here.
             # Meaning that only 'real' lines with a 'item' on it, is handled.
@@ -224,7 +206,7 @@ class Peppol_To_Invoice(models.Model):
 
             invoice.append(new_line)
 
-    #Cleanup
+    # Cleanup
         if self.remove_empty_elements(invoice) is None:
             return None
 

@@ -1,4 +1,4 @@
-import logging, traceback
+import logging, traceback, subprocess
 from odoo import models, api, _, fields
 
 from lxml import etree, objectify
@@ -31,6 +31,11 @@ class Account_Move(models.Model):
                    encoding='UTF-8',
                    pretty_print=True)
 
+        # TODO: Should be validating here!
+        #self.validate('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+
+        #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+
     # Converts a account.move from a PEPPOL file.
     # Currently can only handle invoices, but is inteded to handle
     #  all different kinds of messages that PEPPOL can encode.
@@ -39,6 +44,8 @@ class Account_Move(models.Model):
 
         if tree is None:
             return None
+
+        # TODO: Should be validating here!
 
         temp = self.import_invoice(tree)
 
@@ -72,3 +79,8 @@ class Account_Move(models.Model):
             if not a == '<lambda>':
               dict.update({a: getattr(move, a)})
       return dict
+
+    # Validates a inputed PEPPOL 'file'
+    def validate(self, file):
+      s = subprocess.check_output(["python3", "/usr/share/odoo-edi/edi_peppol_validate/models/validate_test.py", "--verbose"])
+      _logger.warning(s)
