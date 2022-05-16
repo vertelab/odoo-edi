@@ -25,11 +25,11 @@ class Peppol_From_Invoice(models.Model):
         # Checks that this invoice has the users current company as the 'Customer'
         #  and that the information the invoice has and the database
         #  has about the own company are the same.
-        correct_company, missmached_info = self.is_company_info_correct(
+        missmached_info = self.is_company_info_correct(
                                     tree,
                                     self.company_id, #'account.move.company_id',
                                     xmlpath='/ubl:Invoice/cac:AccountingCustomerParty/cac:Party')
-        if correct_company != True:
+        if missmached_info is not None:
             raise ValidationError('The company this invoice is made out to, ' +
                                   'contains missmatch to the information your company has. \n' +
                                   'The missmatch was between: ' + '\n' +
@@ -52,11 +52,11 @@ class Peppol_From_Invoice(models.Model):
                                   + '\n' + 'But no such company could found in the database.')
         self.partner_id = new_partner_id
 
-        correct_company, missmached_info  = self.is_company_info_correct(
+        missmached_info  = self.is_company_info_correct(
                                     tree,
                                     self.partner_id, #'account.move.partner_id',
                                     xmlpath='/ubl:Invoice/cac:AccountingSupplierParty/cac:Party')
-        if correct_company != True:
+        if missmached_info is not None:
             _logger.error(inspect.currentframe().f_code.co_name +
                           'Found discrepency between the data of the selling company in the invoice, '
                           + 'and the selling company in the database.')
@@ -105,8 +105,15 @@ class Peppol_From_Invoice(models.Model):
                 # Creates the new line, with 'simple' fields filled in
                 line = self.env['account.move.line'].with_context({'check_move_validity': False}).create(
                                                         {'move_id': self.id,
-                                                        'quantity': quantity, #TODO: Add the 'type' of quantity. (For example: It coudl be 'hours', or 'liters' or anything like that.)
-                                                        'account_id': 1253, #TODO: This is hard coded to be intra-sweden item purchases. Should be made dynamic.
+                                                        #TODO: For quantity:
+                                                        # Add the 'type' of quantity.
+                                                        # (For example: It coudl be 'hours',
+                                                        #  or 'liters' or anything like that.)
+                                                        'quantity': quantity,
+                                                        #TODO: For account_id
+                                                        # This is hard coded to be intra-sweden
+                                                        #  item purchases. Should be made dynamic.
+                                                        'account_id': 1253,
                                                         'recompute_tax_line': True,
                                                         'product_id': product.id
                                                         })

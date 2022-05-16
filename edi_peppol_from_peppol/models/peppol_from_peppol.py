@@ -4,6 +4,7 @@ from lxml import etree
 
 from odoo import models, api, _, fields
 from odoorpc import ODOO
+from xmlschema import XMLSchema10
 
 
 _logger = logging.getLogger(__name__)
@@ -28,8 +29,9 @@ class Peppol_From_Peppol(models.Model):
         try:
             value = tree.xpath(xmlpath, namespaces=self.nsmapf().XNS)[iteration]
         except Exception as e:
-            _logger.error(inspect.currentframe().f_code.co_name + ": " +
-            "Tried to import a xml value, but it failed due to: " + f"{e}")
+            _logger.warning(inspect.currentframe().f_code.co_name + ": " +
+            "Tried to import the xml value for: " + f"{xmlpath}" + "\n" +
+            ", but it failed due to: " + f"{e}")
             #_logger.error(e)
             return None
         else:
@@ -40,31 +42,126 @@ class Peppol_From_Peppol(models.Model):
             value = self.get_xml(tree, xmlpath, iteration).text
         except:
             return None
+        try:
+            value = value.strip()
+        except:
+            pass
         return value
 
     def get_currency_by_name(self):
         return self.env['res.currency'].search([('name', '=', 'SEK')]).id
 
-    # TODO: This should check more then just vat numbers.
-    # Things like: street address, phone number, and similar.
-    def is_company_info_correct(self, tree, datamodule, xmlpath):
-        #dm = datamodule.rsplit('.', 1)
-        #db_company = self[dm[1]]
-        db_company = datamodule
+    # Compares the information of a company in the xml-tree 'tree'
+    #  with the xml parent 'xmlpath' which should be pointing out a cac:Party
+    #  and the company 'db_company' which is in the database.
+    # The information from these two sources should be the same.
+    # If it is the same, it will return 'None'.
+    # If there is a missmatch it will return a list,
+    #  consisting of two elements, where each element is a list of two elements.
+    # [0][#] will contain info about the data from the database.
+    # [1][#] will contain info about the data from the xml.
+    # [#][0] will contain what type of value was actualy wrong.
+    # [#][1] will contain the actual value itself.
+    def is_company_info_correct(self, tree, db_company, xmlpath):
 
-        #_logger.warning(inspect.currentframe().f_code.co_name + " : " +
-        #                f"{datamodule=}" + "   " +
-        #                f"{db_company.vat=}")
-        if db_company.vat != self.get_xml_value(tree, xmlpath + '/cbc:EndpointID'):
+        # Check Company Name
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:PartyLegalEntity/cbc:RegistrationName'),
+            db_company.name,
+            'Company Name')
+        if t is not None:
+            return t
+
+        # Check CompanyID
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:PartyTaxScheme/cbc:CompanyID'),
+            db_company.vat,
+            'Company ID')
+        if t is not None:
+            return t
+
+        # Checks Vat-Account
+        t =  self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cbc:EndpointID'),
+            db_company.vat,
+            'Vat-Account')
+        if t is not None:
+            return t
+
+        # Checks Street address
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:PostalAddress/cbc:StreetName'),
+            self.get_company_street(db_company.street)[0],
+            'Street')
+        if t is not None:
+            return t
+
+        # Check Street address sub-divison (such as 'appartment 12')
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:PostalAddress/cac:AddressLine/cbc:Line'),
+            self.get_company_street(db_company.street)[1],
+            'Street Sub-Division')
+        if t is not None:
+            return t
+
+        # Checks City
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:PostalAddress/cbc:CityName'),
+            db_company.city,
+            'City')
+        if t is not None:
+            return t
+
+        # Checks Zip-Codes
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:PostalAddress/cbc:PostalZone'),
+            db_company.zip,
+            'Zip-Code')
+        if t is not None:
+            return t
+
+        # Check CountrySubentity
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:PostalAddress/cbc:CountrySubentity'),
+            db_company.state_id.name,
+            'State')
+        if t is not None:
+            return t
+
+        # Check Country
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:PostalAddress/cac:Country/cbc:IdentificationCode'),
+            db_company.country_id.code,
+            'Country')
+        if t is not None:
+            return t
+
+        # Check Telephone
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:Contact/cbc:Telephone'),
+            db_company.phone,
+            'Telephone')
+        if t is not None:
+            return t
+
+        # Check E-Mail
+        t = self.company_comparison(
+            self.get_xml_value(tree, xmlpath + '/cac:Contact/cbc:ElectronicMail'),
+            db_company.email,
+            'E-Mail')
+        if t is not None:
+            return t
+
+        return None
+
+    def company_comparison(self, xml, db, name):
+        if f'{db}'.strip() !=f'{xml}'.strip():
             _logger.error(inspect.currentframe().f_code.co_name +
-                          " found the following two to not match: " + f"{db_company.vat=}" +
-                          " and " + f"{self.get_xml_value(tree, xmlpath + '/cbc:EndpointID')=}")
-            return False, [['Own Vat-Account', db_company.vat],
-                           ['Invoice Vat-Account',
-                            self.get_xml_value(tree, xmlpath + '/cbc:EndpointID')]]
-
-        #TODO: Add checks of more types of info, like: street, phone number, name, and such.
-        return True, None
+                          " found the following two to not match: " + f"{db}" +
+                          " and " + f"{xml}")
+            return [['Database ' + name, '\'' + f"{db}" + '\''],
+                    ['Invoice     ' + name, '\'' + f"{xml}" + '\'']]
+        return None
 
     # Compares the product infomation of a converted-to-odoo line, and what it says in the xml
     def is_product_info_correct(self, line, xml):
@@ -84,8 +181,8 @@ class Peppol_From_Peppol(models.Model):
                         self.translate_tax_category_from_peppol(
                             self.xpft(xml, './cac:Item/cac:ClassifiedTaxCategory/cbc:Percent')))])
         if line.tax_ids.id != xml_tax_id.id:
-            return False, [['In Odoo: Tax-Group', line.tax_ids.name],
-                           ['In Invoice: Quantity', xml_tax_id.name]]
+            return [['In Odoo: Tax-Group', line.tax_ids.name],
+                    ['In Invoice: Quantity', xml_tax_id.name]]
 
         return True, None
 

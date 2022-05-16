@@ -58,7 +58,6 @@ class Peppol_Base(models.Model):
         return NSMAPTC
 
     # Converts the inputet value to a string.
-    # TODO: Is this decrepit?
     def convert_to_string(self, value):
         if isinstance(value, str):
             return value
@@ -116,6 +115,7 @@ class Peppol_Base(models.Model):
                           " could not be translated into Odoo format!")
         return output
 
+    """
     # A wizard to display a popup to the user and allow them to make choices.
     # TODO: Is this decrepit and could be removed?
     def user_choice_window(self, msg="No message text given!", state=None):
@@ -134,6 +134,7 @@ class Peppol_Base(models.Model):
             #"domain": [("amount_total_signed", "!=", "0")],
             'res_id': value.id,
         }
+    """
 
     # xpath command for the 'From odoo' way
     # xpf stands for: 'XPath From'
@@ -151,7 +152,35 @@ class Peppol_Base(models.Model):
                             f"{path=}" + " with the exception: " +
                             f"{e=}")
 
-    #xpath command for the 'To odoo' way
+    # xpath command for the 'To odoo' way
     # xpf stands for: 'XPath To'
     def xpt(self, tree, path):
         return tree.xpath(path, namespaces=self.nsmapt().XNS)
+
+    # Gets the street address (streets[0]) and house/appartment number [streets[1]]
+    #  split up in a list.
+    def get_company_street(self, location):
+        original_streets = location
+        streets = [None, None]
+        try:
+            streets = original_streets.split(',')
+        except:
+            return streets
+
+        stripped_streets = []
+        [stripped_streets.append(ele.strip()) for ele in streets]
+
+        #for ele in streets:
+        #    ele = ele.strip()
+
+        if len(stripped_streets) == 0:
+            return [None, None]
+        if len(stripped_streets) == 1:
+            return [streets[0], None]
+        elif len(stripped_streets) > 2:
+            _logger.Error(inspect.currentframe().f_code.co_name +
+                          ": A unexpected amount of commas where found in '" +
+                          f"{original_streets}" +
+                          "'. Only one or zero commas was expected.")
+
+        return stripped_streets

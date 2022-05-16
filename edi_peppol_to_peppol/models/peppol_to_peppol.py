@@ -45,9 +45,7 @@ class Peppol_To_Peppol(models.Model):
                         fullParent,
                         tag,
                         text=None,
-                        #datamodule=None,
                         attri=None,
-                        #recordset=None,
                         expects_bool=None,
                         ):
 
@@ -59,9 +57,8 @@ class Peppol_To_Peppol(models.Model):
         else:
             attribute = [None, None]
 
-    # TODO: Update comment!
-    # Skips adding a field, if no data for said field can be found:
-        if (text is None or text == ''): #and self.getfield(datamodule, recordset) is None:
+    # Skips adding a field, if no text is inputet for this field:
+        if (text is None or text == ''):
             return
 
     # Ensure that the full Parent path exists
@@ -74,31 +71,13 @@ class Peppol_To_Peppol(models.Model):
                                            parent.split(':')[1])
             path = path + '/' + parent
 
-    # TODO: Update comment!
-    # Fetch data from odoo to element or the static text
-        #if datamodule is not None:
-        #    value = self.getfield(datamodule, recordset)
-        #    if isinstance(value, bool) and expects_bool is None:
-        #        value = None
-        #elif text is not None:
-        #    value = text
-        #else:
-        #    value = None
-        value = None
-        if text is not None:
-            value = text
-
-    # Add the new element
-        new_element = None
-        if value != None:
-            new_element = self.create_SubElement(tree.xpath(path,
-                                                            namespaces=self.nsmapt().XNS)[0],
-                                                            tag,
-                                                            value,
-                                                            attribute[0],
-                                                            attribute[1])
-
-        return new_element
+    # Returns the newly created element
+        return self.create_SubElement(tree.xpath(path,
+                                      namespaces=self.nsmapt().XNS)[0],
+                                      tag,
+                                      text,
+                                      attribute[0],
+                                      attribute[1])
 
     # Iterates through the entire given 'tree', and removes any elements that neither has:
     #  any children nor has a text in them.
@@ -169,22 +148,3 @@ class Peppol_To_Peppol(models.Model):
         self.convert_field(tree, full_parent + '/cac:Country', 'IdentificationCode',
                            text=dm.country_id.code)
 
-    # Gets the street address (streets[0]) and house/appartment number [streets[1]]
-    #  split up in a list.
-    def get_company_street(self, location):
-        original_streets = location
-        streets = [None, None]
-        try:
-            streets = original_streets.split(',')
-        except:
-            return streets
-        if len(streets) == 0:
-            return [None, None]
-        if len(streets) == 1:
-            return [streets[0], None]
-        elif len(streets) > 2:
-            _logger.Error(inspect.currentframe().f_code.co_name +
-                          ": A unexpected amount of commas where found in '" +
-                          f"{original_streets}" +
-                          "'. Only one or zero commas was expected.")
-        return streets

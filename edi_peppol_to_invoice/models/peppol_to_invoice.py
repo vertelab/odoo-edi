@@ -25,16 +25,15 @@ class Peppol_To_Invoice(models.Model):
         self.convert_field(invoice, 'Invoice', 'CustomizationID',
                            text='urn:cen.eu:en16931:2017#compliant#' +
                                 'urn:fdc:peppol.eu:2017:poacc:billing:3.0')
-        # TODO: the ProfileID should not be static?
+        # TODO: The current '00' should indicate the 'buissness process context'. What is this?
         self.convert_field(invoice, 'Invoice', 'ProfileID',
-                           text='urn:fdc:peppol.eu:2017:poacc:billing:04:1.0')
+                           text='urn:fdc:peppol.eu:2017:poacc:billing:00:1.0')
         self.convert_field(invoice, 'Invoice', 'ID',
                            text=self.name)
         self.convert_field(invoice, 'Invoice', 'IssueDate',
                            text=self.invoice_date)
         self.convert_field(invoice, 'Invoice', 'DueDate',
                            text=self.invoice_date_due)
-        # TODO: InvoiceTypeCode should maybe not be static?
         self.convert_field(invoice, 'Invoice',
                            'InvoiceTypeCode', text='380')
         #Not handled: Note: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-Note/
@@ -43,7 +42,7 @@ class Peppol_To_Invoice(models.Model):
                            text=self.currency_id.name)
         #Not handled: TaxCurrencyCode: Does this exist? Maybe in the account.move.line? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-TaxCurrencyCode/
         #Not handled: AccountingCost: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-AccountingCost/
-        # TODO: BuyersReferance should not be static!
+        # TODO: BuyersReferance should not be static.
         self.convert_field(invoice, 'Invoice', 'BuyerReference',
                            text='abs1234')
 
@@ -113,7 +112,9 @@ class Peppol_To_Invoice(models.Model):
             self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal', 'TaxAmount',
                                text=self.get_tax_amount_for_vat_rate(vat_rate[0]),
                                attri='currencyID:'+currency)
-            # TODO: The below lines should be set based on the account-move.line.tax_ids. However, in it you can only find the information one wants in the 'name', which is in swedish. Is there a solution to this?
+            # TODO: The below lines should be set based on the account-move.line.tax_ids.
+            # However, in it you can only find the information one wants in the 'name',
+            #  which is in swedish. Is there a solution to this?
             self.convert_field(new_tax_subtotal, 'cac:TaxSubtotal/cac:TaxCategory', 'ID',
                                text=vat_rate[1])
             #TaxExemptionReasonCode
@@ -146,7 +147,6 @@ class Peppol_To_Invoice(models.Model):
                            attri='currencyID:'+currency)
 
         # Invoice Line
-        # TODO: Instead of using 'recordset' here, it aught to be possible to enter the path to the wanted datafield using only the datamodule and the current id from 'line'.
         n = 0
         for line in self['invoice_line_ids']:
             n += 1
