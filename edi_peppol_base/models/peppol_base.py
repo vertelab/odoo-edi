@@ -73,48 +73,6 @@ class Peppol_Base(models.Model):
                       " is not being handled like it should!")
         return None
 
-    # Translates the base swedish vat-taxes, from Odoo into PEPPOL format.
-    # TODO: Add more kinds of vat-acounts.
-    def translate_tax_category_to_peppol(self, input):
-        tax_category_dict = {
-            'MP1' : 'S',
-            'MP2' : 'S',
-            'MP3' : 'S',
-            'MF' : 'Z',
-            'FVEU0' : 'Z',
-            'FVUEU0' : 'Z',
-        }
-        output = None
-        try:
-            output = tax_category_dict[input]
-        except:
-            _logger.error(inspect.currentframe().f_code.co_name +
-                          ": Tax code of " +
-                          str(f"{input=}") +
-                          " could not be translated into PEPPOL format!")
-        return output
-
-    # Translates the base swedish vat-taxes, from PEPPOL format into Odoo.
-    # Todo, add more detailed translation, which leads to other vat-codes then just I's
-    def translate_tax_category_from_peppol(self, input):
-        tax_category_dict = {
-            '25.0' : 'I',
-            '12.0' : 'I12',
-            '6.0' : 'I6',
-        }
-        if input is None:
-            return None
-
-        output = None
-        try:
-            output = tax_category_dict[input]
-        except:
-            _logger.error(inspect.currentframe().f_code.co_name +
-                          ": Tax code of " +
-                          str(f"{input=}") +
-                          " could not be translated into Odoo format!")
-        return output
-
     """
     # A wizard to display a popup to the user and allow them to make choices.
     # TODO: Is this decrepit and could be removed?
@@ -135,7 +93,7 @@ class Peppol_Base(models.Model):
             'res_id': value.id,
         }
     """
-
+    # TODO: Should be moved down to peppol_from_peppol module?
     # xpath command for the 'From odoo' way
     # xpf stands for: 'XPath From'
     def xpf(self, tree, path):
@@ -154,6 +112,7 @@ class Peppol_Base(models.Model):
 
     # xpath command for the 'To odoo' way
     # xpf stands for: 'XPath To'
+    # TODO: Decrepid?
     def xpt(self, tree, path):
         return tree.xpath(path, namespaces=self.nsmapt().XNS)
 

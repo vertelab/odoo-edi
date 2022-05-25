@@ -26,11 +26,11 @@
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',
-    #'repository': 'https://github.com/vertelab/edi-peppol',
+    'repository': 'https://github.com/vertelab/odoo-edi',
     'category': 'Accounting',
     'version': '14.0.0.0.0',
     # Version ledger: 14.0 = Odoo version. 1 = Major. Non regressionable code. 2 = Minor. New features that are regressionable. 3 = Bug fixes
-    #'license': 'AGPL-3',
+    'license': 'AGPL-3',
     'website': 'https://vertel.se/apps/odoo-edi/edi_peppol/',
     'description': """
         Implements a Framework for PEPPOL communication in Odoo.
@@ -44,11 +44,9 @@
              #'data/CEN-EN16931-UBL.sch',
              #'data/PEPPOL-EN16931-UBL.sch',
              #'data/iso_schematron_skeleton_for_saxon.xsl',
-             #'data/instruction.toPeppol.csv',
-             #'views/account_invoice_view.xml',
              'security/ir.model.access.csv',
              ],
-    'installable': 'True',
+    'installable': 'False',
     'application': 'False',
 }
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

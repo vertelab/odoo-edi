@@ -26,7 +26,7 @@
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',
-    #'repository': 'https://github.com/vertelab/edi-peppol',
+    'repository': 'https://github.com/vertelab/odoo-edi',
     'category': 'Accounting',
     'version': '14.0.0.0.0',
     # Version ledger: 14.0 = Odoo version. 1 = Major. Non regressionable code. 2 = Minor. New features that are regressionable. 3 = Bug fixes
@@ -37,17 +37,7 @@
         14.0.0.0.0 - Initial version
     """,
     'depends': ['base', 'l10n_se', 'edi_peppol_from_peppol'],
-    # Saxon-C-HE?
-    #'external_dependencies': {
-    #    'python': ['xlrd'],
-    #},
-    'data': [#'data/stylesheet-ubl.xslt',
-             #'data/CEN-EN16931-UBL.sch',
-             #'data/PEPPOL-EN16931-UBL.sch',
-             #'data/iso_schematron_skeleton_for_saxon.xsl',
-             #'data/instruction.toPeppol.csv',
-             #'views/account_invoice_view.xml',
-             ],
+    'data': [],
     'installable': 'False',
     'application': 'False',
 }

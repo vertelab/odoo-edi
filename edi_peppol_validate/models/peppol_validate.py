@@ -34,19 +34,19 @@ _logger = logging.getLogger(__name__)
 #os.environ["PYTHONPATH"] = '/usr/share/libsaxon-HEC-11.3/Saxon.C.API/python-saxon'
 #_logger.warning("After appends/environ, when sys.path is: " + ','.join(sys.path))
 #VALIDATE = True
-"""
+
 try:
     import saxonpy
 except ImportError as e:
-    VALIDATE = False    
+    VALIDATE = False
     _logger.error(e)
-    _logger.error("saxonpy import FAILED!")
+    #_logger.error("saxonpy import FAILED!")
 else:
     VALIDATE = True
-    _logger.warning("saxonpy import SUCCEDED!")
+    #_logger.warning("saxonpy import SUCCEDED!")
 
-_logger.warning("AFTER saxonc import")
-"""
+#_logger.warning("AFTER saxonc import")
+
 
 class PeppolValidate(models.Model):
     _name = "peppol.validate"
@@ -70,8 +70,8 @@ class PeppolValidate(models.Model):
 
 
     def validate_peppol (self, msg, type=None):
-        self.validate_debug()
-        return None
+        #self.validate_debug()
+        #return None
 
         if type is None:
             type = 'invoice'
@@ -84,7 +84,8 @@ class PeppolValidate(models.Model):
 
     def validate_peppol_invoice (self, msg):
         if not VALIDATE:
-            _logger.warning("Validation was not performed as Saxonpy could not be importet. Is Saxopy installed?")
+            _logger.warning('Validation was not performed as Saxonpy could not be imported. ' +
+                            'Is Saxopy installed?')
             return False
 
         #msgName = msg.rsplit('/', 1)[-1].split('.')[0]

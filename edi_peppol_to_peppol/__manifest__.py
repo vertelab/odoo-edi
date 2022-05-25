@@ -22,32 +22,22 @@
 
 {
     'name': 'EDI PEPPOL to PEPPOL',
-    'summary': 'Module for converting from Odoo to PEPPOL',
+    'summary': 'General module for converting from Odoo to PEPPOL',
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',
-    #'repository': 'https://github.com/vertelab/edi-peppol',
+    'repository': 'https://github.com/vertelab/odoo-edi',
     'category': 'Accounting',
     'version': '14.0.0.0.0',
     # Version ledger: 14.0 = Odoo version. 1 = Major. Non regressionable code. 2 = Minor. New features that are regressionable. 3 = Bug fixes
-    #'license': 'AGPL-3',
+    'license': 'AGPL-3',
     'website': 'https://vertel.se/apps/odoo-edi/edi_peppol/',
     'description': """
         Implements the shared functions needed for from-Odoo to-PEPPOL conversion, within the greater PEPPOL framework.
         14.0.0.0.0 - Initial version
     """,
     'depends': ['base', 'l10n_se', 'edi_peppol_base'],
-    # Saxon-C-HE?
-    #'external_dependencies': {
-    #    'python': ['xlrd'],
-    #},
-    'data': [#'data/stylesheet-ubl.xslt',
-             #'data/CEN-EN16931-UBL.sch',
-             #'data/PEPPOL-EN16931-UBL.sch',
-             #'data/iso_schematron_skeleton_for_saxon.xsl',
-             #'data/instruction.toPeppol.csv',
-             #'views/account_invoice_view.xml',
-             ],
+    'data': [],
     'installable': 'False',
     'application': 'False',
 }

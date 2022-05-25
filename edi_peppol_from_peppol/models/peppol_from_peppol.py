@@ -48,6 +48,7 @@ class Peppol_From_Peppol(models.Model):
             pass
         return value
 
+    # TODO: This should not be static 'SEK', but rather take its value from the XML!
     def get_currency_by_name(self):
         return self.env['res.currency'].search([('name', '=', 'SEK')]).id
 
@@ -201,3 +202,24 @@ class Peppol_From_Peppol(models.Model):
                               ": Was unable to find the tax group named: " +
                               f"{odoo_vat_name=}" + " despite it being expected.")
         return None
+
+    # Translates the base swedish vat-taxes, from PEPPOL format into Odoo.
+    # Todo, add more detailed translation, which leads to other vat-codes then just I's
+    def translate_tax_category_from_peppol(self, input):
+        tax_category_dict = {
+            '25.0' : 'I',
+            '12.0' : 'I12',
+            '6.0' : 'I6',
+        }
+        if input is None:
+            return None
+
+        output = None
+        try:
+            output = tax_category_dict[input]
+        except:
+            _logger.error(inspect.currentframe().f_code.co_name +
+                          ": Tax code of " +
+                          str(f"{input=}") +
+                          " could not be translated into Odoo format!")
+        return output

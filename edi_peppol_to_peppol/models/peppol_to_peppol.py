@@ -148,3 +148,23 @@ class Peppol_To_Peppol(models.Model):
         self.convert_field(tree, full_parent + '/cac:Country', 'IdentificationCode',
                            text=dm.country_id.code)
 
+    # Translates the base swedish vat-taxes, from Odoo into PEPPOL format.
+    # TODO: Add more kinds of vat-acounts.
+    def translate_tax_category_to_peppol(self, input):
+        tax_category_dict = {
+            'MP1' : 'S',
+            'MP2' : 'S',
+            'MP3' : 'S',
+            'MF' : 'Z',
+            'FVEU0' : 'Z',
+            'FVUEU0' : 'Z',
+        }
+        output = None
+        try:
+            output = tax_category_dict[input]
+        except:
+            _logger.error(inspect.currentframe().f_code.co_name +
+                          ": Tax code of " +
+                          str(f"{input=}") +
+                          " could not be translated into PEPPOL format!")
+        return output

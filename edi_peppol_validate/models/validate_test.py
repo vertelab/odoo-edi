@@ -1,7 +1,8 @@
 #import saxonpy
 
 from ast import Pass
-import sys, os, logging
+from lxml import etree
+import sys, os, logging, glob
 
 from odoo import models, api, _, fields
 
@@ -89,6 +90,14 @@ def validate_peppol_invoice (msg):
     _logger.warning(f"{msg=}")
     _logger.warning(f"{msgName=}")
 
+    #Checks that the XML is well formed
+    try:
+        doc = etree.parse(msg)
+    except Exception as e:
+        _logger.error(e)
+        _logger.error("VALIDATION FAILED FOR: " + msg)
+        return
+
 #Creation of validation reports
     with PySaxonProcessor(license=False) as proc:
         _logger.warning(proc.version)
@@ -98,10 +107,10 @@ def validate_peppol_invoice (msg):
 
         xslt30_processor.set_cwd(".")
 
-        out = xslt30_processor.transform_to_string(source_file=msg,
-                                                stylesheet_file="/usr/share/odoo-edi/edi_peppol_validate/data/stylesheet-ubl.xslt")
-        with open("/usr/share/odoo-edi/edi_peppol_validate/data/temp/report-ubl-" + msgName + ".xml", "w") as f:
-            f.write(out)
+        #out = xslt30_processor.transform_to_string(source_file=msg,
+        #                                        stylesheet_file="/usr/share/odoo-edi/edi_peppol_validate/data/stylesheet-ubl.xslt")
+        #with open("/usr/share/odoo-edi/edi_peppol_validate/data/temp/report-ubl-" + msgName + ".xml", "w") as f:
+        #    f.write(out)
 
 
         out = xslt30_processor.transform_to_string(source_file="/usr/share/odoo-edi/edi_peppol_validate/data/CEN-EN16931-UBL.sch",
@@ -135,10 +144,10 @@ def validate_peppol_invoice (msg):
 
 
 
-    validate_cleanup()
+    validate_cleanup(True)
 
     if not validation_successfull:
-        _logger.warning("VALIDATION FAILED FOR: " + msg)
+        _logger.error("VALIDATION FAILED FOR: " + msg)
     else:
         _logger.warning("VALIDATION SUCCESSFUL FOR: " + msg)
 
@@ -161,7 +170,10 @@ def validate_report_log(schema, name):
 
 def validate_cleanup(full=False):
     if full:
-        os.remove("/usr/share/odoo-edi/edi_peppol_validate/data/temp/*")
+        toremove = glob.glob('/usr/share/odoo-edi/edi_peppol_validate/data/temp/*')
+        for t in toremove:
+            os.remove(t)
+        #os.remove("/usr/share/odoo-edi/edi_peppol_validate/data/temp/*")
     else:
         os.remove("/usr/share/odoo-edi/edi_peppol_validate/data/temp/stylesheet-TC434.xslt")
         os.remove("/usr/share/odoo-edi/edi_peppol_validate/data/temp/stylesheet-PEPPOL.xslt")

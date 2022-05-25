@@ -33,9 +33,10 @@ class Account_Move(models.Model):
                    pretty_print=True)
 
         # TODO: Should be validating here!
-        self.validate('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+        #self.validate('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+        #self.validation_thread()
 
-        #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
+        #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol/demo/output.xml')
 
     # Converts a account.move from a PEPPOL file.
     # Currently can only handle invoices, but is inteded to handle
