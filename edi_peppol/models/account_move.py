@@ -52,7 +52,7 @@ class Account_Move(models.Model):
         temp = self.import_invoice(tree)
 
         # TODO: Remove this debugg function
-        self.compare_account_moves(115, self.id)
+        #self.compare_account_moves(115, self.id)
 
         return temp
 
