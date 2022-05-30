@@ -44,7 +44,7 @@
              #'data/CEN-EN16931-UBL.sch',
              #'data/PEPPOL-EN16931-UBL.sch',
              #'data/iso_schematron_skeleton_for_saxon.xsl',
-             'security/ir.model.access.csv',
+             #'security/ir.model.access.csv',
              ],
     'installable': 'False',
     'application': 'False',

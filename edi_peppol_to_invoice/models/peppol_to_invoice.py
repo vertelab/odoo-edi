@@ -213,11 +213,13 @@ class Peppol_To_Invoice(models.Model):
         return invoice
 
     # Helper Functions that are used only by the Odoo Invoice, to PEPPOL Invoice conversions.
+    """
     def get_line_extension_amount(self):
         amount = 0
         for line in self['invoice_line_ids']:
             amount += line.price_subtotal
         return amount
+    """
 
     def get_prepaid_amount(self):
         prepaid_amount = (self.amount_total - self.amount_residual)

@@ -143,3 +143,10 @@ class Peppol_Base(models.Model):
                           "'. Only one or zero commas was expected.")
 
         return stripped_streets
+
+    # Gets the total of all lines combined
+    def get_line_extension_amount(self):
+        amount = 0
+        for line in self['invoice_line_ids']:
+            amount += line.price_subtotal
+        return amount

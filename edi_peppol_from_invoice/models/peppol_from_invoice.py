@@ -105,7 +105,7 @@ class Peppol_From_Invoice(models.Model):
         self._recompute_dynamic_lines(True)
 
         skipped_list = []
-        _logger.warning("Starting reading from delayed_list")
+        #_logger.warning("Starting reading from delayed_list")
         for element in delayed_list:
             was_found, missmached_info = self.check_dynamic_lines(element)
             if was_found:
@@ -261,8 +261,9 @@ class Peppol_From_Invoice(models.Model):
             '/DeliveryLocation/Address/', # Is ignored, due to this being a Invoice.
             'Invoice/InvoiceLine/InvoicedQuantity', # Is handeled by the import_invoiceline(..)
             'Invoice/InvoiceLine/LineExtensionAmount', # Is checked by the import_invoiceline(..)
-            'Invoice/InvoiceLine/Item/', # Is checked by the import_invoiceline(..
-            'Invoice/InvoiceLine/Price/', # Is checked by the import_invoiceline(..
+            'Invoice/InvoiceLine/Item/', # Is checked by the import_invoiceline(..)
+            'Invoice/InvoiceLine/Price/', # Is checked by the import_invoiceline(..)
+            'Invoice/TaxTotal/TaxSubtotal/' # Is effectively checked by check_dynamic_lines(..)
         }
         return any(s in self.get_full_parent_path(element) for s in complex_ignore_list)
 
@@ -370,22 +371,29 @@ class Peppol_From_Invoice(models.Model):
 
     def check_dynamic_lines(self, element):
         checkdict = {
-            'Invoice/TaxTotal/TaxAmount': 'amount_tax',
+            'Invoice/TaxTotal/TaxAmount': [True, 'amount_tax'],
+            'Invoice/LegalMonetaryTotal/LineExtensionAmount': [False, 'get_line_extension_amount'],
+            'Invoice/LegalMonetaryTotal/TaxExclusiveAmount': [True, 'amount_untaxed'],
+            'Invoice/LegalMonetaryTotal/TaxInclusiveAmount': [True, 'amount_total'],
+            'Invoice/LegalMonetaryTotal/PayableAmount': [True, 'amount_residual'],
         }
 
         try:
             nm = checkdict[self.get_full_parent_path(element)]
         except:
-            _logger.error("Could not find: " + self.get_full_parent_path(element))
+            _logger.error("Could not find in dict: " + self.get_full_parent_path(element))
             return False, None
         else:
             name = element.tag.split('}')[1]
-            db = str(self[nm])
+            if nm[0]:
+                db = str(self[nm[1]])
+            else:
+                db = str(getattr(self, nm[1])())
             xml = str(element.text)
-            _logger.warning(f"{db=}")
-            _logger.warning(f"{xml=}")
-            _logger.warning(f"{type(db)=}")
-            _logger.warning(f"{type(xml)=}")
+            #_logger.warning(f"{db=}")
+            #_logger.warning(f"{xml=}")
+            #_logger.warning(f"{type(db)=}")
+            #_logger.warning(f"{type(xml)=}")
             if str(db) == str(xml):
                 return True, None
             else:
