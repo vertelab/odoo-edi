@@ -110,41 +110,43 @@ class Peppol_To_Peppol(models.Model):
     def convert_party(self, tree, full_parent, dm):
         full_parent += '/cac:Party'
         self.convert_field(tree, full_parent, 'EndpointID',
-                           text=dm.vat,
+                           text=self.get_attribute('vat', dm),
                            attri='schemeID:9955') #TODO: No error check here! Assumed to be swedish VAT number!
         #Not handled: full_parent + /PartyIdentification/ID: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyIdentification/
         #Not handled: full_parent + /PartyName/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyName/cbc-Name/
         self.convert_address(tree, full_parent + '/cac:PostalAddress', dm)
         self.convert_field(tree, full_parent + '/cac:PartyTaxScheme', 'CompanyID',
-                           text=dm.vat)
+                           text=self.get_attribute('vat', dm))
         self.convert_field(tree, full_parent + '/cac:PartyTaxScheme/cac:TaxScheme', 'ID',
                            text='VAT')
         self.convert_field(tree, full_parent + '/cac:PartyLegalEntity', 'RegistrationName',
-                           text=dm.name)
+                           text=self.get_attribute('name', dm))
         #Not Handled: full_parent + /PartyLegalEntity/CompanyID: Might be Organisation number. Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyID/
         #Not Handled: full_parent + /PartyLegalEntity/CompanyLegalForm: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyLegalForm/
         #Not Handled: full_parent + /Contact/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-Contact/cbc-Name/
         self.convert_field(tree, full_parent + '/cac:Contact', 'Telephone',
-                           text=dm.phone)
+                           text=self.get_attribute('phone', dm))
         self.convert_field(tree, full_parent + '/cac:Contact', 'ElectronicMail',
-                           text=dm.email)
+                           text=self.get_attribute('email', dm))
 
     # Converts a 'cac:PostalAddress' or a 'cac:Address' from Odoo to PEPPOL
     def convert_address(self, tree, full_parent, dm):
         #full_parent += '/cac:PostalAddress'
         #_logger.warning(dm)
+        if dm is None:
+            return
         self.convert_field(tree, full_parent, 'StreetName',
-                           text=self.get_company_street(dm.street)[0])
+                           text=self.get_company_street(self.get_attribute('street', dm))[0])
         self.convert_field(tree, full_parent, 'AdditionalStreetName',
-                           text=dm.street2)
+                           text=self.get_attribute('street2', dm))
         self.convert_field(tree, full_parent, 'CityName',
-                           text=dm.city)
+                           text=self.get_attribute('city', dm))
         self.convert_field(tree, full_parent, 'PostalZone',
-                           text=dm.zip)
+                           text=self.get_attribute('zip', dm))
         self.convert_field(tree, full_parent, 'CountrySubentity',
                            text=dm.state_id.name)
         self.convert_field(tree, full_parent + '/cac:AddressLine', 'Line',
-                           text=self.get_company_street(dm.street)[1])
+                           text=self.get_company_street(self.get_attribute('street', dm))[1])
         self.convert_field(tree, full_parent + '/cac:Country', 'IdentificationCode',
                            text=dm.country_id.code)
 

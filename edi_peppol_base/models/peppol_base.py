@@ -109,6 +109,7 @@ class Peppol_Base(models.Model):
                           "Exception when trying to find text for: " +
                             f"{path=}" + " with the exception: " +
                             f"{e=}")
+            raise e
 
     # xpath command for the 'To odoo' way
     # xpf stands for: 'XPath To'
@@ -150,3 +151,19 @@ class Peppol_Base(models.Model):
         for line in self['invoice_line_ids']:
             amount += line.price_subtotal
         return amount
+
+    # Gets a account.move attribute and retun it.
+    #  If it dose not exist, returns none.
+    def get_attribute(self, attri, model=None):
+        if model is None:
+            model = self
+        try:
+            value = model[attri]
+            # TODO: This if what added to deal with self.narration being 'false' when empty.
+            #       But would False actualy be a valid value for any PEPPOL field,
+            #        and a custom solution for self.narration is needed?
+            if value != False:
+                return value
+        except:
+            pass
+        return None

@@ -29,11 +29,11 @@ class Peppol_To_Invoice(models.Model):
         self.convert_field(invoice, 'Invoice', 'ProfileID',
                            text='urn:fdc:peppol.eu:2017:poacc:billing:00:1.0')
         self.convert_field(invoice, 'Invoice', 'ID',
-                           text=self.name)
+                           text=self.get_attribute('name'))
         self.convert_field(invoice, 'Invoice', 'IssueDate',
-                           text=self.invoice_date)
+                           text=self.get_attribute('invoice_date'))
         self.convert_field(invoice, 'Invoice', 'DueDate',
-                           text=self.invoice_date_due)
+                           text=self.get_attribute('invoice_date_due'))
         self.convert_field(invoice, 'Invoice',
                            'InvoiceTypeCode', text='380')
         #Not handled: Note: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-Note/
@@ -71,12 +71,12 @@ class Peppol_To_Invoice(models.Model):
         # Accounting Supplier Party Instructions
         self.convert_party(invoice,
                            'Invoice/cac:AccountingSupplierParty',
-                           self.company_id)
+                           self.get_attribute('company_id'))
 
         # Accounting Customer Party Instructions
         self.convert_party(invoice,
                            'Invoice/cac:AccountingCustomerParty',
-                           self.partner_id)
+                           self.get_attribute('partner_id'))
 
         #PayeeParty, is this even possible in Odoo?
 
@@ -87,19 +87,19 @@ class Peppol_To_Invoice(models.Model):
         #Not Handled: Delivery/DeliveryLocation/ID: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cbc-ID/
         self.convert_address(invoice,
                             'Invoice/cac:Delivery/cac:DeliveryLocation/cac:Address',
-                            self.partner_shipping_id)
+                            self.get_attribute('partner_shipping_id'))
         #Not Handled: Delivery/DeliveryParty/PartyName/Name: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-Delivery/cac-DeliveryParty/cac-PartyName/cbc-Name/
 
         #PaymentMeans, these seem important but can't find them in Odoo.
 
         #Payment Terms Instruction
         self.convert_field(invoice, 'Invoice/cac:PaymentTerms','Note',
-                           text=self.narration)
+                           text=self.get_attribute('narration'))
         #AllowanceCharge, is this even possible in Odoo?
 
         #Tax Total Instructions
         self.convert_field(invoice, 'Invoice/cac:TaxTotal', 'TaxAmount',
-                           text=self.amount_tax,
+                           text=self.get_attribute('amount_tax'),
                            attri='currencyID:'+currency)
 
         for vat_rate in self.get_all_different_vat_rates():
@@ -131,10 +131,10 @@ class Peppol_To_Invoice(models.Model):
                            text=str(self.get_line_extension_amount()),
                            attri='currencyID:'+currency)
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'TaxExclusiveAmount',
-                           text=self.amount_untaxed,
+                           text=self.get_attribute('amount_untaxed'),
                            attri='currencyID:'+currency)
         self.convert_field(invoice, 'Invoice/cac:LegalMonetaryTotal', 'TaxInclusiveAmount',
-                           text=self.amount_total,
+                           text=self.get_attribute('amount_total'),
                            attri='currencyID:'+currency)
         #Not Handled: LegalMonetaryTotal/AllowanceTotalAmount: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-AllowanceTotalAmount/
         #Not Handled: LegalMonetaryTotal/ChargeTotalAmount: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-ChargeTotalAmount/
@@ -163,10 +163,10 @@ class Peppol_To_Invoice(models.Model):
                                text=str(n))
             #Not Handled: InvoiceLine/Note: This does not exist built into the line, but as a seperate line. https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/
             self.convert_field(new_line, 'cac:InvoiceLine', 'InvoicedQuantity',
-                               text=line.quantity,
+                               text=self.get_attribute('quantity', line),
                                attri='unitCode:C62')
             self.convert_field(new_line, 'cac:InvoiceLine', 'LineExtensionAmount',
-                               text=line.price_subtotal,
+                               text=self.get_attribute('price_subtotal', line),
                                attri='currencyID:'+currency)
             #Not Handled: InvoiceLine/AccountingCost: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cbc-AccountingCost/
             #Not Handled: InvoiceLine/InvoicePeriod/StartDate: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-InvoicePeriod/cbc-StartDate/
@@ -175,7 +175,7 @@ class Peppol_To_Invoice(models.Model):
             #Not Handled: InvoiceLine/DocumentReference: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-DocumentReference/
             #Not Handled: InvoiceLine/AllowanceCharge: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/
             self.convert_field(new_line, 'cac:InvoiceLine/cac:Item', 'Description',
-                               text=line.name)
+                               text=self.get_attribute('name', line))
             self.convert_field(new_line, 'cac:InvoiceLine/cac:Item', 'Name',
                                text=line.product_id.name)
             #Not Handled: InvoiceLine/Item/BuyersItemIdentification/ID: Does this exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-BuyersItemIdentification/cbc-ID/
@@ -197,7 +197,8 @@ class Peppol_To_Invoice(models.Model):
                                text='VAT')
             #Not Handled: InvoiceLine/Item/AdditionalItemProperty: Do these exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-AdditionalItemProperty/
             self.convert_field(new_line, 'cac:InvoiceLine/cac:Price', 'PriceAmount',
-                               text=(line.price_subtotal / line.quantity),
+                               text=(self.get_attribute('price_subtotal', line) /
+                                     self.get_attribute('quantity', line)),
                                attri='currencyID:'+currency)
             self.convert_field(new_line, 'cac:InvoiceLine/cac:Price', 'BaseQuantity',
                                text='1',
@@ -222,7 +223,7 @@ class Peppol_To_Invoice(models.Model):
     """
 
     def get_prepaid_amount(self):
-        prepaid_amount = (self.amount_total - self.amount_residual)
+        prepaid_amount = (self.get_attribute('amount_total') - self.get_attribute('amount_residual'))
         if prepaid_amount == 0:
             prepaid_amount = None
         return prepaid_amount
@@ -239,14 +240,15 @@ class Peppol_To_Invoice(models.Model):
         taxable_amount = 0
         for line in self['invoice_line_ids']:
             if line.tax_ids.amount == vat_rate:
-                taxable_amount += line.price_subtotal
+                taxable_amount += self.get_attribute('price_subtotal', line)
         return taxable_amount
 
     def get_tax_amount_for_vat_rate(self, vat_rate):
         tax_amount = 0
         for line in self['invoice_line_ids']:
             if line.tax_ids.amount == vat_rate:
-                tax_amount += (line.price_total - line.price_subtotal)
+                tax_amount += (self.get_attribute('price_total', line) -
+                               self.get_attribute('price_subtotal', line))
         return tax_amount
 
     def is_vat_inclusive(self, type):

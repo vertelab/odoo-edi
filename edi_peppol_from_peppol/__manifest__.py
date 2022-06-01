@@ -37,7 +37,8 @@
         14.0.0.0.0 - Initial version
     """,
     'depends': ['base', 'l10n_se', 'edi_peppol_base'],
-    'data': [],
+    'data': ['security/ir.model.access.csv',
+            ],
     'installable': 'False',
     'application': 'False',
 }

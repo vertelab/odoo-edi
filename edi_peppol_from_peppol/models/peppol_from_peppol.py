@@ -156,7 +156,21 @@ class Peppol_From_Peppol(models.Model):
         return None
 
     def company_comparison(self, xml, db, name):
-        if f'{db}'.strip() !=f'{xml}'.strip():
+        if (xml is None and db is None) or (xml is None and db is False):
+            return None
+        if xml is None or db is None:
+            _logger.error(inspect.currentframe().f_code.co_name +
+                " found the following two to not match: " + f"{db}" +
+                " and " + f"{xml}")
+            return [['Database ' + name, '\'' + f"{db}" + '\''],
+                    ['Invoice     ' + name, '\'' + f"{xml}" + '\'']]
+
+        db = ''.join(f'{db}'.split())
+        db = db.lower().replace('-', '')
+        xml = ''.join(f'{xml}'.split())
+        xml = xml.lower().replace('-', '')
+
+        if db != xml:
             _logger.error(inspect.currentframe().f_code.co_name +
                           " found the following two to not match: " + f"{db}" +
                           " and " + f"{xml}")
@@ -167,23 +181,24 @@ class Peppol_From_Peppol(models.Model):
     # Compares the product infomation of a converted-to-odoo line, and what it says in the xml
     def is_product_info_correct(self, line, xml):
         if str(line.price_unit) != str(self.xpft(xml, './cac:Price/cbc:PriceAmount')):
-            return False, [['In Odoo: Unit Price', line.price_unit],
+            return False, [['In Odoo:    Unit Price', line.price_unit],
                            ['In Invoice: Unit Price',self.xpft(xml, './cac:Price/cbc:PriceAmount')]]
 
         if str(line.quantity) != str(self.xpft(xml, './cbc:InvoicedQuantity')):
-            return False, [['In Odoo: Quantity', line.quantity],
+            return False, [['In Odoo:    Quantity', line.quantity],
                            ['In Invoice: Quantity',self.xpft(xml, './cbc:InvoicedQuantity')]]
 
         if str(line.price_subtotal) != str(self.xpft(xml, './cbc:LineExtensionAmount')):
-            return False, [['In Odoo: Subtotal', line.price_subtotal],
+            return False, [['In Odoo:    Subtotal', line.price_subtotal],
                            ['In Invoice: Subtotal',self.xpft(xml, './cbc:LineExtensionAmount')]]
 
         xml_tax_id = self.env['account.tax'].search([('name', '=',
                         self.translate_tax_category_from_peppol(
+                            self.xpft(xml, './cac:Item/cac:ClassifiedTaxCategory/cbc:ID'),
                             self.xpft(xml, './cac:Item/cac:ClassifiedTaxCategory/cbc:Percent')))])
         if line.tax_ids.id != xml_tax_id.id:
-            return [['In Odoo: Tax-Group', line.tax_ids.name],
-                    ['In Invoice: Quantity', xml_tax_id.name]]
+            return False, [['In Odoo:    Tax-Group', line.tax_ids.name],
+                           ['In Invoice: Tax-Group', xml_tax_id.name]]
 
         return True, None
 
@@ -192,6 +207,7 @@ class Peppol_From_Peppol(models.Model):
         return self.env['res.partner'].search([('vat', '=', endpointID),
                                                ('is_company', '=', 't')]).id
 
+    """
     def get_vat_id(self, peppol_rate):
         odoo_vat_name = self.translate_tax_category_from_peppol(peppol_rate)
         if odoo_vat_name:
@@ -202,11 +218,12 @@ class Peppol_From_Peppol(models.Model):
                               ": Was unable to find the tax group named: " +
                               f"{odoo_vat_name=}" + " despite it being expected.")
         return None
+    """
 
     # Translates the base swedish vat-taxes, from PEPPOL format into Odoo.
-    # Todo, add more detailed translation, which leads to other vat-codes then just I's
-    def translate_tax_category_from_peppol(self, input):
-        tax_category_dict = {
+    # TODO: add more detailed translation, which leads to other vat-codes then just I's
+    def translate_tax_category_from_peppol(self, tax_type, tax_percent):
+        tax_category_dict_S = {
             '25.0' : 'I',
             '12.0' : 'I12',
             '6.0' : 'I6',
@@ -216,7 +233,10 @@ class Peppol_From_Peppol(models.Model):
 
         output = None
         try:
-            output = tax_category_dict[input]
+            if tax_type == 'S':
+                output = tax_category_dict_S[tax_percent]
+            else:
+                raise
         except:
             _logger.error(inspect.currentframe().f_code.co_name +
                           ": Tax code of " +

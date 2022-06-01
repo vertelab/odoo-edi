@@ -104,13 +104,16 @@ class Peppol_From_Invoice(models.Model):
         self.with_context({'check_move_validity': False})._recompute_dynamic_lines(True)
         self._recompute_dynamic_lines(True)
 
+        #_logger.warning("Lines id: " + f"{self.invoice_line_ids=}")
+        #_logger.warning("A Lines price: " + f"{self.invoice_line_ids[0].price_unit=}")
+
         skipped_list = []
         #_logger.warning("Starting reading from delayed_list")
         for element in delayed_list:
             was_found, missmached_info = self.check_dynamic_lines(element)
             if was_found:
                 if missmached_info is not None:
-                    _logger.error(inspect.currentframe().f_code.co_name +
+                    _logger.error(inspect.currentframe().f_code.co_name + ': '
                                 'Found a discrepency between the incomming Invoice, '
                                 + 'and what Odoo dynamically generated.')
                     raise ValidationError( 'Found a discrepency between the incomming Invoice, '
@@ -120,7 +123,6 @@ class Peppol_From_Invoice(models.Model):
                                         '\n' + 'And' + '\n' +
                                         f'{missmached_info[1][0]}' + ': ' + f'{missmached_info[1][1]}')
                 continue
-
             skipped_list.append([element, element.text])
 
         # Print a warning in the logs,
@@ -315,6 +317,7 @@ class Peppol_From_Invoice(models.Model):
                 quantity = float(self.xpft(element, './cbc:InvoicedQuantity'))
                 unit_price = float(self.xpft(element, './cac:Price/cbc:PriceAmount'))
                 sellers_item = self.xpft(element, './cac:Item/cac:SellersItemIdentification/cbc:ID')
+                odoo_tax_id = self.get_oddo_tax(self.xpf(element, './cac:Item/cac:ClassifiedTaxCategory'))
 
                 # TODO: Only products that have no variants are handled by this code.
                 #  It should be changed to be able to handle products with multible variants.
@@ -343,6 +346,8 @@ class Peppol_From_Invoice(models.Model):
                                                         # (For example: It coudl be 'hours',
                                                         #  or 'liters' or anything like that.)
                                                         'quantity': quantity,
+                                                        'price_unit': supplierinfo.price,
+                                                        #'tax_ids': odoo_tax_id,
                                                         #TODO: For account_id
                                                         # This is hard coded to be intra-sweden
                                                         #  item purchases. Should be made dynamic.
@@ -350,10 +355,12 @@ class Peppol_From_Invoice(models.Model):
                                                         'recompute_tax_line': True,
                                                         'product_id': product.id
                                                         })
-                # Imports item information from the database, relying on the 'product_id'
+                # Imports item information from the database, relying on the 'product_id'.
                 line.with_context({'check_move_validity': False})._onchange_product_id()
+                line.price_unit = supplierinfo.price
                 # Checks that there is no missmatch between what is in the database about a item
                 #  and what is actually writen in the incomming invoice
+                # TODO: Add a check that the VAT-taxes are the same in the database and the invoice!
                 product_correct, missmached_info = self.is_product_info_correct(line, element)
                 if not product_correct:
                     raise ValidationError('The product: ' + line.name +
@@ -399,3 +406,18 @@ class Peppol_From_Invoice(models.Model):
             else:
                 return True, [['Database ' + name, '\'' + f"{db}" + '\''],
                               ['Invoice     ' + name, '\'' + f"{xml}" + '\'']]
+
+    def get_oddo_tax(self, element):
+        element = element[0]
+
+        tax_type = self.xpft(element, './cbc:ID')
+        tax_percent = self.xpft(element, './cbc:Percent')
+
+        tax_name = self.translate_tax_category_from_peppol(tax_type, tax_percent)
+        tax_id = self.env['account.tax'].search([('name', '=', tax_name)])
+
+        try:
+            return tax_id
+        except:
+            raise ValidationError('The tax with the name: ' + "'" + f"{tax_name}" + "' " +
+                                  'could not be found in the database.')
