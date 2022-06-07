@@ -180,6 +180,10 @@ class Peppol_From_Peppol(models.Model):
 
     # Compares the product infomation of a converted-to-odoo line, and what it says in the xml
     def is_product_info_correct(self, line, xml):
+        if str(line.product_id.name) != str(self.xpft(xml, './cac:Item/cbc:Name')):
+            return False, [['In Odoo:    Product Name', line.product_id.name],
+                           ['In Invoice: Product Name',self.xpft(xml, './cac:Item/cbc:Name')]]
+
         if str(line.price_unit) != str(self.xpft(xml, './cac:Price/cbc:PriceAmount')):
             return False, [['In Odoo:    Unit Price', line.price_unit],
                            ['In Invoice: Unit Price',self.xpft(xml, './cac:Price/cbc:PriceAmount')]]

@@ -80,17 +80,24 @@ class Peppol_From_Invoice(models.Model):
         delayed_list = []
 
         for element in tree.iter(tag="{" + self.nsmapf().cbc + "}*"):
-            if self.ignore_simple(element):
-                continue
-            if self.ignore_complex(element):
-                continue
+
+            #if self.ignore_simple(element):
+            #    continue
+            #if self.ignore_complex(element):
+            #    continue
             #if element.text == '':
             #    continue
             if self.import_simple(element):
                 continue
             if self.import_complex(element):
                 continue
-            if self.import_function(element):
+            was_done, missed_lines = self.import_function(element)
+            if was_done:
+                if missed_lines is not None:
+                    _logger.warning(f"{missed_lines=}")
+                    delayed_list.extend(missed_lines)
+                continue
+            if self.invoice_ignore(element):
                 continue
 
             delayed_list.append(element)
@@ -138,92 +145,6 @@ class Peppol_From_Invoice(models.Model):
 
             _logger.warning(ordered_list)# + " with the value of: " + s[1])
 
-        # This is the old way to do things.
-        """
-        # Simple fields that require no significant conversion.
-        self.invoice_date = self.get_xml_value(tree, '/ubl:Invoice/cbc:IssueDate')
-        self.invoice_date_due = self.get_xml_value(tree, '/ubl:Invoice/cbc:DueDate')
-        self.currency_id = self.get_currency_by_name()
-        self.ref = self.get_xml_value(tree, '/ubl:Invoice/cbc:ID')
-        self.narration = self.get_xml_value(tree, '/ubl:Invoice/cac:PaymentTerms/cbc:Note')
-
-        # Checks and import item lines.
-        for xmlline in self.xpf(tree, '/ubl:Invoice/cac:InvoiceLine'):
-            try:
-                quantity = float(self.xpft(xmlline, './cbc:InvoicedQuantity'))
-                unit_price = float(self.xpft(xmlline, './cac:Price/cbc:PriceAmount'))
-                sellers_item = self.xpft(xmlline, './cac:Item/cac:SellersItemIdentification/cbc:ID')
-
-                # TODO: Only products that have no variants are handled by this code.
-                #  It should be changed to be able to handle products with multible variants.
-                supplierinfo = self.env['product.supplierinfo'].search([
-                                            ('name', '=', self.partner_id.id),
-                                            ('product_code', '=', sellers_item)])
-                product = self.env['product.product'].search([
-                                        ('product_tmpl_id', '=', supplierinfo.product_tmpl_id.id)])
-                if len(product) == 0:
-                    raise ValidationError('Could not find the item from the invoice ' +
-                                          'in the products database.\n' +
-                                          'Please ensure there the product with ' +
-                                          'the sellers id of: ' + f'{sellers_item}' + '\n'
-                                          'Is buyable from the company: ' +
-                                          f'{self.partner_id.name}')
-                if len(product) > 1:
-                    raise ValidationError('More then one products with ' +
-                                          'the matching product code was found.' + '\n' +
-                                          'Are varient products used? These are not yet handled.')
-
-                # Creates the new line, with 'simple' fields filled in
-                line = self.env['account.move.line'].with_context({'check_move_validity': False}).create(
-                                                        {'move_id': self.id,
-                                                        #TODO: For quantity:
-                                                        # Add the 'type' of quantity.
-                                                        # (For example: It coudl be 'hours',
-                                                        #  or 'liters' or anything like that.)
-                                                        'quantity': quantity,
-                                                        #TODO: For account_id
-                                                        # This is hard coded to be intra-sweden
-                                                        #  item purchases. Should be made dynamic.
-                                                        'account_id': 1253,
-                                                        'recompute_tax_line': True,
-                                                        'product_id': product.id
-                                                        })
-                # Imports item information from the database, relying on the 'product_id'
-                line.with_context({'check_move_validity': False})._onchange_product_id()
-                # Checks that there is no missmatch between what is in the database about a item
-                #  and what is actually writen in the incomming invoice
-                product_correct, missmached_info = self.is_product_info_correct(line, xmlline)
-                if not product_correct:
-                    raise ValidationError('The product: ' + line.name +
-                                          ' had a missmatch between the database, ' +
-                                          'and the invoice. \n' +
-                                          'The missmatch was between: ' + '\n' +
-                                          f'{missmached_info[0][0]}' + ': ' +
-                                          f'{missmached_info[0][1]}' +
-                                          '\n' + 'And' + '\n' +
-                                          f'{missmached_info[1][0]}' + ': ' +
-                                          f'{missmached_info[1][1]}')
-            except Exception as e:
-                _logger.exception(e)
-                raise
-
-        # Adds/updates the '2440 Leverantörskuld' which balances the invoice,
-        #  as well as the tax line due to 'True' being inputet.
-        # _recompute_dynamic_lines is run twice, to ensure that the account validity is tested
-        #  once all numbers have been generated.
-        self.with_context({'check_move_validity': False})._recompute_dynamic_lines(True)
-        self._recompute_dynamic_lines(True)
-
-        # TODO: Add check here for if the total prices and total taxes and such, do not match.
-        # If so, throw a error ValidationError to the user.
-        # This might not be needed, as long as _recompute_dynamic_lines are run, and the overall
-        #  PEPPOL validation was passed..
-        #    raise ValidationError('The invoice had a missmatch between what was converted, and the invoice. \n' +
-        #                          'The missmatch was between: ' + '\n' +
-        #                          f'{missmached_info[0][0]}' + ': ' + f'{missmached_info[0][1]}' +
-        #                          '\n' + 'And' + '\n' +
-        #                          f'{missmached_info[1][0]}' + ': ' + f'{missmached_info[1][1]}')
-        """
 
     # This function should clear out 'self', which is to be a account.move,
     #  and clear out all data in it.
@@ -240,13 +161,20 @@ class Peppol_From_Invoice(models.Model):
             path = e.tag.split('}')[1] + "/" + path
         return path
 
+    def invoice_ignore(self, element):
+        if self.ignore_simple(element):
+            return True
+        if self.ignore_complex(element):
+            return True
+        return False
+
     def ignore_simple(self, element):
         simple_ignore_list ={
             'CustomizationID', # Should not be convertet
             'ProfileID', # Should not be convertet
             'InvoiceTypeCode', # Could be relevant, to generate a 'generic'
                                #  rather then a spesifict 'Invoice' object.
-            'BuyerReference', #TODO: Should possible be converted?
+            #'BuyerReference', #TODO: Should possible be converted?
         }
         return element.tag.split('}')[1] in simple_ignore_list
 
@@ -261,11 +189,27 @@ class Peppol_From_Invoice(models.Model):
             '/TaxScheme/ID', # Should allways be 'VAT' except for one case.
                              #  TODO: Make a exception for that one case?
             '/DeliveryLocation/Address/', # Is ignored, due to this being a Invoice.
+            #'Invoice/InvoiceLine/InvoicedQuantity', # Is handeled by the import_invoiceline(..)
+            #'Invoice/InvoiceLine/LineExtensionAmount', # Is checked by the import_invoiceline(..)
+            #'Invoice/InvoiceLine/Item/', # Is checked by the import_invoiceline(..)
+            #'Invoice/InvoiceLine/Price/', # Is checked by the import_invoiceline(..)
+
+            # TODO: Write a more explicit test of TaxSubtotal
+            'Invoice/TaxTotal/TaxSubtotal/', # Is effectively checked by check_dynamic_lines(..)
+
+            #'Invoice/TaxTotal/TaxAmount', # Is checked by check_dynamic_lines
+
+            'Invoice/InvoiceLine/ID', # Is handeled by the import_invoiceline(..)
             'Invoice/InvoiceLine/InvoicedQuantity', # Is handeled by the import_invoiceline(..)
-            'Invoice/InvoiceLine/LineExtensionAmount', # Is checked by the import_invoiceline(..)
-            'Invoice/InvoiceLine/Item/', # Is checked by the import_invoiceline(..)
-            'Invoice/InvoiceLine/Price/', # Is checked by the import_invoiceline(..)
-            'Invoice/TaxTotal/TaxSubtotal/' # Is effectively checked by check_dynamic_lines(..)
+            'Invoice/InvoiceLine/Item/SellersItemIdentification/ID', # Is handeled by the import_invoiceline(..)
+            'Invoice/InvoiceLine/LineExtensionAmount', # Is handeled by the is_product_info_correct(...)
+            'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/Percent', # Is handeled by the get_oddo_tax(..)
+            'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/ID', # Is handeled by the get_oddo_tax(..)
+
+            'Invoice/InvoiceLine/Item/Name', # Is handeled by the is_product_info_correct(...)
+            'Invoice/InvoiceLine/Price/PriceAmount', # Is handeled by the is_product_info_correct(...)
+            'Invoice/InvoiceLine/Item/Description', #Should not be checked
+
         }
         return any(s in self.get_full_parent_path(element) for s in complex_ignore_list)
 
@@ -287,13 +231,15 @@ class Peppol_From_Invoice(models.Model):
         #tag = element.tag.split('}')[1]
         path = self.get_full_parent_path(element)
         if path == 'Invoice/InvoiceLine/ID':
-            self.import_invoiceline(element)
-            return True
+            missed_lines = self.import_invoiceline(element)
+            if len(missed_lines) == 1:
+                missed_lines = None
+            return True, missed_lines
         elif path == 'Invoice/DocumentCurrencyCode':
             self.currency_id = self.get_currency_by_name()
-            return True
+            return True, None
 
-        return False
+        return False, None
 
     def import_complex(self, element):
         complexdict = {
@@ -312,12 +258,40 @@ class Peppol_From_Invoice(models.Model):
         return False
 
     def import_invoiceline(self, element):
+            missed_lines = [element]
             element = element.getparent()
             try:
-                quantity = float(self.xpft(element, './cbc:InvoicedQuantity'))
-                unit_price = float(self.xpft(element, './cac:Price/cbc:PriceAmount'))
-                sellers_item = self.xpft(element, './cac:Item/cac:SellersItemIdentification/cbc:ID')
-                odoo_tax_id = self.get_oddo_tax(self.xpf(element, './cac:Item/cac:ClassifiedTaxCategory'))
+                quantity = None
+                unit_price = None
+                sellers_item = None
+                odoo_tax_id = None
+
+                for ele in element.iter(tag="{" + self.nsmapf().cbc + "}*"):
+                    full_path = self.get_full_parent_path(ele)
+                    #if full_path == 'Invoice/InvoiceLine/ID':
+                    #    continue
+                    #el              Invoice/InvoiceLine/InvoicedQuantity
+                    if full_path == 'Invoice/InvoiceLine/InvoicedQuantity':
+                        quantity = float(ele.text)
+                        continue
+                    if full_path == 'Invoice/InvoiceLine/Price/PriceAmount':
+                        unit_price = float(ele.text)
+                        continue
+                    if full_path == 'Invoice/InvoiceLine/Item/SellersItemIdentification/ID':
+                        sellers_item = ele.text
+                        continue
+                    if full_path == 'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/ID':
+                        odoo_tax_id = self.get_oddo_tax(ele.getparent())
+                        continue
+                    if self.invoice_ignore(ele):
+                        continue
+
+                    missed_lines.append(ele)
+
+                #quantity = float(self.xpft(element, './cbc:InvoicedQuantity'))
+                #unit_price = float(self.xpft(element, './cac:Price/cbc:PriceAmount'))
+                #sellers_item = self.xpft(element, './cac:Item/cac:SellersItemIdentification/cbc:ID')
+                #odoo_tax_id = self.get_oddo_tax(self.xpf(element, './cac:Item/cac:ClassifiedTaxCategory'))
 
                 # TODO: Only products that have no variants are handled by this code.
                 #  It should be changed to be able to handle products with multible variants.
@@ -330,7 +304,8 @@ class Peppol_From_Invoice(models.Model):
                     raise ValidationError('Could not find the item from the invoice ' +
                                         'in the products database.\n' +
                                         'Please ensure there the product with ' +
-                                        'the sellers id of: ' + f'{sellers_item}' + '\n'
+                                        'the sellers id of: ' +
+                                        '\'' + f'{sellers_item}' + '\'' + '\n' +
                                         'Is buyable from the company: ' +
                                         f'{self.partner_id.name}')
                 if len(product) > 1:
@@ -367,14 +342,16 @@ class Peppol_From_Invoice(models.Model):
                                         ' had a missmatch between the database, ' +
                                         'and the invoice. \n' +
                                         'The missmatch was between: ' + '\n' +
-                                        f'{missmached_info[0][0]}' + ': ' +
-                                        f'{missmached_info[0][1]}' +
+                                        f'{missmached_info[0][0]}' + ': ' + '\'' +
+                                        f'{missmached_info[0][1]}' + '\'' +
                                         '\n' + 'And' + '\n' +
-                                        f'{missmached_info[1][0]}' + ': ' +
-                                        f'{missmached_info[1][1]}')
+                                        f'{missmached_info[1][0]}' + ': ' + '\'' +
+                                        f'{missmached_info[1][1]}' + '\'')
             except Exception as e:
                 _logger.exception(e)
                 raise
+            else:
+                return missed_lines
 
     def check_dynamic_lines(self, element):
         checkdict = {
@@ -408,7 +385,7 @@ class Peppol_From_Invoice(models.Model):
                               ['Invoice     ' + name, '\'' + f"{xml}" + '\'']]
 
     def get_oddo_tax(self, element):
-        element = element[0]
+        #element = element[0]
 
         tax_type = self.xpft(element, './cbc:ID')
         tax_percent = self.xpft(element, './cbc:Percent')
