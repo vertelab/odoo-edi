@@ -200,9 +200,9 @@ class Peppol_To_Invoice(models.Model):
                                text=(self.get_attribute('price_subtotal', line) /
                                      self.get_attribute('quantity', line)),
                                attri='currencyID:'+currency)
-            self.convert_field(new_line, 'cac:InvoiceLine/cac:Price', 'BaseQuantity',
-                               text='1',
-                               attri='unitCode:C62')
+            #self.convert_field(new_line, 'cac:InvoiceLine/cac:Price', 'BaseQuantity',
+            #                   text='1',
+            #                   attri='unitCode:C62')
             #Not Handled: InvoiceLine/Price/AllowanceCharge: Do these exist? https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Price/cac-AllowanceCharge/
 
             invoice.append(new_line)
