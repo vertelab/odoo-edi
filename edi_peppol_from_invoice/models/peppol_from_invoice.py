@@ -79,6 +79,7 @@ class Peppol_From_Invoice(models.Model):
         #  which will be given to the user in a warning box, at the end.
         delayed_list = []
 
+        #for element in tree.iter(tag="{" + self.nsmapf().cbc + "}*"):
         for element in tree.iter(tag="{" + self.nsmapf().cbc + "}*"):
 
             #if self.ignore_simple(element):
@@ -199,19 +200,29 @@ class Peppol_From_Invoice(models.Model):
 
             #'Invoice/TaxTotal/TaxAmount', # Is checked by check_dynamic_lines
 
-            'Invoice/InvoiceLine/ID', # Is handeled by the import_invoiceline(..)
-            'Invoice/InvoiceLine/InvoicedQuantity', # Is handeled by the import_invoiceline(..)
-            'Invoice/InvoiceLine/Item/SellersItemIdentification/ID', # Is handeled by the import_invoiceline(..)
-            'Invoice/InvoiceLine/LineExtensionAmount', # Is handeled by the is_product_info_correct(...)
-            'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/Percent', # Is handeled by the get_oddo_tax(..)
-            'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/ID', # Is handeled by the get_oddo_tax(..)
-
-            'Invoice/InvoiceLine/Item/Name', # Is handeled by the is_product_info_correct(...)
-            'Invoice/InvoiceLine/Price/PriceAmount', # Is handeled by the is_product_info_correct(...)
-            'Invoice/InvoiceLine/Item/Description', #Should not be checked
+            'Invoice/InvoiceLine/' #All invoiceLine's are handeled seperately
 
         }
         return any(s in self.get_full_parent_path(element) for s in complex_ignore_list)
+
+    def invoiceline_ignore(self, element):
+        ingore_list ={
+            # Invoice/InvoiceLine/ID', # DO NOT INGORE THIS!
+            #  ID should be let through, 'un-used', to aid with debugging of lines.
+            #  If it is the only thing that was not ignored, it will not be displayed.
+
+            #'Invoice/InvoiceLine/InvoicedQuantity', # Is handeled by the import_invoiceline(..)
+            #'Invoice/InvoiceLine/Item/SellersItemIdentification/ID', # Is handeled by the import_invoiceline(..)
+            'Invoice/InvoiceLine/LineExtensionAmount', # Is handeled by the is_product_info_correct(...)
+            'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/Percent', # Is handeled by the get_oddo_tax(..)
+            #'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/ID', # Is handeled by the get_oddo_tax(..)
+
+            'Invoice/InvoiceLine/Item/Name', # Is handeled by the is_product_info_correct(...)
+            #'Invoice/InvoiceLine/Price/PriceAmount', # Is handeled by the is_product_info_correct(...)
+            'Invoice/InvoiceLine/Item/Description', #Should not be checked
+            'InvoiceLine/Item/ClassifiedTaxCategory/TaxScheme/ID', # Should allways be 'VAT' except for one case.
+        }
+        return any(s in self.get_full_parent_path(element) for s in ingore_list)
 
     def import_simple(self, element):
         simpledict = {
@@ -258,7 +269,7 @@ class Peppol_From_Invoice(models.Model):
         return False
 
     def import_invoiceline(self, element):
-            missed_lines = [element]
+            missed_lines = []
             element = element.getparent()
             try:
                 quantity = None
@@ -283,7 +294,7 @@ class Peppol_From_Invoice(models.Model):
                     if full_path == 'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/ID':
                         odoo_tax_id = self.get_oddo_tax(ele.getparent())
                         continue
-                    if self.invoice_ignore(ele):
+                    if self.invoiceline_ignore(ele):
                         continue
 
                     missed_lines.append(ele)
@@ -365,7 +376,7 @@ class Peppol_From_Invoice(models.Model):
         try:
             nm = checkdict[self.get_full_parent_path(element)]
         except:
-            _logger.error("Could not find in dict: " + self.get_full_parent_path(element))
+            _logger.warning("Could not find in dict: " + self.get_full_parent_path(element))
             return False, None
         else:
             name = element.tag.split('}')[1]
