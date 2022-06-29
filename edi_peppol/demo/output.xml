@@ -39,7 +39,6 @@
       <cbc:EndpointID schemeID="9955">SE212000153801</cbc:EndpointID>
       <cac:PostalAddress>
         <cbc:StreetName>Sundsgatan 29</cbc:StreetName>
-        <cbc:AdditionalStreetName>Kostenheten</cbc:AdditionalStreetName>
         <cbc:CityName>Vänersborg</cbc:CityName>
         <cbc:PostalZone>46285</cbc:PostalZone>
         <cbc:CountrySubentity>Västra Götalands län</cbc:CountrySubentity>
@@ -54,7 +53,7 @@
         </cac:TaxScheme>
       </cac:PartyTaxScheme>
       <cac:PartyLegalEntity>
-        <cbc:RegistrationName>Vänersborgs Kommun</cbc:RegistrationName>
+        <cbc:RegistrationName>Vänersborgs Kommun Kostenheten</cbc:RegistrationName>
       </cac:PartyLegalEntity>
       <cac:Contact>
         <cbc:Telephone>+46 521 72 10 00</cbc:Telephone>
@@ -116,7 +115,6 @@
     </cac:Item>
     <cac:Price>
       <cbc:PriceAmount currencyID="SEK">99.0</cbc:PriceAmount>
-      <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
     </cac:Price>
   </cac:InvoiceLine>
   <cac:InvoiceLine>
@@ -125,7 +123,7 @@
     <cbc:LineExtensionAmount currencyID="SEK">7500.0</cbc:LineExtensionAmount>
     <cac:Item>
       <cbc:Description>[1562] Konservarad paprika</cbc:Description>
-      <cbc:Name>Konservarad paprika</cbc:Name>
+      <cbc:Name>Konserverad paprika</cbc:Name>
       <cac:SellersItemIdentification>
         <cbc:ID>1562</cbc:ID>
       </cac:SellersItemIdentification>
@@ -139,7 +137,6 @@
     </cac:Item>
     <cac:Price>
       <cbc:PriceAmount currencyID="SEK">150.0</cbc:PriceAmount>
-      <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
     </cac:Price>
   </cac:InvoiceLine>
   <cac:InvoiceLine>
@@ -162,7 +159,6 @@
     </cac:Item>
     <cac:Price>
       <cbc:PriceAmount currencyID="SEK">31.0</cbc:PriceAmount>
-      <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
     </cac:Price>
   </cac:InvoiceLine>
 </Invoice>

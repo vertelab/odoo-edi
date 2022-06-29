@@ -6,8 +6,8 @@ from odoo import models, api, _, fields
 from odoorpc import ODOO
 from xmlschema import XMLSchema10
 
-
 _logger = logging.getLogger(__name__)
+
 
 # Class containing functions that all From-PEPPOL-To-Odoo classes may need to use.
 class Peppol_From_Peppol(models.Model):
@@ -15,16 +15,18 @@ class Peppol_From_Peppol(models.Model):
     _inherit = ["peppol.base"]
     _description = "Module for converting from PEPPOL to Odoo"
 
+    # Parses an XML into a etree which is then returned.
     def parse_xml(self, msg):
         try:
             tree = etree.parse(msg)
         except Exception as e:
             _logger.error(inspect.currentframe().f_code.co_name + ": " +
-            "Tried to import a xml file, but failed to, due to: " + f"{e}")
+            "Tried to import a xml file, but failed due to: " + f"{e}")
             return None
         else:
             return tree
 
+    # Returns the element of a given xpath.
     def get_xml(self, tree, xmlpath, iteration=0):
         try:
             value = tree.xpath(xmlpath, namespaces=self.nsmapf().XNS)[iteration]
@@ -32,11 +34,11 @@ class Peppol_From_Peppol(models.Model):
             _logger.warning(inspect.currentframe().f_code.co_name + ": " +
             "Tried to import the xml value for: " + f"{xmlpath}" + "\n" +
             ", but it failed due to: " + f"{e}")
-            #_logger.error(e)
             return None
         else:
             return value
 
+    # Returns the value of a element which is given by a xpath.
     def get_xml_value(self, tree, xmlpath, iteration=0):
         try:
             value = self.get_xml(tree, xmlpath, iteration).text
@@ -155,6 +157,8 @@ class Peppol_From_Peppol(models.Model):
 
         return None
 
+    # Checks if two incomming parameters 'xml' and 'db' are the same,
+    #  after being made into lower case, having any '-' removed, and removing any white-spaces.
     def company_comparison(self, xml, db, name):
         if (xml is None and db is None) or (xml is None and db is False):
             return None
@@ -206,26 +210,17 @@ class Peppol_From_Peppol(models.Model):
 
         return True, None
 
+    # Returns a companies ID.
+    # TODO: This assumes that a companies VAT and their endpointID should be the same.
+    # This should not always be true in the future.
+    # Find a better way to find a companies ID in the res.partner table!
     def find_company_id(self, tree, xmlpath):
         endpointID = self.get_xml_value(tree, xmlpath + '/cbc:EndpointID')
         return self.env['res.partner'].search([('vat', '=', endpointID),
                                                ('is_company', '=', 't')]).id
 
-    """
-    def get_vat_id(self, peppol_rate):
-        odoo_vat_name = self.translate_tax_category_from_peppol(peppol_rate)
-        if odoo_vat_name:
-            try:
-                return self.env['account.tax'].search([('name', '=', odoo_vat_name)])[0]
-            except:
-                _logger.error(inspect.currentframe().f_code.co_name +
-                              ": Was unable to find the tax group named: " +
-                              f"{odoo_vat_name=}" + " despite it being expected.")
-        return None
-    """
-
     # Translates the base swedish vat-taxes, from PEPPOL format into Odoo.
-    # TODO: add more detailed translation, which leads to other vat-codes then just I's
+    # TODO: Add more detailed translation, which leads to other vat-codes then just 'I's
     def translate_tax_category_from_peppol(self, tax_type, tax_percent):
         tax_category_dict_S = {
             '25.0' : 'I',

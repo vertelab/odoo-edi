@@ -22,6 +22,9 @@ class Peppol_From_Invoice(models.Model):
         # TODO: Clear out all currently existing information from the account.move,
         #       which the export is to create itself.
         #       As a stop-gap mesure it currently only removed all account.move.lines.
+        #       If there was any non-line information in the Odoo invoice,
+        #        which the PEPPOL invoice does NOT have, then the old Odoo invoice value
+        #        may still remain, when it should not!
         self.clear_old_data()
 
         # Checks that this invoice has the users current company as the 'Customer'
@@ -56,7 +59,7 @@ class Peppol_From_Invoice(models.Model):
 
         missmached_info  = self.is_company_info_correct(
                                     tree,
-                                    self.partner_id, #'account.move.partner_id',
+                                    self.partner_id,
                                     xmlpath='/ubl:Invoice/cac:AccountingSupplierParty/cac:Party')
         if missmached_info is not None:
             _logger.error(inspect.currentframe().f_code.co_name +
@@ -70,24 +73,17 @@ class Peppol_From_Invoice(models.Model):
                                   '\n' + 'And' + '\n' +
                                   f'{missmached_info[1][0]}' + ': ' + f'{missmached_info[1][1]}')
 
-
-
-
         # Go through each element in the XML, and convert each piece of data into Odoo, one by one.
         # Any element on the ignore list, should be ignored if found in the XML.
         # Any element that is not converted, and not ingored, should be stored in a pair-list,
+        #  containing the ignored element name and its value,
         #  which will be given to the user in a warning box, at the end.
+        # TODO: The 'warning box' is currently only a log prinout. A later TO-DO notes where this
+        #  should be corrected.
         delayed_list = []
 
-        #for element in tree.iter(tag="{" + self.nsmapf().cbc + "}*"):
         for element in tree.iter(tag="{" + self.nsmapf().cbc + "}*"):
 
-            #if self.ignore_simple(element):
-            #    continue
-            #if self.ignore_complex(element):
-            #    continue
-            #if element.text == '':
-            #    continue
             if self.import_simple(element):
                 continue
             if self.import_complex(element):
@@ -102,8 +98,6 @@ class Peppol_From_Invoice(models.Model):
                 continue
 
             delayed_list.append(element)
-
-
 
         # Adds/updates the '2440 Leverantörskuld' which balances the invoice,
         #  as well as the tax line due to 'True' being inputet.
@@ -135,13 +129,16 @@ class Peppol_From_Invoice(models.Model):
 
         # Print a warning in the logs,
         #  if any line of the XML is not considered to have been 'handeled'
+        # TODO: This is currently only written out in the logs. The list should be
+        #  displayed to the user and the the created invoice should be removed!
+        #  Alternatively the user given a question if they want the invoice to be created anyway,
+        #  despite the non-handled lines.
         if len(skipped_list) != 0:
             _logger.warning(inspect.currentframe().f_code.co_name + ": " +
                             "Be aware that the following tags where not converted " +
                             "from PEPPOL into Odoo:")
             ordered_list = ''
             for s in skipped_list:
-                #_logger.warning(self.get_full_parent_path(s[0]) + ": " + s[1] )# + " with the value of: " + s[1])
                 ordered_list = ordered_list + '\n' + self.get_full_parent_path(s[0]) + ": '" + s[1] + "'"
 
             _logger.warning(ordered_list)# + " with the value of: " + s[1])
@@ -154,14 +151,19 @@ class Peppol_From_Invoice(models.Model):
         for line in self.line_ids:
             line.with_context({'check_move_validity': False}).unlink()
 
-    # Help functions
+    ###############################################################################################
+    # Help functions ##############################################################################
+    ###############################################################################################
 
+    # Builts and returns a string containing a elements name
+    #  which is proceded by their parents and all ancestors, seperated by a '/'
     def get_full_parent_path(self, element):
         path = element.tag.split('}')[1]
         for e in element.iterancestors():
             path = e.tag.split('}')[1] + "/" + path
         return path
 
+    # Returns true if a element is on either ignore lists, else returns false.
     def invoice_ignore(self, element):
         if self.ignore_simple(element):
             return True
@@ -169,61 +171,60 @@ class Peppol_From_Invoice(models.Model):
             return True
         return False
 
+    # A list of element names which should be ignored,
+    #  along with a comment on why they are to be ignored.
     def ignore_simple(self, element):
         simple_ignore_list ={
             'CustomizationID', # Should not be convertet
             'ProfileID', # Should not be convertet
-            'InvoiceTypeCode', # Could be relevant, to generate a 'generic'
-                               #  rather then a spesifict 'Invoice' object.
+            'InvoiceTypeCode', # Should always be a invoice in this case, so ignore it.
+                               # This is not directly checked anywhere though.
             #'BuyerReference', #TODO: Should possible be converted?
         }
         return element.tag.split('}')[1] in simple_ignore_list
 
+    # A list of element+(grand)parent(s) names which should be ignored,
+    #  along with a comment on why they are to be ignored.
     def ignore_complex(self, element):
         complex_ignore_list ={
             '/PartyLegalEntity/RegistrationName', # Is checked by is_company_info_correct(....)
             '/PartyTaxScheme/CompanyID', # Is checked by is_company_info_correct(....)
             '/EndpointID', # Is checked by is_company_info_correct(....)
+                           # TODO: This assumed EndpointID is a VAT number,
+                           #  this is not nessesarily true.
             '/Party/PostalAddress/', # Is checked by is_company_info_correct(....)
             '/Contact/Telephone', # Is checked by is_company_info_correct(....)
             '/Contact/ElectronicMail', # Is checked by is_company_info_correct(....)
             '/TaxScheme/ID', # Should allways be 'VAT' except for one case.
-                             #  TODO: Make a exception for that one case?
+                             # TODO: Make an exception for that one case?
             '/DeliveryLocation/Address/', # Is ignored, due to this being a Invoice.
-            #'Invoice/InvoiceLine/InvoicedQuantity', # Is handeled by the import_invoiceline(..)
-            #'Invoice/InvoiceLine/LineExtensionAmount', # Is checked by the import_invoiceline(..)
-            #'Invoice/InvoiceLine/Item/', # Is checked by the import_invoiceline(..)
-            #'Invoice/InvoiceLine/Price/', # Is checked by the import_invoiceline(..)
 
             # TODO: Write a more explicit test of TaxSubtotal
             'Invoice/TaxTotal/TaxSubtotal/', # Is effectively checked by check_dynamic_lines(..)
-
-            #'Invoice/TaxTotal/TaxAmount', # Is checked by check_dynamic_lines
-
             'Invoice/InvoiceLine/' #All invoiceLine's are handeled seperately
 
         }
         return any(s in self.get_full_parent_path(element) for s in complex_ignore_list)
 
+    # A list of invoice.line element names which should be ignored,
+    #  along with a comment on why they are to be ignored.
     def invoiceline_ignore(self, element):
         ingore_list ={
             # Invoice/InvoiceLine/ID', # DO NOT INGORE THIS!
             #  ID should be let through, 'un-used', to aid with debugging of lines.
             #  If it is the only thing that was not ignored, it will not be displayed.
 
-            #'Invoice/InvoiceLine/InvoicedQuantity', # Is handeled by the import_invoiceline(..)
-            #'Invoice/InvoiceLine/Item/SellersItemIdentification/ID', # Is handeled by the import_invoiceline(..)
             'Invoice/InvoiceLine/LineExtensionAmount', # Is handeled by the is_product_info_correct(...)
             'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/Percent', # Is handeled by the get_oddo_tax(..)
-            #'Invoice/InvoiceLine/Item/ClassifiedTaxCategory/ID', # Is handeled by the get_oddo_tax(..)
-
             'Invoice/InvoiceLine/Item/Name', # Is handeled by the is_product_info_correct(...)
-            #'Invoice/InvoiceLine/Price/PriceAmount', # Is handeled by the is_product_info_correct(...)
             'Invoice/InvoiceLine/Item/Description', #Should not be checked
             'InvoiceLine/Item/ClassifiedTaxCategory/TaxScheme/ID', # Should allways be 'VAT' except for one case.
+                                                                   # TODO: Make an exception for that one case?
         }
         return any(s in self.get_full_parent_path(element) for s in ingore_list)
 
+    # Check if element name is in the internal dict,
+    #  if so convert the elements value into the dict-assigned place in Odoo.
     def import_simple(self, element):
         simpledict = {
             'IssueDate': 'invoice_date',
@@ -238,20 +239,8 @@ class Peppol_From_Invoice(models.Model):
             self[nm] = element.text
             return True
 
-    def import_function(self, element):
-        #tag = element.tag.split('}')[1]
-        path = self.get_full_parent_path(element)
-        if path == 'Invoice/InvoiceLine/ID':
-            missed_lines = self.import_invoiceline(element)
-            if len(missed_lines) == 1:
-                missed_lines = None
-            return True, missed_lines
-        elif path == 'Invoice/DocumentCurrencyCode':
-            self.currency_id = self.get_currency_by_name()
-            return True, None
-
-        return False, None
-
+    # Check if element name+(grand)parent(s) is in the internal dict,
+    #  if so convert the elements value into the dict-assigned place in Odoo.
     def import_complex(self, element):
         complexdict = {
             'Invoice/PaymentTerms/Note': 'narration',
@@ -266,8 +255,28 @@ class Peppol_From_Invoice(models.Model):
             self[e] = element.text
             return True
 
-        return False
+    # Check if element name+(grand)parent(s) is in the internal elif-'list',
+    #  if so call a spesific function which converts that elements value into the correct place in Odoo.
+    # The first return parameter returns True if a match was found, else False.
+    # The second return parameter is used to indicate missed lines.
+    def import_function(self, element):
+        path = self.get_full_parent_path(element)
+        if path == 'Invoice/InvoiceLine/ID':
+            missed_lines = self.import_invoiceline(element)
+            if len(missed_lines) == 1:
+                missed_lines = None
+            return True, missed_lines
+        elif path == 'Invoice/DocumentCurrencyCode':
+            self.currency_id = self.get_currency_by_name()
+            return True, None
 
+        return False, None
+
+    # This function handles a invoice line, doing the creating of a new line,
+    #  the filling it with data, imporing product data from the database
+    #  and some checking that the values match up.
+    # The return value is a list of pairs, containing the names and value
+    #  of any XML element which was not handeled by this function.
     def import_invoiceline(self, element):
             missed_lines = []
             element = element.getparent()
@@ -279,9 +288,6 @@ class Peppol_From_Invoice(models.Model):
 
                 for ele in element.iter(tag="{" + self.nsmapf().cbc + "}*"):
                     full_path = self.get_full_parent_path(ele)
-                    #if full_path == 'Invoice/InvoiceLine/ID':
-                    #    continue
-                    #el              Invoice/InvoiceLine/InvoicedQuantity
                     if full_path == 'Invoice/InvoiceLine/InvoicedQuantity':
                         quantity = float(ele.text)
                         continue
@@ -298,11 +304,6 @@ class Peppol_From_Invoice(models.Model):
                         continue
 
                     missed_lines.append(ele)
-
-                #quantity = float(self.xpft(element, './cbc:InvoicedQuantity'))
-                #unit_price = float(self.xpft(element, './cac:Price/cbc:PriceAmount'))
-                #sellers_item = self.xpft(element, './cac:Item/cac:SellersItemIdentification/cbc:ID')
-                #odoo_tax_id = self.get_oddo_tax(self.xpf(element, './cac:Item/cac:ClassifiedTaxCategory'))
 
                 # TODO: Only products that have no variants are handled by this code.
                 #  It should be changed to be able to handle products with multible variants.
@@ -364,6 +365,10 @@ class Peppol_From_Invoice(models.Model):
             else:
                 return missed_lines
 
+    # A helper function which checks that the dynamically created values in the lines,
+    # matches up with the values in the XML Invoice.
+    # If these don't match up, it probably indicates a missmatch between Odoo's database,
+    #  and what the invoice expected it to be.
     def check_dynamic_lines(self, element):
         checkdict = {
             'Invoice/TaxTotal/TaxAmount': [True, 'amount_tax'],
@@ -385,19 +390,14 @@ class Peppol_From_Invoice(models.Model):
             else:
                 db = str(getattr(self, nm[1])())
             xml = str(element.text)
-            #_logger.warning(f"{db=}")
-            #_logger.warning(f"{xml=}")
-            #_logger.warning(f"{type(db)=}")
-            #_logger.warning(f"{type(xml)=}")
             if str(db) == str(xml):
                 return True, None
             else:
                 return True, [['Database ' + name, '\'' + f"{db}" + '\''],
                               ['Invoice     ' + name, '\'' + f"{xml}" + '\'']]
 
+    # Gets the tax id in Odoo, for a given XML item element.
     def get_oddo_tax(self, element):
-        #element = element[0]
-
         tax_type = self.xpft(element, './cbc:ID')
         tax_percent = self.xpft(element, './cbc:Percent')
 

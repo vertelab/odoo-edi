@@ -3,7 +3,7 @@
 ##############################################################################
 #
 #    Odoo, Open Source Enterprise Management Solution, third party addon
-#    Copyright (C) 2014-2021 Vertel AB (<http://vertel.se>).
+#    Copyright (C) 2014-2022 Vertel AB (<http://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -22,7 +22,7 @@
 
 {
     'name': 'EDI PEPPOL from Invoice',
-    'summary': 'Module for importing a invoice from PEPPOL to Odoo',
+    'summary': 'Module for importing invoices from PEPPOL to Odoo',
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',

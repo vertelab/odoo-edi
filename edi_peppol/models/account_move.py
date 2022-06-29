@@ -14,10 +14,12 @@ class Account_Move(models.Model):
     _description = "Module that facilitates convertion of buissness messages from and to PEPPOL."
 
     # Button click function comming from Odoo.
+    # TODO: Adjust the view for this button so it appears more appropriately.
     def to_peppol_button(self):
         return self.to_peppol()
 
     # Button click function comming from Odoo.
+    # TODO: Adjust the view for this button so it appears more appropriately.
     def from_peppol_button(self):
         return self.from_peppol()
 
@@ -32,11 +34,12 @@ class Account_Move(models.Model):
                    encoding='UTF-8',
                    pretty_print=True)
 
-        # TODO: Should be validating here!
+        # TODO: Should be validating here, and display error and remove the created XML file if the validation failed!
         #self.validate('/usr/share/odoo-edi/edi_peppol_base/demo/output.xml')
         #self.validation_thread()
-
         #self.env['peppol.validate'].validate_peppol('/usr/share/odoo-edi/edi_peppol/demo/output.xml')
+
+        # TODO: Add a popup for if the export to PEPPOL was succesfull.
 
     # Converts a account.move from a PEPPOL file.
     # Currently can only handle invoices, but is inteded to handle
@@ -47,12 +50,9 @@ class Account_Move(models.Model):
         if tree is None:
             return None
 
-        # TODO: Should be validating here!
+        # TODO: Should be validating here, and display error and abort if the validation failed!
 
         temp = self.import_invoice(tree)
-
-        # TODO: Remove this debugg function
-        #self.compare_account_moves(115, self.id)
 
         return temp
 
@@ -67,9 +67,6 @@ class Account_Move(models.Model):
         text = f"{n}" + ": " + f"{to_dict[n]}" + " =/= " + f"{from_dict[n]}"
         if to_dict[n] != from_dict[n]:
           _logger.error(text)
-        #else:
-        #  _logger.warning(text)
-      #_logger.warning(to_dict)
 
     # Helper Function for debugging pruposes
     def extra_account_move_info(self, move_id):
@@ -85,13 +82,14 @@ class Account_Move(models.Model):
               dict.update({a: getattr(move, a)})
       return dict
 
+    # TODO: This function was a attempt to get Validate to work. It did not work. Unclear why it dosen't.
     # Validates a inputed PEPPOL 'file'
     def validate(self, file):
       p = Process(target=self.validation_thread, args=())
       p.start()
-      #p.join()
       _logger.warning("CONTINIUING IN VALIDATE!")
 
+    # TODO: This function was a attempt to get Validate to work. It did not work. Unclear why it dosen't.
     def validation_thread(self):
       _logger.warning("TRYING TO START SUBPROCESS")
       s = subprocess.check_output(["python3", "/usr/share/odoo-edi/edi_peppol_validate/models/validate_test.py"])
