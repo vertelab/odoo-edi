@@ -164,7 +164,7 @@ class Peppol_To_Invoice(models.Model):
             #Not Handled: InvoiceLine/Note: This does not exist built into the line, but as a seperate line. https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/
             self.convert_field(new_line, 'cac:InvoiceLine', 'InvoicedQuantity',
                                text=self.get_attribute('quantity', line),
-                               attri='unitCode:C62'This)
+                               attri='unitCode:C62')
             self.convert_field(new_line, 'cac:InvoiceLine', 'LineExtensionAmount',
                                text=self.get_attribute('price_subtotal', line),
                                attri='currencyID:'+currency)

@@ -31,9 +31,9 @@ class Peppol_From_Peppol(models.Model):
         try:
             value = tree.xpath(xmlpath, namespaces=self.nsmapf().XNS)[iteration]
         except Exception as e:
-            _logger.warning(inspect.currentframe().f_code.co_name + ": " +
-            "Tried to import the xml value for: " + f"{xmlpath}" + "\n" +
-            ", but it failed due to: " + f"{e}")
+            #_logger.warning(inspect.currentframe().f_code.co_name + ": " +
+            #"Tried to import the xml value for: " + f"{xmlpath}" + "\n" +
+            #", but it failed due to: " + f"{e}")
             return None
         else:
             return value

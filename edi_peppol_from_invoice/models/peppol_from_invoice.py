@@ -106,11 +106,7 @@ class Peppol_From_Invoice(models.Model):
         self.with_context({'check_move_validity': False})._recompute_dynamic_lines(True)
         self._recompute_dynamic_lines(True)
 
-        #_logger.warning("Lines id: " + f"{self.invoice_line_ids=}")
-        #_logger.warning("A Lines price: " + f"{self.invoice_line_ids[0].price_unit=}")
-
         skipped_list = []
-        #_logger.warning("Starting reading from delayed_list")
         for element in delayed_list:
             was_found, missmached_info = self.check_dynamic_lines(element)
             if was_found:
@@ -381,7 +377,7 @@ class Peppol_From_Invoice(models.Model):
         try:
             nm = checkdict[self.get_full_parent_path(element)]
         except:
-            _logger.warning("Could not find in dict: " + self.get_full_parent_path(element))
+            #_logger.warning("Could not find in dict: " + self.get_full_parent_path(element))
             return False, None
         else:
             name = element.tag.split('}')[1]
