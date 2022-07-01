@@ -8,7 +8,7 @@ from odoorpc import ODOO
 _logger = logging.getLogger(__name__)
 
 
-# Class containing functions that all From-Odoo-To-PEPPOL classes may need to use.
+# Class containing functions that several or all From-Odoo-To-PEPPOL classes need to use.
 class Peppol_To_Peppol(models.Model):
     _name = "peppol.topeppol"
     _inherit = ["peppol.base"]
@@ -35,21 +35,19 @@ class Peppol_To_Peppol(models.Model):
         return result
 
     # Converts to the field 'fullParent' + 'tag' in the xml-file which is in PEPPOL format,
-    #  with the data in it comming either from 'text',
-    #  or from a spesific modules tablefrom Odoo as defined in 'datamodule'.
+    #  with the data in it comming from 'text'.
     # 'attri' is for attributes that must be set in PEPPOL.
     # 'recordset' defines a different module to start from,
-    #  when trying to fetch the datamodule, then 'self'
+    #  when trying to fetch the datamodule, then 'self'.
     def convert_field(  self,
                         tree,
                         fullParent,
                         tag,
                         text=None,
                         attri=None,
-                        expects_bool=None,
                         ):
 
-    # Ensures attribute is set
+        # Ensures attribute is set
         if attri != None:
             attribute = attri.split(':')
             if len(attribute) == 1:
@@ -57,11 +55,11 @@ class Peppol_To_Peppol(models.Model):
         else:
             attribute = [None, None]
 
-    # Skips adding a field, if no text is inputet for this field:
+        # Skips adding a field, if no text is inputet for this field:
         if (text is None or text == ''):
             return
 
-    # Ensure that the full Parent path exists
+        # Ensure that the full Parent path exists
         parents = fullParent.split('/')
         path = '/'
         for parent in parents:
@@ -71,7 +69,7 @@ class Peppol_To_Peppol(models.Model):
                                            parent.split(':')[1])
             path = path + '/' + parent
 
-    # Returns the newly created element
+        # Returns the newly created element
         return self.create_SubElement(tree.xpath(path,
                                       namespaces=self.nsmapt().XNS)[0],
                                       tag,
@@ -91,12 +89,14 @@ class Peppol_To_Peppol(models.Model):
             iterator = etree.iterwalk(tree)
             for action, elem in iterator:
                 parent = elem.getparent()
+                # If a element has 0 children and no text, remove it.
                 if len(list(elem)) == 0 and elem.text is None:
                     _logger.warning(inspect.currentframe().f_code.co_name +
                                     ": Removing empty element: " +
                                     f"{elem.tag}")
                     parent.remove(elem)
                     removal_done = True
+
             n += 1
             # Infinite-loop prevention.
             if n > 10000:
@@ -131,8 +131,6 @@ class Peppol_To_Peppol(models.Model):
 
     # Converts a 'cac:PostalAddress' or a 'cac:Address' from Odoo to PEPPOL
     def convert_address(self, tree, full_parent, dm):
-        #full_parent += '/cac:PostalAddress'
-        #_logger.warning(dm)
         if dm is None:
             return
         self.convert_field(tree, full_parent, 'StreetName',

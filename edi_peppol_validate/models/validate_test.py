@@ -1,5 +1,3 @@
-#import saxonpy
-
 from ast import Pass
 from lxml import etree
 import sys, os, logging, glob
@@ -8,6 +6,27 @@ from odoo import models, api, _, fields
 
 
 _logger = logging.getLogger(__name__)
+
+
+
+
+
+
+
+
+
+# TODO: This file is used to manually, with a console command, validate XML PEPPOL files.
+# This should be done automaticly. When that is fixed, this file should be removed, untill then,
+#  use it with the 'python3 validate_test.py' command,
+#  while standing in the edi_peppol_validate/models folder.
+
+
+
+
+
+
+
+
 
 
 #_logger.warning("BEFORE saxonc import, when sys.path is: " + ','.join(sys.path))
@@ -190,4 +209,5 @@ def validate_report(report):
     return lines
 
 
+# This points out which file to attempt to validate.
 validate_peppol('/usr/share/odoo-edi/edi_peppol/demo/output.xml')

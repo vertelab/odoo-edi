@@ -1,4 +1,3 @@
-#from datetime import date, datetime
 import datetime
 import os, logging, csv, inspect
 from jmespath import search
@@ -9,11 +8,6 @@ from lxml.isoschematron import Schematron
 from odoo import models, api, _, fields
 from odoorpc import ODOO
 
-#from peppol_invoice_from_odoo import create_invoice
-#from edi_peppol_validate import validate_peppol
-
-#from lxml import etree, html
-
 _logger = logging.getLogger(__name__)
 
 class NSMAPS:
@@ -23,7 +17,7 @@ class NSMAPS:
 
     NSMAP={'cac':cac, 'cbc':cbc, None:empty}
 
-    XNS={'cac':cac,   
+    XNS={'cac':cac,
          'cbc':cbc}
 
     ns = {k:'{' + v + '}' for k,v in NSMAP.items()}

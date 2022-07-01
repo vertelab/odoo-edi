@@ -164,7 +164,7 @@ class Peppol_To_Invoice(models.Model):
             #Not Handled: InvoiceLine/Note: This does not exist built into the line, but as a seperate line. https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/
             self.convert_field(new_line, 'cac:InvoiceLine', 'InvoicedQuantity',
                                text=self.get_attribute('quantity', line),
-                               attri='unitCode:C62')
+                               attri='unitCode:C62'This)
             self.convert_field(new_line, 'cac:InvoiceLine', 'LineExtensionAmount',
                                text=self.get_attribute('price_subtotal', line),
                                attri='currencyID:'+currency)
@@ -207,21 +207,13 @@ class Peppol_To_Invoice(models.Model):
 
             invoice.append(new_line)
 
-    # Cleanup
+        # Cleanup
         if self.remove_empty_elements(invoice) is None:
             return None
 
         return invoice
 
     # Helper Functions that are used only by the Odoo Invoice, to PEPPOL Invoice conversions.
-    """
-    def get_line_extension_amount(self):
-        amount = 0
-        for line in self['invoice_line_ids']:
-            amount += line.price_subtotal
-        return amount
-    """
-
     def get_prepaid_amount(self):
         prepaid_amount = (self.get_attribute('amount_total') - self.get_attribute('amount_residual'))
         if prepaid_amount == 0:
