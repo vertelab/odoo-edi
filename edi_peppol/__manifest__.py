@@ -85,7 +85,7 @@ to make the EDI PEPPOL modules fit for purpose.
     2.3 Fix EndpointID, which may require adding new columns in tables, and connecting to the PEPPOL network.
         EndpointID is an 'electronic address' used within PEPPOL, which identifies, in simplified terms,
           a 'post box number' to which messages can be delivered.
-        For peppol_to_invoice EndpointID exists once for the 'buyer' and once for the 'seller.
+        For peppol_to_invoice EndpointID exists once for the 'buyer' and once for the 'seller'.
         The buyer’s EndpointID is 'my' address, which is where any response to this invoice should be sent.
         The seller's EndpointID is 'their' address, which is where this invoice should be sent.
         This EndpointID needs to be found somehow. It should possibly become part of res.company and
