@@ -106,6 +106,9 @@ to make the EDI PEPPOL modules fit for purpose.
         Some user-friendliness might wish to be added here,
           to ask what the user wants to do for a particular mismatch, rather than aborting everything.
 
+    2.6 Language conversion.
+        Currently the module is entierly in english.
+        There aught to be added to-swedish translation for all parts of it.
 
 3.  Other PEPPOL messages.
 	Currently, only 'Invoice' messages are handled. However, there are other types of messages
