@@ -12,7 +12,7 @@ Note that these modules assume that ESAP 2.1 is used and that any user of this s
 To read about ESAP 2.1 refer to here: https://gs1.se/wp-content/uploads/sites/2/2020/07/processdescription-esap-20.1-v1.7.pdf
 To read about PEPPOL invoices refer to here: https://docs.peppol.eu/poacc/billing/3.0/bis/
 To read about the elements of PEPPOL invoices, refer to here: https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/tree/
-To see the 'structure' of the existing modules, refer to this image: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+To see the 'structure' of the existing modules, refer to this image: static/doc/PEPPOL_Class_Diagram.v2.png
 
 ########## HOW TO USE ##################
 To test the current modules you will need two databases, on the same virtual machine,
@@ -20,7 +20,7 @@ To test the current modules you will need two databases, on the same virtual mac
 
 Go to the sender database, install the EDI Peppol module, which should install the l10n_se and accounting modules too.
 Go into 'frakturering' and create a new 'kundfakturor' invoice.
-For an example of a invoice refer to: YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+For an example of a invoice refer to: static/doc/Invoice.pdf
 Note that the company you are logged into the database as,
   must be the same as the company which is supposed to be the 'seller' on the invoice.
 Click the 'Export to PEPPOL' button which should appear on the 'button bar' at the top,
