@@ -110,7 +110,7 @@ class Peppol_Base(models.Model):
         if len(stripped_streets) == 1:
             return [streets[0], None]
         elif len(stripped_streets) > 2:
-            _logger.Error(inspect.currentframe().f_code.co_name +
+            _logger.error(inspect.currentframe().f_code.co_name +
                           ": A unexpected amount of commas where found in '" +
                           f"{original_streets}" +
                           "'. Only one or zero commas was expected.")
