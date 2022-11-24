@@ -1,0 +1,43 @@
+odoo-edi / edi_peppol_validate
+2022-11-22
+
+Be aware of these!
+[project]/[module]/static/description/banner.png
+[project]/[module]/static/description/icon.png
+
+
+Icons may be found at: https://fontawesome.com/v5/cheatsheet
+
+Icon: "communication"
+Odoo banner: 560 x 280
+Odoo icon: 140 x 140
+
+Icon included as png:
+communication.png
+communication-neg.png
+Source: https://uxwing.com/antenna-dish-icon/
+
+
+HEX
+#930a57
+
+#8105a7
+
+
+Source: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Colors/Color_picker_tool
+
+Edit image:
+Ubuntu = Pinta, https://www.pinta-project.com/howto/installing-pinta
+Ubuntu = Pinta, "permission denied", https://askubuntu.com/questions/1321337/pinta-can-not-open-file-permission-denied
+
+Windows = Paint.net , https://www.getpaint.net/
+
+Guide:
+1. Use Inkscape to create a colored background. (Import)
+2. Odoo icon: 140 x 140, 560 x 280.
+3. Pick icon at fontawesome and paste in a text field.
+4. Save in ordinary / plain svg format.
+5. In Inkscape, choose Generate PNG image and "Export as...".
+6. Write a filename...
+7. Be careful when selecting the filename! It's easy to select the wrong path!
+8. ...of choice and choose "Export".
