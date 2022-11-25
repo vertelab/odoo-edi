@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 ##############################################################################
 ########## OVERVIEW ####################
 # This module, along with the other PEPPOL modules, are intended to allow a user to send and receive
