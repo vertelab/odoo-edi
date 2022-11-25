@@ -1,0 +1,20 @@
+Vertel Quality Incitament
+2022-09-20
+
+These steps will help the developer to ship software people can use. To 
+start, do a ”git pull” to ensure your local copy is up to date.
+
+1. grep -sR "'name':" */*__.py
+2. grep -sR "'version':" */*__.py
+3. grep -sR "'category':" */*__.py
+4. grep -sR "'summary':" */*__.py
+5. grep -sR "'description':" */*__.py
+
+
+1. Name should be something clever and end with a colon.
+2. Version shall be the same for every module in the project
+3. Category shall be relevant and consistant. Not creative!
+4. Summary shall be… something.
+5. Description shall be empty (multiline) and end with ”””
+
+
