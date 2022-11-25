@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Odoo, Open Source Enterprise Management Solution, third party addon
-#    Copyright (C) 2014-2021 Vertel AB (<http://vertel.se>).
+#    Odoo SA, Open Source Management Solution, third party addon
+#    Copyright (C) 2022- Vertel AB (<https://vertel.se>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -15,18 +15,32 @@
 #    GNU Affero General Public License for more details.
 #
 #    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
 
 {
-    "name": "EDI Base",
-    "description": """
-Framework for EDI communication in Odoo.
-14.0.0.0.0 - Initial version
+    'name': 'EDI: Base',
+    'version': '14.0.0.0.0',
+    # Version ledger: 14.0 = Odoo version. 1 = Major. Non regressionable code. 2 = Minor. New features that are regressionable. 3 = Bug fixes
+    'summary': 'Framework for EDI communication in Odoo.',
+    # Categories can be used to filter modules in modules listing
+    # Check https://github.com/odoo/odoo/blob/14.0/odoo/addons/base/data/ir_module_category_data.xml
+    # for the full list
+    'category': 'Accounting',
+    'description': """
+    Framework for EDI communication in Odoo.
+    14.0.0.0.0 - Initial version
     """,
-    "category": "EDI",
-    "version": "14.0.0.0.0",
+    #'sequence': '1',
+    'author': 'Vertel AB',
+    'website': 'https://vertel.se/apps/odoo-edi/edi_base',
+    'images': ['static/description/banner.png'], # 560x280 px.
+    'license': 'AGPL-3',
+    'contributor': '',
+    'maintainer': 'Vertel AB',
+    'repository': 'https://github.com/vertelab/odoo-edi',
+    # Any module necessary for this one to work correctly
     "depends": [
         "base",
     ],
@@ -42,6 +56,5 @@ Framework for EDI communication in Odoo.
     "demo": [],
     "installable": True,
     "application": False,
-    "author": "Vertel AB",
-    "website": "www.vertel.se",
 }
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
