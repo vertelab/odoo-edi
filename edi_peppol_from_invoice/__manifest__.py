@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
@@ -21,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'EDI PEPPOL from Invoice',
+    'name': 'EDI: PEPPOL from Invoice',
     'summary': 'Module for importing invoices from PEPPOL to Odoo',
     'author': 'Vertel AB',
     'contributor': '',
@@ -31,7 +30,7 @@
     'version': '14.0.0.0.0',
     # Version ledger: 14.0 = Odoo version. 1 = Major. Non regressionable code. 2 = Minor. New features that are regressionable. 3 = Bug fixes
     #'license': 'AGPL-3',
-    'website': 'https://vertel.se/apps/odoo-edi/edi_peppol/',
+    'website': 'https://vertel.se/apps/odoo-edi/edi_peppol_from_invoice',
     'description': """
         Implements the conversion of invoices from-PEPPOL to-Odoo, within the greater PEPPOL framework.
         14.0.0.0.0 - Initial version
