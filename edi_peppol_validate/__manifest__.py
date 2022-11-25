@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
@@ -21,7 +20,7 @@
 ##############################################################################
 
 {
-    'name': 'EDI PEPPOL validate',
+    'name': 'EDI: PEPPOL validate',
     'summary': 'Module for validating PEPPOL XML files',
     'author': 'Vertel AB',
     'contributor': '',
@@ -31,10 +30,10 @@
     'version': '14.0.0.0.0',
     # Version ledger: 14.0 = Odoo version. 1 = Major. Non regressionable code. 2 = Minor. New features that are regressionable. 3 = Bug fixes
     'license': 'AGPL-3',
-    'website': 'https://vertel.se/apps/odoo-edi/edi_peppol/',
+    'website': 'https://vertel.se/apps/odoo-edi/edi_peppol_validate',
     'description': """
-        Implements a Framework for PEPPOL communication in Odoo.
-        14.0.0.0.0 - Initial version
+    Implements a Framework for PEPPOL communication in Odoo.
+    14.0.0.0.0 - Initial version
     """,
     'depends': ['base'],
     'external_dependencies': {
