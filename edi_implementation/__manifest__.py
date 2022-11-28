@@ -46,7 +46,7 @@
         "hr",
     ],
     "data": [
-        "data/edi_rest_api_data.xml",
+        #"data/edi_rest_api_data.xml",
         "data/edi_route_data.xml",
     ],
     "demo": [],
