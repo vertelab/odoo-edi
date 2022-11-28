@@ -177,7 +177,7 @@
                 'edi_peppol_to_order',
                 'edi_peppol_from_invoice'],
     'data': ['views/account_invoice_view.xml',
-             'views/peppol_wizard_form.xml',
+             #'views/peppol_wizard_form.xml',
              'security/ir.model.access.csv',
              ],
     'installable': 'True',
