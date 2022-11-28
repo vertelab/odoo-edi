@@ -154,7 +154,7 @@
 ##############################################################################
 
 {
-    'name': 'EDI PEPPOL',
+    'name': 'EDI: PEPPOL',
     'summary': 'Module for sending and reciving PEPPOL',
     'author': 'Vertel AB',
     'contributor': '',
