@@ -41,10 +41,7 @@ Implements a framework for REST calls via EDI in Odoo.
     'maintainer': 'Vertel AB',
     'repository': 'https://github.com/vertelab/odoo-edi',
     # Any module necessary for this one to work correctly
-    "depends": [
-        "edi_base",
-        "rest_base",
-    ],
+    'depends': ['edi_base','rest_base',],
     "data": [
         "views/edi_route_view.xml",
         "views/edi_type_view.xml",
