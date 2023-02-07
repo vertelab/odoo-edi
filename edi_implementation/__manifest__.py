@@ -41,10 +41,7 @@
     'maintainer': 'Vertel AB',
     'repository': 'https://github.com/vertelab/odoo-edi',
     # Any module necessary for this one to work correctly
-    "depends": [
-        "edi_protocol_rest",
-        "hr",
-    ],
+    'depends': ['edi_protocol_rest','hr',],
     "data": [
         #"data/edi_rest_api_data.xml",
         "data/edi_route_data.xml",
