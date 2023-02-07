@@ -41,9 +41,7 @@
     'maintainer': 'Vertel AB',
     'repository': 'https://github.com/vertelab/odoo-edi',
     # Any module necessary for this one to work correctly
-    "depends": [
-        "base",
-    ],
+    'depends': ['base',],
     "data": [
         "views/edi_base_view.xml",
         "views/edi_envelope_view.xml",
