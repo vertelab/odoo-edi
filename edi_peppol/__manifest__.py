@@ -155,7 +155,7 @@
 
 {
     'name': 'EDI: PEPPOL',
-    'summary': 'Module for sending and reciving PEPPOL',
+    'summary': 'Module for sending and reciving PEPPOL.',
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',
@@ -167,7 +167,7 @@
     'website': 'https://vertel.se/apps/odoo-edi/edi_peppol/',
     'description': """
         Implements a Framework for PEPPOL communication in Odoo.
-        14.0.0.0.0 - Initial version
+        14.0.0.0.0 - Initial version.
     """,
     'depends': ['base','l10n_se','purchase','edi_peppol_validate','edi_peppol_to_invoice','edi_peppol_to_order','edi_peppol_from_invoice'],
     'data': ['views/account_invoice_view.xml',
