@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI: PEPPOL to PEPPOL',
-    'summary': 'General module for converting from Odoo to PEPPOL',
+    'summary': 'General module for converting from Odoo to PEPPOL.',
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',
@@ -33,7 +33,7 @@
     'website': 'https://vertel.se/apps/odoo-edi/edi_peppol_to_peppol',
     'description': """
         Implements the shared functions needed for from-Odoo to-PEPPOL conversion, within the greater PEPPOL framework.
-        14.0.0.0.0 - Initial version
+        14.0.0.0.0 - Initial version.
     """,
     'depends': ['base', 'l10n_se', 'edi_peppol_base'],
     'data': [],
