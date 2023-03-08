@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI: PEPPOL validate',
-    'summary': 'Module for validating PEPPOL XML files',
+    'summary': 'Module for validating PEPPOL XML files.',
     'author': 'Vertel AB',
     'contributor': '',
     'maintainer': 'Vertel AB',
