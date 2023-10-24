@@ -75,7 +75,7 @@ class Partner(models.Model):
             "view_id": export_pdf_config_wizard_form_view.id,
             "res_model": "ir.attachment",
             "type": "ir.actions.act_window",
-            "target": "inline",
+            "target": "new",
             "res_id": attachment.id,
         }
         return action

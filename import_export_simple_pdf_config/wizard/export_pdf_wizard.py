@@ -13,7 +13,7 @@ class ExportConfiguration(models.Model):
     )
     simple_pdf_filename = fields.Char(string="PDF Config (XML) Filename")
 
-    partner_id = fields.Many2one('res.partner')
+    partner_id = fields.Many2one('res.partner', domain=[('company_type',  '=', 'company')], string="Partner")
 
     def element_to_dict(self, element):
         if len(element) == 0:
