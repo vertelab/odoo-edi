@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_import_pdf_config_wizard_form" model="ir.ui.view">
+            <field name="name">import.pdf.config.wizard.form</field>
+            <field name="model">import.pdf.config.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Import PDF Simple Config">
+                    <group>
+                        <field name="simple_pdf_file" filename="simple_pdf_filename"/>
+                        <field name="partner_id"/>
+                    </group>
+                    <footer>
+                        <button name="action_export_config" string="Import Configuration" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_import_pdf_config_wizard" model="ir.actions.act_window">
+            <field name="name">Contact Titles</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">import.pdf.config.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_import_pdf_config_wizard" action="action_import_pdf_config_wizard" name="Import Simple PDF Config" parent="contacts.res_partner_menu_config" sequence="4"/>
+    </data>
+</odoo>
