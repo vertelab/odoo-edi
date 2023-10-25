@@ -65,18 +65,10 @@ class Partner(models.Model):
             'mimetype': 'application/xml',
         })
 
-        export_pdf_config_wizard_form_view = self.env.ref(
-            "import_export_simple_pdf_config.view_export_pdf_config_wizard_form"
-        )
-
-        action = {
-            "name": _("Export Simple PDF Config"),
-            "view_mode": "form",
-            "view_id": export_pdf_config_wizard_form_view.id,
-            "res_model": "ir.attachment",
-            "type": "ir.actions.act_window",
-            "target": "new",
-            "res_id": attachment.id,
+        return {
+            'type': 'ir.actions.act_url',
+            'name': attachment.name,
+            'url': f'/web/content/ir.attachment/{attachment.id}/datas/{attachment.name}?download=true',
         }
-        return action
+
 

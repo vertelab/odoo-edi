@@ -37,7 +37,6 @@
     "data": [
         "security/ir.model.access.csv",
         "data/data.xml",
-        "views/export_simple_pdf_config_view.xml",
         "views/import_simple_pdf_config_view.xml",
     ],
     "demo": [],
