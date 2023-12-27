@@ -4,7 +4,11 @@
     'summary': 'OCR Account Invoice Import.',
     'category': 'Accounting',
     'description': """
-        Extends (OCA) module account_invoice_import_simple_pdf in edi with OCR using tesseract library
+        Extends (OCA) module account_invoice_import_simple_pdf in esudo apt-get install tesseract-ocr
+        pip install tesseract
+        pip install tesseract-ocrdi with OCR using tesseract library
+        sudo apt-get install poppler-utils
+        
     """,
     'author': 'Vertel AB',
     'website': 'https://vertel.se/apps/odoo-edi/account_invoice_import_simple_ocr',
