@@ -4,7 +4,10 @@
     'summary': 'OCR Account Invoice Import.',
     'category': 'Accounting',
     'description': """
-        Extends (OCA) module account_invoice_import_simple_pdf in esudo apt-get install tesseract-ocr
+        Extends (OCA) module account_invoice_import_simple_pdf in e
+
+        Guide of tesseract
+        sudo apt-get install tesseract-ocr
         pip install tesseract
         pip install tesseract-ocrdi with OCR using tesseract library
         sudo apt-get install poppler-utils
