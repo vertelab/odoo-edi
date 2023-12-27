@@ -12,9 +12,11 @@
         sudo pip3 install PyMuPDF
         sudo pip3 install pytesseract
 
-        
-        
     """,
+    "external_dependencies": {
+        "python": ["PyMuPDF", "pytesseract"],
+        "deb": ["tesseract-ocr" ,"poppler-utils"],
+    },
     'author': 'Vertel AB',
     'website': 'https://vertel.se/apps/odoo-edi/account_invoice_import_simple_ocr',
     'license': 'AGPL-3',
