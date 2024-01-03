@@ -2,6 +2,8 @@
 # @author: Alexis de Lattre <alexis.delattre@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from pdf2image import convert_from_bytes
+import pytesseract
 import logging
 from odoo import models, fields, api, _
 import subprocess
@@ -63,7 +65,8 @@ class AccountInvoiceImport(models.TransientModel):
 
     @api.model
     def simple_pdf_text_extraction(self, file_data, test_info):
-        fileobj = NamedTemporaryFile("wb", prefix="odoo-simple-pdf-", suffix=".pdf")
+        fileobj = NamedTemporaryFile(
+            "wb", prefix="odoo-simple-pdf-", suffix=".pdf")
         fileobj.write(file_data)
         # Extract text from PDF
         # Very interesting reading:
@@ -83,19 +86,24 @@ class AccountInvoiceImport(models.TransientModel):
             )
 
             if not res.get('all'):
-                res = self._simple_pdf_text_extraction_pytesseract(file_data, test_info)
+                res = self._simple_pdf_text_extraction_pytesseract(
+                    file_data, test_info)
 
         else:
             # From best tool to worst
             res = self._simple_pdf_text_extraction_pymupdf(fileobj, test_info)
             if not res:
-                res = self._simple_pdf_text_extraction_pdftotext_lib(fileobj, test_info)
+                res = self._simple_pdf_text_extraction_pdftotext_lib(
+                    fileobj, test_info)
             if not res:
-                res = self._simple_pdf_text_extraction_pdftotext_cmd(fileobj, test_info)
+                res = self._simple_pdf_text_extraction_pdftotext_cmd(
+                    fileobj, test_info)
             if not res:
-                res = self._simple_pdf_text_extraction_pdfplumber(fileobj, test_info)
+                res = self._simple_pdf_text_extraction_pdfplumber(
+                    fileobj, test_info)
             if not res.get('all'):
-                res = self._simple_pdf_text_extraction_pytesseract(file_data, test_info)
+                res = self._simple_pdf_text_extraction_pytesseract(
+                    file_data, test_info)
             if not res:
                 raise UserError(
                     _(
@@ -122,23 +130,29 @@ class AccountInvoiceImport(models.TransientModel):
         return res
 
     @api.model
-    def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info):
-        res = False
-        try:
-            pages = []
+git    ######
+    # def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info, monochrome_threshold=75):
+    #     res = False
+    #     try:
+    #         pages = []
+    #         images = convert_from_bytes(fileobj)
+    #         # Function to convert an image to monochrome
 
-            images = convert_from_bytes(fileobj)
-            for image in images:
-                # Perform OCR on each image and add the extracted text to the result
-                image_text = pytesseract.image_to_string(image)
-                pages.append(image_text)
-
-            res = {
-                "all": "\n\n".join(pages),
-                "first": pages and pages[0] or "",
-            }
-            _logger.info("Text extraction made with pytesseract")
-            test_info["text_extraction"] = "pytesseract"
-        except Exception as e:
-            _logger.warning("Text extraction with pytesseract failed. Error: %s", e)
-        return res
+    #         def convert_to_monochrome(image):
+    #             return image.convert('L').point(lambda p: p > monochrome_threshold and 250)
+    #         for image in images:
+    #             # Convert image to monochrome
+    #             monochrome_image = convert_to_monochrome(image)
+    #             # Perform OCR on each monochrome image and add the extracted text to the result
+    #             image_text = pytesseract.image_to_string(monochrome_image)
+    #             pages.append(image_text)
+    #         res = {
+    #             "all": "\n\n".join(pages),
+    #             "first": pages and pages[0] or "",
+    #         }
+    #         _logger.info("Text extraction made with pytesseract")
+    #         test_info["text_extraction"] = "pytesseract"
+    #     except Exception as e:
+    #         _logger.warning(
+    #             "Text extraction with pytesseract failed. Error: %s", e)
+    #     return res
