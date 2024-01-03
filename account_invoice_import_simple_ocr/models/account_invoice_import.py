@@ -130,7 +130,7 @@ class AccountInvoiceImport(models.TransientModel):
         return res
 
     @api.model
-git    ######
+    ######
     # def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info, monochrome_threshold=75):
     #     res = False
     #     try:
