@@ -8,7 +8,7 @@
                 <form string="Import PDF Simple Config">
                     <group>
                         <field name="simple_pdf_file" filename="simple_pdf_filename"/>
-                        <field name="partner_id"/>
+<!--                        <field name="partner_id"/>-->
                     </group>
                     <footer>
                         <button name="action_export_config" string="Import Configuration" type="object" class="btn-primary"/>
