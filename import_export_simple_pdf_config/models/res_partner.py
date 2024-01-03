@@ -4,7 +4,8 @@ from lxml import etree
 
 EXCLUDE_FIELDS = [
     'create_date', '__last__update', 'create_uid', 'write_date', 'write_uid', 'id', '__last_update',
-    'simple_pdf_test_file', 'simple_pdf_test_filename', 'simple_pdf_test_raw_text', 'simple_pdf_test_results', 'active'
+    'simple_pdf_test_file', 'simple_pdf_test_filename', 'simple_pdf_test_raw_text', 'simple_pdf_test_results', 'active',
+    'partner_id', 'company_id'
 ]
 
 
@@ -20,7 +21,11 @@ class Partner(models.Model):
         if partner_field.ttype in ['selection', 'char']:
             etree_field.text = str(getattr(res_partner_id, partner_field.name))
         if partner_field.ttype == 'many2one':
-            etree_field.text = str(getattr(res_partner_id, partner_field.name).id)
+            print(partner_field.name)
+            if partner_field.name == 'account_id':
+                etree_field.text = str(getattr(res_partner_id, partner_field.name).code)
+            else:
+                etree_field.text = str(getattr(res_partner_id, partner_field.name).id)
         if partner_field.ttype in ['one2many', 'many2many']:
             relation_field_ids = self._get_simple_pdf_fields(
                 model=partner_field.relation,
@@ -29,7 +34,7 @@ class Partner(models.Model):
             for line in res_partner_id[partner_field.name]:
                 if partner_field.name == 'tax_ids':
                     tree_line = etree.SubElement(etree_field, 'line')
-                    tree_line.text = str(line.id)
+                    tree_line.text = str(line.name)
                 else:
                     tree_line = etree.SubElement(etree_field, 'line')
                     for relation_field_id in relation_field_ids:
@@ -55,6 +60,10 @@ class Partner(models.Model):
         )
 
         data = etree.Element("partner")
+
+        etree.SubElement(data, "name").text = res_partner_id.name
+        if res_partner_id.email:
+            etree.SubElement(data, "email").text = res_partner_id.email
 
         for partner_field in simple_pdf_fields.filtered(lambda x: x.name not in EXCLUDE_FIELDS):
             if res_partner_id[partner_field.name]:
