@@ -39,30 +39,6 @@ except ImportError:
 
 class AccountInvoiceImport(models.TransientModel):
     _inherit = "account.invoice.import"
-    #
-    # @api.model
-    # def fallback_parse_pdf_invoice(self, file_data):
-    #     """This method must be inherited by additional modules with
-    #     the same kind of logic as the account_bank_statement_import_*
-    #     modules"""
-    #     res = super().fallback_parse_pdf_invoice(file_data)
-    #     print("res", res)
-    #     if not res:
-    #         res = self.ocr_parse_invoice(file_data)
-    #     return res
-    #
-    # def ocr_parse_invoice(self, file_data):
-    #     text = ""
-    #     images = convert_from_bytes(file_data)  # Convert PDF pages to images
-    #
-    #     for image in images:
-    #         # Perform OCR on each image and add the extracted text to the result
-    #         image_text = pytesseract.image_to_string(image)
-    #         text += image_text
-    #
-    #     print("Extracted Text:\n", text)
-    #     return text
-
     @api.model
     def simple_pdf_text_extraction(self, file_data, test_info):
         fileobj = NamedTemporaryFile(
@@ -90,7 +66,6 @@ class AccountInvoiceImport(models.TransientModel):
                     file_data, test_info)
 
         else:
-            # From best tool to worst
             res = self._simple_pdf_text_extraction_pymupdf(fileobj, test_info)
             if not res:
                 res = self._simple_pdf_text_extraction_pdftotext_lib(
@@ -114,10 +89,6 @@ class AccountInvoiceImport(models.TransientModel):
                 )
         for key, text in res.items():
             if text:
-                # Remove lonely accents
-                # example : Free mobile invoices for months with accents
-                # i.e. février, août, décembre
-                # that are extracted as f´evrier, aoˆut, d´ecembre
                 res[key] = regex.sub(test_info["lonely_accents"], "", text)
 
         res["all_no_space"] = regex.sub(
@@ -128,31 +99,3 @@ class AccountInvoiceImport(models.TransientModel):
         )
         fileobj.close()
         return res
-
-    @api.model
-    ######
-    # def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info, monochrome_threshold=75):
-    #     res = False
-    #     try:
-    #         pages = []
-    #         images = convert_from_bytes(fileobj)
-    #         # Function to convert an image to monochrome
-
-    #         def convert_to_monochrome(image):
-    #             return image.convert('L').point(lambda p: p > monochrome_threshold and 250)
-    #         for image in images:
-    #             # Convert image to monochrome
-    #             monochrome_image = convert_to_monochrome(image)
-    #             # Perform OCR on each monochrome image and add the extracted text to the result
-    #             image_text = pytesseract.image_to_string(monochrome_image)
-    #             pages.append(image_text)
-    #         res = {
-    #             "all": "\n\n".join(pages),
-    #             "first": pages and pages[0] or "",
-    #         }
-    #         _logger.info("Text extraction made with pytesseract")
-    #         test_info["text_extraction"] = "pytesseract"
-    #     except Exception as e:
-    #         _logger.warning(
-    #             "Text extraction with pytesseract failed. Error: %s", e)
-    #     return res
