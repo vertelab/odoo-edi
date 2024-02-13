@@ -1,1 +1,1 @@
-from . import account_invoice_import_simple_ocr
+from .invoice_import_image_correction_extension import api

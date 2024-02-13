@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        <record id="view_import_pdf_config_wizard_form" model="ir.ui.view">
-
-        </record>
-
-        <record id="action_import_pdf_config_wizard" model="ir.actions.act_window">
-
-        </record>
-
-        <menuitem id="menu_import_pdf_config_wizard" action="action_import_pdf_config_wizard" name="Import Simple PDF Config" parent="contacts.res_partner_menu_config" sequence="4"/>
-    </data>
+    <record id="view_account_invoice_import_form_inherit" model="ir.ui.view">
+        <field name="name">account.invoice.import.form.inherit</field>
+        <field name="model">account.invoice.import</field>
+        <field name="inherit_id" ref="account_invoice_import.view_account_invoice_import_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='pdf_options']" position="inside">
+                <group string="Image Processing">
+                    <group>
+                        <field name="monochrome_threshold"/>
+                    </group>
+                    <group>
+                        <field name="displayed_image" widget="image" options='{"zoom": "image"}'/>
+                        <field name="image_slider" widget="slider" options='{"min": 0, "max": 255, "step": 1}'/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
 </odoo>
