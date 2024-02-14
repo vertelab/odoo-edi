@@ -1,1 +1,1 @@
-from .invoice_import_image_correction_extension import api
+from . import invoice_import_image_correction_extension

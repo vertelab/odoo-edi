@@ -1,5 +1,3 @@
-# __manifest__.py
-
 {
     'name': 'Pre Ocr Image Correction',
     'version': '14.0.1.0.0',
