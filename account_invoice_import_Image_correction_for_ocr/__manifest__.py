@@ -17,19 +17,20 @@
         sudo pip3 install pdftotext
 
     """,
-    "external_dependencies": {
-        "python": ["PyMuPDF", "pytesseract", "pdftotext"],
-        "deb": ["tesseract-ocr" ,"poppler-utils", "build-essential", "libpoppler-cpp-dev", "pkg-config python3-dev"],
+    'external_dependencies': {
+        'python': ['PyMuPDF', 'pytesseract', 'pdftotext'],
+        'deb': ['tesseract-ocr', 'poppler-utils', 'build-essential', 'libpoppler-cpp-dev', 'pkg-config', 'python3-dev'],
     },
     'author': 'Vertel AB',
     'website': 'https://vertel.se/apps/odoo-edi/account_invoice_import_simple_ocr',
     'license': 'AGPL-3',
     'repository': 'https://github.com/vertelab/odoo-edi',
-    'depends': ['account_invoice_import_simple_pdf',],
-    "data": [
-        'views/custom_image_correction.xml',
-    ],
-    "demo": [],
-    "installable": True,
-    "application": False,
+    'depends': ['account_invoice_import_simple_pdf'],
+    'data': ['views/custom_image_correction.xml',],
+    'qweb': ['static/src/xml/samda_widget.xml',],
+    'js': ['static/src/js/samda_widget.js',],
+    'css': ['static/src/css/image_size_constraints.css'],
+    'demo': [],
+    'installable': True,
+    'application': False,
 }

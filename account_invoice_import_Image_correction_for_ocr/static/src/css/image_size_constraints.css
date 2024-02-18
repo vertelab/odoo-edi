@@ -1,0 +1,6 @@
+.o_form_view .o_group .ocr_image_widget img {
+    min-width: 100px;
+    min-height: 100px;
+    max-width: 300px;
+    max-height: 300px;
+}

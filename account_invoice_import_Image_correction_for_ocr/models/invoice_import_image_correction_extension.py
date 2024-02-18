@@ -1,9 +1,10 @@
 from odoo import models, fields, api
+import io
 from pdf2image import convert_from_bytes
 import pytesseract
-import regex
 from PIL import Image
 import logging
+import base64
 
 _logger = logging.getLogger(__name__)
 
@@ -22,59 +23,71 @@ class CustomAccountInvoiceImport(models.TransientModel):
         compute="_compute_displayed_image"
     )
 
-    image_slider = fields.Integer(
-        string="Image Slider",
-        default=129,
-        help="Slider to set the contrast for image processing (0 to 255)."
-    )
-
-    @api.onchange('image_slider', 'invoice_file')
+    @api.onchange('monochrome_threshold', 'invoice_file')
     def _compute_displayed_image(self):
-        _logger.warning("_compute_displayed_image"*100)
         for record in self:
-            _logger.warning(
-                f"Computing displayed_image for record ID {record.id}")
             if record.invoice_file:
-                _logger.warning(f"File data present for record ID {record.id}")
-                record.displayed_image = self._get_displayed_image(
-                    convert_to_monochrome(record.invoice_file), monochrome_threshold=record.image_slider)
-
+                try:
+                    file_data = base64.b64decode(record.invoice_file)
+                    record.displayed_image = self._get_displayed_image(
+                        file_data, monochrome_threshold=record.monochrome_threshold)
+                except Exception as e:
+                    _logger.warning("Image processing failed. Error: %s", e)
+                    record.displayed_image = False
             else:
-                _logger.warning(f"No file data for record ID {record.id}")
                 record.displayed_image = False
 
     def _get_displayed_image(self, file_data, monochrome_threshold):
         try:
-            _logger.warning("Attempting image processing for file data")
             images = convert_from_bytes(file_data)
-            _logger.warning(f"Number of images: {len(images)}")
-
-            def convert_to_monochrome(image):
-                return image.convert('L').point(lambda p: p > monochrome_threshold and 255)
-
-            monochrome_images = [
-                convert_to_monochrome(image) for image in images]
-            _logger.warning("Monochrome images processed successfully")
+            monochrome_images = [self._convert_to_monochrome(
+                image, monochrome_threshold) for image in images]
             return self._combine_images(monochrome_images)
         except Exception as e:
             _logger.warning("Image processing failed. Error: %s", e)
             return False
 
+    def _convert_to_monochrome(self, image, threshold):
+        return image.convert('L').point(lambda p: p > threshold and 255)
+
     def _combine_images(self, images):
         widths, heights = zip(*(i.size for i in images))
         total_width = sum(widths)
         max_height = max(heights)
-
         new_image = Image.new('RGB', (total_width, max_height))
-
         x_offset = 0
         for image in images:
             new_image.paste(image, (x_offset, 0))
             x_offset += image.width
-
         return self._image_to_base64(new_image)
 
     def _image_to_base64(self, image):
         img_byte_array = io.BytesIO()
         image.save(img_byte_array, format='PNG')
         return base64.b64encode(img_byte_array.getvalue())
+
+    @api.model
+    def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info, monochrome_threshold=129):
+        res = False
+        try:
+            _logger.warning(
+                f"_simple_pdf_text_extraction_pytesseract is used to extract text")
+            pages = []
+            images = convert_from_bytes(fileobj)
+
+            def convert_to_monochrome(image):
+                return image.convert('L').point(lambda p: p > monochrome_threshold and 255)
+            for image in images:
+                monochrome_image = convert_to_monochrome(image)
+                image_text = pytesseract.image_to_string(monochrome_image)
+                pages.append(image_text)
+            res = {
+                "all": "\n\n".join(pages),
+                "first": pages and pages[0] or "",
+            }
+            _logger.info("Text extraction made with pytesseract")
+            test_info["text_extraction"] = "pytesseract"
+        except Exception as e:
+            _logger.warning(
+                "Text extraction with pytesseract failed. Error: %s", e)
+        return res

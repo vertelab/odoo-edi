@@ -5,16 +5,14 @@
         <field name="model">account.invoice.import</field>
         <field name="inherit_id" ref="account_invoice_import.account_invoice_import_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@name='help-import']" position="inside">
+            <xpath expr="//group[@name='main']" position="inside">
                 <group string="Image Processing">
-                    <group>
-                        <field name="monochrome_threshold" invisible="1"/>
-                    </group>
-                    <group>
-                        <field name="displayed_image" widget="image" options='{"zoom": "image"}'/>
-                        <field name="image_slider" widget="slider" options='{"min": 0, "max": 255, "step": 1}'/>
-                    </group>
+                    <field name="monochrome_threshold" widget="slider" step="1" min="0" max="255"/>
                 </group>
+                <group>
+                    <field name="displayed_image" widget="image" options='{"zoom": "image"}' class="ocr_image_widget"/>
+                </group>
+                <field name="monochrome_threshold" widget="samda_widget"/>
             </xpath>
         </field>
     </record>
