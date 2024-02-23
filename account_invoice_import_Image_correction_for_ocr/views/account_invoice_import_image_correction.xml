@@ -7,12 +7,15 @@
         <field name="arch" type="xml">
             <xpath expr="//group[@name='main']" position="inside">
                 <group string="Image Processing">
-                    <field name="monochrome_threshold" widget="slider" step="1" min="0" max="255"/>
+                    <field name="monochrome_threshold" step="1" min="0" max="255"/>
+                    <button name="preset_min" type="object" class="oe_inline oe_stat_button" icon="fa-arrow-circle-o-left" string="min" states=""/>
+                    <button name="preset_mid" type="object" class="oe_inline oe_stat_button" icon="fa-dot-circle-o" string="mid" states=""/>
+                    <button name="preset_max" type="object" class="oe_inline oe_stat_button" icon="fa-arrow-circle-o-right" string="max" states=""/>
+                    <field name="ocrlang" widget="radio" options='{"horizontal": true}'/>
                 </group>
                 <group>
                     <field name="displayed_image" widget="image" options='{"zoom": "image"}' class="ocr_image_widget"/>
                 </group>
-                <field name="monochrome_threshold" widget="samda_widget"/>
             </xpath>
         </field>
     </record>

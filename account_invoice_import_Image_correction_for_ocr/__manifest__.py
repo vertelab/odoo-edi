@@ -26,9 +26,13 @@
     'license': 'AGPL-3',
     'repository': 'https://github.com/vertelab/odoo-edi',
     'depends': ['account_invoice_import_simple_pdf'],
-    'data': ['views/custom_image_correction.xml',],
-    'qweb': ['static/src/xml/samda_widget.xml',],
-    'js': ['static/src/js/samda_widget.js',],
+    'data': [
+        'views/account_invoice_import_image_correction.xml',
+        'views/account_invoice_import_image_correction_tests.xml',
+
+    ],
+    'qweb': ['static/src/xml/numeric_range_slider_widget.js.xml',],
+    'js': ['static/src/js/numeric_range_slider_widget.js.js',],
     'css': ['static/src/css/image_size_constraints.css'],
     'demo': [],
     'installable': True,

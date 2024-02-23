@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_partner_form_inherit" model="ir.ui.view">
+        <field name="name">view_account_invoice_import_form_inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account_invoice_import_simple_pdf.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='pdf_simple_test']" position="before">
+                <group string="Image Processing">
+                    <field name="monochrome_threshold" step="1" min="0" max="255"/>
+                    <button name="preset_min" type="object" class="oe_inline oe_stat_button" icon="fa-arrow-circle-o-left" string="min"/>
+                    <button name="preset_mid" type="object" class="oe_inline oe_stat_button" icon="fa-dot-circle-o" string="mid"/>
+                    <button name="preset_max" type="object" class="oe_inline oe_stat_button" icon="fa-arrow-circle-o-right" string="max"/>
+                </group>
+                <group>
+                    <button name="run_test_on_pdf_modification" type="object" class="btn-primary oe_inline oe_stat_button" icon="fa-arrow-circle-o-right" string="Run test on pdf modification"/>
+                    <field name="ocrlang" widget="radio"/>
+                </group>
+                <group>
+                    <field name="displayed_image" widget="image" options='{"zoom": "image"}' class="ocr_image_widget"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
