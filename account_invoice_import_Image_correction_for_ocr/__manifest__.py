@@ -25,7 +25,7 @@
     'website': 'https://vertel.se/apps/odoo-edi/account_invoice_import_simple_ocr',
     'license': 'AGPL-3',
     'repository': 'https://github.com/vertelab/odoo-edi',
-    'depends': ['account_invoice_import_simple_pdf'],
+    'depends': ['account_invoice_import_simple_pdf', 'account_invoice_import_simple_ocr'],
     'data': [
         'views/account_invoice_import_image_correction.xml',
         'views/account_invoice_import_image_correction_tests.xml',

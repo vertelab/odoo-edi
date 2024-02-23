@@ -39,6 +39,7 @@ except ImportError:
 
 class AccountInvoiceImport(models.TransientModel):
     _inherit = "account.invoice.import"
+
     @api.model
     def simple_pdf_text_extraction(self, file_data, test_info):
         fileobj = NamedTemporaryFile(
@@ -66,7 +67,12 @@ class AccountInvoiceImport(models.TransientModel):
                     file_data, test_info)
 
         else:
-            res = self._simple_pdf_text_extraction_pymupdf(fileobj, test_info)
+
+            res = self._simple_pdf_text_extraction_pytesseract(
+                file_data, test_info)
+            if not res:
+                res = self._simple_pdf_text_extraction_pymupdf(
+                    fileobj, test_info)
             if not res:
                 res = self._simple_pdf_text_extraction_pdftotext_lib(
                     fileobj, test_info)
@@ -76,9 +82,6 @@ class AccountInvoiceImport(models.TransientModel):
             if not res:
                 res = self._simple_pdf_text_extraction_pdfplumber(
                     fileobj, test_info)
-            if not res.get('all'):
-                res = self._simple_pdf_text_extraction_pytesseract(
-                    file_data, test_info)
             if not res:
                 raise UserError(
                     _(
@@ -98,4 +101,26 @@ class AccountInvoiceImport(models.TransientModel):
             "%s+" % test_info["space_pattern"], "", res["first"]
         )
         fileobj.close()
+        return res
+
+    @api.model
+    def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info):
+        res = False
+        try:
+            pages = []
+
+            images = convert_from_bytes(fileobj)
+            for image in images:
+                image_text = pytesseract.image_to_string(image)
+                pages.append(image_text)
+
+            res = {
+                "all": "\n\n".join(pages),
+                "first": pages and pages[0] or "",
+            }
+            _logger.info("Text extraction made with basic pytesseract ")
+            test_info["text_extraction"] = "pytesseract"
+        except Exception as e:
+            _logger.warning(
+                "Text extraction with pytesseract failed. Error: %s", e)
         return res

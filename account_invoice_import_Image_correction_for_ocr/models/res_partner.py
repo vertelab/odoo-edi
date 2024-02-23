@@ -97,17 +97,12 @@ class ResPartner(models.Model):
         if not self.simple_pdf_test_file:
             raise UserError(_("You must upload a test PDF invoice."))
 
-        _logger.warning(
-            "\n\nStarting PDF test on partner: %s\n\n\n\n", self.name)
-
         test_info = {"test_mode": True}
         aiio._simple_pdf_update_test_info(test_info)
         file_data = base64.b64decode(self.simple_pdf_test_file)
 
         raw_text_dict = aiio._simple_pdf_text_extraction_pytesseract(
-            file_data, test_info, monochrome_threshold=self.monochrome_threshold, lang=ocrlang)
-        _logger.warning(
-            "\n\nRaw text extracted from PDF: %s\n\n", raw_text_dict)
+            file_data, test_info, monochrome_threshold=self.monochrome_threshold, lang=self.ocrlang)
 
         test_results.append(
             "<small>%s %s</small><br/>"
