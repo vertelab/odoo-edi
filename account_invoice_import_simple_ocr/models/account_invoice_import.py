@@ -105,6 +105,8 @@ class AccountInvoiceImport(models.TransientModel):
 
     @api.model
     def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info):
+        #_logger.warning("_simple_pdf_text_extraction_pytesseract OG"*100)
+
         res = False
         try:
             pages = []

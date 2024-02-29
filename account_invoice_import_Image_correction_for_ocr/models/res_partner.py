@@ -85,7 +85,8 @@ class ResPartner(models.Model):
 
     def run_test_on_pdf_modification(self):
         self.ensure_one()
-        aiio = self.env["account.invoice.import"]
+        aiio = self.env["account.invoice.import"].create(
+            {'monochrome_threshold': self.monochrome_threshold})
         rpo = self.env["res.partner"]
         vals = {}
         test_results = []
@@ -101,8 +102,13 @@ class ResPartner(models.Model):
         aiio._simple_pdf_update_test_info(test_info)
         file_data = base64.b64decode(self.simple_pdf_test_file)
 
-        raw_text_dict = aiio._simple_pdf_text_extraction_pytesseract(
-            file_data, test_info, monochrome_threshold=self.monochrome_threshold, lang=self.ocrlang)
+        #raw_text_dict = aiio._simple_pdf_text_extraction_pytesseract(
+        #    file_data, test_info, monochrome_threshold=self.monochrome_threshold, lang=self.ocrlang)
+        raw_text_dict = aiio.simple_pdf_text_extraction(file_data, test_info)
+
+
+
+        _logger.warning(f"{test_info=}")
 
         test_results.append(
             "<small>%s %s</small><br/>"

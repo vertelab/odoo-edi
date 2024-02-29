@@ -97,12 +97,11 @@ class CustomAccountInvoiceImport(models.TransientModel):
         return base64.b64encode(img_byte_array.getvalue())
 
     @api.model
-    def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info, monochrome_threshold=None, lang=None):
+    def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info, lang=None):
         res = False
         if not lang:
             lang = self.ocrlang if self else "eng"
-        if not monochrome_threshold:
-            monochrome_threshold = self.monochrome_threshold if self else 0
+        monochrome_threshold = self.monochrome_threshold if self else 129
         try:
             pages = []
             images = convert_from_bytes(fileobj)
