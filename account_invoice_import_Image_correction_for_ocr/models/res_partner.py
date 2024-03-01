@@ -84,9 +84,13 @@ class ResPartner(models.Model):
             self.displayed_image = False
 
     def run_test_on_pdf_modification(self):
+        _logger.warning("RUN TWICE ASWELL?"*100)
         self.ensure_one()
+
         aiio = self.env["account.invoice.import"].create(
-            {'monochrome_threshold': self.monochrome_threshold})
+            {'monochrome_threshold': self.monochrome_threshold,
+             "ocrlang": self.ocrlang})
+
         rpo = self.env["res.partner"]
         vals = {}
         test_results = []
@@ -102,13 +106,14 @@ class ResPartner(models.Model):
         aiio._simple_pdf_update_test_info(test_info)
         file_data = base64.b64decode(self.simple_pdf_test_file)
 
-        #raw_text_dict = aiio._simple_pdf_text_extraction_pytesseract(
+        _logger.warning(f"\n\n\n{test_info=}\n\n\n")
+
+        # raw_text_dict = aiio._simple_pdf_text_extraction_pytesseract(
         #    file_data, test_info, monochrome_threshold=self.monochrome_threshold, lang=self.ocrlang)
+
         raw_text_dict = aiio.simple_pdf_text_extraction(file_data, test_info)
 
-
-
-        _logger.warning(f"{test_info=}")
+        _logger.warning(f"after \n\n\n\n{test_info=}\n\n\n")
 
         test_results.append(
             "<small>%s %s</small><br/>"
@@ -211,5 +216,6 @@ class ResPartner(models.Model):
                         result or _("None"),
                     )
                 )
+        _logger.warning(f"\n\n\n{vals=}\n\n\n")
         vals["simple_pdf_test_results"] = "\n".join(test_results)
         self.write(vals)

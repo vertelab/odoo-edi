@@ -13,7 +13,7 @@
                     <button name="preset_max" type="object" class="oe_inline oe_stat_button" icon="fa-arrow-circle-o-right" string="max"/>
                 </group>
                 <group>
-                    <button name="run_test_on_pdf_modification" type="object" class="btn-primary oe_inline oe_stat_button" icon="fa-arrow-circle-o-right" string="Run test on pdf modification"/>
+                    <button name="run_test_on_pdf_modification" type="object" class="btn-primary oe_inline oe_stat_button" icon="fa-arrow-circle-o-right" string="Run enhanced test"/>
                     <field name="ocrlang" widget="radio"/>
                 </group>
                 <group>
@@ -22,5 +22,16 @@
             </xpath>
         </field>
     </record>
+    <record id="your_module_id" model="ir.ui.view">
+        <field name="name">view_account_invoice_import_form_inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account_invoice_import_simple_pdf.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='pdf_simple_test_run']" position="attributes">
+                <!-- <attribute name="name">run_test_on_pdf_modification</attribute> -->
+                <attribute name="string">Run normal test</attribute>
+                <attribute name="class">btn-primary oe_inline oe_stat_button</attribute>
+            </xpath>
+        </field>
+    </record>
 </odoo>
-
