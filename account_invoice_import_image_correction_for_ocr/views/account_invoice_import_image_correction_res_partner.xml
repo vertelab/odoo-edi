@@ -7,14 +7,14 @@
         <field name="arch" type="xml">
             <xpath expr="//group[@name='pdf_simple_test']" position="before">
                 <group string="Image Processing">
-                    <field name="monochrome_threshold" step="1" min="0" max="255"/>
+                    <field name="monochrome_threshold"/>
                     <button name="preset_min" type="object" class=" oe_stat_button" icon="fa-arrow-circle-o-left" string="min"/>
                     <button name="preset_mid" type="object" class=" oe_stat_button" icon="fa-dot-circle-o" string="mid"/>
                     <button name="preset_max" type="object" class=" oe_stat_button" icon="fa-arrow-circle-o-right" string="max"/>
                 </group>
                 <group>
                     <field name="ocrlang" widget="radio"/>
-                    <button name="pdf_simple_test_run" type="object" class="btn-primary oe_inline oe_stat_button" icon="fa-arrow-circle-o-right" string="Run enhanced test"/>
+                    <button name="enhanced_extraction_test_on_pdf" type="object" class="btn-primary oe_inline oe_stat_button" icon="fa-arrow-circle-o-right" string="Run enhanced test"/>
                 </group>
                 <group>
                     <field name="displayed_image" widget="image" options='{"zoom": "image"}' class="ocr_image_widget"/>
