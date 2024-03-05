@@ -99,10 +99,8 @@ class CustomAccountInvoiceImport(models.TransientModel):
     @api.model
     def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info):
         res = False
-
-        lang = self.ocrlang if self else 127
-        monochrome_threshold = self.monochrome_threshold if self else "eng"
-
+        lang = self.ocrlang if self else "eng"
+        monochrome_threshold = self.monochrome_threshold if self else 129
         try:
             pages = []
             images = convert_from_bytes(fileobj)
@@ -120,7 +118,7 @@ class CustomAccountInvoiceImport(models.TransientModel):
                 "first": pages and pages[0] or "",
                 "all_no_space": ("\n".join(pages)).replace(" ", "")
             }
-            _logger.info("Text extraction made with pytesseract")
+            _logger.info("Text extraction made with pytesseract enhanced options")
             test_info["text_extraction"] = "pytesseract"
         except Exception as e:
             _logger.warning(

@@ -19,7 +19,7 @@
     """,
     "external_dependencies": {
         "python": ["PyMuPDF", "pytesseract", "pdftotext"],
-        "deb": ["tesseract-ocr" ,"poppler-utils", "build-essential", "libpoppler-cpp-dev", "pkg-config python3-dev"],
+        "deb": ["tesseract-ocr", "poppler-utils", "build-essential", "libpoppler-cpp-dev", "pkg-config python3-dev"],
     },
     'author': 'Vertel AB',
     'website': 'https://vertel.se/apps/odoo-edi/account_invoice_import_simple_ocr',
