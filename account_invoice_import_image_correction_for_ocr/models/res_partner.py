@@ -30,50 +30,65 @@ class ResPartner(models.Model):
     )
 
     def open_same_wizard(self):
-        action = self.env.ref(
-            'account_invoice_import_image_correction_for_ocr.invoice_import_image_correction_action', raise_if_not_found=False)
-        if action:
-            return {
-                "type": 'ir.actions.act_window',
-                "view_mode": "form",
-                "res_model": 'account.invoice.import',
-                "res_id": action.id,
-                "target": "new",
-            }
-        else:
-            _logger.warning(
-                "Action not found. Please check if the external ID is correct.")
-            return {'type': 'ir.actions.act_window_close'}
+        return {
+            "type": 'ir.actions.act_window',
+            "view_mode": "form",
+            "res_model": 'res.partner',
+            "res_id": self.id,
+            "target": "reload",
+        }
+        # action = self.env.ref(
+        #     'account.res_partner_action_customer', raise_if_not_found=False)
+        # if action:
+        #     return {
+        #         "type": 'ir.actions.act_window',
+        #         "view_mode": "form",
+        #         "res_model": 'res.partner',
+        #         "res_id": self.id,
+        #         "target": "",
+        #     }
+        # else:
+        #     _logger.warning(
+        #         "Action not found. Please check if the external ID is correct.")
+        #     return {'type': 'ir.actions.act_window_close'}
 
     # def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info, monochrome_threshold=129):
-    #     aiio = self.env["account.invoice.import"]
+        # self.ensure_one()
+        #     aiio = self.env["account.invoice.import"]
     #     return aiio._simple_pdf_text_extraction_pytesseract(fileobj, test_info, monochrome_threshold)
 
     def preset_min(self):
         self.write({'monochrome_threshold': 70})
-        return self.open_same_wizard()
+        # return self.open_same_wizard()
 
     def preset_mid(self):
         self.write({'monochrome_threshold': 129})
-        return self.open_same_wizard()
+        # return self.open_same_wizard()
 
     def preset_max(self):
         self.write({'monochrome_threshold': 180})
-        return self.open_same_wizard()
+        # return self.open_same_wizard()
 
     @api.onchange('monochrome_threshold', 'simple_pdf_test_file')
     def _compute_displayed_image(self):
+        _logger.warning("\n_compute_displayed_image\n")
+        aiio = self.env["account.invoice.import"]
         if self.simple_pdf_test_file:
             try:
                 file_data = base64.b64decode(self.simple_pdf_test_file)
+                _logger.info(
+                    f"\n\n Decoded image data: {file_data[:100]}...\n{type(self.simple_pdf_test_file)}\n{self.simple_pdf_test_file[:100]}\n\n")
                 self.displayed_image = aiio._get_displayed_image(
                     file_data=file_data, monochrome_threshold=self.monochrome_threshold)
+                return self.open_same_wizard()
+
             except Exception as e:
                 _logger.warning(
                     "Image processing failed. Error: %s", e)
                 self.displayed_image
         else:
             self.displayed_image = False
+        # return self.open_same_wizard()
 
     def enhanced_extraction_test_on_pdf(self):
         self.ensure_one()
@@ -136,6 +151,7 @@ class ResPartner(models.Model):
             "<li><b>%s</b> <b%s>%s</b></li></ul>"
             % (_("Result:"), not partner_ok and ERROR_STYLE or "", partner_result)
         )
+
         if partner_ok:
             partner_config = self._simple_pdf_partner_config()
             test_results.append("<h3>%s</h3><ul>" % _("Amount Setup"))
@@ -223,7 +239,7 @@ class ResPartner(models.Model):
             raw_text_dict["all_no_space"])
         if not partner_id:
             parsed_inv = {"chatter_msg": [
-                "Simple PDF Import: count not find Vendor."]}
+                "Simple PDF Import: could not find Vendor."]}
             return parsed_inv
         partner = rpo.browse(partner_id)
         raw_text = (

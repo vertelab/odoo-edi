@@ -9,7 +9,7 @@ import base64
 _logger = logging.getLogger(__name__)
 
 
-class CustomAccountInvoiceImport(models.TransientModel):
+class AccountInvoiceImport(models.TransientModel):
     _inherit = "account.invoice.import"
 
     monochrome_threshold = fields.Integer(
@@ -118,7 +118,8 @@ class CustomAccountInvoiceImport(models.TransientModel):
                 "first": pages and pages[0] or "",
                 "all_no_space": ("\n".join(pages)).replace(" ", "")
             }
-            _logger.info("Text extraction made with pytesseract enhanced options")
+            _logger.info(
+                "Text extraction made with pytesseract enhanced options")
             test_info["text_extraction"] = "pytesseract"
         except Exception as e:
             _logger.warning(

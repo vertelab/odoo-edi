@@ -81,9 +81,8 @@ class AccountInvoiceImport(models.TransientModel):
         test_info["text_extraction_config"] = specific_tool
         if specific_tool:
             _logger.warning(f"{specific_tool=}")
-            res = self._simple_pdf_text_extraction_specific_tool(
-                specific_tool, fileobj, test_info
-            )
+            # res = self._simple_pdf_text_extraction_specific_tool(
+            #     specific_tool, fileobj, test_info)
 
         else:
             res = self._simple_pdf_text_extraction_pytesseract(
@@ -147,4 +146,3 @@ class AccountInvoiceImport(models.TransientModel):
             _logger.warning(
                 "Text extraction with pytesseract failed. Error: %s", e)
         return res
-
