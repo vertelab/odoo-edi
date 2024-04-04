@@ -29,7 +29,6 @@
         <field name="inherit_id" ref="account_invoice_import_simple_pdf.view_partner_property_form"/>
         <field name="arch" type="xml">
             <xpath expr="(//button[@name='pdf_simple_test_run'])" position="attributes">
-                <!-- <attribute name="name">_simple_pdf_text_extraction_pytesseract</attribute> -->
                 <attribute name="string">Run normal test</attribute>
                 <attribute name="class">btn-primary oe_inline oe_stat_button</attribute>
             </xpath>

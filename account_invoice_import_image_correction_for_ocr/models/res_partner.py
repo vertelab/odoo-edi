@@ -37,37 +37,15 @@ class ResPartner(models.Model):
             "res_id": self.id,
             "target": "reload",
         }
-        # action = self.env.ref(
-        #     'account.res_partner_action_customer', raise_if_not_found=False)
-        # if action:
-        #     return {
-        #         "type": 'ir.actions.act_window',
-        #         "view_mode": "form",
-        #         "res_model": 'res.partner',
-        #         "res_id": self.id,
-        #         "target": "",
-        #     }
-        # else:
-        #     _logger.warning(
-        #         "Action not found. Please check if the external ID is correct.")
-        #     return {'type': 'ir.actions.act_window_close'}
-
-    # def _simple_pdf_text_extraction_pytesseract(self, fileobj, test_info, monochrome_threshold=129):
-        # self.ensure_one()
-        #     aiio = self.env["account.invoice.import"]
-    #     return aiio._simple_pdf_text_extraction_pytesseract(fileobj, test_info, monochrome_threshold)
 
     def preset_min(self):
         self.write({'monochrome_threshold': 70})
-        # return self.open_same_wizard()
 
     def preset_mid(self):
         self.write({'monochrome_threshold': 129})
-        # return self.open_same_wizard()
 
     def preset_max(self):
         self.write({'monochrome_threshold': 180})
-        # return self.open_same_wizard()
 
     @api.onchange('monochrome_threshold', 'simple_pdf_test_file')
     def _compute_displayed_image(self):
@@ -88,7 +66,6 @@ class ResPartner(models.Model):
                 self.displayed_image
         else:
             self.displayed_image = False
-        # return self.open_same_wizard()
 
     def enhanced_extraction_test_on_pdf(self):
         self.ensure_one()
