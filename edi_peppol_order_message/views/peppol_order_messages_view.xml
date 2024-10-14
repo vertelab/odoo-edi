@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_message_tree" model="ir.ui.view">
+        <field name="name">peppol.message.form</field>
+        <field name="model">peppol.message</field>
+        <field name="arch" type="xml">
+            <tree string="Peppol Order Message">
+                <field name="name"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_order_message_form" model="ir.ui.view">
+        <field name="name">peppol.message.form</field>
+        <field name="model">peppol.message</field>
+        <field name="arch" type="xml">
+            <form string="Peppol Order Message">
+                <sheet>
+                    <group>
+                        <field name="create_date" readonly="1"/>
+                        <field name="message_id" readonly="1"/>
+                        <field name="message_type" readonly="1"/>
+                        <field name="exchange_type" readonly="1"/>
+                        <field name="message_other_party" readonly="1"/>
+                        <field name="message_reference" readonly="1"/>
+                        <field name="document" filename="document_name" readonly="1"/>
+                        <field name="document_name" invisible="1"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids" options="{'post_refresh':'recipients'}"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_peppol_order_messages" model="ir.actions.act_window">
+        <field name="name">Peppol Order Messages</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">peppol.message</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

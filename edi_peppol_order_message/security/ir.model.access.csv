@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+edi_peppol_order_message.access_peppol_message,access_peppol_message,edi_peppol_order_message.model_peppol_message,base.group_user,1,1,1,1

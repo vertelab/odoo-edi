@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_purchase_order_form_inherited" model="ir.ui.view">
+        <field name="name">purchase.order.inherit</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <button name="action_create_invoice" position="after">
+                <button string="Send Order By PEPPOL(Mail)" class="btn-primary" type="object" name="trigger_save"/>
+            </button>
+        </field>
+    </record>
+</odoo>

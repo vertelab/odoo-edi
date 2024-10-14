@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem   id="settings_peppol_messages" 
+                name="Peppol Messages"
+                parent="base.menu_custom"
+    />
+
+    <menuitem   id="settings_peppol_order_messages" 
+                name="Order Messages"
+                parent="settings_peppol_messages"
+                action="action_open_peppol_order_messages"
+    />
+
+    
+</odoo>

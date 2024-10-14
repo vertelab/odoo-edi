@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="urn:oasis:names:specification:ubl:schema:xsd:Order-2"
+    xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+    xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:CustomizationID>urn:fdc:peppol.eu:poacc:trns:order:3</cbc:CustomizationID>
+  <cbc:ProfileID>urn:fdc:peppol.eu:poacc:bis:order_only:3</cbc:ProfileID>
+  <cbc:ID></cbc:ID>
+  <cbc:IssueDate>0000-00-00</cbc:IssueDate>
+  <cbc:IssueTime>00:00:00</cbc:IssueTime>
+  <cbc:DocumentCurrencyCode listID="ISO4217">EUR</cbc:DocumentCurrencyCode>
+  <cac:ValidityPeriod>
+    <cbc:EndDate>0000-00-00</cbc:EndDate>
+  </cac:ValidityPeriod>
+  <cac:Contract>
+    <cbc:ID></cbc:ID>
+  </cac:Contract>
+  <cac:BuyerCustomerParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID=""></cbc:EndpointID>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID=""></cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyName>
+        <cbc:Name></cbc:Name>
+      </cac:PartyName>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName></cbc:RegistrationName>
+        <cbc:CompanyID schemeID=""></cbc:CompanyID>
+        <cac:RegistrationAddress>
+          <cbc:StreetName></cbc:StreetName>
+          <cbc:CityName></cbc:CityName>
+          <cbc:PostalZone></cbc:PostalZone>
+          <cbc:CountrySubentity></cbc:CountrySubentity>
+          <cac:Country>
+            <cbc:IdentificationCode listID="ISO3166-1:Alpha2"></cbc:IdentificationCode>
+          </cac:Country>
+        </cac:RegistrationAddress>
+      </cac:PartyLegalEntity>
+      <cac:Contact>
+        <cbc:Name></cbc:Name>
+        <cbc:Telephone></cbc:Telephone>
+        <cbc:ElectronicMail></cbc:ElectronicMail>
+      </cac:Contact>
+    </cac:Party>
+  </cac:BuyerCustomerParty>
+  <cac:SellerSupplierParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID=""></cbc:EndpointID>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID=""></cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PostalAddress>
+        <cbc:StreetName></cbc:StreetName>
+        <cbc:AdditionalStreetName></cbc:AdditionalStreetName>
+        <cbc:CityName></cbc:CityName>
+        <cbc:PostalZone></cbc:PostalZone>
+        <cbc:CountrySubentity></cbc:CountrySubentity>
+        <cac:AddressLine>
+          <cbc:Line></cbc:Line>
+        </cac:AddressLine>
+        <cac:Country>
+          <cbc:IdentificationCode listID="ISO3166-1:Alpha2"></cbc:IdentificationCode>
+        </cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName></cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:SellerSupplierParty>
+  <cac:Delivery>
+    <cac:DeliveryLocation>
+      <cac:Address>
+        <cbc:StreetName></cbc:StreetName>
+        <cbc:AdditionalStreetName></cbc:AdditionalStreetName>
+        <cbc:CityName></cbc:CityName>
+        <cbc:PostalZone></cbc:PostalZone>
+        <cbc:CountrySubentity></cbc:CountrySubentity>
+        <cac:Country>
+          <cbc:IdentificationCode listID="ISO3166-1:Alpha2"></cbc:IdentificationCode>
+        </cac:Country>
+      </cac:Address>
+    </cac:DeliveryLocation>
+    <cac:RequestedDeliveryPeriod>
+      <cbc:StartDate>0000-00-00</cbc:StartDate>
+      <cbc:EndDate>0000-00-00</cbc:EndDate>
+    </cac:RequestedDeliveryPeriod>
+    <cac:DeliveryParty>
+      <cac:PartyName>
+        <cbc:Name></cbc:Name>
+      </cac:PartyName>
+      <cac:Contact>
+        <cbc:Name></cbc:Name>
+        <cbc:Telephone></cbc:Telephone>
+        <cbc:ElectronicMail></cbc:ElectronicMail>
+      </cac:Contact>
+    </cac:DeliveryParty>
+  </cac:Delivery>
+  <cac:TaxTotal>
+		<cbc:TaxAmount currencyID="EUR">0</cbc:TaxAmount>
+  </cac:TaxTotal>
+  <cac:AnticipatedMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="EUR">0</cbc:LineExtensionAmount>
+    <cbc:PayableAmount currencyID="EUR">0</cbc:PayableAmount>
+  </cac:AnticipatedMonetaryTotal>
+</Order>

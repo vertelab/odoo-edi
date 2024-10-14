@@ -1,7 +1,0 @@
-<odoo>
-    <data noupdate="1">
-        <record id="api_rest_kontorsdatabasen" model="edi.rest.api">
-            <field name="name">REST (Kontorsdatabasen)</field>
-        </record>
-    </data>
-</odoo>
