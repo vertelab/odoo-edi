@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+edi_base.access_edi_message,access_edi_message,edi_base.model_edi_message,base.group_user,1,1,1,1
+edi_base.access_edi_message_format,access_edi_message_format,edi_base.model_edi_message_format,base.group_user,1,1,1,1
+edi_base.access_edi_transport,access_edi_transport,edi_base.model_edi_transport,base.group_user,1,1,1,1
+edi_base.access_edi_route,access_edi_route,edi_base.model_edi_route,base.group_user,1,1,1,1
+edi_base.access_edi_route_line,access_edi_route_line,edi_base.model_edi_route_line,base.group_user,1,1,1,1
+edi_base.access_edi_session,access_edi_session,edi_base.model_edi_session,base.group_user,1,1,1,1
+edi_base.access_edi_session_line,access_edi_session_line,edi_base.model_edi_session_line,base.group_user,1,1,1,1 
