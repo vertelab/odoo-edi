@@ -9,5 +9,5 @@ class EdiRouteLine(models.Model):
 
     message_format_id = fields.Many2one("edi.message.format", string="Edi Messages Formats")
     route_id = fields.Many2one("edi.route", string="Route")
-    # transport_id =
-    # domain 
+    transport_id = fields.Many2one("edi.transport")
+    domain = fields.Char(string="Domain")

@@ -7,6 +7,8 @@ class EdiRoute(models.Model):
     _name = 'edi.route'
     _description = 'Edi Route'
 
+    _rec_name = "route_type"
+
     route_type = fields.Char(string="Route Type")
     edi_line_ids = fields.One2many("edi.route.line", "route_id", string="Edi Lines")
     edi_session_ids = fields.One2many("edi.session", "route_id", string="Edi Sessions")

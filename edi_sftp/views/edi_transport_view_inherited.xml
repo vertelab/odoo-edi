@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_edi_transport_view_inherited" model="ir.ui.view">
+        <field name="name">edi.transport.inherited</field>
+        <field name="model">edi.transport</field>
+        <field name="inherit_id" ref="edi_base.view_edi_transport_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="recieve_sftp_url" invisible ="type != 'sftp'"/>
+                <field name="send_sftp_url" invisible ="type != 'sftp'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

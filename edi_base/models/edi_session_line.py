@@ -9,7 +9,7 @@ class EdiSessionLine(models.Model):
 
     message_format_id = fields.Many2one("edi.message.format")
     transport_id = fields.Many2one("edi.transport", string="Transport")
-    #domain = fields
+    domain = fields.Char()
     message_id = fields.Many2one("edi.message", string="Message")
 
     session_id = fields.Many2one("edi.session", string="Session")

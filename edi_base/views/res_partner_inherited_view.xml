@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_res_partner_form_inherited" model="ir.ui.view">
+        <field name="model">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <page name="contact_addresses" position="after">
+                <page string="EDI" name="edi">
+                    <group>
+                        <field name="route_id"/>
+                    </group>
+                </page>
+            </page>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_fetch_files_sftp" model="ir.actions.server">
+        <field name="name">Fetch files by SFTP</field>
+        <field name="model_id" ref="model_edi_envelope"/>
+        <field name="state">code</field>
+        <field name="code">
+            if model.fetch_files():
+                action = {
+                    'type': 'ir.actions.client',
+                    'tag': 'reload',
+                }
+        </field>
+    </record>
+
+    <menuitem 
+        id="edi_envelope_fetch" 
+        name="Fetch with SFTP"
+        action="action_fetch_files_sftp" 
+        parent="edi_base.edi_envelope"
+    />
+
+    <menuitem 
+        id="edi_envelopes" 
+        name="Envelopes"
+        action="edi_base.action_open_edi_envelope_view" 
+        parent="edi_base.edi_envelope"
+    />
+</odoo>

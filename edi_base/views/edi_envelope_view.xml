@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_edi_envelope_tree" model="ir.ui.view">
+        <field name="name">edi.envelope.tree</field>
+        <field name="model">edi.envelope</field>
+        <field name="arch" type="xml">
+            <tree string="EDI Envelope">
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_edi_envelope_form" model="ir.ui.view">
+        <field name="name">edi.envelope.form</field>
+        <field name="model">edi.envelope</field>
+        <field name="arch" type="xml">
+            <form string="EDI Envelope">
+                <sheet>
+                    <group>
+                        <field name="create_date" readonly="1"/>
+                        <field name="payload" filename="payload_filename" readonly="1"/>
+                        <field name="payload_filename" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_edi_envelope_view" model="ir.actions.act_window">
+        <field name="name">EDI Envelope</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">edi.envelope</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

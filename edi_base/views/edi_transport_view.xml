@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_edi_transport_tree" model="ir.ui.view">
+        <field name="name">edi.transport.tree</field>
+        <field name="model">edi.transport</field>
+        <field name="arch" type="xml">
+            <tree string="EDI Transport">
+                <field name="name"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_edi_transport_form" model="ir.ui.view">
+        <field name="name">edi.transport.form</field>
+        <field name="model">edi.transport</field>
+        <field name="arch" type="xml">
+            <form string="EDI Transport">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="type"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_edi_transport_view" model="ir.actions.act_window">
+        <field name="name">EDI Transport</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">edi.transport</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

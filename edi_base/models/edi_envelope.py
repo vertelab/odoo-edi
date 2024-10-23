@@ -11,9 +11,11 @@ class EdiEnvelope(models.Model):
     sender = fields.Many2one("res.partner", string="Sender")
     reciever = fields.Many2one("res.partner", string="Reciever")
     company_id = fields.Many2one("res.company", string="Company")
+    payload = fields.Binary(string="Payload")
+    payload_filename = fields.Char(string="Payload Filename")
 
     def fold(self):
         pass
 
-    def unfold(self):
+    def split(self):
         pass
