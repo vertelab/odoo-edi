@@ -6,7 +6,6 @@
         <field name="arch" type="xml">
             <tree string="EDI Route">
                 <field name="route_type"/>
-                <!--<field name="create_date"/>-->
             </tree>
         </field>
     </record>
@@ -19,7 +18,8 @@
                 <sheet>
                     <group>
                         <field name="route_type"/>
-                        <field name="edi_line_ids"/>
+                        <field name="route_line_ids"/>
+                        <field name="session_ids"/>
                     </group>
                 </sheet>
             </form>

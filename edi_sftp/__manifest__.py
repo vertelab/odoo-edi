@@ -44,6 +44,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/edi_envelope_menu.xml',
+        'views/edi_envelope_view_inherited.xml',
         'views/edi_transport_view_inherited.xml'
     ],
     'demo': [],

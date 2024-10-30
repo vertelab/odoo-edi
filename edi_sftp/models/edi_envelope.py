@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ class EdiEnvelope(models.Model):
         except FileNotFoundError:
             _logger.info(f"Remote directory '{remote_directory}' does not exist.")
 
-       # 1 : Get the new files name in the directory
+        # 1 : Get the new files name in the directory
         recieve_directory_files = sftp.listdir()
 
         # 2 : Use the retrived file names and read each and everyone
@@ -60,4 +61,76 @@ class EdiEnvelope(models.Model):
             'type': 'ir.actions.client',
             'tag': 'reload',
         }
-                    
+
+    def send_files(self, target_ip, remote_directory, edi_envelope):
+        private_key_path = "/opt/odoo/.ssh/id_rsa"  # Need a private ssh key that odoo can access, meaning it has ownership of
+
+        # Load the private key
+        private_key = paramiko.RSAKey.from_private_key_file(private_key_path)
+
+        client = paramiko.SSHClient()
+
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        # Connect to the server using the private key
+        client.connect(hostname=target_ip, port=22, username="josef", pkey=private_key) #TODO: username need to be added in edi.transport
+
+        sftp = client.open_sftp()
+
+        try:
+            sftp.chdir(remote_directory)  # Test if remote_directory exists
+        except FileNotFoundError:
+            UserError(_(f"Remote directory '{remote_directory}' does not exist"))
+
+        # Prepare the remote file path
+        # remote_file_path = os.path.join(remote_directory, os.path.basename(local_file_path))
+
+        # Upload the file
+        # sftp.put(local_file_path, remote_file_path)
+
+        # Close the SFTP session and SSH client
+        sftp.close()
+        client.close()
+    
+    def send_envelope(self):
+        _logger.info('send_envelope()')
+        _logger.info(self.transport_id)
+
+        send_url = self.transport_id.send_sftp_url
+
+        send_ip = send_url.split(':')[0]
+        send_directory = send_url.split(':')[1]
+
+        private_key_path = "/opt/odoo/.ssh/id_rsa"  # Need a private ssh key that odoo can access, meaning it has ownership of
+
+        # Load the private key
+        private_key = paramiko.RSAKey.from_private_key_file(private_key_path)
+
+        client = paramiko.SSHClient()
+
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        # Connect to the server using the private key
+        client.connect(hostname=send_ip, port=22, username="josef", pkey=private_key) #TODO: username need to be added in edi.transport
+
+        sftp = client.open_sftp()
+
+        try:
+            sftp.chdir(send_directory)  # Test if remote_directory exists
+        except FileNotFoundError:
+            UserError(_(f"Remote directory '{send_directory}' does not exist"))
+
+        # Prepare the remote file path
+        remote_file_path = f"{send_directory}{self.payload_filename}"
+        _logger.info(remote_file_path) 
+        # remote_file_path = os.path.join(remote_directory, os.path.basename(local_file_path))
+
+        # Upload the file
+        payload_bytes = BytesIO(base64.b64decode(self.payload))   #Convert the payload to readable data before converting it to bytes, so up on recieving it will be readable
+        sftp.putfo(payload_bytes, remote_file_path)
+        # sftp.put(local_file_path, remote_file_path)
+
+        # Close the SFTP session and SSH client
+        sftp.close()
+        client.close()
+

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_purchase_order_form_inherited" model="ir.ui.view">
+        <field name="name">purchase.order.inherit</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <field name="state" position="after">
+                <field name="show_send_peppol_button" invisible="1"/>
+            </field>
+
+            <button name="action_create_invoice" position="after">
+                <button string="Queue Peppol Order" 
+                        class="btn-primary"
+                        type="object"
+                        name="send_peppol_outgoing_message"
+                        invisible="show_send_peppol_button == False"/>
+            </button>
+        </field>
+    </record>
+</odoo>

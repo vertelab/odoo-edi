@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="edi_envelope_form_view_inherited" model="ir.ui.view">
+        <field name="name">edi.envelope.form.inherit</field>
+        <field name="model">edi.envelope</field>
+        <field name="inherit_id" ref="edi_base.view_edi_envelope_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button string="Send Envelope by SFTP" class="btn-primary" type="object" name="send_envelope"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+</odoo>

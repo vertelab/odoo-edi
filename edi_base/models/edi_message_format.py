@@ -10,7 +10,8 @@ class EdiMessageFormat(models.Model):
     name = fields.Char(string="Name")
     message_ids = fields.One2many("edi.message", "message_format_id", string="Messages")
 
-    def pack(self):
+    def pack(self, record, edi_session_line):
+        ##Should create an edi.message
         pass
     
     def unpack(self):

@@ -4,8 +4,8 @@
         <field name="name">edi.message.tree</field>
         <field name="model">edi.message</field>
         <field name="arch" type="xml">
-            <tree string="SFTP EDI Message">
-                <field name="create_date"/>
+            <tree string="EDI Message">
+                <field name="name"/>
             </tree>
         </field>
     </record>
@@ -17,7 +17,16 @@
             <form string="EDI Message">
                 <sheet>
                     <group>
-                        <field name="create_date" readonly="1"/>
+                        <field name="name" readonly="1"/>
+                        <field name="message_format_id" readonly="1"/>
+                        <field name="consignor" readonly="1"/>
+                        <field name="sender" readonly="1"/>
+                        <field name="consignee" readonly="1"/>
+                        <field name="reciever" readonly="1"/>
+                        <field name="payload" filename="payload_filename" readonly="1"/>
+                        <field name="payload_filename" invisible="1"/>
+
+                        <field name="envelope_id" readonly="1"/>
                     </group>
                 </sheet>
             </form>
