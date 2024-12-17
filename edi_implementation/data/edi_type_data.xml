@@ -1,9 +1,0 @@
-<odoo>
-    <data noupdate="1">
-        <record id="nationalize_io_name" model="edi.type">
-            <field name="name">nationalize_io_name</field>
-            <field name="route_id" ref="nationalize_io"/>
-            <!-- <field name="protocol" ref="rest_nationalize_io"/> -->
-        </record>
-    </data>
-</odoo>
