@@ -21,7 +21,7 @@
 
 {
     'name': 'EDI: Import/Export Simple PDF Config',
-    'version': '14.0.0.0.0',
+    'version': '16.0.0.0.0',
     'summary': 'Import/Export Simple PDF Config',
     'category': 'EDI',
     'description': """
