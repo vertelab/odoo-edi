@@ -19,7 +19,7 @@
 
     <menuitem   id="edi_envelope" 
                 name="EDI Envelope"
-                action="action_open_edi_message_view"
+                action="action_open_edi_envelope_view"
                 parent="edi_parent"
     />
 

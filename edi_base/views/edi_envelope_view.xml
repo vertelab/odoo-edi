@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_edi_envelope_tree" model="ir.ui.view">
-        <field name="name">edi.envelope.tree</field>
+    <record id="view_edi_envelope_list" model="ir.ui.view">
+        <field name="name">edi.envelope.list</field>
         <field name="model">edi.envelope</field>
         <field name="arch" type="xml">
-            <tree string="EDI Envelope">
+            <list string="EDI Envelope">
                 <field name="name"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -36,6 +36,6 @@
         <field name="name">EDI Envelope</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">edi.envelope</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

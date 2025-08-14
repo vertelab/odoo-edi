@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_edi_session_tree" model="ir.ui.view">
-        <field name="name">edi.session.tree</field>
+    <record id="view_edi_session_list" model="ir.ui.view">
+        <field name="name">edi.session.list</field>
         <field name="model">edi.session</field>
         <field name="arch" type="xml">
-            <tree string="EDI Session">
+            <list string="EDI Session">
                 <field name="name"/>
                 <field name="route_type"/>
                 <field name="route_id"/>
                 <field name="sessions_line_ids"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -34,6 +34,6 @@
         <field name="name">EDI Session</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">edi.session</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

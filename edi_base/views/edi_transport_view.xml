@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_edi_transport_tree" model="ir.ui.view">
-        <field name="name">edi.transport.tree</field>
+    <record id="view_edi_transport_list" model="ir.ui.view">
+        <field name="name">edi.transport.list</field>
         <field name="model">edi.transport</field>
         <field name="arch" type="xml">
-            <tree string="EDI Transport">
+            <list string="EDI Transport">
                 <field name="name"/>
                 <field name="create_date"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -30,6 +30,6 @@
         <field name="name">EDI Transport</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">edi.transport</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>
