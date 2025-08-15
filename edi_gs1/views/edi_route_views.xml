@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_edi_route_form_extended" model="ir.ui.view">
+           <field name="model">edi.route.form</field>
+            <field name="model">edi.route</field>
+            <field name="inherit_id" ref="edi_base.view_edi_route_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="before">
+                    <header>
+                        <button type="object" name="action_pack_edi_message" string="Pack EDI Message" class="btn btn-primary"/>
+                    </header>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_edi_route_line_form_extended" model="ir.ui.view">
+           <field name="model">edi.route.line.form</field>
+            <field name="model">edi.route.line</field>
+            <field name="inherit_id" ref="edi_base.view_edi_route_line_form"/>
+            <field name="arch" type="xml">
+                <field name="domain" position="after">
+                    <field name="res_model"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_edi_route_line_list_extended" model="ir.ui.view">
+           <field name="model">edi.route.line.list</field>
+            <field name="model">edi.route.line</field>
+            <field name="inherit_id" ref="edi_base.view_edi_route_line_list"/>
+            <field name="arch" type="xml">
+                <field name="domain" position="after">
+                    <field name="res_model"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- EDI Envelope form view extension -->
+        <record id="view_edi_envelope_form_edifact" model="ir.ui.view">
+            <field name="name">edi.envelope.form.edifact</field>
+            <field name="model">edi.envelope</field>
+            <field name="inherit_id" ref="edi_base.view_edi_envelope_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='type']" position="after">
+                    <field name="syntax_identifier" readonly="1"/>
+                    <field name="interchange_control_reference" readonly="1"/>
+                </xpath>
+                <field name="payload" position="after">
+                    <field name="reference" readonly="1"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- EDI Envelope tree view extension -->
+        <record id="view_edi_envelope_list_edifact" model="ir.ui.view">
+            <field name="name">edi.envelope.list.edifact</field>
+            <field name="model">edi.envelope</field>
+            <field name="inherit_id" ref="edi_base.view_edi_envelope_list"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='type']" position="after">
+                    <field name="interchange_control_reference" optional="hide"/>
+                    <field name="syntax_identifier" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,60 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <menuitem   id="edi_parent" 
-                name="EDI"
+    <menuitem id="edi_parent"
+        name="EDI"
     />
 
-    <menuitem   id="edi_transport" 
-                name="EDI Transport"
-                action="action_open_edi_transport_view"
-                parent="edi_parent"
+    <menuitem id="edi_message"
+        name="EDI Message"
+        action="action_open_edi_message_view"
+        parent="edi_parent"
+        sequence="5"
     />
 
-    <menuitem   id="edi_message" 
-                name="EDI Message"
-                action="action_open_edi_message_view"
-                parent="edi_parent"
+    <menuitem id="edi_envelope"
+        name="EDI Envelope"
+        action="action_open_edi_envelope_view"
+        parent="edi_parent"
+        sequence="10"
     />
 
-    <menuitem   id="edi_envelope" 
-                name="EDI Envelope"
-                action="action_open_edi_envelope_view"
-                parent="edi_parent"
+    <menuitem id="edi_transport"
+        name="EDI Transport"
+        action="action_open_edi_transport_view"
+        parent="edi_parent"
+        sequence="15"
     />
 
-    <menuitem   id="edi_route_parent" 
-                name="EDI Route"
-                action="action_open_edi_route_view"
-                parent="edi_parent"
+    <menuitem id="edi_route_parent"
+        name="EDI Route"
+        action="action_open_edi_route_view"
+        parent="edi_parent"
+        sequence="20"
     />
 
-    <menuitem   id="edi_route" 
-                name="Route"
-                action="action_open_edi_route_view"
-                parent="edi_route_parent"
+    <menuitem id="edi_route"
+        name="Route"
+        action="action_open_edi_route_view"
+        parent="edi_route_parent"
+        sequence="25"
     />
 
-    <menuitem   id="edi_route_line" 
-                name="Route Line"
-                action="action_open_edi_route_line_view"
-                parent="edi_route_parent"
+    <menuitem id="edi_route_line"
+        name="Route Line"
+        action="action_open_edi_route_line_view"
+        parent="edi_route_parent"
     />
 
-    <menuitem   id="edi_session_parent" 
-                name="EDI Session"
-                parent="edi_parent"
+    <menuitem id="edi_session_parent"
+        name="EDI Session"
+        parent="edi_parent"
+        sequence="30"
     />
 
-    <menuitem   id="edi_session" 
-                name="Session"
-                action="action_open_edi_session_view"
-                parent="edi_session_parent"
+    <menuitem id="edi_session"
+        name="Session"
+        action="action_open_edi_session_view"
+        parent="edi_session_parent"
     />
 
-    <menuitem   id="edi_session_line" 
-                name="Session Line"
-                action="action_open_edi_session_line_view"
-                parent="edi_session_parent"
+    <menuitem id="edi_session_line"
+        name="Session Line"
+        action="action_open_edi_session_line_view"
+        parent="edi_session_parent"
     />
+
+    <menuitem id="edi_configuration" name="Configuration" parent="edi_parent" sequence="100"/>
+
+    <menuitem id="edi_message_format_menu" name="Message Format" action="edi_base.action_edi_message_format_view" parent="edi_base.edi_configuration"/>
 </odoo>

@@ -14,7 +14,7 @@ class EdiMessage(models.Model):
     consignor = fields.Many2one("res.partner", string="Consignor")
     consignee = fields.Many2one("res.partner", string="Consignee")
     sender = fields.Many2one("res.partner", string="Sender")
-    reciever = fields.Many2one("res.partner", string="Reciever")
+    receiver = fields.Many2one("res.partner", string="Receiver")
     envelope_id = fields.Many2one("edi.envelope", string="Envelope")
 
     def pack(self):

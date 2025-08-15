@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Partner form view extension -->
+        <record id="view_partner_form_edi" model="ir.ui.view">
+            <field name="name">res.partner.form.edi</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='vat']" position="after">
+                    <field name="edi_code" placeholder="e.g. 8716106053841"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

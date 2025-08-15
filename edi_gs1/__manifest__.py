@@ -22,7 +22,7 @@
 # https://www.odoo.com/documentation/14.0/reference/module.html
 #
 {
-    'name': 'EDI Base',
+    'name': 'EDI GS1',
     'version': '1.0',
     'summary': """
         Short (1 phrase/line) summary of the module's purpose, used as
@@ -36,25 +36,15 @@
     'website': 'https://vertel.se/apps/odoo-',
     'images': ['static/description/banner.png'], # 560x280
     'license': 'AGPL-3',
-    'depends': [],
-     #"external_dependencies": {
-     #   "bin": ["openssl",], 
-     #   "python": ["acme_tiny", "IPy",],
-     #},
+    'depends': ['account', 'base', 'edi_base'],
+     "external_dependencies": {
+       "python": ["pydifact",],
+     },
     'data': [
-        'security/ir.model.access.csv',
-        'views/edi_envelope_view.xml',
-        'views/edi_message_view.xml',
-        'views/edi_transport_view.xml',
-        'views/edi_route_view.xml',
-        'views/edi_route_line_view.xml',
-        'views/edi_session_view.xml',
-        'views/edi_session_line_view.xml',
-        'views/res_partner_inherited_view.xml',
-        'views/edi_message_format_view.xml',
-        'views/menu.xml',
+        'views/res_partner_views.xml',
+        'views/edi_envelope_views.xml',
+        'views/edi_route_views.xml',
 
-        'data/edi_message_format.xml'
     ],
     'demo': [],
     'application': False,

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Common EDIFACT message formats -->
+        <record id="edi_message_format_invoic_d96a" model="edi.message.format">
+            <field name="name">INVOIC:D:96A</field>
+            <field name="description">EDIFACT Invoice D96A</field>
+        </record>
+
+        <record id="edi_message_format_invoic_d01b" model="edi.message.format">
+            <field name="name">INVOIC:D:01B</field>
+            <field name="description">EDIFACT Invoice D01B</field>
+        </record>
+
+        <record id="edi_message_format_invoic_d03a" model="edi.message.format">
+            <field name="name">INVOIC:D:03A</field>
+            <field name="description">EDIFACT Invoice D03A</field>
+        </record>
+    </data>
+</odoo>
