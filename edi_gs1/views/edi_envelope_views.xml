@@ -11,9 +11,6 @@
                     <field name="syntax_identifier" readonly="1"/>
                     <field name="interchange_control_reference" readonly="1"/>
                 </xpath>
-                <field name="payload" position="after">
-                    <field name="reference" readonly="1"/>
-                </field>
             </field>
         </record>
 

@@ -21,7 +21,6 @@ class EdiEnvelope(models.Model):
     # Add EDI-specific fields
     interchange_control_reference = fields.Char(string="Control Reference")
     syntax_identifier = fields.Char(string="Syntax Identifier")
-    reference = fields.Reference(string='Reference', selection='_selection_target_model')
 
 
     @api.model
@@ -82,7 +81,9 @@ class EdiEnvelope(models.Model):
                 'state': 'received',
                 'interchange_control_reference': control_ref,
                 'syntax_identifier': syntax_id,
-                'reference': f'{existing_invoice._name},{existing_invoice.id}'
+                'reference': f'{existing_invoice._name},{existing_invoice.id}',
+                'res_id': existing_invoice.id,
+                'res_model': existing_invoice._name,
             })
 
             # Automatically process the envelope (with existing invoice if provided)
@@ -154,7 +155,9 @@ class EdiEnvelope(models.Model):
             # Create messages with individual payloads
             for i, (unh_data, message_content) in enumerate(zip(unh_segments, message_contents)):
                 pydifact_message = messages[i] if i < len(messages) else None
-                edi_message = self._create_message_with_payload(unh_data, message_content, pydifact_message)
+                edi_message = self._create_message_with_payload(
+                    unh_data, message_content, pydifact_message, existing_invoice
+                )
                 _logger.info(f"✓ Created message: {edi_message.name} with {len(message_content)} chars payload")
 
                 # Automatically process INVOIC messages
@@ -171,9 +174,8 @@ class EdiEnvelope(models.Model):
             raise
         return result
 
-    def _create_message_with_payload(self, unh_data, message_content, pydifact_message):
+    def _create_message_with_payload(self, unh_data, message_content, pydifact_message, existing_invoice):
         """Create edi.message with individual message payload"""
-        import base64
 
         # Parse message type info from UNH: INVOIC:D:96A:UN
         message_reference = unh_data['reference']
@@ -199,6 +201,8 @@ class EdiEnvelope(models.Model):
             'receiver': self.receiver.id,
             'payload': message_payload,  # Individual message content only
             'payload_filename': f"{message_type}_{message_reference}.edi",
+            'res_id': existing_invoice.id,
+            'res_model': existing_invoice._name,
         })
 
         return edi_message

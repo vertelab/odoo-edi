@@ -5,16 +5,16 @@
         name="EDI"
     />
 
-    <menuitem id="edi_message"
-        name="EDI Message"
-        action="action_open_edi_message_view"
+    <menuitem id="edi_envelope"
+        name="EDI Envelope"
+        action="action_open_edi_envelope_view"
         parent="edi_parent"
         sequence="5"
     />
 
-    <menuitem id="edi_envelope"
-        name="EDI Envelope"
-        action="action_open_edi_envelope_view"
+    <menuitem id="edi_message"
+        name="EDI Message"
+        action="action_open_edi_message_view"
         parent="edi_parent"
         sequence="10"
     />

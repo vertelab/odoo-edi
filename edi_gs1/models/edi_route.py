@@ -6,6 +6,25 @@ _logger = logging.getLogger(__name__)
 class EdiRoute(models.Model):
     _inherit = 'edi.route'
 
+    def _process_edi_route(self, rec):
+        # for line in self.route_line_ids.filtered(lambda x: x.res_model == rec._name):
+        try:
+            message = self.env['edi.message'].pack(rec=rec)
+            if message:
+                _logger.info(f"✓ Packed {rec._name} {rec.id} into message {message.name}")
+        except Exception as e:
+            _logger.error(f"Failed to pack {rec._name} {rec.id}: {str(e)}")
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('EDI Packing Failed'),
+                    'message': _(f'{e}'),
+                    'type': 'danger',
+                }
+            }
+        return True
+
     def action_pack_edi_message(self):
         """Pack records into EDI messages based on route configuration"""
         partner_ids = self.env['res.partner'].search([('route_id', '!=', False)])
@@ -30,6 +49,15 @@ class EdiRoute(models.Model):
                             _logger.info(f"✓ Packed {rec._name} {rec.id} into message {message.name}")
                     except Exception as e:
                         _logger.error(f"Failed to pack {rec._name} {rec.id}: {str(e)}")
+                        return {
+                            'type': 'ir.actions.client',
+                            'tag': 'display_notification',
+                            'params': {
+                                'title': _('EDI Packing Failed'),
+                                'message': _(f'{e}'),
+                                'type': 'danger',
+                            }
+                        }
 
         return {
             'type': 'ir.actions.client',
@@ -41,13 +69,6 @@ class EdiRoute(models.Model):
             }
         }
 
-            # rec_ids = self.env[line.res_model].search(eval(line.domain))
-
-        # for line in self.route_line_ids:
-        #     rec_ids = self.env[line.res_model].search(eval(line.domain))
-        #     for rec in rec_ids:
-        #         if rec.route_id == self.id
-        #     print(rec_ids)
 
 class EdiRouteLine(models.Model):
     _inherit = 'edi.route.line'

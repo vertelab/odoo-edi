@@ -10,7 +10,25 @@ _logger = logging.getLogger(__name__)
 class EdiMessage(models.Model):
     _inherit = 'edi.message'
 
+    @api.model
+    def _selection_target_model(self):
+        return [(model.model, model.name) for model in self.env['ir.model'].sudo().search([])]
+
     message_reference = fields.Char(string="Message Reference", help="Reference from UNH segment")
+    res_id = fields.Integer(string='Record ID',
+                            help="Database ID of record to open in form view, when ``view_mode`` is set to 'form' only")
+    res_model = fields.Char(string='Destination Model', required=True,
+                            help="Model name of the object to open in the view window")
+
+    @api.depends('res_id', 'res_model')
+    def _compute_rec_reference(self):
+        for rec in self:
+            if rec.res_id and rec.res_model:
+                rec.reference = f"{rec.res_model},{rec.res_id}"
+            else:
+                rec.reference = False
+
+    reference = fields.Reference(string='Reference', selection='_selection_target_model', compute=_compute_rec_reference)
 
     def _process_invoic(self):
         """Process INVOIC message and create new account.move"""
@@ -562,8 +580,9 @@ class EdiMessage(models.Model):
     def _pack_account_move(self, invoice):
         """Pack account.move (invoice) into EDIFACT INVOIC message"""
         # Validate invoice
-        # if invoice.move_type not in ['out_invoice', 'out_refund']:
-        #     raise ValidationError(_('Only customer invoices and credit notes can be packed'))
+        if self.env['edi.message'].search([('res_model', '=', invoice._name), ('res_id', '=', invoice.id)]):
+            _logger.warning(f"Message for this invoice already exists")
+            return None
 
         if not invoice.partner_id.edi_code:
             raise ValidationError(_('Customer %s does not have an EDI code') % invoice.partner_id.name)
@@ -571,10 +590,9 @@ class EdiMessage(models.Model):
         # Create or find envelope for this partner
         envelope = self._get_or_create_envelope_for_partner(
             sender=self.env.company.partner_id,
-            receiver=invoice.partner_id
+            receiver=invoice.partner_id,
+            invoice=invoice
         )
-
-        print("envelope", envelope)
 
         # Create EDI message
         message_type = 'INVOIC'
@@ -588,12 +606,17 @@ class EdiMessage(models.Model):
             'sender': envelope.sender.id,
             'receiver': envelope.receiver.id,
             'message_reference': message_ref,
+            'res_id': invoice.id,
+            'res_model': invoice._name
         })
 
         # Generate EDIFACT content
         content = message._generate_invoic_content(invoice)
         message.payload = base64.b64encode(content.encode('utf-8'))
         message.payload_filename = f"{message.name}.edi"
+
+        # Update envelope payload with all messages
+        message._update_envelope_payload(envelope)
 
         _logger.info(f"✓ Packed invoice {invoice.name} into EDI message {message.name}")
 
@@ -722,19 +745,19 @@ class EdiMessage(models.Model):
         # Limit length to reasonable EDI field size
         return text[:70]
 
-    def _get_or_create_envelope_for_partner(self, sender, receiver):
+    def _get_or_create_envelope_for_partner(self, sender, receiver, invoice):
         """Get existing envelope or create new one for partner communication"""
         # Look for existing envelope in draft state for same direction
-        # envelope = self.env['edi.envelope'].search([
-        #     ('sender', '=', sender.id),
-        #     ('receiver', '=', receiver.id),
-        #     ('state', '=', 'to_be_sent'),
-        #     ('type', '=', 'gs1')
-        # ], limit=1)
-        #
-        # if envelope:
-        #     _logger.info(f"Using existing envelope {envelope.name}")
-        #     return envelope
+        envelope = self.env['edi.envelope'].search([
+            ('sender', '=', sender.id),
+            ('receiver', '=', receiver.id),
+            ('state', '=', 'to_be_sent'),
+            ('type', '=', 'gs1')
+        ], limit=1)
+
+        if envelope:
+            _logger.info(f"Using existing envelope {envelope.name}")
+            return envelope
 
         # Create new envelope
         envelope = self.env['edi.envelope'].create({
@@ -743,10 +766,69 @@ class EdiMessage(models.Model):
             'receiver': receiver.id,
             'type': 'gs1',
             'state': 'to_be_sent',
+            # 'res_id': invoice.id,
+            # 'res_model': invoice._name,
         })
 
         _logger.info(f"Created new envelope {envelope.name}")
         return envelope
+
+    def _update_envelope_payload(self, envelope):
+        """Update envelope payload with all messages in the envelope"""
+        # Get all messages in this envelope
+        messages = self.env['edi.message'].search([
+            ('envelope_id', '=', envelope.id)
+        ])
+
+        if not messages:
+            _logger.warning(f"No messages found for envelope {envelope.name}")
+            return
+
+        # Generate envelope content with all messages
+        envelope_content = self._generate_envelope_content(envelope, messages)
+
+        # Update envelope payload
+        envelope.write({
+            'payload': base64.b64encode(envelope_content.encode('utf-8')),
+            'payload_filename': f"{envelope.name.replace(' ', '_')}.edi"
+        })
+
+        _logger.info(f"Updated envelope {envelope.name} payload with {len(messages)} messages")
+
+    def _generate_envelope_content(self, envelope, messages):
+        """Generate complete EDIFACT envelope content with UNA/UNB/UNZ segments"""
+        segments = []
+
+        # UNA - Service String Advice (defines special characters)
+        # Format: UNA:+.? ' (component separator, data element separator, decimal notation, escape character, segment terminator)
+        segments.append("UNA:+.? '")
+
+        # Use simple sequential reference (like in the example: 3)
+        interchange_ref = str(envelope.id)
+        date_time = fields.Datetime.now().strftime('%y%m%d:%H%M')
+
+        sender_id = envelope.sender.edi_code or envelope.sender.vat or str(envelope.sender.id)
+        receiver_id = envelope.receiver.edi_code or envelope.receiver.vat or str(envelope.receiver.id)
+
+        # UNB - Interchange Header
+        segments.append(
+            f"UNB+UNOC:3+{sender_id}:14+{receiver_id}:14+{date_time}+{interchange_ref}++++"
+        )
+
+        # Add all message contents
+        for message in messages:
+            if message.payload:
+                # Decode message payload and add to envelope
+                message_content = base64.b64decode(message.payload).decode('utf-8')
+                segments.append(message_content)
+
+        # UNZ - Interchange Trailer
+        # Format: UNZ+MESSAGE_COUNT+INTERCHANGE_REF'
+        # Count is the number of messages (functional groups) in this interchange
+        message_count = len(messages)
+        segments.append(f"UNZ+{message_count}+{interchange_ref}'")
+
+        return '\n'.join(segments)
 
     def _get_or_create_message_format(self, msg_type, version, release):
         """Find or create edi.message.format record"""

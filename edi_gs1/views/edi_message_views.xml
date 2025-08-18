@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- EDI Envelope form view extension -->
+        <record id="view_edi_message_form_extended" model="ir.ui.view">
+            <field name="name">edi.message.form.edifact</field>
+            <field name="model">edi.message</field>
+            <field name="inherit_id" ref="edi_base.view_edi_message_form"/>
+            <field name="arch" type="xml">
+                <field name="message_format_id" position="after">
+                    <field name="res_id" invisible="1" force_save="1"/>
+                    <field name="res_model" invisible="1" force_save="1"/>
+                    <field name="reference" readonly="1"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

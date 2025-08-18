@@ -43,12 +43,12 @@
     'data': [
         'views/res_partner_views.xml',
         'views/edi_envelope_views.xml',
+        'views/edi_message_views.xml',
         'views/edi_route_views.xml',
-
+        'views/account_move_views.xml',
     ],
     'demo': [],
     'application': False,
     'installable': True,    
     'auto_install': False,
-    #"post_init_hook": "post_init_hook",
 }
