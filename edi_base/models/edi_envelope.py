@@ -13,7 +13,7 @@ class EdiEnvelope(models.Model):
     receiver = fields.Many2one("res.partner", string="Receiver")
     payload = fields.Binary(string="Payload")
     payload_filename = fields.Char(string="Payload Filename")
-    type = fields.Selection(string="Type", selection=[('peppol', 'Peppol'),('gs1', 'GS1')])
+    type = fields.Selection(string="Type", selection=[('none', 'None')])
     state = fields.Selection(string="State", selection=[
         ('to_be_sent', 'To be sent'),('sent', 'Sent'), ('received', 'Received'), ('error', 'Error')])
 

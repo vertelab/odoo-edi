@@ -36,7 +36,7 @@
     'website': 'https://vertel.se/apps/odoo-',
     'images': ['static/description/banner.png'], # 560x280
     'license': 'AGPL-3',
-    'depends': [],
+    'depends': ['account_edi_ubl_cii'],
      #"external_dependencies": {
      #   "bin": ["openssl",], 
      #   "python": ["acme_tiny", "IPy",],
@@ -53,8 +53,8 @@
         'views/res_partner_inherited_view.xml',
         'views/edi_message_format_view.xml',
         'views/menu.xml',
-
-        'data/edi_message_format.xml'
+        'wizard/edi_envelope_wizard.xml',
+        'data/edi_message_format.xml',
     ],
     'demo': [],
     'application': False,
