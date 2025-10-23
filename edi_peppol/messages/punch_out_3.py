@@ -330,6 +330,7 @@ class EdiMessage(models.Model):
             'partner_id': self.sender.id,
             'issue_date': issue_date,
             'validity_period': validity_period,
+            'partner_ref': payload_dict.get('ReferencedContract').get('ID', False) # todo: double check this is the right value
         })
 
         catalogue_lines = payload_dict.get('CatalogueLine')
