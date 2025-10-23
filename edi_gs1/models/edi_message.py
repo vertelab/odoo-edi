@@ -10,25 +10,26 @@ _logger = logging.getLogger(__name__)
 class EdiMessage(models.Model):
     _inherit = 'edi.message'
 
-    @api.model
-    def _selection_target_model(self):
-        return [(model.model, model.name) for model in self.env['ir.model'].sudo().search([])]
+
 
     message_reference = fields.Char(string="Message Reference", help="Reference from UNH segment")
-    res_id = fields.Integer(string='Record ID',
-                            help="Database ID of record to open in form view, when ``view_mode`` is set to 'form' only")
-    res_model = fields.Char(string='Destination Model', required=True,
-                            help="Model name of the object to open in the view window")
+    # ~ res_id = fields.Integer(string='Record ID',
+                            # ~ help="Database ID of record to open in form view, when ``view_mode`` is set to 'form' only")
+    # ~ res_model = fields.Char(string='Destination Model', required=True,
+                            # ~ help="Model name of the object to open in the view window")
+    # ~ @api.model
+    # ~ def _selection_target_model(self):
+        # ~ return [(model.model, model.name) for model in self.env['ir.model'].sudo().search([])]
 
-    @api.depends('res_id', 'res_model')
-    def _compute_rec_reference(self):
-        for rec in self:
-            if rec.res_id and rec.res_model:
-                rec.reference = f"{rec.res_model},{rec.res_id}"
-            else:
-                rec.reference = False
+    # ~ @api.depends('res_id', 'res_model')
+    # ~ def _compute_rec_reference(self):
+        # ~ for rec in self:
+            # ~ if rec.res_id and rec.res_model:
+                # ~ rec.reference = f"{rec.res_model},{rec.res_id}"
+            # ~ else:
+                # ~ rec.reference = False
 
-    reference = fields.Reference(string='Reference', selection='_selection_target_model', compute=_compute_rec_reference)
+    # ~ reference = fields.Reference(string='Reference', selection='_selection_target_model', compute=_compute_rec_reference)
 
     def _process_invoic(self):
         """Process INVOIC message and create new account.move"""

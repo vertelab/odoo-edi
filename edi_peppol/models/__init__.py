@@ -5,3 +5,4 @@ from . import purchase_order
 from . import peppol_sbd_envelope
 from . import product
 from . import product_catalogue_peppol
+from . import edi_message

@@ -2,6 +2,7 @@
 <odoo>
     <data>
         <!-- EDI Envelope form view extension -->
+<!--
         <record id="view_edi_message_form_extended" model="ir.ui.view">
             <field name="name">edi.message.form.edifact</field>
             <field name="model">edi.message</field>
@@ -14,6 +15,7 @@
                 </field>
             </field>
         </record>
+-->
 
     </data>
 </odoo>

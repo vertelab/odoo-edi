@@ -12,51 +12,6 @@ import xmltodict
 # xml_string is your XML content as a string
 
 
-def _clean_xml_dict(data):
-    """
-    Remove namespace prefixes and simplify XML dictionary structure.
-    This is a flexible utility that can be used for any XML parsed by xmltodict.
-
-    :param data: Dictionary from xmltodict.parse()
-    :return: Cleaned dictionary without namespace prefixes
-    """
-    if isinstance(data, dict):
-        cleaned = {}
-        for key, value in data.items():
-            # Skip namespace declarations
-            if key.startswith('@xmlns'):
-                continue
-
-            # Remove namespace prefix from keys (cbc:ID -> ID)
-            clean_key = key.split(':')[-1]
-
-            # If value is a dict with only #text, unwrap it
-            if isinstance(value, dict):
-                if len(value) == 1 and '#text' in value:
-                    # Simple text node: {'#text': 'value'} -> 'value'
-                    cleaned[clean_key] = value['#text']
-                elif '#text' in value and any(k.startswith('@') for k in value.keys()):
-                    # Has both text and attributes, keep structure but clean
-                    cleaned[clean_key] = {
-                        'value': value['#text'],
-                        'attributes': {k.lstrip('@'): v for k, v in value.items() if k.startswith('@')}
-                    }
-                else:
-                    # Regular nested dict
-                    cleaned[clean_key] = _clean_xml_dict(value)
-            elif isinstance(value, list):
-                # List of elements
-                cleaned[clean_key] = [_clean_xml_dict(item) for item in value]
-            else:
-                # Simple value (string, number, etc.)
-                cleaned[clean_key] = value
-
-        return cleaned
-    elif isinstance(data, list):
-        return [_clean_xml_dict(item) for item in data]
-    else:
-        return data
-
 
 class EdiMessage(models.Model):
     _inherit = 'edi.message'
@@ -65,7 +20,7 @@ class EdiMessage(models.Model):
         result = super().unpack()
         if not result:
             payload_dict = self._unpack_catalogue()
-            self._set_message_type_catalogue(payload_dict)
+            self._set_message_type(payload_dict)
             if not self.message_format_id:
                 return False
             return True
@@ -74,6 +29,7 @@ class EdiMessage(models.Model):
 
     def _unpack_catalogue(self):
         """Unpack PEPPOL Punch Out Catalogue from payload"""
+        return
         if not self.payload:
             return
 
@@ -103,18 +59,6 @@ class EdiMessage(models.Model):
             _logger.error(f"Error unpacking punch out catalogue: {e}")
             raise
 
-
-    def _set_message_type_catalogue(self, payload_dict):
-        customization_id = payload_dict.get('CustomizationID')
-        # Verify CustomizationID
-        if customization_id != 'urn:fdc:peppol.eu:poacc:trns:catalogue:3':
-            _logger.warning(f"Unexpected CustomizationID: {customization_id}")
-
-        edi_message_type = self.env['edi.message.format'].search([('name', '=', customization_id)])
-        self.message_format_id = edi_message_type
-
-        if not edi_message_type:
-            _logger.warning(f"Unexpected CustomizationID: {customization_id} No message type ")
 
     def _set_receiver_sender(self, payload_dict):
         ProviderParty = payload_dict.get("ProviderParty")
