@@ -43,7 +43,7 @@
      #},
     'data': [
         'security/ir.model.access.csv',
-        'views/purchase_order_inherited_view.xml',
+        'views/purchase_order_views.xml',
         'views/product_views.xml',
     ],
     'demo': [],

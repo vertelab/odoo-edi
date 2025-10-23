@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 import base64
 
 class FileUploadEnvelopeWizard(models.TransientModel):
@@ -11,4 +11,11 @@ class FileUploadEnvelopeWizard(models.TransientModel):
     def unpack(self):
         envelope = self.env['edi.envelope'].create({'name':self.file_name,'payload':self.file_data})
         envelope.unfold()
+        return {
+            'name': _('Envelope'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'edi.envelope',
+            'res_id': envelope.id,
+            'view_mode': 'form',
+        }
         return {'type': 'ir.actions.act_window_close'}

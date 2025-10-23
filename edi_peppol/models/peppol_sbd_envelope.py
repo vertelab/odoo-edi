@@ -1,136 +1,211 @@
-from odoo import api, fields, models, tools,_
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import UserError
 import logging
 import base64
 import xml.etree.ElementTree as ET
+import re
 
 _logger = logging.getLogger(__name__)
 
+
 class EdiEnvelope(models.Model):
     _inherit = 'edi.envelope'
-    
-    type = fields.Selection(selection_add=[('sbd','StandardBusinessDocument')])
-    
-    def get_receiver_sender(self, root):
-        # Find sender identifier text
+
+    type = fields.Selection(selection_add=[('sbd', 'StandardBusinessDocument')])
+
+    def _find_or_create_partner(self, partner_vals, search_domain=None):
+        """
+        Find or create a partner based on values.
+        Reusable utility method.
+
+        :param partner_vals: Dictionary of partner values
+        :param search_domain: Optional custom search domain
+        :return: res.partner record
+        """
+        if not search_domain:
+            search_domain = [
+                ('peppol_eas', '=', partner_vals.get('peppol_eas')),
+                ('peppol_endpoint', '=', partner_vals.get('peppol_endpoint'))
+            ]
+
+        partner = self.env['res.partner'].search(search_domain, limit=1)
+
+        if not partner:
+            partner = self.env['res.partner'].create(partner_vals)
+            _logger.info(f"Created partner: {partner_vals.get('name')}")
+
+        return partner
+
+    def _extract_sbdh_party(self, root, party_type='Sender'):
+        """
+        Extract party information from StandardBusinessDocumentHeader.
+
+        :param root: XML root element
+        :param party_type: 'Sender' or 'Receiver'
+        :return: res.partner record or False
+        """
         NS = {'sbd': 'http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader'}
 
-        sender_elem = root.find('.//sbd:StandardBusinessDocumentHeader/sbd:Sender/sbd:Identifier', namespaces=NS)
-        sender_vals = sender_elem.text if sender_elem is not None else None
-        sender_partner = False
-        receiver_partner = False
-        _logger.warning(f"{sender_vals=}")
-        if sender_vals:
-            sender_eas, sender_endpoint = sender_vals.split(":")
-            sender_partner = self.env['res.partner'].search([
-                ('peppol_eas', '=', sender_eas),
-                ('peppol_endpoint', '=', sender_endpoint)
-            ])
-            if not sender_partner:
-                sender_partner = self.env['res.partner'].create({
-                    'peppol_eas': sender_eas,
-                    'peppol_endpoint': sender_endpoint,
-                    'company_type': 'company',
-                    'name': sender_vals,
-                })
+        # Find party identifier
+        party_elem = root.find(
+            f'.//sbd:StandardBusinessDocumentHeader/sbd:{party_type}/sbd:Identifier',
+            namespaces=NS
+        )
 
-        # Find receiver identifier text
-        receiver_elem = root.find('.//sbd:StandardBusinessDocumentHeader/sbd:Receiver/sbd:Identifier', namespaces=NS)
-        receiver_vals = receiver_elem.text if receiver_elem is not None else None
-        
-        if receiver_vals:
-            receiver_eas, receiver_endpoint = receiver_vals.split(":")
-            receiver_partner = self.env['res.partner'].search([
-                ('peppol_eas', '=', receiver_eas),
-                ('peppol_endpoint', '=', receiver_endpoint)
-            ])
-            if not receiver_partner:
-                receiver_partner = self.env['res.partner'].create({
-                    'peppol_eas': receiver_eas,
-                    'peppol_endpoint': receiver_endpoint,
-                    'company_type': 'company',
-                    'name': receiver_vals,
-                })
+        if party_elem is None or not party_elem.text:
+            _logger.warning(f"No {party_type} identifier found in SBDH")
+            return False
+
+        party_vals = party_elem.text
+
+        # Parse the identifier (format: "eas:endpoint")
+        if ':' in party_vals:
+            eas, endpoint = party_vals.split(":", 1)
+        else:
+            _logger.warning(f"Invalid {party_type} identifier format: {party_vals}")
+            return False
+
+        # Prepare partner values
+        partner_vals = {
+            'peppol_eas': eas,
+            'peppol_endpoint': endpoint,
+            'company_type': 'company',
+            'name': party_vals,  # Use full identifier as name initially
+        }
+
+        return self._find_or_create_partner(partner_vals)
+
+    def get_receiver_sender(self, root):
+        """Extract sender and receiver from StandardBusinessDocumentHeader"""
+
+        sender_partner = self._extract_sbdh_party(root, 'Sender')
+        receiver_partner = self._extract_sbdh_party(root, 'Receiver')
 
         self.sender = sender_partner
         self.receiver = receiver_partner
 
-    def create_edi_message(self, root):
-        # Find DocumentIdentification type
-        NS = {'sbd': 'http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader'}
-        doc_id_elem = root.find('.//sbd:StandardBusinessDocumentHeader/sbd:DocumentIdentification/sbd:Type',
-                                namespaces=NS)
-        documentIdentification_type = doc_id_elem.text if doc_id_elem is not None else None
+    def _extract_payload_from_xml(self, root, payload_tag):
+        """
+        Extract payload element from XML root, preserving original formatting.
 
-        if not documentIdentification_type:
-            self.state = "error"
-            return
-
-        # Find the payload by documentIdentification_type tag
-        payload_tag = documentIdentification_type.split(':')[
-            -1] if ':' in documentIdentification_type else documentIdentification_type
-        print(f"Looking for payload tag: {payload_tag}")
-
-        # Try to find the payload element - it might be in a different namespace
-        # First, try without namespace
+        :param root: XML root element
+        :param payload_tag: Tag name to search for (without namespace)
+        :return: Base64 encoded payload string or False
+        """
+        # Try to find the payload element
         payload_elem = root.find(f"./{payload_tag}")
 
-        # If not found, search through all child elements regardless of namespace
+        # If not found, search through all children regardless of namespace
         if payload_elem is None:
             for child in root:
-                # Check if the local name (without namespace) matches
-                if child.tag.endswith(payload_tag) or child.tag.split('}')[-1] == payload_tag:
+                local_tag = child.tag.split('}')[-1]
+                if local_tag == payload_tag:
                     payload_elem = child
                     break
 
-        print(f"Found payload_elem: {payload_elem}")
+        if payload_elem is None:
+            _logger.warning(f"Payload element '{payload_tag}' not found")
+            return False
 
-        if payload_elem is not None:
-            # Get the original XML string from the binary payload
-            binary_data = base64.b64decode(self.payload)
-            original_xml_string = binary_data.decode('utf-8')
+        # Get the original XML string from the envelope payload
+        binary_data = base64.b64decode(self.payload)
+        original_xml_string = binary_data.decode('utf-8')
 
-            # Find the start and end of the payload element in the original string
-            # Look for the opening tag (with any namespace prefix)
-            import re
-            # Match opening tag like <Catalogue or <prefix:Catalogue
-            pattern = rf'<(?:\w+:)?{payload_tag}[>\s]'
-            match = re.search(pattern, original_xml_string)
+        # Extract the payload section from original XML to preserve formatting
+        # Match opening tag like <Catalogue or <prefix:Catalogue
+        pattern = rf'<(?:\w+:)?{payload_tag}[>\s]'
+        match = re.search(pattern, original_xml_string)
 
-            if match:
-                start_pos = match.start()
-                # Find the corresponding closing tag
-                closing_pattern = rf'</(?:\w+:)?{payload_tag}>'
-                closing_match = re.search(closing_pattern, original_xml_string[start_pos:])
+        if not match:
+            _logger.warning(f"Could not find opening tag for '{payload_tag}' in original XML")
+            return False
 
-                if closing_match:
-                    end_pos = start_pos + closing_match.end()
-                    payload_str = original_xml_string[start_pos:end_pos]
+        start_pos = match.start()
 
-                    # Encode to base64 for binary field
-                    payload_binary = base64.b64encode(payload_str.encode('utf-8'))
+        # Find the corresponding closing tag
+        closing_pattern = rf'</(?:\w+:)?{payload_tag}>'
+        closing_match = re.search(closing_pattern, original_xml_string[start_pos:])
 
-                    self.env['edi.message'].create({
-                        'payload': payload_binary,
-                        'envelope_id': self.id,
-                    })
+        if not closing_match:
+            _logger.warning(f"Could not find closing tag for '{payload_tag}'")
+            return False
+
+        end_pos = start_pos + closing_match.end()
+        payload_str = original_xml_string[start_pos:end_pos]
+
+        # Encode to base64 for binary field
+        return base64.b64encode(payload_str.encode('utf-8'))
+
+    def create_edi_message(self, root):
+        """Create EDI message from StandardBusinessDocument payload"""
+
+        NS = {'sbd': 'http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader'}
+
+        # Find DocumentIdentification Type
+        doc_id_elem = root.find(
+            './/sbd:StandardBusinessDocumentHeader/sbd:DocumentIdentification/sbd:Type',
+            namespaces=NS
+        )
+
+        if doc_id_elem is None or not doc_id_elem.text:
+            _logger.error("No DocumentIdentification Type found in SBDH")
+            return False
+
+        document_type = doc_id_elem.text
+
+        # Remove namespace prefix if present
+        payload_tag = document_type.split(':')[-1]
+
+        _logger.info(f"Extracting payload for document type: {payload_tag}")
+
+        # Extract payload
+        payload_binary = self._extract_payload_from_xml(root, payload_tag)
+
+        if payload_binary:
+            edi_message_id = self.env['edi.message'].create({
+                'payload': payload_binary,
+                'envelope_id': self.id,
+            })
+            edi_message_id.unpack()
+            _logger.info(f"Created EDI message for envelope {self.id}")
+            return True
+
+        return False
 
     def unfold(self, existing_invoice=None):
+        """Unfold StandardBusinessDocument envelope"""
+
         result = super().unfold()
-        if not result:
+
+        if not result and self.payload:
             try:
-                if self.payload:
-                    binary_data = base64.b64decode(self.payload)
-                    xml_string = binary_data.decode('utf-8')
-                    root = ET.fromstring(xml_string)
-                    _logger.warning(f"Parsed XML root tag: {root.tag}")
-                    if root.tag == '{http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader}StandardBusinessDocument':
-                        self.type = "sbd"
-                    else:
-                        return False
-                    self.get_receiver_sender(root)
-                    self.create_edi_message(root)
+                # Decode and parse XML
+                binary_data = base64.b64decode(self.payload)
+                xml_string = binary_data.decode('utf-8')
+                root = ET.fromstring(xml_string)
+
+                _logger.info(f"Parsed XML root tag: {root.tag}")
+
+                # Check if it's a StandardBusinessDocument
+                expected_tag = '{http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader}StandardBusinessDocument'
+
+                if root.tag != expected_tag:
+                    _logger.warning(f"Not a StandardBusinessDocument: {root.tag}")
+                    return False
+
+                # Set envelope type
+                self.type = "sbd"
+
+                # Extract parties
+                self.get_receiver_sender(root)
+
+                # Create message
+                self.create_edi_message(root)
+
+                return True
+
             except Exception as e:
-                _logger.warning(e)
-                raise e
+                _logger.error(f"Error unfolding StandardBusinessDocument: {e}")
+                raise
+
         return result
