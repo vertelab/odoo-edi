@@ -1,0 +1,111 @@
+<odoo>
+    <record id="view_product_catalogue_peppol_list" model="ir.ui.view">
+        <field name="name">product.catalogue.peppol.list</field>
+        <field name="model">product.catalogue.peppol</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_product_catalogue_peppol_form" model="ir.ui.view">
+        <field name="name">product.catalogue.peppol.form</field>
+        <field name="model">product.catalogue.peppol</field>
+        <field name="arch" type="xml">
+            <form string="PEPPOL Product Catalogue">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="referenced_contract"/>
+                        <field name="validity_period_start_date"/>
+                        <field name="validity_period_end_date"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Provider Information">
+                            <group>
+                                <field name="provider_party"/>
+                                <field name="provider_contact"/>
+                            </group>
+                            <group>
+                                <field name="provider_postal_address"/>
+                                <field name="provider_party_legal_entity"/>
+                            </group>
+                        </page>
+
+                        <page string="Receiver Information">
+                            <group>
+                                <field name="receiver_party"/>
+                                <field name="receiver_contact"/>
+                            </group>
+                            <group>
+                                <field name="receiver_postal_address"/>
+                                <field name="receiver_party_legal_entity"/>
+                            </group>
+                        </page>
+
+                        <page string="Seller Information">
+                            <group>
+                                <field name="seller_supplier_party"/>
+                                <field name="seller_contact"/>
+                            </group>
+                            <group>
+                                <field name="seller_postal_address"/>
+                                <field name="seller_party_legal_entity"/>
+                            </group>
+                        </page>
+
+                        <page string="Contractor/Customer Information">
+                            <group>
+                                <field name="contractor_customer_supplier_party"/>
+                                <field name="contractor_customer_contact"/>
+                            </group>
+                            <group>
+                                <field name="contractor_customer_postal_address"/>
+                                <field name="contractor_customer_party_legal_entity"/>
+                            </group>
+                        </page>
+
+                        <page string="Catalogue Lines">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="product_tmpl_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_product_catalogue_peppol_line_list" model="ir.ui.view">
+        <field name="name">product.catalogue.peppol.line.list</field>
+        <field name="model">product.catalogue.peppol.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="product_tmpl_id"/>
+                <field name="catalogue_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_product_catalogue_peppol" model="ir.actions.act_window">
+        <field name="name">PEPPOL Catalogues</field>
+        <field name="res_model">product.catalogue.peppol</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+    <menuitem id="menu_product_catalogue_peppol_root"
+              name="PEPPOL Catalogue"
+              />
+
+    <menuitem id="menu_product_catalogue_peppol"
+              name="Catalogues"
+              parent="menu_product_catalogue_peppol_root"
+              action="action_product_catalogue_peppol"/>
+</odoo>

@@ -1,1 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_catalogue_peppol_user,product.catalogue.peppol,model_product_catalogue_peppol,base.group_user,1,1,1,1
+access_product_catalogue_peppol_line_user,product.catalogue.peppol.line,model_product_catalogue_peppol_line,base.group_user,1,1,1,1

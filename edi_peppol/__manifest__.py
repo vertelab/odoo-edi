@@ -45,6 +45,7 @@
         'security/ir.model.access.csv',
         'views/purchase_order_inherited_view.xml',
         'views/product_views.xml',
+        'views/catalogue_peppol_views.xml',
     ],
     'demo': [],
     'application': False,
