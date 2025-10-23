@@ -16,4 +16,4 @@ class EdiMessageFormat(models.Model):
         pass
     
     def unpack(self):
-        pass
+        return False

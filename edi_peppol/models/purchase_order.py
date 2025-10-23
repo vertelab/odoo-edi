@@ -14,15 +14,14 @@ class PurchaseOrder(models.Model):
 
     def compute_show_send_peppol_button(self):
         for purchase_order in self:
+            purchase_order.show_send_peppol_button = False
             if purchase_order.partner_id and purchase_order.partner_id.route_id.route_type == "BIS Ordering 3.3 Outgoing":
                 route_line_id = self.env['edi.route.line'].search([('route_id','=',purchase_order.partner_id.route_id.id),('message_format_id.name','=','urn:fdc:peppol.eu:poacc:trns:order:3')])
                 domain = safe_eval(route_line_id.domain)
                 domain.append(('id','=',purchase_order.id))
                 _logger.error(f"{domain=}")
-            if self.env['purchase.order'].search(domain):
-               purchase_order.show_send_peppol_button = True
-            else:
-               purchase_order.show_send_peppol_button = False
+                if self.env['purchase.order'].search(domain):
+                   purchase_order.show_send_peppol_button = True
 
     def send_peppol_outgoing_message(self):
         for purchase_order in self:

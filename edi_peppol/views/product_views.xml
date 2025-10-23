@@ -1,0 +1,23 @@
+<odoo>
+    <record id="view_product_form_inherit_peppol_tab" model="ir.ui.view">
+        <field name="name">product.template.form.peppol.tab</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Insert after the last existing page in the notebook -->
+            <xpath expr="//notebook/page[last()]" position="after">
+                <page string="PEPPOL" name="peppol_tab">
+                    <group string="Item Identifications">
+                        <field name="sellers_item_identification"/>
+                        <field name="manufacturers_item_identification"/>
+                        <field name="standard_item_identification_code"/>
+                        <field name="standard_item_identification"/>
+                        <field name="item_specification_document_ref"/>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
