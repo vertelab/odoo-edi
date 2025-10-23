@@ -355,6 +355,7 @@ class EdiMessage(models.Model):
                     "price_unit": catalogue_price_data.get('price'),
                     'order_id': purchase_id.id
                 })
+        self.name = purchase_id.name
 
 
     def _get_price_details(self, required_item_location_quantity_data):

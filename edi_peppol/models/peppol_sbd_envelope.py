@@ -149,6 +149,7 @@ class EdiEnvelope(models.Model):
 
         if doc_id_elem is None or not doc_id_elem.text:
             _logger.error("No DocumentIdentification Type found in SBDH")
+            self.state = "error"
             return False
 
         document_type = doc_id_elem.text
@@ -168,6 +169,7 @@ class EdiEnvelope(models.Model):
             })
             edi_message_id.unpack()
             _logger.info(f"Created EDI message for envelope {self.id}")
+            self.state = "received"
             return True
 
         return False
