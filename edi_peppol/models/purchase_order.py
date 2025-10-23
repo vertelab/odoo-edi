@@ -9,7 +9,10 @@ _logger = logging.getLogger(__name__)
 
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
-    
+
+    issue_date = fields.Datetime(string="Issue Date")
+    validity_period = fields.Datetime(string="Validity Period")
+
     show_send_peppol_button = fields.Boolean(compute="compute_show_send_peppol_button", store=False) #compute="compute_show_send_peppol_button"
 
     def compute_show_send_peppol_button(self):

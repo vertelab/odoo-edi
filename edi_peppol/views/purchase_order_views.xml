@@ -17,6 +17,19 @@
                         name="send_peppol_outgoing_message"
                         invisible="show_send_peppol_button == False"/>
             </button>
+
+            <xpath expr="//page[@name='purchase_delivery_invoice']" position="after">
+                <page string="PEPPOL" name="peppol_tab">
+                    <group>
+                        <group>
+                            <field name="issue_date"/>
+                        </group>
+                        <group>
+                            <field name="validity_period"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
         </field>
     </record>
 </odoo>
