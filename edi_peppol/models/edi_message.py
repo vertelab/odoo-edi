@@ -136,3 +136,65 @@ class EdiMessage(models.Model):
             _logger.info(f"Set message format: {customization_id}")
         else:
             _logger.warning(f"No message format found for CustomizationID: {customization_id}")
+
+
+    def _set_receiver_sender(self, payload_dict):
+        """
+        Extract and set sender and receiver from payload dictionary.
+        Works with different UBL document party naming conventions.
+
+        :param payload_dict: Parsed payload dictionary
+        """
+        if not payload_dict:
+            return
+
+        # Handle different party naming conventions across UBL documents
+        # Catalogue: ProviderParty/ReceiverParty
+        # ApplicationResponse: SenderParty/ReceiverParty
+        # Invoice: AccountingSupplierParty/AccountingCustomerParty
+        # Order: BuyerCustomerParty/SellerSupplierParty
+        sender_party = (
+                payload_dict.get('ProviderParty') or
+                payload_dict.get('SenderParty') or
+                payload_dict.get('AccountingSupplierParty') or
+                payload_dict.get('SellerSupplierParty')
+        )
+
+        receiver_party = (
+                payload_dict.get('ReceiverParty') or
+                payload_dict.get('AccountingCustomerParty') or
+                payload_dict.get('BuyerCustomerParty')
+        )
+
+        # Extract sender
+        if sender_party:
+            sender_company, sender_contact = self._extract_party(sender_party, 'sender')
+            if sender_company:
+                self.sender = sender_company
+
+        # Extract receiver
+        if receiver_party:
+            receiver_company, receiver_contact = self._extract_party(receiver_party, 'receiver')
+            if receiver_company:
+                self.receiver = receiver_company
+
+    def _parse_date(self, date_str, time_str=None):
+        """
+        Parse date and optional time to datetime/date object.
+
+        :param date_str: Date string 'YYYY-MM-DD'
+        :param time_str: Optional time string 'HH:MM:SS'
+        :return: datetime/date object or False
+        """
+        if not date_str:
+            return False
+
+        try:
+            if time_str:
+                datetime_str = f"{date_str} {time_str.split('.')[0]}"  # Remove microseconds if present
+                return datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+            else:
+                return datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            _logger.warning(f"Invalid date/time format: {date_str} {time_str}")
+            return False
