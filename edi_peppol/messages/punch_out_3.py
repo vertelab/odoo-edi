@@ -30,17 +30,30 @@ class EdiMessagePunchOut(models.Model):
             if not party_data:
                 continue
 
-            party_contact_data = party_data.pop('contact', False)
+            party_contacts = party_data.pop('contacts', False)
+
             if party_data.get('country_code'):
                 party_data['country_id'] = self._get_country(party_data.pop('country_code', False))
+
+            party_data['company_type'] = 'company'
 
             partner = self._find_or_create_partner(party_data)
 
             # Create contact if exists
-            if party_contact_data and party_contact_data.get('name'):
-                party_contact_data['type'] = 'contact'
-                party_contact_data['parent_id'] = partner.id
-                self._find_or_create_partner(party_contact_data)
+            # if party_contact_data and party_contact_data.get('name'):
+            #     party_contact_data['type'] = 'contact'
+            #     party_contact_data['parent_id'] = partner.id
+            #     self._find_or_create_partner(party_contact_data)
+
+            # Create contacts if exist
+            if party_contacts:
+                for contact_data in party_contacts:
+                    contact_type = contact_data.pop('type')
+
+                    if contact_type == 'contact' and contact_data.get('name'):
+                        contact_data['type'] = 'contact'
+                        contact_data['parent_id'] = partner.id
+                        self._find_or_create_partner(contact_data)
 
             # Set sender/receiver
             if party == 'provider_party':

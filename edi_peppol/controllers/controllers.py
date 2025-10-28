@@ -1,21 +1,32 @@
 # -*- coding: utf-8 -*-
-# from odoo import http
+import requests
+import base64
+from odoo import http, _
+from odoo.http import request
 
 
-# class ScaffoldTest(http.Controller):
-#     @http.route('/scaffold_test/scaffold_test/', auth='public')
-#     def index(self, **kw):
-#         return "Hello, world"
+class PeppolController(http.Controller):
 
-#     @http.route('/scaffold_test/scaffold_test/objects/', auth='public')
-#     def list(self, **kw):
-#         return http.request.render('scaffold_test.listing', {
-#             'root': '/scaffold_test/scaffold_test',
-#             'objects': http.request.env['scaffold_test.scaffold_test'].search([]),
-#         })
+    @http.route('/punchout/return', type='http', auth='public', methods=['POST', 'GET'], csrf=False, website=True)
+    def punchout_return(self, **post):
+        """Supplier posts shopping cart XML here"""
 
-#     @http.route('/scaffold_test/scaffold_test/objects/<model("scaffold_test.scaffold_test"):obj>/', auth='public')
-#     def object(self, obj, **kw):
-#         return http.request.render('scaffold_test.object', {
-#             'object': obj
-#         })
+        if request.httprequest.method == 'POST':
+            # Get the base64 encoded XML
+            xml_base64 = post.get('return_object_base64')
+
+            if xml_base64:
+                # Remove line breaks from base64 string
+                xml_base64_clean = xml_base64.replace('\r\n', '').replace('\n', '').replace('\r', '')
+
+                # Create file upload wizard to process the envelope
+                wizard = request.env['file.upload.envelope.wizard'].sudo().create({
+                    'file_data': xml_base64_clean,
+                    'file_name': 'punchout_catalogue.xml',  # Add filename
+                })
+
+                # Process (calls unpack which eventually calls _unpack_punch_out)
+                wizard.unpack()
+
+        # Render success template
+        return request.render('edi_peppol.punchout_success')

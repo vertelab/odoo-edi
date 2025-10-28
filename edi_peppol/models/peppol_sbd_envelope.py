@@ -189,20 +189,44 @@ class EdiEnvelope(models.Model):
                 _logger.info(f"Parsed XML root tag: {root.tag}")
 
                 # Check if it's a StandardBusinessDocument
-                expected_tag = '{http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader}StandardBusinessDocument'
+                # expected_tag = '{http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader}StandardBusinessDocument'
+                #
+                # if root.tag != expected_tag:
+                #     _logger.warning(f"Not a StandardBusinessDocument: {root.tag}")
+                #     return False
+                #
+                # # Set envelope type
+                # self.type = "sbd"
+                #
+                # # Extract parties
+                # self.get_receiver_sender(root)
+                #
+                # # Create message
+                # self.create_edi_message(root)
 
-                if root.tag != expected_tag:
-                    _logger.warning(f"Not a StandardBusinessDocument: {root.tag}")
-                    return False
+                # Check if it's a StandardBusinessDocument (wrapped)
+                if 'StandardBusinessDocument' in root.tag:
+                    # Set envelope type
+                    self.type = "sbd"
 
-                # Set envelope type
-                self.type = "sbd"
+                    # Extract parties from SBDH
+                    self.get_receiver_sender(root)
 
-                # Extract parties
-                self.get_receiver_sender(root)
+                    # Create message from payload inside SBD
+                    self.create_edi_message(root)
 
-                # Create message
-                self.create_edi_message(root)
+                else:
+                    # Bare UBL document (Catalogue, Invoice, etc.) - no envelope
+                    _logger.info(f"Processing bare UBL document: {root.tag}")
+
+                    # For bare documents, create message directly with the entire payload
+                    edi_message_id = self.env['edi.message'].create({
+                        'payload': self.payload,  # Use the entire payload as-is
+                        'envelope_id': self.id,
+                    })
+                    edi_message_id.unpack()
+
+                    self.state = "received"
 
                 return True
 

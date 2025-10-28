@@ -5,7 +5,7 @@
         <field name="inherit_id" ref="edi_base.view_edi_message_form"/>
         <field name="arch" type="xml">
             <field name="sender" position="after">
-                <field name="catalogue_id"/>
+                <field name="catalogue_id" invisible="not catalogue_id"/>
             </field>
         </field>
     </record>

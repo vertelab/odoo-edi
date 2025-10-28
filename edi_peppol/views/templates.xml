@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="punchout_success" name="PunchOut Success">
+        <t t-call="web.layout">
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="alert alert-success text-center" role="alert">
+                            <h1><i class="fa fa-check-circle"></i> Success!</h1>
+                            <h4>Your PunchOut order has been received</h4>
+<!--                            <p class="mt-3">Purchase Order <strong t-esc="purchase_order.name"/> has been created.</p>-->
+<!--                            <div class="mt-4">-->
+<!--                                <a t-attf-href="/web#id=#{purchase_order.id}&amp;model=purchase.order&amp;view_type=form"-->
+<!--                                   class="btn btn-primary btn-lg">-->
+<!--                                    View Purchase Order-->
+<!--                                </a>-->
+<!--                            </div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
