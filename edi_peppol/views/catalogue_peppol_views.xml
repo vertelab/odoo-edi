@@ -48,7 +48,7 @@
                         <page string="Seller Information">
                             <group>
                                 <field name="seller_supplier_party"/>
-                                <field name="seller_contact"/>
+                                <field name="seller_supplier_contact"/>
                             </group>
                             <group>
                                 <field name="seller_postal_address"/>
@@ -58,7 +58,7 @@
 
                         <page string="Contractor/Customer Information">
                             <group>
-                                <field name="contractor_customer_supplier_party"/>
+                                <field name="contractor_customer_party"/>
                                 <field name="contractor_customer_contact"/>
                             </group>
                             <group>

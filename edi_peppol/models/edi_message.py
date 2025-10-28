@@ -9,15 +9,31 @@ import logging
 _logger = logging.getLogger(__name__)
 
 import base64
-import xml.etree.ElementTree as ET
 import xmltodict
-
-
-
 
 
 class EdiMessage(models.Model):
     _inherit = 'edi.message'
+
+    def unpack(self):
+        result = super().unpack()
+        if not result:
+            payload_dict = self._parse_payload_to_dict()
+
+            if not payload_dict:
+                return False
+
+            self._set_message_type(payload_dict)
+            if not self.message_format_id:
+                _logger.warning("No message type found peppol")
+                return False
+            # return payload_dict
+            self._process_peppol_message(payload=payload_dict)
+
+        return result
+
+    def _process_peppol_message(self, payload):
+        return payload
     
     @api.model
     def _clean_xml_dict(self, data):
@@ -137,47 +153,6 @@ class EdiMessage(models.Model):
         else:
             _logger.warning(f"No message format found for CustomizationID: {customization_id}")
 
-
-    def _set_receiver_sender(self, payload_dict):
-        """
-        Extract and set sender and receiver from payload dictionary.
-        Works with different UBL document party naming conventions.
-
-        :param payload_dict: Parsed payload dictionary
-        """
-        if not payload_dict:
-            return
-
-        # Handle different party naming conventions across UBL documents
-        # Catalogue: ProviderParty/ReceiverParty
-        # ApplicationResponse: SenderParty/ReceiverParty
-        # Invoice: AccountingSupplierParty/AccountingCustomerParty
-        # Order: BuyerCustomerParty/SellerSupplierParty
-        sender_party = (
-                payload_dict.get('ProviderParty') or
-                payload_dict.get('SenderParty') or
-                payload_dict.get('AccountingSupplierParty') or
-                payload_dict.get('SellerSupplierParty')
-        )
-
-        receiver_party = (
-                payload_dict.get('ReceiverParty') or
-                payload_dict.get('AccountingCustomerParty') or
-                payload_dict.get('BuyerCustomerParty')
-        )
-
-        # Extract sender
-        if sender_party:
-            sender_company, sender_contact = self._extract_party(sender_party, 'sender')
-            if sender_company:
-                self.sender = sender_company
-
-        # Extract receiver
-        if receiver_party:
-            receiver_company, receiver_contact = self._extract_party(receiver_party, 'receiver')
-            if receiver_company:
-                self.receiver = receiver_company
-
     def _parse_date(self, date_str, time_str=None):
         """
         Parse date and optional time to datetime/date object.
@@ -198,3 +173,155 @@ class EdiMessage(models.Model):
         except ValueError:
             _logger.warning(f"Invalid date/time format: {date_str} {time_str}")
             return False
+
+    def _find_or_create_partner(self, partner_vals, search_domain=None):
+        """
+        Find or create a partner based on values.
+
+        :param partner_vals: Dictionary of partner values
+        :param search_domain: Optional custom search domain, otherwise uses peppol fields
+        :return: res.partner record
+        """
+        if not search_domain:
+            # Check if this is a contact (has parent_id)
+            if partner_vals.get('parent_id'):
+                # For contacts, search by name and parent
+                search_domain = [
+                    ('name', '=', partner_vals.get('name')),
+                    ('parent_id', '=', partner_vals.get('parent_id'))
+                ]
+            else:
+                # For companies, search by PEPPOL identifiers
+                peppol_eas = partner_vals.get('peppol_eas')
+                peppol_endpoint = partner_vals.get('peppol_endpoint')
+
+                # Only search by PEPPOL if both values exist
+                if peppol_eas and peppol_endpoint:
+                    search_domain = [
+                        ('peppol_eas', '=', peppol_eas),
+                        ('peppol_endpoint', '=', peppol_endpoint)
+                    ]
+                else:
+                    # Fallback to name search
+                    search_domain = [('name', '=', partner_vals.get('name'))]
+
+        partner = self.env['res.partner'].search(search_domain, limit=1)
+
+        if not partner:
+            partner = self.env['res.partner'].create(partner_vals)
+            _logger.info(f"Created partner: {partner_vals.get('name')}")
+
+        return partner
+
+    def _get_party(self, party_data, party_role='party'):
+        """
+        Get party information from dictionary WITHOUT creating partners.
+        Returns dictionary of extracted data.
+
+        Handles two party structures:
+        1. Direct party data (ProviderParty, ReceiverParty, SenderParty, etc.)
+        2. Wrapped party data (SellerSupplierParty/Party, ContractorCustomerParty/Party)
+
+        :param party_data: Dictionary containing party information
+        :param party_role: Role description for logging
+        :return: Dictionary with party data
+        """
+        if not party_data:
+            _logger.warning(f"No {party_role} party data found")
+            return False
+
+        # Handle wrapped party structure (e.g., SellerSupplierParty/Party)
+        if 'Party' in party_data:
+            party_data = party_data['Party']
+
+        # Extract party identification
+        party_identification = party_data.get('PartyIdentification', {})
+        party_id = party_identification.get('ID', {})
+
+        identification_code = party_id.get('value') if isinstance(party_id, dict) else party_id
+        identification_schema = party_id.get('attributes', {}).get('schemeID') if isinstance(party_id, dict) else None
+
+        # Extract legal name (try multiple sources)
+        registration_name = None
+
+        # Try PartyLegalEntity/RegistrationName first
+        party_legal_entity = party_data.get('PartyLegalEntity', {})
+        registration_name = party_legal_entity.get('RegistrationName')
+
+        # Fallback to PartyName/Name
+        if not registration_name:
+            party_name = party_data.get('PartyName', {})
+            registration_name = party_name.get('Name')
+
+        # Extract address - try PostalAddress first, then RegistrationAddress
+        postal_address = party_data.get('PostalAddress')
+
+        if not postal_address:
+            # Try RegistrationAddress from PartyLegalEntity
+            postal_address = party_legal_entity.get('RegistrationAddress')
+
+        # Build address fields (spread into main dict)
+        address_fields = {}
+        if postal_address:
+            country = postal_address.get('Country', {})
+
+            address_fields = {
+                'street': postal_address.get('StreetName'),
+                'street2': postal_address.get('AdditionalStreetName'),
+                'city': postal_address.get('CityName'),
+                'zip': postal_address.get('PostalZone'),
+                'state': postal_address.get('CountrySubentity'),
+                'country_code': country.get('IdentificationCode') if country else None,
+            }
+
+        # Extract contact if present
+        contact_data = None
+        contact = party_data.get('Contact')
+        if contact:
+            contact_data = {
+                'name': contact.get('Name') or contact.get('ID'),
+                'ref': contact.get('ID'),
+                'email': contact.get('ElectronicMail'),
+                'phone': contact.get('Telephone'),
+            }
+
+        # Return extracted data as dictionary with address fields spread
+        return {
+            'peppol_eas': identification_schema,
+            'peppol_endpoint': identification_code,
+            'name': registration_name,
+            **address_fields,  # Spread address fields directly
+            'contact': contact_data
+        }
+
+    def _get_parties(self, payload_dict, party_mapping):
+        """
+        Get MULTIPLE parties from payload WITHOUT creating partners.
+        Returns dictionary of extracted data.
+
+        :param payload_dict: Parsed payload dictionary
+        :param party_mapping: Dictionary mapping party keys to their roles
+                             Example: {
+                                 'ProviderParty': 'provider',
+                                 'ReceiverParty': 'receiver',
+                                 'SellerSupplierParty': 'seller',
+                                 'ContractorCustomerParty': 'contractor'
+                             }
+        :return: Dictionary of parties {role: {party_data}}
+        """
+        parties = {}
+
+        for party_key, party_role in party_mapping.items():
+            party_data = payload_dict.get(party_key)
+            if party_data:
+                extracted = self._get_party(party_data, party_role)
+                if extracted:
+                    parties[party_role] = extracted
+                    _logger.info(f"Got {party_role}: {extracted.get('name')}")
+
+        return parties
+
+    def _get_country(self, country_code):
+        if country_code:
+            return self.env['res.country'].search([('code', '=', country_code)], limit=1).id
+        return False

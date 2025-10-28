@@ -1,144 +1,57 @@
-from datetime import datetime
+import logging
 
 from odoo import api, fields, models, tools, _, Command
 from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
 
-import logging
-
 _logger = logging.getLogger(__name__)
 
-import base64
-import xml.etree.ElementTree as ET
-import xmltodict
 
-
-class EdiMessage(models.Model):
+class EdiMessagePunchOut(models.Model):
     _inherit = 'edi.message'
 
-    def unpack(self):
-        result = super().unpack()
-        if not result:
-            
-            payload_dict = self._parse_payload_to_dict()
-            if not payload_dict:
-                return False
-
-            self._set_message_type(payload_dict)
-            if not self.message_format_id:
-                _logger.warning("No message type found peppol")
-                return False
-                
-            if self.message_format_id.name == "urn:fdc:peppol.eu:poacc:trns:punch_out:3":
-               _logger.warning("No message type found peppol punch_out:3")
-               return self._unpack_punch_out(payload_dict)
-            
-            return payload_dict
-        return result
-
+    def _process_peppol_message(self, payload):
+        if self.message_format_id.name == "urn:fdc:peppol.eu:poacc:trns:punch_out:3":
+            print("found punch out")
+            return self._unpack_punch_out(payload)
+        return super()._process_peppol_message(payload)
 
     def _unpack_punch_out(self, payload_dict):
-        self._set_receiver_sender(payload_dict)
-        if self.sender and self.receiver:
-            return self._create_purchase_order(payload_dict)
-        return False 
-            
-    def _find_or_create_partner(self, partner_vals, search_domain=None):
-        """
-        Find or create a partner based on values.
-
-        :param partner_vals: Dictionary of partner values
-        :param search_domain: Optional custom search domain, otherwise uses peppol fields
-        :return: res.partner record
-        """
-        if not search_domain:
-            # Default search by PEPPOL identifiers
-            peppol_eas = partner_vals.get('peppol_eas')
-            peppol_endpoint = partner_vals.get('peppol_endpoint')
-
-            # Only search by PEPPOL if both values exist
-            if peppol_eas and peppol_endpoint:
-                search_domain = [
-                    ('peppol_eas', '=', peppol_eas),
-                    ('peppol_endpoint', '=', peppol_endpoint)
-                ]
-            else:
-                # Fallback to name search
-                search_domain = [('name', '=', partner_vals.get('name'))]
-
-        partner = self.env['res.partner'].search(search_domain, limit=1)
-
-        if not partner:
-            partner = self.env['res.partner'].create(partner_vals)
-            _logger.info(f"Created partner: {partner_vals.get('name')}")
-
-        return partner
-
-    def _extract_party(self, party_data, party_role='party'):
-        """
-        Extract party information from dictionary.
-        This is a reusable utility for any UBL document.
-
-        :param party_data: Dictionary containing party information
-        :param party_role: Role description for logging ('sender', 'receiver', 'supplier', etc.)
-        :return: Tuple of (company_partner, contact_partner)
-        """
-        if not party_data:
-            _logger.warning(f"No {party_role} party data found")
-            return False, False
-
-        # Extract party identification
-        party_identification = party_data.get('PartyIdentification', {})
-        party_id = party_identification.get('ID', {})
-
-        identification_code = party_id.get('value') if isinstance(party_id, dict) else party_id
-        identification_schema = party_id.get('attributes', {}).get('schemeID') if isinstance(party_id, dict) else None
-
-        # Extract legal name
-        party_legal_entity = party_data.get('PartyLegalEntity', {})
-        registration_name = party_legal_entity.get('RegistrationName', f'{party_role.title()} Company')
-
-        # Prepare company values
-        company_vals = {
-            'peppol_eas': identification_schema,
-            'peppol_endpoint': identification_code,
-            'company_type': 'company',
-            'name': registration_name,
+        # Use the base class method instead of _extract_party
+        party_mapping = {
+            'ProviderParty': 'provider_party',
+            'ReceiverParty': 'receiver_party',
         }
 
-        # Find or create company
-        company = self._find_or_create_partner(company_vals)
+        parties = self._get_parties(payload_dict, party_mapping)
 
-        # Handle contact if present
-        contact = False
-        contact_data = party_data.get('Contact')
+        # Process parties similar to catalogue
+        for party in party_mapping.values():
+            party_data = parties.get(party)
+            if not party_data:
+                continue
 
-        if contact_data:
-            contact_name = contact_data.get('Name') or contact_data.get('ID')
-            contact_ref = contact_data.get('ID')
-            contact_email = contact_data.get('ElectronicMail')
-            contact_phone = contact_data.get('Telephone')
+            party_contact_data = party_data.pop('contact', False)
+            if party_data.get('country_code'):
+                party_data['country_id'] = self._get_country(party_data.pop('country_code', False))
 
-            if contact_name:
-                contact_vals = {
-                    'name': contact_name,
-                    'email': contact_email,
-                    'phone': contact_phone,
-                    'company_type': 'person',
-                    'type': 'contact',
-                    'parent_id': company.id,
-                    'ref': contact_ref,
-                }
+            partner = self._find_or_create_partner(party_data)
 
-                # Search for existing contact by name and parent
-                contact_search = [
-                    ('name', '=', contact_name),
-                    ('parent_id', '=', company.id)
-                ]
+            # Create contact if exists
+            if party_contact_data and party_contact_data.get('name'):
+                party_contact_data['type'] = 'contact'
+                party_contact_data['parent_id'] = partner.id
+                self._find_or_create_partner(party_contact_data)
 
-                contact = self._find_or_create_partner(contact_vals, contact_search)
+            # Set sender/receiver
+            if party == 'provider_party':
+                self.sender = partner
+            elif party == 'receiver_party':
+                self.receiver = partner
 
-        return company, contact
+        if self.sender and self.receiver:
+            return self._create_purchase_order(payload_dict)
+        return False
 
     def _create_purchase_order(self, payload_dict):
         issue_date = self._parse_date(
