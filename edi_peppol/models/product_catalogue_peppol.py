@@ -18,6 +18,7 @@ class ProductCataloguePeppol(models.Model):
 
     # Additional catalogue-level info
     referenced_contract = fields.Char(string="Referenced Contract")
+    agreement_id = fields.Many2one('agreement', string="Agreement")
 
     validity_period_start_date = fields.Datetime(string="Validity Start")
     validity_period_end_date = fields.Datetime(string="Validity End")

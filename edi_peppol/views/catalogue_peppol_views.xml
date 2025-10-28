@@ -22,7 +22,8 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="referenced_contract"/>
+                        <field name="referenced_contract" invisible="agreement_id"/>
+                        <field name="agreement_id" invisible="not agreement_id"/>
                         <field name="validity_period_start_date"/>
                         <field name="validity_period_end_date"/>
                     </group>

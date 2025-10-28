@@ -78,6 +78,7 @@ class EdiMessageCatalogue(models.Model):
         referenced_contract = payload.get('ReferencedContract', {})
         if referenced_contract:
             catalogue_vals['referenced_contract'] = referenced_contract.get('ID')
+            catalogue_vals['agreement_id'] = self._get_contract(referenced_contract.get('ID')).id
 
         # Set sender/receiver for EDI message
         if 'provider_party' in catalogue_vals:
@@ -139,3 +140,6 @@ class EdiMessageCatalogue(models.Model):
                 'json_data': catalogue_line
             })
         self.catalogue_id.product_data = catalogue_lines
+
+    def _get_contract(self, referenced_contract):
+        return self.env['agreement'].search([('code', '=', referenced_contract)], limit=1)
