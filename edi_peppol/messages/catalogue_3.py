@@ -9,14 +9,15 @@ _logger = logging.getLogger(__name__)
 class EdiMessageCatalogue(models.Model):
     _inherit = 'edi.message'
 
+    catalogue_id = fields.Many2one('product.catalogue.peppol', string="Catalogue", readonly=True)
+
     def _process_peppol_message(self, payload):
         if self.message_format_id.name == "urn:fdc:peppol.eu:poacc:trns:catalogue:3":
             return self._unpack_catalogue(payload)
         return super()._process_peppol_message(payload)
 
-
     def _unpack_catalogue(self, payload):
-        """Unpack PEPPOL Punch Out Catalogue from payload"""
+        """Unpack PEPPOL Catalogue from payload"""
         party_mapping = {
             'ProviderParty': 'provider_party',
             'ReceiverParty': 'receiver_party',
@@ -28,22 +29,46 @@ class EdiMessageCatalogue(models.Model):
 
         catalogue_vals = {
             'name': payload.get('Name', 'Catalogue'),
+            'edi_message_id': self.id
         }
 
         for party in party_mapping.values():
-            party_data = parties[party]
-            party_contact_data = party_data.pop('contact', False)
+            party_data = parties.get(party)
+
+            if not party_data:
+                continue
+
+            party_contacts = party_data.pop('contacts', [])
+
             if party_data.get('country_code'):
                 party_data['country_id'] = self._get_country(party_data.pop('country_code', False))
+
+            party_data['company_type'] = 'company'
 
             if parent_partner_id := self._find_or_create_partner(party_data):
                 catalogue_vals[party] = parent_partner_id.id
 
-                if party_contact_data:
-                    party_contact_data['type'] = 'contact'
-                    party_contact_data['parent_id'] = parent_partner_id.id
-                    contact_field_name = party.replace('_party', '_contact')
-                    catalogue_vals[contact_field_name] = self._find_or_create_partner(party_contact_data).id
+                # Process each contact
+                if party_contacts:
+                    for contact_data in party_contacts:
+                        contact_type = contact_data.pop('type')
+
+                        if contact_data.get('country_code'):
+                            contact_data['country_id'] = self._get_country(contact_data.pop('country_code'))
+
+                        if contact_type == 'postal':
+                            # Postal address contact
+                            contact_data['type'] = 'delivery'
+                            contact_data['parent_id'] = parent_partner_id.id
+                            contact_address_field_name = party.replace('_party', '_postal_address')
+                            catalogue_vals[contact_address_field_name] = self._find_or_create_partner(contact_data).id
+
+                        elif contact_type == 'contact':
+                            # Contact person
+                            contact_data['type'] = 'contact'
+                            contact_data['parent_id'] = parent_partner_id.id
+                            contact_field_name = party.replace('_party', '_contact')
+                            catalogue_vals[contact_field_name] = self._find_or_create_partner(contact_data).id
 
         validity_period = payload.get('ValidityPeriod', {})
         if validity_period:
@@ -60,7 +85,57 @@ class EdiMessageCatalogue(models.Model):
         if 'receiver_party' in catalogue_vals:
             self.receiver = self.env['res.partner'].browse(catalogue_vals['receiver_party'])
 
-        return self._create_catalogue(catalogue_vals)
+        return self._create_catalogue(catalogue_vals, payload)
 
-    def _create_catalogue(self, catalogue_vals):
-        self.env['product.catalogue.peppol'].create(catalogue_vals)
+    def _create_catalogue(self, catalogue_vals, payload):
+
+        if not self.catalogue_id:
+            product_catalogue_id = self.env['product.catalogue.peppol'].create(catalogue_vals)
+            self.catalogue_id = product_catalogue_id.id
+
+        catalogue_lines = payload.get('CatalogueLine')
+
+        for catalogue_line in catalogue_lines:
+            # information about the catalogue
+            action_code = catalogue_line.get('ActionCode', False)
+            content_unit_quantity_data = catalogue_line.get('ContentUnitQuantity', {})
+
+            content_unit_quantity = content_unit_quantity_data.get('value', False)
+            content_unit_quantity_attributes = content_unit_quantity_data.get('attributes', {})
+            content_unit_quantity_unit_code = content_unit_quantity_attributes.get('unitCode', False)
+            orderable_unit = catalogue_line.get('OrderableUnit', False)
+            minimum_order_quantity_data = catalogue_line.get('MinimumOrderQuantity', {})
+            minimum_order_quantity = minimum_order_quantity_data.get('value', False)
+
+            minimum_order_quantity_attribute = minimum_order_quantity_data.get('attributes', {})
+            minimum_order_quantity_unit_code = minimum_order_quantity_attribute.get('unitCode', False)
+
+            required_item_location_quantity = catalogue_line.get('RequiredItemLocationQuantity', {})
+            catalogue_price_data = self._get_price_details(
+                required_item_location_quantity_data=required_item_location_quantity
+            )
+
+            # lead_time_measure = required_item_location_quantity.get('LeadTimeMeasure', {})
+            # applicable_territory_address = required_item_location_quantity.get('ApplicableTerritoryAddress', {})
+
+            # information about the catalogue line item
+            catalogue_item_data = self._get_catalogue_item(item=catalogue_line.get('Item'))
+            product_id = self._get_product(catalogue_item_data=catalogue_item_data)
+
+            self.env['product.catalogue.peppol.line'].create({
+                'name': catalogue_item_data.get('name', False),
+                'action_code': action_code,
+                'catalogue_id': self.catalogue_id.id,
+                'product_id': product_id.id,
+                'product_tmpl_id': product_id.product_tmpl_id.id,
+                'content_unit_quantity': content_unit_quantity,
+                'min_order_quantity': minimum_order_quantity,
+                'min_order_quantity_unit_code': minimum_order_quantity_unit_code,
+                'sellers_item_identification': catalogue_item_data.get('sellers_item_identification'),
+                'manufacturers_item_identification': catalogue_item_data.get('manufacturers_item_identification'),
+                'item_specification_document_ref': catalogue_item_data.get('item_specification_document_ref'),
+                'standard_item_identification_code': catalogue_item_data.get('standard_item_identification_code'),
+                'standard_item_identification': catalogue_item_data.get('standard_item_identification'),
+                'json_data': catalogue_line
+            })
+        self.catalogue_id.product_data = catalogue_lines

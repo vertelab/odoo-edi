@@ -12,7 +12,6 @@ class EdiMessagePunchOut(models.Model):
 
     def _process_peppol_message(self, payload):
         if self.message_format_id.name == "urn:fdc:peppol.eu:poacc:trns:punch_out:3":
-            print("found punch out")
             return self._unpack_punch_out(payload)
         return super()._process_peppol_message(payload)
 
@@ -117,31 +116,25 @@ class EdiMessagePunchOut(models.Model):
             'uom': base_quantity_attributes_unit_code,
         }
 
-    def _get_catalogue_item(self, item):
-        sellers_item_id = item.get('SellersItemIdentification', {}).get('ID', False)
-        manufacturers_item_id = item.get('ManufacturersItemIdentification', {}).get('ID', False)
-        standard_item_id = item.get('StandardItemIdentification', {}).get('ID', {})
-        item_standard_document_ref = item.get('ItemSpecificationDocumentReference', {}).get('ID', False)
-        standard_item_id_value = standard_item_id.get('value', False)
-        standard_item_id_attributes_scheme_id = standard_item_id.get('attributes', {}).get('schemeID', False)
+    # def _get_catalogue_item(self, item):
+    #     sellers_item_id = item.get('SellersItemIdentification', {}).get('ID', False)
+    #     manufacturers_item_id = item.get('ManufacturersItemIdentification', {}).get('ID', False)
+    #     standard_item_id = item.get('StandardItemIdentification', {}).get('ID', {})
+    #     item_standard_document_ref = item.get('ItemSpecificationDocumentReference', {}).get('ID', False)
+    #     standard_item_id_value = standard_item_id.get('value', False)
+    #     standard_item_id_attributes_scheme_id = standard_item_id.get('attributes', {}).get('schemeID', False)
+    #
+    #     # additional item property
+    #     additional_item_property_id = item.get('AdditionalItemProperty', {}).get('ID', {})
+    #     additional_item_property_name = item.get('AdditionalItemProperty', {}).get('Name')
+    #     additional_item_property_name = item.get('AdditionalItemProperty', {}).get('Value')
+    #
+    #     return {
+    #         'sellers_item_identification': sellers_item_id,
+    #         'manufacturers_item_identification': manufacturers_item_id,
+    #         'item_specification_document_ref': item_standard_document_ref,
+    #         'standard_item_identification_code': standard_item_id_attributes_scheme_id,
+    #         'standard_item_identification': standard_item_id_value,
+    #     }
 
-        # additional item property
-        additional_item_property_id = item.get('AdditionalItemProperty', {}).get('ID', {})
-        additional_item_property_name = item.get('AdditionalItemProperty', {}).get('Name')
-        additional_item_property_name = item.get('AdditionalItemProperty', {}).get('Value')
 
-        return {
-            'sellers_item_identification': sellers_item_id,
-            'manufacturers_item_identification': manufacturers_item_id,
-            'item_specification_document_ref': item_standard_document_ref,
-            'standard_item_identification_code': standard_item_id_attributes_scheme_id,
-            'standard_item_identification': standard_item_id_value,
-        }
-
-    def _get_product(self, catalogue_item_data):
-        product_id = self.env['product.product'].search([
-            ('sellers_item_identification', '=', catalogue_item_data.get('sellers_item_identification')),
-            ('manufacturers_item_identification', '=', catalogue_item_data.get('manufacturers_item_identification')),
-            ('standard_item_identification', '=', catalogue_item_data.get('standard_item_identification')),
-        ], limit=1)
-        return product_id

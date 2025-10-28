@@ -46,6 +46,7 @@
         'views/purchase_order_views.xml',
         'views/product_views.xml',
         'views/catalogue_peppol_views.xml',
+        'views/edi_message_views.xml',
     ],
     'demo': [],
     'application': False,

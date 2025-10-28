@@ -199,7 +199,8 @@ class EdiMessage(models.Model):
                 if peppol_eas and peppol_endpoint:
                     search_domain = [
                         ('peppol_eas', '=', peppol_eas),
-                        ('peppol_endpoint', '=', peppol_endpoint)
+                        ('peppol_endpoint', '=', peppol_endpoint),
+                        ('name', '=', partner_vals.get('name')),
                     ]
                 else:
                     # Fallback to name search
@@ -241,57 +242,67 @@ class EdiMessage(models.Model):
         identification_code = party_id.get('value') if isinstance(party_id, dict) else party_id
         identification_schema = party_id.get('attributes', {}).get('schemeID') if isinstance(party_id, dict) else None
 
-        # Extract legal name (try multiple sources)
-        registration_name = None
-
-        # Try PartyLegalEntity/RegistrationName first
+        # Extract legal name, company ID, and address from PartyLegalEntity
         party_legal_entity = party_data.get('PartyLegalEntity', {})
         registration_name = party_legal_entity.get('RegistrationName')
+
+        # Extract CompanyID
+        company_id = party_legal_entity.get('CompanyID', {})
+        company_registry = company_id.get('value') if isinstance(company_id, dict) else company_id
 
         # Fallback to PartyName/Name
         if not registration_name:
             party_name = party_data.get('PartyName', {})
             registration_name = party_name.get('Name')
 
-        # Extract address - try PostalAddress first, then RegistrationAddress
-        postal_address = party_data.get('PostalAddress')
-
-        if not postal_address:
-            # Try RegistrationAddress from PartyLegalEntity
-            postal_address = party_legal_entity.get('RegistrationAddress')
-
-        # Build address fields (spread into main dict)
+        # Extract company address from RegistrationAddress in PartyLegalEntity
+        registration_address = party_legal_entity.get('RegistrationAddress')
         address_fields = {}
+        if registration_address:
+            country = registration_address.get('Country', {})
+            address_fields = {
+                'street': registration_address.get('StreetName'),
+                'street2': registration_address.get('AdditionalStreetName'),
+                'city': registration_address.get('CityName'),
+                'zip': registration_address.get('PostalZone'),
+                'country_code': country.get('IdentificationCode') if country else None,
+            }
+
+        # Collect contacts
+        contacts = []
+
+        # Extract PostalAddress as a contact
+        postal_address = party_data.get('PostalAddress')
         if postal_address:
             country = postal_address.get('Country', {})
-
-            address_fields = {
+            contacts.append({
+                'type': 'postal',
                 'street': postal_address.get('StreetName'),
                 'street2': postal_address.get('AdditionalStreetName'),
                 'city': postal_address.get('CityName'),
                 'zip': postal_address.get('PostalZone'),
-                'state': postal_address.get('CountrySubentity'),
                 'country_code': country.get('IdentificationCode') if country else None,
-            }
+            })
 
-        # Extract contact if present
-        contact_data = None
+        # Extract Contact person
         contact = party_data.get('Contact')
         if contact:
-            contact_data = {
+            contacts.append({
+                'type': 'contact',
                 'name': contact.get('Name') or contact.get('ID'),
                 'ref': contact.get('ID'),
                 'email': contact.get('ElectronicMail'),
                 'phone': contact.get('Telephone'),
-            }
+            })
 
-        # Return extracted data as dictionary with address fields spread
+        # Return extracted data as dictionary
         return {
             'peppol_eas': identification_schema,
             'peppol_endpoint': identification_code,
             'name': registration_name,
-            **address_fields,  # Spread address fields directly
-            'contact': contact_data
+            'company_registry': company_registry,
+            **address_fields,
+            'contacts': contacts if contacts else None
         }
 
     def _get_parties(self, payload_dict, party_mapping):
@@ -325,3 +336,40 @@ class EdiMessage(models.Model):
         if country_code:
             return self.env['res.country'].search([('code', '=', country_code)], limit=1).id
         return False
+
+
+    def _get_catalogue_item(self, item):
+        name = item.get('Name', False)
+        description = item.get('Description', False)
+        sellers_item_id = item.get('SellersItemIdentification', {}).get('ID', False)
+        manufacturers_item_id = item.get('ManufacturersItemIdentification', {}).get('ID', False)
+        standard_item_id = item.get('StandardItemIdentification', {}).get('ID', {})
+        item_standard_document_ref = item.get('ItemSpecificationDocumentReference', {}).get('ID', False)
+        standard_item_id_value = standard_item_id.get('value', False)
+        standard_item_id_attributes_scheme_id = standard_item_id.get('attributes', {}).get('schemeID', False)
+
+        # additional item property
+        # additional_item_property_id = item.get('AdditionalItemProperty', {}).get('ID', {}) # this can be list sometimes
+        # additional_item_property_name = item.get('AdditionalItemProperty', {}).get('Name')
+        # additional_item_property_name = item.get('AdditionalItemProperty', {}).get('Value')
+
+        return {
+            'name': name,
+            'description': description,
+            'sellers_item_identification': sellers_item_id,
+            'manufacturers_item_identification': manufacturers_item_id,
+            'item_specification_document_ref': item_standard_document_ref,
+            'standard_item_identification_code': standard_item_id_attributes_scheme_id,
+            'standard_item_identification': standard_item_id_value,
+        }
+
+    def _get_product(self, catalogue_item_data):
+        product_id = self.env['product.product'].search([
+            ('sellers_item_identification', '=', catalogue_item_data.get('sellers_item_identification')),
+            ('manufacturers_item_identification', '=', catalogue_item_data.get('manufacturers_item_identification')),
+            ('standard_item_identification', '=', catalogue_item_data.get('standard_item_identification')),
+        ], limit=1)
+        # if not product_id:
+        #     product_id = self.env['product.product'].create(catalogue_item_data)
+
+        return product_id

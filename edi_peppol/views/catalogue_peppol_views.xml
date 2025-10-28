@@ -14,6 +14,11 @@
         <field name="model">product.catalogue.peppol</field>
         <field name="arch" type="xml">
             <form string="PEPPOL Product Catalogue">
+                <header>
+                    <button name="action_accept_catalogue" type="object" string="Accept" class="btn btn-default" invisible="state != 'pending'"/>
+                    <button name="action_decline_catalogue" type="object" string="Decline" class="btn btn-danger" invisible="state != 'pending'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,accepted,declined"/>
+                </header>
                 <sheet>
                     <group>
                         <field name="name"/>
@@ -51,7 +56,7 @@
                                 <field name="seller_supplier_contact"/>
                             </group>
                             <group>
-                                <field name="seller_postal_address"/>
+                                <field name="seller_supplier_postal_address"/>
                                 <field name="seller_party_legal_entity"/>
                             </group>
                         </page>
@@ -70,10 +75,21 @@
                         <page string="Catalogue Lines">
                             <field name="line_ids">
                                 <list editable="bottom">
+                                    <field name="action_code" optional="hide"/>
                                     <field name="name"/>
-                                    <field name="product_tmpl_id"/>
+                                    <field name="content_unit_quantity"/>
+                                    <field name="min_order_quantity"/>
+                                    <field name="min_order_quantity_unit_code"/>
+<!--                                    <field name="product_tmpl_id" invisible="1"/>-->
+                                    <field name="product_id"/>
+                                    <field name="sellers_item_identification" optional="hide"/>
+                                    <field name="manufacturers_item_identification" optional="hide"/>
+                                    <field name="item_specification_document_ref" optional="hide"/>
+                                    <field name="standard_item_identification_code" optional="hide"/>
+                                    <field name="standard_item_identification" optional="hide"/>
                                 </list>
                             </field>
+                            <field name="product_data" readonly="1" invisible="1"/>
                         </page>
                     </notebook>
                 </sheet>
