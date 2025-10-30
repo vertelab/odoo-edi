@@ -12,7 +12,7 @@ class PurchaseOrder(models.Model):
 
     issue_date = fields.Datetime(string="Issue Date")
     validity_period = fields.Datetime(string="Validity Period")
-
+    customer_partner_id = fields.Many2one('res.partner')
     show_send_peppol_button = fields.Boolean(compute="compute_show_send_peppol_button", store=False) #compute="compute_show_send_peppol_button"
 
     def compute_show_send_peppol_button(self):

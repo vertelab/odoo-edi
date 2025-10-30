@@ -58,7 +58,7 @@
                             </group>
                             <group>
                                 <field name="seller_supplier_postal_address"/>
-                                <field name="seller_party_legal_entity"/>
+                                <field name="seller_supplier_party_legal_entity"/>
                             </group>
                         </page>
 

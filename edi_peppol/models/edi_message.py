@@ -217,15 +217,16 @@ class EdiMessage(models.Model):
     def _get_party(self, party_data, party_role='party'):
         """
         Get party information from dictionary WITHOUT creating partners.
-        Returns dictionary of extracted data.
+        Returns dictionary with nested structure for endpoint, identification, and legal entity.
 
-        Handles two party structures:
-        1. Direct party data (ProviderParty, ReceiverParty, SenderParty, etc.)
-        2. Wrapped party data (SellerSupplierParty/Party, ContractorCustomerParty/Party)
+        Handles multiple party structures:
+        1. Direct parties (ProviderParty, ReceiverParty) - with PartyLegalEntity
+        2. Wrapped parties (SellerSupplierParty/Party, ContractorCustomerParty/Party) - with PartyName
+        3. Parties with PostalAddress at party level or in PartyLegalEntity
 
         :param party_data: Dictionary containing party information
-        :param party_role: Role description for logging
-        :return: Dictionary with party data
+        :param party_role: Role description for logging ('provider_party', 'seller_supplier_party', etc.)
+        :return: Dictionary with nested party data structure
         """
         if not party_data:
             _logger.warning(f"No {party_role} party data found")
@@ -235,53 +236,61 @@ class EdiMessage(models.Model):
         if 'Party' in party_data:
             party_data = party_data['Party']
 
-        # Extract party identification
+        # ========== LEVEL 1: ENDPOINT (Routing) ==========
+        endpoint_id = party_data.get('EndpointID', {})
+        endpoint_value = endpoint_id.get('value', False)
+        endpoint_scheme = endpoint_id.get('attributes', {}).get('schemeID', False)
+
+        # ========== LEVEL 2: PARTY IDENTIFICATION ==========
         party_identification = party_data.get('PartyIdentification', {})
         party_id = party_identification.get('ID', {})
+        identification_code = party_id.get('value', False)
+        identification_schema = party_id.get('attributes', {}).get('schemeID', False)
 
-        identification_code = party_id.get('value') if isinstance(party_id, dict) else party_id
-        identification_schema = party_id.get('attributes', {}).get('schemeID') if isinstance(party_id, dict) else None
+        # ========== LEVEL 3: LEGAL ENTITY ==========
 
-        # Extract legal name, company ID, and address from PartyLegalEntity
+        # Try PartyLegalEntity first (ProviderParty/ReceiverParty structure)
         party_legal_entity = party_data.get('PartyLegalEntity', {})
         registration_name = party_legal_entity.get('RegistrationName')
 
-        # Extract CompanyID
-        company_id = party_legal_entity.get('CompanyID', {})
-        company_registry = company_id.get('value') if isinstance(company_id, dict) else company_id
-
-        # Fallback to PartyName/Name
+        # Fallback to PartyName (SellerSupplierParty/ContractorCustomerParty structure)
         if not registration_name:
             party_name = party_data.get('PartyName', {})
-            registration_name = party_name.get('Name')
+            registration_name = party_name.get('Name', False)
 
-        # Extract company address from RegistrationAddress in PartyLegalEntity
+        # Extract CompanyID (only in PartyLegalEntity)
+        company_id = party_legal_entity.get('CompanyID', {})
+        company_registry = company_id.get('value', False)
+
+        # Extract company address from RegistrationAddress (inside PartyLegalEntity)
         registration_address = party_legal_entity.get('RegistrationAddress')
         address_fields = {}
         if registration_address:
             country = registration_address.get('Country', {})
             address_fields = {
-                'street': registration_address.get('StreetName'),
-                'street2': registration_address.get('AdditionalStreetName'),
-                'city': registration_address.get('CityName'),
-                'zip': registration_address.get('PostalZone'),
-                'country_code': country.get('IdentificationCode') if country else None,
+                'street': registration_address.get('StreetName', False),
+                'street2': registration_address.get('AdditionalStreetName', False),
+                'city': registration_address.get('CityName', False),
+                'zip': registration_address.get('PostalZone', False),
+                # 'state': registration_address.get('CountrySubentity', False),
+                'country_code': country.get('IdentificationCode', False),
             }
 
-        # Collect contacts
+        # ========== CONTACTS ==========
         contacts = []
 
-        # Extract PostalAddress as a contact
+        # Extract PostalAddress as a contact (at party level)
         postal_address = party_data.get('PostalAddress')
         if postal_address:
             country = postal_address.get('Country', {})
             contacts.append({
                 'type': 'postal',
-                'street': postal_address.get('StreetName'),
-                'street2': postal_address.get('AdditionalStreetName'),
-                'city': postal_address.get('CityName'),
-                'zip': postal_address.get('PostalZone'),
-                'country_code': country.get('IdentificationCode') if country else None,
+                'street': postal_address.get('StreetName', False),
+                'street2': postal_address.get('AdditionalStreetName', False),
+                'city': postal_address.get('CityName', False),
+                'zip': postal_address.get('PostalZone', False),
+                # 'state': postal_address.get('CountrySubentity', False),
+                'country_code': country.get('IdentificationCode', False)
             })
 
         # Extract Contact person
@@ -295,15 +304,34 @@ class EdiMessage(models.Model):
                 'phone': contact.get('Telephone'),
             })
 
-        # Return extracted data as dictionary
-        return {
-            'peppol_eas': identification_schema,
-            'peppol_endpoint': identification_code,
-            'name': registration_name,
-            'company_registry': company_registry,
-            **address_fields,
-            'contacts': contacts if contacts else None
-        }
+        # ========== BUILD NESTED STRUCTURE ==========
+        # Always use consistent naming: PartyIdentification and PartyLegalEntity
+        result = {}
+
+        # Level 1: Endpoint (routing)
+        if endpoint_value and endpoint_scheme:
+            result['peppol_eas'] = endpoint_scheme
+            result['peppol_endpoint'] = endpoint_value
+
+        # Level 2: PartyIdentification
+        if identification_code and identification_schema:
+            result['PartyIdentification'] = {
+                'peppol_eas': identification_schema,
+                'peppol_endpoint': identification_code,
+            }
+
+        # Level 3: PartyLegalEntity
+        if registration_name or address_fields or contacts or company_registry:
+            entity_data = {
+                'name': registration_name,
+                'company_registry': company_registry,
+                **address_fields,
+                'contacts': contacts if contacts else False
+            }
+            result['PartyLegalEntity'] = entity_data
+
+        _logger.info(f"Extracted {party_role}: {result.get('PartyLegalEntity', {}).get('name')}")
+        return result if result else False
 
     def _get_parties(self, payload_dict, party_mapping):
         """

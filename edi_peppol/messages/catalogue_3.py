@@ -32,25 +32,54 @@ class EdiMessageCatalogue(models.Model):
             'edi_message_id': self.id
         }
 
-        for party in party_mapping.values():
-            party_data = parties.get(party)
+        for party_key in party_mapping.values():
+            party_data = parties.get(party_key)
 
             if not party_data:
                 continue
 
-            party_contacts = party_data.pop('contacts', [])
+            # ========== CREATE PARTY IDENTIFICATION PARTNER ==========
+            party_identification = party_data.get('PartyIdentification', {})
 
-            if party_data.get('country_code'):
-                party_data['country_id'] = self._get_country(party_data.pop('country_code', False))
+            if party_identification:
+                party_id_vals = {
+                    'peppol_eas': party_identification.get('peppol_eas'),
+                    'peppol_endpoint': party_identification.get('peppol_endpoint'),
+                    'name': f"{party_identification.get('peppol_eas')}:{party_identification.get('peppol_endpoint')}",
+                    'company_type': 'company',
+                }
+                party_identification_partner = self._find_or_create_partner(party_id_vals)
+            else:
+                party_identification_partner = None
 
-            party_data['company_type'] = 'company'
+            # ========== CREATE PARTY LEGAL ENTITY PARTNER ==========
+            party_legal_entity = party_data.get('PartyLegalEntity', {})
 
-            if parent_partner_id := self._find_or_create_partner(party_data):
-                catalogue_vals[party] = parent_partner_id.id
+            if party_legal_entity:
+                legal_entity_vals = party_legal_entity.copy()
+                legal_entity_contacts = legal_entity_vals.pop('contacts', [])
 
-                # Process each contact
-                if party_contacts:
-                    for contact_data in party_contacts:
+                if legal_entity_vals.get('country_code'):
+                    legal_entity_vals['country_id'] = self._get_country(legal_entity_vals.pop('country_code'))
+
+                legal_entity_vals['company_type'] = 'company'
+
+                # Link to PartyIdentification as parent
+                if party_identification_partner:
+                    legal_entity_vals['parent_id'] = party_identification_partner.id
+
+                legal_entity_partner = self._find_or_create_partner(legal_entity_vals)
+
+                # Store legal entity in catalogue_vals
+                catalogue_vals[party_key] = party_identification_partner.id
+
+                if legal_entity_partner:
+                    legal_entity_field_name = party_key.replace('_party', '_party_legal_entity')
+                    catalogue_vals[legal_entity_field_name] = legal_entity_partner.id
+
+                # ========== CREATE CONTACTS ==========
+                if legal_entity_contacts:
+                    for contact_data in legal_entity_contacts:
                         contact_type = contact_data.pop('type')
 
                         if contact_data.get('country_code'):
@@ -59,15 +88,15 @@ class EdiMessageCatalogue(models.Model):
                         if contact_type == 'postal':
                             # Postal address contact
                             contact_data['type'] = 'delivery'
-                            contact_data['parent_id'] = parent_partner_id.id
-                            contact_address_field_name = party.replace('_party', '_postal_address')
+                            contact_data['parent_id'] = legal_entity_partner.id
+                            contact_address_field_name = party_key.replace('_party', '_postal_address')
                             catalogue_vals[contact_address_field_name] = self._find_or_create_partner(contact_data).id
 
                         elif contact_type == 'contact':
                             # Contact person
                             contact_data['type'] = 'contact'
-                            contact_data['parent_id'] = parent_partner_id.id
-                            contact_field_name = party.replace('_party', '_contact')
+                            contact_data['parent_id'] = legal_entity_partner.id
+                            contact_field_name = party_key.replace('_party', '_contact')
                             catalogue_vals[contact_field_name] = self._find_or_create_partner(contact_data).id
 
         validity_period = payload.get('ValidityPeriod', {})
@@ -80,7 +109,7 @@ class EdiMessageCatalogue(models.Model):
             catalogue_vals['referenced_contract'] = referenced_contract.get('ID')
             catalogue_vals['agreement_id'] = self._get_contract(referenced_contract.get('ID')).id
 
-        # Set sender/receiver for EDI message
+        # Set sender/receiver for EDI message (use legal entity partners)
         if 'provider_party' in catalogue_vals:
             self.sender = self.env['res.partner'].browse(catalogue_vals['provider_party'])
         if 'receiver_party' in catalogue_vals:
@@ -93,6 +122,8 @@ class EdiMessageCatalogue(models.Model):
         if not self.catalogue_id:
             product_catalogue_id = self.env['product.catalogue.peppol'].create(catalogue_vals)
             self.catalogue_id = product_catalogue_id.id
+
+            self.write({ "res_model": product_catalogue_id._name, "res_id": product_catalogue_id.id })
 
         catalogue_lines = payload.get('CatalogueLine')
 

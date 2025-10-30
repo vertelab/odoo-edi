@@ -18,7 +18,7 @@ class EdiMessage(models.Model):
     envelope_id = fields.Many2one("edi.envelope", string="Envelope")
     res_id = fields.Integer(string='Record ID',
                             help="Database ID of record to open in form view, when ``view_mode`` is set to 'form' only")
-    res_model = fields.Char(string='Destination Model', required=True,
+    res_model = fields.Char(string='Destination Model',
                             help="Model name of the object to open in the view window")
     @api.model
     def _selection_target_model(self):

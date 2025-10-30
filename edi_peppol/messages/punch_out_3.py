@@ -16,7 +16,7 @@ class EdiMessagePunchOut(models.Model):
         return super()._process_peppol_message(payload)
 
     def _unpack_punch_out(self, payload_dict):
-        # Use the base class method instead of _extract_party
+        """Unpack PEPPOL Punch Out from payload"""
         party_mapping = {
             'ProviderParty': 'provider_party',
             'ReceiverParty': 'receiver_party',
@@ -24,42 +24,68 @@ class EdiMessagePunchOut(models.Model):
 
         parties = self._get_parties(payload_dict, party_mapping)
 
-        # Process parties similar to catalogue
-        for party in party_mapping.values():
-            party_data = parties.get(party)
+        # Process parties
+        for party_key in party_mapping.values():
+            party_data = parties.get(party_key)
             if not party_data:
                 continue
 
-            party_contacts = party_data.pop('contacts', False)
+            # ========== CREATE PARTY IDENTIFICATION PARTNER ==========
+            party_identification = party_data.get('PartyIdentification', {})
 
-            if party_data.get('country_code'):
-                party_data['country_id'] = self._get_country(party_data.pop('country_code', False))
+            if party_identification:
+                party_id_vals = {
+                    'peppol_eas': party_identification.get('peppol_eas'),
+                    'peppol_endpoint': party_identification.get('peppol_endpoint'),
+                    'name': f"{party_identification.get('peppol_eas')}:{party_identification.get('peppol_endpoint')}",
+                    'company_type': 'company',
+                }
+                party_identification_partner = self._find_or_create_partner(party_id_vals)
+            else:
+                party_identification_partner = None
 
-            party_data['company_type'] = 'company'
+            # ========== CREATE PARTY LEGAL ENTITY PARTNER ==========
+            party_legal_entity = party_data.get('PartyLegalEntity', {})
 
-            partner = self._find_or_create_partner(party_data)
+            if party_legal_entity:
+                legal_entity_vals = party_legal_entity.copy()
+                legal_entity_contacts = legal_entity_vals.pop('contacts', [])
 
-            # Create contact if exists
-            # if party_contact_data and party_contact_data.get('name'):
-            #     party_contact_data['type'] = 'contact'
-            #     party_contact_data['parent_id'] = partner.id
-            #     self._find_or_create_partner(party_contact_data)
+                if legal_entity_vals.get('country_code'):
+                    legal_entity_vals['country_id'] = self._get_country(legal_entity_vals.pop('country_code'))
 
-            # Create contacts if exist
-            if party_contacts:
-                for contact_data in party_contacts:
-                    contact_type = contact_data.pop('type')
+                legal_entity_vals['company_type'] = 'company'
 
-                    if contact_type == 'contact' and contact_data.get('name'):
-                        contact_data['type'] = 'contact'
-                        contact_data['parent_id'] = partner.id
-                        self._find_or_create_partner(contact_data)
+                # Link to PartyIdentification as parent
+                if party_identification_partner:
+                    legal_entity_vals['parent_id'] = party_identification_partner.id
 
-            # Set sender/receiver
-            if party == 'provider_party':
-                self.sender = partner
-            elif party == 'receiver_party':
-                self.receiver = partner
+                legal_entity_partner = self._find_or_create_partner(legal_entity_vals)
+
+                # ========== CREATE CONTACTS ==========
+                if legal_entity_contacts:
+                    for contact_data in legal_entity_contacts:
+                        contact_type = contact_data.pop('type')
+
+                        if contact_data.get('country_code'):
+                            contact_data['country_id'] = self._get_country(contact_data.pop('country_code'))
+
+                        if contact_type == 'postal':
+                            contact_data['type'] = 'delivery'
+                            contact_data['parent_id'] = legal_entity_partner.id
+                            self._find_or_create_partner(contact_data)
+
+                        elif contact_type == 'contact' and contact_data.get('name'):
+                            contact_data['type'] = 'contact'
+                            contact_data['parent_id'] = legal_entity_partner.id
+                            self._find_or_create_partner(contact_data)
+
+                # ========== SET SENDER/RECEIVER ==========
+                # Use the legal entity as the main partner for the transaction
+                if party_key == 'provider_party':
+                    self.sender = legal_entity_partner
+                elif party_key == 'receiver_party':
+                    self.receiver = legal_entity_partner
 
         if self.sender and self.receiver:
             return self._create_purchase_order(payload_dict)
@@ -106,7 +132,7 @@ class EdiMessagePunchOut(models.Model):
                     'order_id': purchase_id.id
                 })
         
-        self.write({"res_model":purchase_id._name,"res_id":purchase_id.id})
+        self.write({"res_model":purchase_id._name, "res_id":purchase_id.id})
         return purchase_id
 
     def _get_price_details(self, required_item_location_quantity_data):

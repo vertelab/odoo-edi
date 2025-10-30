@@ -39,7 +39,7 @@ class ProductCataloguePeppol(models.Model):
     seller_supplier_party = fields.Many2one("res.partner", string="Seller Supplier Party")
     seller_supplier_contact = fields.Many2one("res.partner", string="Seller Contact")
     seller_supplier_postal_address = fields.Many2one("res.partner", string="Seller Postal Address")
-    seller_party_legal_entity = fields.Many2one("res.partner", string="Seller Legal Entity")
+    seller_supplier_party_legal_entity = fields.Many2one("res.partner", string="Seller Legal Entity")
 
     # Contractor/Customer info
     contractor_customer_party = fields.Many2one("res.partner", string="Contractor/Customer Party")
