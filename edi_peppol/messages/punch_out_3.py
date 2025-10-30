@@ -105,7 +105,8 @@ class EdiMessagePunchOut(models.Model):
             'partner_id': self.sender.id,
             'issue_date': issue_date,
             'validity_period': validity_period,
-            'partner_ref': payload_dict.get('ReferencedContract').get('ID', False) # todo: double check this is the right value
+            'partner_ref': payload_dict.get('ReferencedContract').get('ID', False), # todo: double check this is the right value
+            'customer_partner_id': self.receiver.id
         })
 
         catalogue_lines = payload_dict.get('CatalogueLine')
