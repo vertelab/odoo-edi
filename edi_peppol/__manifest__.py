@@ -36,7 +36,7 @@
     'website': 'https://vertel.se/apps/odoo-',
     'images': ['static/description/banner.png'], # 560x280
     'license': 'AGPL-3',
-    'depends': ['edi_base', 'purchase', 'agreement'],
+    'depends': ['edi_base', 'purchase', 'agreement', 'stock'],
      #"external_dependencies": {
      #   "bin": ["openssl",], 
      #   "python": ["acme_tiny", "IPy",],
