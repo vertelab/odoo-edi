@@ -5,6 +5,12 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button type="object" name="action_view_edi_messages" class="oe_stat_button" icon="fa-comment" invisible="edi_message_count == 0">
+                    <field name="edi_message_count" widget="statinfo" string="EDI Messages"/>
+                    <field name="edi_message_ids" invisible="1"/>
+                </button>
+            </xpath>
 
             <field name="state" position="after">
                 <field name="show_send_peppol_button" invisible="1"/>
@@ -30,6 +36,16 @@
                         </group>
                     </group>
                 </page>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_subtotal']" position="after">
+                <field name="edi_state" column_invisible="not parent.edi_message_ids"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list" position="attributes">
+                <attribute name="decoration-info">edi_state == 'changed'</attribute>
+                <attribute name="decoration-success">edi_state == 'accepted'</attribute>
+                <attribute name="decoration-danger">edi_state == 'rejected'</attribute>
             </xpath>
         </field>
     </record>

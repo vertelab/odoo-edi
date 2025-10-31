@@ -14,6 +14,8 @@ class EdiMessageCatalogue(models.Model):
     def _process_peppol_message(self, payload):
         if self.message_format_id.name == "urn:fdc:peppol.eu:poacc:trns:catalogue:3":
             return self._unpack_catalogue(payload)
+        if self.message_format_id.name == "urn:fdc:peppol.eu:poacc:trns:catalogue_only:3":
+            return self._unpack_catalogue(payload)
         return super()._process_peppol_message(payload)
 
     def _unpack_catalogue(self, payload):
@@ -63,10 +65,14 @@ class EdiMessageCatalogue(models.Model):
                     legal_entity_vals['country_id'] = self._get_country(legal_entity_vals.pop('country_code'))
 
                 legal_entity_vals['company_type'] = 'company'
+                legal_entity_vals['peppol_eas'] = "0088"
+                # ean = party_identification.get('peppol_eas')
+                # endpoint = party_identification.get('peppol_endpoint')
 
                 # Link to PartyIdentification as parent
                 if party_identification_partner:
                     legal_entity_vals['parent_id'] = party_identification_partner.id
+
 
                 legal_entity_partner = self._find_or_create_partner(legal_entity_vals)
 
@@ -89,12 +95,14 @@ class EdiMessageCatalogue(models.Model):
                             # Postal address contact
                             contact_data['type'] = 'delivery'
                             contact_data['parent_id'] = legal_entity_partner.id
+                            contact_data['peppol_eas'] = "0088"
                             contact_address_field_name = party_key.replace('_party', '_postal_address')
                             catalogue_vals[contact_address_field_name] = self._find_or_create_partner(contact_data).id
 
                         elif contact_type == 'contact':
                             # Contact person
                             contact_data['type'] = 'contact'
+                            contact_data['peppol_eas'] = "0088"
                             contact_data['parent_id'] = legal_entity_partner.id
                             contact_field_name = party_key.replace('_party', '_contact')
                             catalogue_vals[contact_field_name] = self._find_or_create_partner(contact_data).id
@@ -126,8 +134,13 @@ class EdiMessageCatalogue(models.Model):
             self.write({ "res_model": product_catalogue_id._name, "res_id": product_catalogue_id.id })
 
         catalogue_lines = payload.get('CatalogueLine')
+        if isinstance(catalogue_lines, dict):
+            catalogue_lines = [catalogue_lines]
+
+        print(catalogue_lines)
 
         for catalogue_line in catalogue_lines:
+            print(catalogue_line, type(catalogue_line))
             # information about the catalogue
             action_code = catalogue_line.get('ActionCode', False)
             content_unit_quantity_data = catalogue_line.get('ContentUnitQuantity', {})

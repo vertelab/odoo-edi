@@ -5,6 +5,7 @@
         <field name="model">edi.message</field>
         <field name="arch" type="xml">
             <list string="EDI Message">
+                <field name="reference"/>
                 <field name="name"/>
                 <field name="message_format_id"/>
                 <field name="sender"/>

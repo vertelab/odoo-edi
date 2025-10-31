@@ -50,9 +50,43 @@ class PurchaseOrder(models.Model):
 
                 edi_envelope.name = f'Envelope {edi_envelope.id}'
                 edi_envelope.transport_id = session_id.sessions_line_ids[0].transport_id.id
-                
 
-    
 
-            
-   
+    @api.depends('name')
+    def _compute_edi_messages(self):
+        for rec in self:
+            edi_messages = self.env['edi.message'].search([
+                ('res_id', '=', rec.id), ('res_model', '=', 'purchase.order')])
+            if edi_messages:
+                rec.edi_message_ids = edi_messages.ids
+                rec.edi_message_count = len(edi_messages)
+            else:
+                rec.edi_message_ids = False
+                rec.edi_message_count = False
+
+    edi_message_ids = fields.One2many(comodel_name='edi.message', compute=_compute_edi_messages)
+    edi_message_count = fields.Integer(compute=_compute_edi_messages)
+
+    def action_view_edi_messages(self):
+        return {
+            'name': _('EDI Messages'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'edi.message',
+            'view_mode': 'list,form',
+            'domain': [
+                ('res_id', '=', self.id),
+                ('res_model', '=', 'purchase.order')
+            ],
+        }
+
+
+
+class PurchaseLine(models.Model):
+    _inherit = 'purchase.order.line'
+
+    edi_state = fields.Selection([
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('changed', 'Changed'),
+        ('rejected', 'Rejected')],
+        default='pending', string="EDI State")

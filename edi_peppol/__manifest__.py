@@ -47,6 +47,7 @@
         'views/product_views.xml',
         'views/catalogue_peppol_views.xml',
         'views/edi_message_views.xml',
+        'views/stock_picking_views.xml',
         'views/templates.xml',
     ],
     'demo': [],

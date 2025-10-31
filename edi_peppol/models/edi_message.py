@@ -202,6 +202,7 @@ class EdiMessage(models.Model):
                         ('peppol_endpoint', '=', peppol_endpoint),
                         ('name', '=', partner_vals.get('name')),
                     ]
+                    print(search_domain)
                 else:
                     # Fallback to name search
                     search_domain = [('name', '=', partner_vals.get('name'))]
@@ -209,8 +210,10 @@ class EdiMessage(models.Model):
         partner = self.env['res.partner'].search(search_domain, limit=1)
 
         if not partner:
+            _logger.info(f"Created partner: {partner_vals}")
             partner = self.env['res.partner'].create(partner_vals)
-            _logger.info(f"Created partner: {partner_vals.get('name')}")
+            self.env.cr.commit()
+
 
         return partner
 
@@ -324,7 +327,7 @@ class EdiMessage(models.Model):
         if registration_name or address_fields or contacts or company_registry:
             entity_data = {
                 'name': registration_name,
-                'company_registry': company_registry,
+                #'company_registry': company_registry,
                 **address_fields,
                 'contacts': contacts if contacts else False
             }
