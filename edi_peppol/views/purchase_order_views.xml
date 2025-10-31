@@ -29,6 +29,7 @@
                     <group>
                         <group>
                             <field name="issue_date"/>
+                            <field name="peppol_order_reference"/>
                         </group>
                         <group>
                             <field name="validity_period"/>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- PUNCHOUT -->
+    <record id="edi_message_format_peppol_punchout" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:punch_out:3</field>
+        <field name="description">Peppol Punch Out 3</field>
+    </record>
+
+    <!-- CATALOGUE -->
+    <record id="edi_message_format_peppol_catalogue" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:catalogue:3</field>
+        <field name="description">Peppol Catalogue 3</field>
+    </record>
+
+    <record id="edi_message_format_peppol_catalogue_only" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:catalogue_only:3</field>
+        <field name="description">Peppol Catalogue Only 3</field>
+    </record>
+
+    <!-- ORDER -->
+    <record id="edi_message_format_peppol_order" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:order:3</field>
+        <field name="description">Peppol Order 3</field>
+    </record>
+
+    <!-- ORDER RESPONSE (SIMPLE) -->
+    <record id="edi_message_format_peppol_order_response" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:order_response:3</field>
+        <field name="description">Peppol Order Response 3</field>
+    </record>
+
+    <!-- ORDER RESPONSE (ADVANCED) -->
+    <record id="edi_message_format_peppol_order_response_advanced" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:order_response_advanced:3</field>
+        <field name="description">Peppol Order Response Advanced 3</field>
+    </record>
+
+    <!-- ORDER CHANGE -->
+    <record id="edi_message_format_peppol_order_change" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:order_change:3</field>
+        <field name="description">Peppol Order Change 3</field>
+    </record>
+
+    <!-- ORDER AGREEMENT -->
+    <record id="edi_message_format_peppol_order_agreement" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:order_agreement:3</field>
+        <field name="description">Peppol Order Agreement 3</field>
+    </record>
+
+    <!-- DESPATCH ADVICE -->
+    <record id="edi_message_format_peppol_despatch_advice" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:despatch_advice:3</field>
+        <field name="description">Peppol Despatch Advice 3</field>
+    </record>
+
+    <!-- INVOICE -->
+    <record id="edi_message_format_peppol_invoice" model="edi.message.format">
+        <field name="name">urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</field>
+        <field name="description">Peppol Invoice 3</field>
+    </record>
+
+    <!-- CREDIT NOTE -->
+    <record id="edi_message_format_peppol_credit_note" model="edi.message.format">
+        <field name="name">urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0:creditnote</field>
+        <field name="description">Peppol Credit Note 3</field>
+    </record>
+
+    <!-- INVOICE RESPONSE -->
+    <record id="edi_message_format_peppol_invoice_response" model="edi.message.format">
+        <field name="name">urn:fdc:peppol.eu:poacc:trns:invoice_response:3</field>
+        <field name="description">Peppol Invoice Response 3</field>
+    </record>
+</odoo>

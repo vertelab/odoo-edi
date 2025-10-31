@@ -49,6 +49,7 @@
         'views/edi_message_views.xml',
         'views/stock_picking_views.xml',
         'views/templates.xml',
+        'data/message_format.xml',
     ],
     'demo': [],
     'application': False,

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import logging
+import base64
+from datetime import datetime
 
 from odoo import api, fields, models, tools,_
 from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
 
-import logging
 _logger = logging.getLogger(__name__)
 
 class PurchaseOrder(models.Model):
@@ -14,6 +16,7 @@ class PurchaseOrder(models.Model):
     validity_period = fields.Datetime(string="Validity Period")
     customer_partner_id = fields.Many2one('res.partner')
     show_send_peppol_button = fields.Boolean(compute="compute_show_send_peppol_button", store=False) #compute="compute_show_send_peppol_button"
+    peppol_order_reference = fields.Char(string="Peppol Order Ref")
 
     def compute_show_send_peppol_button(self):
         for purchase_order in self:
@@ -79,6 +82,116 @@ class PurchaseOrder(models.Model):
             ],
         }
 
+    # def button_confirm(self):
+    #     res = super().button_confirm()
+    #     self._generate_order_response()
+    #     return res
+
+    def _generate_order_response(self):
+        """Generate PEPPOL Order Response XML"""
+        from datetime import datetime
+        import base64
+
+        # Get current datetime
+        now = datetime.now()
+        issue_date = now.strftime('%Y-%m-%d')
+        issue_time = now.strftime('%H:%M:%S')
+
+        # Build the XML
+        xml_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+    <OrderResponse xmlns="urn:oasis:names:specification:ubl:schema:xsd:OrderResponse-2"
+                   xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+                   xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+        <cbc:CustomizationID>urn:fdc:peppol.eu:poacc:trns:order_response:3</cbc:CustomizationID>
+        <cbc:ProfileID>urn:fdc:peppol.eu:poacc:bis:ordering:3</cbc:ProfileID>
+        <cbc:ID>{self.name}</cbc:ID>
+        <cbc:SalesOrderID>{self.name}</cbc:SalesOrderID>
+        <cbc:IssueDate>{issue_date}</cbc:IssueDate>
+        <cbc:IssueTime>{issue_time}</cbc:IssueTime>
+        <cbc:OrderResponseCode>AP</cbc:OrderResponseCode>
+        <cbc:Note>Order confirmed</cbc:Note>
+        <cbc:DocumentCurrencyCode>{self.currency_id.name or 'EUR'}</cbc:DocumentCurrencyCode>
+        <cbc:CustomerReference>{self.partner_ref or ''}</cbc:CustomerReference>
+        <cac:OrderReference>
+            <cbc:ID>{self.partner_ref or self.name}</cbc:ID>
+        </cac:OrderReference>
+        <cac:SellerSupplierParty>
+            <cac:Party>
+                <cbc:EndpointID schemeID="0088">{self.partner_id.vat or ''}</cbc:EndpointID>
+                <cac:PartyIdentification>
+                    <cbc:ID schemeID="0184">{self.partner_id.vat or ''}</cbc:ID>
+                </cac:PartyIdentification>
+                <cac:PartyLegalEntity>
+                    <cbc:RegistrationName>{self.partner_id.name}</cbc:RegistrationName>
+                </cac:PartyLegalEntity>
+            </cac:Party>
+        </cac:SellerSupplierParty>
+        <cac:BuyerCustomerParty>
+            <cac:Party>
+                <cbc:EndpointID schemeID="0088">{self.company_id.vat or ''}</cbc:EndpointID>
+                <cac:PartyIdentification>
+                    <cbc:ID schemeID="0184">{self.company_id.vat or ''}</cbc:ID>
+                </cac:PartyIdentification>
+                <cac:PartyLegalEntity>
+                    <cbc:RegistrationName>{self.company_id.name}</cbc:RegistrationName>
+                </cac:PartyLegalEntity>
+            </cac:Party>
+        </cac:BuyerCustomerParty>'''
+
+        # Add delivery information if date_planned exists
+        if self.date_planned:
+            planned_date = self.date_planned.strftime('%Y-%m-%d')
+            xml_content += f'''
+        <cac:Delivery>
+            <cac:PromisedDeliveryPeriod>
+                <cbc:StartDate>{planned_date}</cbc:StartDate>
+                <cbc:EndDate>{planned_date}</cbc:EndDate>
+            </cac:PromisedDeliveryPeriod>
+        </cac:Delivery>'''
+
+        # Add order lines
+        for line in self.order_line:
+            xml_content += f'''
+        <cac:OrderLine>
+            <cac:LineItem>
+                <cbc:ID>{line.id}</cbc:ID>
+                <cbc:LineStatusCode>5</cbc:LineStatusCode>
+                <cbc:Quantity unitCode="C62">{line.product_qty}</cbc:Quantity>
+                <cac:Price>
+                    <cbc:PriceAmount currencyID="{self.currency_id.name or 'EUR'}">{line.price_unit}</cbc:PriceAmount>
+                    <cbc:BaseQuantity unitCode="C62">1</cbc:BaseQuantity>
+                </cac:Price>
+                <cac:Item>
+                    <cbc:Name>{line.product_id.name}</cbc:Name>
+                    <cac:SellersItemIdentification>
+                        <cbc:ID>{line.product_id.default_code or line.product_id.id}</cbc:ID>
+                    </cac:SellersItemIdentification>
+                </cac:Item>
+            </cac:LineItem>
+            <cac:OrderLineReference>
+                <cbc:LineID>{line.id}</cbc:LineID>
+            </cac:OrderLineReference>
+        </cac:OrderLine>'''
+
+        xml_content += '''
+    </OrderResponse>'''
+
+        # Create EDI message
+        edi_message = self.env['edi.message'].create({
+            'name': f'OrderResponse_{self.name}',
+            'message_format_id': self.env.ref('edi_peppol.edi_message_format_peppol_order_response').id,
+            # Update with your format ID
+            'payload': base64.b64encode(xml_content.encode('utf-8')),
+            'payload_filename': f'OrderResponse_{self.name}.xml',
+            'consignor': self.partner_id.id,
+            'consignee': self.company_id.partner_id.id,
+            'sender': self.partner_id.id,
+            'receiver': self.company_id.partner_id.id,
+            'res_id': self.id,
+            'res_model': 'purchase.order',
+        })
+
+        return edi_message
 
 
 class PurchaseLine(models.Model):
