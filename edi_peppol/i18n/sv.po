@@ -1,0 +1,555 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* edi_peppol
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0-20251027\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-03 13:54+0000\n"
+"PO-Revision-Date: 2025-11-03 15:04+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#. module: edi_peppol
+#. odoo-javascript
+#: code:addons/edi_peppol/static/src/xml/peppol_order_template.xml:0
+msgid "0000-00-00"
+msgstr "0000-00-00"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.punchout_success
+msgid "<i class=\"fa fa-check-circle\"/> Success!"
+msgstr "<i class=\"fa fa-check-circle\"/> Framgång!"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_catalogue_peppol_form
+msgid "Accept"
+msgstr "Acceptera"
+
+#. module: edi_peppol
+#: model:ir.model.fields.selection,name:edi_peppol.selection__product_catalogue_peppol__state__accepted
+#: model:ir.model.fields.selection,name:edi_peppol.selection__purchase_order_line__edi_state__accepted
+msgid "Accepted"
+msgstr "Accepterad"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__action_code
+msgid "Action Code"
+msgstr "Åtgärdskod"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__agreement_id
+msgid "Agreement"
+msgstr "Avtal"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_edi_message__catalogue_id
+msgid "Catalogue"
+msgstr "Katalog"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__line_ids
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_catalogue_peppol_form
+msgid "Catalogue Lines"
+msgstr "Katalograder"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__name
+msgid "Catalogue Name"
+msgstr "Katalogens namn"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__catalogue_id
+msgid "Catalogue Reference"
+msgstr "Katalogreferens"
+
+#. module: edi_peppol
+#: model:ir.ui.menu,name:edi_peppol.menu_product_catalogue_peppol
+msgid "Catalogues"
+msgstr "Kataloger"
+
+#. module: edi_peppol
+#: model:ir.model.fields.selection,name:edi_peppol.selection__purchase_order_line__edi_state__changed
+msgid "Changed"
+msgstr "Förändrad"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__content_unit_quantity
+msgid "Content Unit Qty"
+msgstr "Innehåll Enhet Antal"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__contractor_customer_contact
+msgid "Contractor/Customer Contact"
+msgstr "Kontaktperson för entreprenör/kund"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_catalogue_peppol_form
+msgid "Contractor/Customer Information"
+msgstr "Information om entreprenör/kund"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__contractor_customer_party_legal_entity
+msgid "Contractor/Customer Legal Entity"
+msgstr "Entreprenörens/Kundens juridiska enhet"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__contractor_customer_party
+msgid "Contractor/Customer Party"
+msgstr "Entreprenör/Kund Part"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__contractor_customer_postal_address
+msgid "Contractor/Customer Postal Address"
+msgstr "Entreprenörens/Kundens postadress"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__create_uid
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__create_uid
+msgid "Created by"
+msgstr "Skapad av"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__create_date
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__create_date
+msgid "Created on"
+msgstr "Skapad den"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_purchase_order__customer_partner_id
+msgid "Customer Partner"
+msgstr "Kundpartner"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_catalogue_peppol_form
+msgid "Decline"
+msgstr "Avböj"
+
+#. module: edi_peppol
+#: model:ir.model.fields.selection,name:edi_peppol.selection__product_catalogue_peppol__state__declined
+msgid "Declined"
+msgstr "Avböjt"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__display_name
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__display_name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__edi_message_id
+msgid "EDI Message"
+msgstr "EDI-meddelande"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/purchase_order.py:0
+#: code:addons/edi_peppol/models/stock_picking.py:0
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_picking_form_inherited
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_purchase_order_form_inherited
+msgid "EDI Messages"
+msgstr "EDI-meddelanden"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_purchase_order_line__edi_state
+msgid "EDI State"
+msgstr "EDI-läge"
+
+#. module: edi_peppol
+#. odoo-javascript
+#: code:addons/edi_peppol/static/src/xml/peppol_order_template.xml:0
+msgid "EUR"
+msgstr "EUR"
+
+#. module: edi_peppol
+#: model:ir.model,name:edi_peppol.model_edi_envelope
+#: model:ir.model,name:edi_peppol.model_res_partner
+msgid "Edi Envelope"
+msgstr "Kontakt"
+
+#. module: edi_peppol
+#: model:ir.model,name:edi_peppol.model_edi_message
+#: model:ir.model.fields,field_description:edi_peppol.field_purchase_order__edi_message_ids
+#: model:ir.model.fields,field_description:edi_peppol.field_stock_picking__edi_message_ids
+msgid "Edi Message"
+msgstr "Edi-meddelande"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_purchase_order__edi_message_count
+#: model:ir.model.fields,field_description:edi_peppol.field_stock_picking__edi_message_count
+msgid "Edi Message Count"
+msgstr "Antal Edi-meddelanden"
+
+#. module: edi_peppol
+#: model:ir.model,name:edi_peppol.model_edi_message_format
+msgid "Edi Message Format"
+msgstr "Format för Edi-meddelande"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__id
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_purchase_order__issue_date
+msgid "Issue Date"
+msgstr "Utgivningsdatum"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/edi_message_format.py:0
+msgid "Issue getting the invoice address, error : {e}"
+msgstr "Problem med att få fakturaadressen, fel: {e}"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_form_inherit_peppol_tab
+msgid "Item Identifications"
+msgstr "Identifiering av objekt"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__item_specification_document_ref
+#: model:ir.model.fields,field_description:edi_peppol.field_product_product__item_specification_document_ref
+#: model:ir.model.fields,field_description:edi_peppol.field_product_template__item_specification_document_ref
+msgid "Item Specification Document Reference"
+msgstr "Artikel Specifikation Dokumentreferens"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__json_data
+msgid "JSON Data"
+msgstr "JSON-data"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__write_uid
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__write_uid
+msgid "Last Updated by"
+msgstr "Senast uppdaterad av"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__write_date
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__write_date
+msgid "Last Updated on"
+msgstr "Senast uppdaterad den"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__name
+msgid "Line Name"
+msgstr "Radnamn"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__manufacturers_item_identification
+#: model:ir.model.fields,field_description:edi_peppol.field_product_product__manufacturers_item_identification
+#: model:ir.model.fields,field_description:edi_peppol.field_product_template__manufacturers_item_identification
+msgid "Manufacturer’s Item Identification"
+msgstr "Tillverkarens artikelidentifiering"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__min_order_quantity
+msgid "Mini Order Qty"
+msgstr "Minibeställning Antal"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__min_order_quantity_unit_code
+msgid "Mini Order Qty Unit Code"
+msgstr "Minibeställning Antal Enhet Kod"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/messages/despatch_advice.py:0
+msgid "No Order found for this Order Reference"
+msgstr "Ingen order hittades för denna orderreferens"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_form_inherit_peppol_tab
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_purchase_order_form_inherited
+msgid "PEPPOL"
+msgstr "PEPPOL"
+
+#. module: edi_peppol
+#: model:ir.ui.menu,name:edi_peppol.menu_product_catalogue_peppol_root
+msgid "PEPPOL Catalogue"
+msgstr "PEPPOL-katalog"
+
+#. module: edi_peppol
+#: model:ir.actions.act_window,name:edi_peppol.action_product_catalogue_peppol
+msgid "PEPPOL Catalogues"
+msgstr "PEPPOL-kataloger"
+
+#. module: edi_peppol
+#: model:ir.model,name:edi_peppol.model_product_catalogue_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_catalogue_peppol_form
+msgid "PEPPOL Product Catalogue"
+msgstr "PEPPOL Produktkatalog"
+
+#. module: edi_peppol
+#: model:ir.model,name:edi_peppol.model_product_catalogue_peppol_line
+msgid "PEPPOL Product Catalogue Line"
+msgstr "PEPPOL Produktkatalogsrad"
+
+#. module: edi_peppol
+#: model:ir.model.fields.selection,name:edi_peppol.selection__product_catalogue_peppol__state__pending
+#: model:ir.model.fields.selection,name:edi_peppol.selection__purchase_order_line__edi_state__pending
+msgid "Pending"
+msgstr "Avvaktande"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_purchase_order__peppol_order_reference
+msgid "Peppol Order Ref"
+msgstr "Peppol Order Ref"
+
+#. module: edi_peppol
+#: model:ir.model,name:edi_peppol.model_product_template
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__product_id
+msgid "Product"
+msgstr "Produkt"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__product_data
+msgid "Product Data"
+msgstr "Produktdata"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__product_tmpl_id
+msgid "Product Template"
+msgstr "Produktmall"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__provider_contact
+msgid "Provider Contact"
+msgstr "Leverantörens kontakt"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_catalogue_peppol_form
+msgid "Provider Information"
+msgstr "Information om leverantören"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__provider_party_legal_entity
+msgid "Provider Legal Entity"
+msgstr "Leverantörens juridiska enhet"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__provider_party
+msgid "Provider Party"
+msgstr "Tillhandahållande part"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__provider_postal_address
+msgid "Provider Postal Address"
+msgstr "Leverantörens postadress"
+
+#. module: edi_peppol
+#: model:ir.model,name:edi_peppol.model_purchase_order
+msgid "Purchase Order"
+msgstr "Inköpsorder"
+
+#. module: edi_peppol
+#: model:ir.model,name:edi_peppol.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "Inköpsorderrad"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_purchase_order_form_inherited
+msgid "Queue Peppol Order"
+msgstr "Kö Peppol Order"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__receiver_contact
+msgid "Receiver Contact"
+msgstr "Kontakt för mottagare"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_catalogue_peppol_form
+msgid "Receiver Information"
+msgstr "Information om mottagaren"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__receiver_party_legal_entity
+msgid "Receiver Legal Entity"
+msgstr "Mottagare Juridisk enhet"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__receiver_party
+msgid "Receiver Party"
+msgstr "Mottagande part"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__receiver_postal_address
+msgid "Receiver Postal Address"
+msgstr "Mottagarens postadress"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__referenced_contract
+msgid "Referenced Contract"
+msgstr "Refererat kontrakt"
+
+#. module: edi_peppol
+#: model:ir.model.fields.selection,name:edi_peppol.selection__purchase_order_line__edi_state__rejected
+msgid "Rejected"
+msgstr "Avvisad"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__seller_supplier_contact
+msgid "Seller Contact"
+msgstr "Säljare Kontakt"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.view_product_catalogue_peppol_form
+msgid "Seller Information"
+msgstr "Information om säljaren"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__seller_supplier_party_legal_entity
+msgid "Seller Legal Entity"
+msgstr "Säljarens juridiska enhet"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__seller_supplier_postal_address
+msgid "Seller Postal Address"
+msgstr "Säljarens postadress"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__seller_supplier_party
+msgid "Seller Supplier Party"
+msgstr "Säljare Leverantör Part"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__sellers_item_identification
+#: model:ir.model.fields,field_description:edi_peppol.field_product_product__sellers_item_identification
+#: model:ir.model.fields,field_description:edi_peppol.field_product_template__sellers_item_identification
+msgid "Seller’s Item Identification"
+msgstr "Säljarens artikelidentifiering"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_purchase_order__show_send_peppol_button
+msgid "Show Send Peppol Button"
+msgstr "Visa Skicka Peppol-knappen"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__standard_item_identification
+#: model:ir.model.fields,field_description:edi_peppol.field_product_product__standard_item_identification
+#: model:ir.model.fields,field_description:edi_peppol.field_product_template__standard_item_identification
+msgid "Standard Item Identification"
+msgstr "Standard artikelidentifiering"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol_line__standard_item_identification_code
+#: model:ir.model.fields,field_description:edi_peppol.field_product_product__standard_item_identification_code
+#: model:ir.model.fields,field_description:edi_peppol.field_product_template__standard_item_identification_code
+msgid "Standard Item Identification Code"
+msgstr "Standardkod för identifiering av artikel"
+
+#. module: edi_peppol
+#: model:ir.model.fields.selection,name:edi_peppol.selection__edi_envelope__type__sbd
+msgid "StandardBusinessDocument"
+msgstr "StandardBusinessDokument"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__state
+msgid "State"
+msgstr "Läge"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/edi_message_format.py:0
+msgid "The order message is missing currency information, error : {e}"
+msgstr "Ordermeddelandet saknar valutainformation, fel : {e}"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/edi_message_format.py:0
+msgid "The order message is missing issue date"
+msgstr "Ordermeddelandet saknar utgivningsdatum"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/edi_message_format.py:0
+msgid "The order message is missing the delivery location, error : {e}"
+msgstr "Ordermeddelandet saknar leveransplats, fel : {e}"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/edi_message_format.py:0
+msgid ""
+"The order message is we are missing this contact in this peppol order, in "
+"our database"
+msgstr ""
+"Ordermeddelandet är att vi saknar denna kontakt i denna peppol-order, i vår "
+"databas"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/edi_message_format.py:0
+msgid ""
+"This is order message is missing crucial information, and can't be read, "
+"specifically SellerSupplierParty"
+msgstr ""
+"Detta är ett ordermeddelande som saknar viktig information och inte kan "
+"läsas, särskilt SellerSupplierParty"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/edi_message_format.py:0
+msgid "This is order message isn't for us, it's for someone else company"
+msgstr "Detta ordermeddelande är inte för oss, det är för någon annan företag"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/edi_message_format.py:0
+msgid "This order can't be handled, it's canceled"
+msgstr "Denna order kan inte hanteras, den är avbruten"
+
+#. module: edi_peppol
+#. odoo-python
+#: code:addons/edi_peppol/models/edi_message_format.py:0
+msgid "This purchase order doesn't have any items that are being purchased"
+msgstr "Den här inköpsordern har inga artiklar som ska köpas in"
+
+#. module: edi_peppol
+#: model:ir.model,name:edi_peppol.model_stock_picking
+msgid "Transfer"
+msgstr "Överföring"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_edi_envelope__type
+msgid "Type"
+msgstr "Typ"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__validity_period_end_date
+msgid "Validity End"
+msgstr "Giltighet Slut"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_purchase_order__validity_period
+msgid "Validity Period"
+msgstr "Giltighetstid"
+
+#. module: edi_peppol
+#: model:ir.model.fields,field_description:edi_peppol.field_product_catalogue_peppol__validity_period_start_date
+msgid "Validity Start"
+msgstr "Giltighet Start"
+
+#. module: edi_peppol
+#: model_terms:ir.ui.view,arch_db:edi_peppol.punchout_success
+msgid "Your PunchOut order has been received"
+msgstr "Din PunchOut-order har tagits emot"
+
+#. module: edi_peppol
+#. odoo-javascript
+#: code:addons/edi_peppol/static/src/xml/peppol_order_template.xml:0
+msgid "urn:fdc:peppol.eu:poacc:bis:order_only:3"
+msgstr "urn:fdc:peppol.eu:poacc:bis:order_only:3"
+
+#. module: edi_peppol
+#. odoo-javascript
+#: code:addons/edi_peppol/static/src/xml/peppol_order_template.xml:0
+msgid "urn:fdc:peppol.eu:poacc:trns:order:3"
+msgstr "urn:fdc:peppol.eu:poacc:trns:order:3"
