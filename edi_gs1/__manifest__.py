@@ -22,7 +22,7 @@
 # https://www.odoo.com/documentation/14.0/reference/module.html
 #
 {
-    'name': 'EDI GS1',
+    'name': 'EDI: GS1',
     'version': '1.0',
     'summary': """
         Short (1 phrase/line) summary of the module's purpose, used as
