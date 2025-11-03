@@ -14,14 +14,14 @@ class StockPicking(models.Model):
     edi_message_ids = fields.One2many(comodel_name='edi.message', related='purchase_id.edi_message_ids')
     edi_message_count = fields.Integer(related='purchase_id.edi_message_count')
 
-    # def action_view_edi_messages(self):
-    #     return {
-    #         'name': _('EDI Messages'),
-    #         'type': 'ir.actions.act_window',
-    #         'res_model': 'edi.message',
-    #         'view_mode': 'list,form',
-    #         'domain': [
-    #             ('res_id', '=', self.id),
-    #             ('res_model', '=', 'stock.picking')
-    #         ],
-    #     }
+    def action_view_edi_messages(self):
+         return {
+             'name': _('EDI Messages'),
+             'type': 'ir.actions.act_window',
+             'res_model': 'edi.message',
+             'view_mode': 'list,form',
+             'domain': [
+                 ('res_id', '=', self.id),
+                 ('res_model', '=', 'stock.picking')
+             ],
+         }
