@@ -4,13 +4,13 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20251027\n"
+"Project-Id-Version: Odoo Server 18.0-20251029\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-03 13:51+0000\n"
-"PO-Revision-Date: 2025-11-03 15:26+0100\n"
+"POT-Creation-Date: 2025-11-03 14:44+0000\n"
+"PO-Revision-Date: 2025-11-03 15:49+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: sv_SE\n"
+"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -218,7 +218,7 @@ msgstr "Edi Route Rad"
 #. module: edi_base
 #: model:ir.model,name:edi_base.model_edi_session
 msgid "Edi Session"
-msgstr "Edi Session"
+msgstr "Edi session"
 
 #. module: edi_base
 #: model:ir.model,name:edi_base.model_edi_session_line
@@ -263,7 +263,7 @@ msgstr "ID"
 #. module: edi_base
 #: model:ir.model.fields,help:edi_base.field_edi_session_line__odoo_reference
 msgid "Is the odoo record connected to this line."
-msgstr "Är odoo-posten anslutet till denna rad."
+msgstr "Är odoo-posten ansluten till denna rad."
 
 #. module: edi_base
 #: model:ir.model.fields,field_description:edi_base.field_edi_envelope__write_uid
@@ -332,7 +332,7 @@ msgstr "Ingen"
 #. module: edi_base
 #: model:ir.model.fields,field_description:edi_base.field_edi_session_line__odoo_reference
 msgid "Odoo Reference"
-msgstr "Odoo Referens"
+msgstr "Odooreferens"
 
 #. module: edi_base
 #: model:ir.model.fields,field_description:edi_base.field_edi_envelope__payload
@@ -386,18 +386,18 @@ msgstr "Route"
 #. module: edi_base
 #: model:ir.ui.menu,name:edi_base.edi_route_line
 msgid "Route Line"
-msgstr "Routrad"
+msgstr "Routerad"
 
 #. module: edi_base
 #: model:ir.model.fields,field_description:edi_base.field_edi_route__route_line_ids
 msgid "Route Lines"
-msgstr "Routrader"
+msgstr "Routerader"
 
 #. module: edi_base
 #: model:ir.model.fields,field_description:edi_base.field_edi_route__route_type
 #: model:ir.model.fields,field_description:edi_base.field_edi_session__route_type
 msgid "Route Type"
-msgstr "Routtyp"
+msgstr "Routetyp"
 
 #. module: edi_base
 #: model:ir.model.fields,field_description:edi_base.field_edi_envelope__sender
