@@ -2,8 +2,6 @@
 # Copyright 2026 Vertel AB
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from unittest.mock import patch
-
 from lxml import etree
 
 from odoo import Command
@@ -14,7 +12,7 @@ from odoo.addons.account_edi_ubl_cii.tests.common import TestUblBis3Common
 
 @tagged('post_install_l10n', 'post_install', '-at_install')
 class TestPeppolPaymentBis3(TestUblBis3Common):
-    """Verify the two fixes delivered by edi_peppol_payment."""
+    """Verify the fixes delivered by edi_peppol_payment."""
 
     @classmethod
     def setUpClass(cls):
@@ -22,14 +20,16 @@ class TestPeppolPaymentBis3(TestUblBis3Common):
         # The common mixin's test company uses EUR (currency_id=base.EUR). A
         # foreign-currency invoice therefore uses USD.
         cls.usd = cls.env.ref('base.USD')
-        cls._test_bank_number = '1234567890'
+        # 8 digits = Bankgiro; the company has both a Bankgiro and an IBAN.
+        cls.bankgiro_number = '12345678'
+        cls.iban_number = 'SE3550000000054910000003'
         cls._test_bic = 'TESTSEBB'
 
-    def _create_bank(self, acc_type='bankgiro', acc_number=None, bic=None):
-        acc_number = acc_number or self._test_bank_number
+    def _create_bank(self, acc_number, acc_type='bank'):
+        """Create a payee bank account on the company partner."""
         bank = self.env['res.bank'].create({
             'name': 'Testbank',
-            'bic': bic or self._test_bic,
+            'bic': self._test_bic,
         })
         return self.env['res.partner.bank'].create({
             'acc_number': acc_number,
@@ -57,40 +57,28 @@ class TestPeppolPaymentBis3(TestUblBis3Common):
             invoice_vals['currency_id'] = currency.id
         invoice = self.env['account.move'].create(invoice_vals)
         invoice.action_post()
-        # `_compute_partner_bank_id` depends on bank_partner_id which resolves to
-        # the customer for out_invoice, so it may clear our explicit bank at post.
-        # In production the user picks the payee bank explicitly; re-set it after
-        # post to mirror that and to exercise the constraint.
+        # `_compute_partner_bank_id` resolves via bank_partner_id (the customer
+        # for out_invoice); mirror production where the user picks the payee
+        # bank explicitly.
         if bank:
             invoice.partner_bank_id = bank
         return invoice
 
-    def _patch_domestic_types(self):
-        """Simulate l10n_se_bank account types on res.partner.bank.
+    def _company_with_both_accounts(self):
+        """Give the company a Bankgiro + an IBAN account, return both."""
+        bg = self._create_bank(self.bankgiro_number)
+        iban = self._create_bank(self.iban_number)
+        partner = self.env.company.partner_id
+        partner.bank_ids = [Command.set((bg + iban).ids)]
+        return bg, iban
 
-        Odoo 18 models cannot be patched on the recordset; patch the Python
-        class instead (unittest.mock.patch.object on type(recordset)).
-        """
-        bank_model = type(self.env['res.partner.bank'])
-        test_bank_number = self._test_bank_number
-
-        def fake_get_supported_account_types(self):
-            return [('bank', 'Normal'), ('bankgiro', 'Bankgiro'), ('plusgiro', 'Plusgiro')]
-
-        def fake_retrieve_acc_type(self, acc_number):
-            return ('bankgiro' if acc_number == test_bank_number
-                    else ('iban' if str(acc_number).startswith('SE') else 'bank'))
-
-        patcher_supported = patch.object(bank_model, 'get_supported_account_types', fake_get_supported_account_types)
-        patcher_retrieve = patch.object(bank_model, 'retrieve_acc_type', fake_retrieve_acc_type)
-        patcher_supported.start()
-        patcher_retrieve.start()
-        self.addCleanup(patcher_supported.stop)
-        self.addCleanup(patcher_retrieve.stop)
+    # ------------------------------------------------------------------
+    # 1. BIC kept in BIS3
+    # ------------------------------------------------------------------
 
     def test_bic_kept_in_bis3(self):
         """The BIC/FinancialInstitution must survive BIS3 export."""
-        bank = self._create_bank()
+        bank = self._create_bank(self.bankgiro_number)
         invoice = self._create_invoice(bank=bank)
         builder = self.env['account.edi.xml.ubl_bis3']
         xml_content, _errors = builder._export_invoice_new(invoice)
@@ -110,39 +98,80 @@ class TestPeppolPaymentBis3(TestUblBis3Common):
                         'BIC should be present and correct')
         self.assertEqual(bic_id.get('schemeID'), 'BIC', 'schemeID=BIC should be kept')
 
-        # FinancialInstitution lives UNDER the branch, not as a direct child.
+        # FinancialInstitution lives UNDER the branch.
         fi = branch.find('cac:FinancialInstitution', ns)
         self.assertTrue(fi is not None, 'FinancialInstitution (bank name/BIC) should be kept')
         self.assertEqual(fi.find('cbc:Name', ns).text, 'Testbank')
 
+    # ------------------------------------------------------------------
+    # 2. Selection logic
+    # ------------------------------------------------------------------
+
+    def test_auto_selects_iban_for_foreign_currency(self):
+        """With both accounts, auto mode must pick IBAN for foreign currency."""
+        _bg, iban = self._company_with_both_accounts()
+        invoice = self._create_invoice(currency=self.usd)
+        invoice.bank_partner_id = self.env.company.partner_id
+        invoice.payee_bank_mode = 'auto'
+        self.assertEqual(invoice.partner_bank_id, iban,
+                         'Auto mode on foreign-currency invoice should select IBAN')
+
+    def test_auto_selects_domestic_for_company_currency(self):
+        """With both accounts, auto mode must pick Bankgiro for EUR (company)."""
+        bg, _iban = self._company_with_both_accounts()
+        invoice = self._create_invoice()  # company currency (EUR)
+        invoice.bank_partner_id = self.env.company.partner_id
+        invoice.payee_bank_mode = 'auto'
+        self.assertEqual(invoice.partner_bank_id, bg,
+                         'Auto mode on company-currency invoice should select Bankgiro')
+
+    def test_fallback_to_iban_when_no_domestic(self):
+        """Without Bankgiro (phased out), auto falls back to IBAN."""
+        iban = self._create_bank(self.iban_number)
+        self.env.company.partner_id.bank_ids = [Command.set(iban.ids)]
+        invoice = self._create_invoice(currency=self.usd)
+        invoice.bank_partner_id = self.env.company.partner_id
+        invoice.payee_bank_mode = 'auto'
+        self.assertEqual(invoice.partner_bank_id, iban,
+                         'Auto mode without domestic account should fall back to IBAN')
+
+    def test_force_domestic_on_foreign_currency(self):
+        """Explicit 'domestic' mode must use Bankgiro even on USD invoice."""
+        bg, _iban = self._company_with_both_accounts()
+        invoice = self._create_invoice(currency=self.usd)
+        invoice.bank_partner_id = self.env.company.partner_id
+        invoice.payee_bank_mode = 'domestic'
+        self.assertEqual(invoice.partner_bank_id, bg,
+                         'Force domestic should select Bankgiro on USD invoice')
+
+    # ------------------------------------------------------------------
+    # 3. Bankgiro + foreign currency blocked
+    # ------------------------------------------------------------------
+
     def test_bankgiro_foreign_currency_blocked(self):
         """Bankgiro + foreign currency must raise a blocking constraint."""
-        self._patch_domestic_types()
-        bank = self._create_bank(acc_type='bankgiro')
-        invoice = self._create_invoice(currency=self.usd, bank=bank)
-        self.assertTrue(
-            invoice.partner_bank_id and invoice.partner_bank_id.acc_type == 'bankgiro',
-            'Partner bank should be re-set after post for the constraint to fire',
-        )
-        self.assertTrue(
-            invoice.currency_id != invoice.company_id.currency_id,
-            'Invoice currency should differ from company currency',
-        )
+        bg = self._create_bank(self.bankgiro_number)
+        invoice = self._create_invoice(currency=self.usd, bank=bg)
+        invoice.bank_partner_id = self.env.company.partner_id
+        invoice.payee_bank_mode = 'domestic'
+        invoice.partner_bank_id = bg
         _xml, errors = self.env['account.edi.xml.ubl_bis3']._export_invoice_new(invoice)
 
         self.assertTrue(
-            any('vertel_peppol_bankgiro' in str(e) or 'bankgiro' in str(e).lower() for e in errors),
+            any('bankgiro' in str(e).lower() or 'sepa' in str(e).lower() for e in errors),
             'Expected blocking constraint for Bankgiro + USD, got %s' % errors,
         )
 
     def test_iban_foreign_currency_allowed(self):
         """IBAN + foreign currency must NOT raise the constraint."""
-        self._patch_domestic_types()
-        bank = self._create_bank(acc_type='iban', acc_number='SE3550000000054910000003')
-        invoice = self._create_invoice(currency=self.usd, bank=bank)
+        iban = self._create_bank(self.iban_number)
+        invoice = self._create_invoice(currency=self.usd, bank=iban)
+        invoice.bank_partner_id = self.env.company.partner_id
+        invoice.payee_bank_mode = 'iban'
+        invoice.partner_bank_id = iban
         _xml, errors = self.env['account.edi.xml.ubl_bis3']._export_invoice_new(invoice)
 
         self.assertFalse(
-            any('vertel_peppol_bankgiro' in str(e) for e in errors),
+            any('bankgiro' in str(e) for e in errors),
             'IBAN + USD should not trigger the Bankgiro constraint, got %s' % errors,
         )

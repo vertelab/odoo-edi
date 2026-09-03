@@ -75,6 +75,21 @@ class AccountEdiXmlUBLBIS3(models.AbstractModel):
         }
         return supported & {'bankgiro', 'plusgiro'}
 
+    def _is_domestic_se_account(self, bank):
+        """True when the account looks like a Bankgiro/Plusgiro number.
+
+        Number-based (5-8 digits, no letters) and independent of acc_type,
+        which standard Odoo never sets to 'iban' and only l10n_se_bank sets
+        to 'bankgiro'/'plusgiro'.
+        """
+        import re
+        return bool(bank.sanitized_acc_number and re.match(r'^\d{5,8}$', bank.sanitized_acc_number))
+
+    def _is_iban_account(self, bank):
+        """True when the account number looks like an IBAN."""
+        import re
+        return bool(bank.sanitized_acc_number and re.match(r'^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$', bank.sanitized_acc_number))
+
     def _invoice_constraints_peppol_en16931_ubl_new(self, invoice, vals):
         # EXTENDS account.edi.xml.ubl_bis3
         constraints = super()._invoice_constraints_peppol_en16931_ubl_new(invoice, vals)
@@ -88,23 +103,18 @@ class AccountEdiXmlUBLBIS3(models.AbstractModel):
         if invoice_currency == company_currency:
             return constraints
 
-        domestic_types = self._get_domestic_se_account_types()
-        if not domestic_types:
-            # No l10n_se_bank module: nothing to detect, keep Odoo behaviour.
-            return constraints
-
-        if partner_bank.acc_type not in domestic_types:
-            # IBAN or other non-domestic type: fine.
+        if not self._is_domestic_se_account(partner_bank):
+            # IBAN or other non-domestic account: fine.
             return constraints
 
         # A Swedish domestic account (Bankgiro/Plusgiro) can only be paid in SEK.
         constraints['vertel_peppol_bankgiro_foreign_currency'] = _(
-            "The payee bank account %(bank)s (%(acc_type)s) is a domestic Swedish "
+            "The payee bank account %(bank)s (%(acc_number)s) is a domestic Swedish "
             "account that can only be paid in SEK, but this invoice is in %(currency)s. "
             "Use an IBAN account (SEPA) for foreign-currency invoices, remove the bank "
             "account from the invoice, or invoice in SEK.",
             bank=partner_bank.display_name,
-            acc_type=partner_bank.acc_type,
+            acc_number=partner_bank.sanitized_acc_number,
             currency=invoice_currency.name,
         )
         return constraints

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Show the payee bank mode selection next to the Recipient Bank field
+         on customer invoices / vendor credit notes. -->
+    <record id="view_move_form_payee_bank_mode" model="ir.ui.view">
+        <field name="name">account.move.form.payee.bank.mode</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- The sale_info_group is unique to the invoice tab
+                 (out_invoice / out_refund). Add the payee bank mode
+                 right next to the bank fields. -->
+            <xpath expr="//group[@name='sale_info_group']" position="inside">
+                <field name="payee_bank_mode"
+                       string="Payee bank mode"
+                       invisible="move_type not in ('out_invoice', 'out_refund')"
+                       readonly="is_move_sent and state != 'draft'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
