@@ -191,3 +191,50 @@ class TestIncomingPeppolBank(TestUblBis3Common):
         selected = [b for b in invoice.incoming_peppol_banks if b['is_selected']]
         self.assertEqual(len(selected), 1, 'Exactly one account should be selected')
         self.assertEqual(selected[0]['acc_number'], _BANKGIRO)
+
+    # ------------------------------------------------------------------
+    # 4. Supplier-partner resolution is version-agnostic (CE and EE)
+    # ------------------------------------------------------------------
+
+    def test_partner_resolved_from_ce_customer_values(self):
+        """CE stores the supplier under collected_values['customer_values']."""
+        supplier = self._supplier('SE')
+        invoice = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'partner_id': supplier.id,
+            'journal_id': self.company_data['default_journal_purchase'].id,
+        })
+        collected = {
+            'company': self.company_data['company'],
+            'invoice': invoice,
+            'customer_values': {'customer': supplier},
+        }
+        partner = self.importer._incoming_import_partner(collected)
+        self.assertEqual(partner, supplier)
+
+    def test_partner_resolved_from_ee_direct_customer(self):
+        """EE stores the supplier directly as collected_values['customer']."""
+        supplier = self._supplier('SE')
+        invoice = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'partner_id': supplier.id,
+            'journal_id': self.company_data['default_journal_purchase'].id,
+        })
+        collected = {
+            'company': self.company_data['company'],
+            'invoice': invoice,
+            'customer': supplier,  # EE structure: no 'customer_values'
+        }
+        partner = self.importer._incoming_import_partner(collected)
+        self.assertEqual(partner, supplier)
+
+    def test_partner_resolved_from_company_for_out_invoice(self):
+        """Outgoing moves resolve the partner to the company itself."""
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.company_data['company'].partner_id.id,
+            'journal_id': self.company_data['default_journal_sale'].id,
+        })
+        collected = {'company': self.company_data['company'], 'invoice': invoice}
+        partner = self.importer._incoming_import_partner(collected)
+        self.assertEqual(partner, self.company_data['company'].partner_id)

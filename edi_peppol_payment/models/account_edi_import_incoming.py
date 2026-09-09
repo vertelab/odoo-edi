@@ -183,6 +183,24 @@ class AccountEdiImportIncoming(models.AbstractModel):
             )
         partner_bank_values['bank_type_map'] = type_map
 
+    def _incoming_import_partner(self, collected_values):
+        """Resolve the supplier partner for an incoming import.
+
+        The way the supplier is carried in ``collected_values`` differs across
+        Odoo branches: Community nests it under ``customer_values.customer``
+        while Enterprise stores it directly as ``customer``. Accept both so
+        the deterministic selection works on CE and EE alike.
+        """
+        move_type = collected_values['invoice'].move_type
+        if move_type in ('out_refund', 'in_invoice'):
+            return (
+                collected_values.get('customer_values', {}).get('customer')
+                or collected_values.get('customer')
+            )
+        if move_type in ('out_invoice', 'in_refund'):
+            return collected_values['company'].partner_id
+        return None
+
     def _import_ubl_retrieve_partner_bank(self, collected_values):
         """EXTENDS account.edi.ubl.
 
@@ -192,13 +210,7 @@ class AccountEdiImportIncoming(models.AbstractModel):
         account on the invoice.
         """
         company = collected_values['company']
-        move_type = collected_values['invoice'].move_type
-        if move_type in ('out_refund', 'in_invoice'):
-            partner = collected_values.get('customer_values', {}).get('customer')
-        elif move_type in ('out_invoice', 'in_refund'):
-            partner = company.partner_id
-        else:
-            return
+        partner = self._incoming_import_partner(collected_values)
         if not partner:
             return
 
