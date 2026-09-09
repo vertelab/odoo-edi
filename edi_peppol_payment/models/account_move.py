@@ -68,7 +68,7 @@ payment picture is visible on the vendor bill.
     )
 
     incoming_peppol_banks_display = fields.Char(
-        string='Received bank accounts',
+        string='All received bank accounts',
         compute='_compute_incoming_peppol_banks_display',
         help="Readable summary of the bank accounts received on the invoice.",
     )
