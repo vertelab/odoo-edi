@@ -16,6 +16,30 @@
                        invisible="move_type not in ('out_invoice', 'out_refund')"
                        readonly="is_move_sent and state != 'draft'"/>
             </xpath>
+
+            <!-- On incoming vendor bills, show every bank account received
+                 from the supplier (type + number) under the recipient bank. -->
+            <xpath expr="//field[@name='partner_bank_id'][not(ancestor::group[@name='sale_info_group'])]"
+                   position="after">
+                <field name="incoming_peppol_banks_display"
+                       string="Received bank accounts"
+                       readonly="1"
+                       invisible="not incoming_peppol_banks_display"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Per-supplier override for the incoming recipient-bank choice. -->
+    <record id="view_partner_form_incoming_bank_priority" model="ir.ui.view">
+        <field name="name">res.partner.form.incoming.bank.priority</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='purchase']" position="inside">
+                <field name="incoming_bank_priority"
+                       groups="account.group_account_invoice"
+                       invisible="not is_company"/>
+            </xpath>
         </field>
     </record>
 </odoo>

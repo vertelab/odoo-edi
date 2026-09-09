@@ -58,6 +58,34 @@ If no matching account exists, the other type is used as a fallback.
 """,
     )
 
+    incoming_peppol_banks = fields.Json(
+        string='Received bank accounts',
+        help="""
+Every bank account received on an incoming Peppol invoice, as a list of
+{acc_type, acc_number, is_selected}. Populated at import time so the full
+payment picture is visible on the vendor bill.
+""",
+    )
+
+    incoming_peppol_banks_display = fields.Char(
+        string='Received bank accounts',
+        compute='_compute_incoming_peppol_banks_display',
+        help="Readable summary of the bank accounts received on the invoice.",
+    )
+
+    @api.depends('incoming_peppol_banks')
+    def _compute_incoming_peppol_banks_display(self):
+        for move in self:
+            banks = move.incoming_peppol_banks or []
+            if not banks:
+                move.incoming_peppol_banks_display = False
+                continue
+            parts = []
+            for bank in banks:
+                marker = ' (recipient)' if bank.get('is_selected') else ''
+                parts.append('%s %s%s' % (bank.get('acc_type'), bank.get('acc_number'), marker))
+            move.incoming_peppol_banks_display = ', '.join(parts)
+
     def _is_iban_account(self, bank):
         """True when the account number looks like an IBAN (SE35..., DE89...)."""
         self.ensure_one()

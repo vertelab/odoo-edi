@@ -48,6 +48,29 @@ phased out in Sweden) simply use IBAN for everything.
 Bankgiro + foreign currency raises a blocking error when sending via Peppol
 (Bankgiro is SEK-only; a Peppol credit transfer requires an IBAN, BR-61).
 
+Incoming Peppol invoices
+========================
+
+When a supplier sends an invoice over Peppol with several bank accounts
+(typically Bankgiro + Plusgiro + IBAN), the module picks the recipient bank
+deterministically and type-aware, instead of Odoo's non-deterministic choice:
+
+* a Swedish supplier gets **Bankgiro** (then Plusgiro, then IBAN),
+* a supplier outside Sweden gets **IBAN**.
+
+The order is configurable via the system parameter
+``edi_incoming_bank_priority`` (JSON, e.g.
+``{"SE": ["bankgiro", "plusgiro", "iban"], "default": ["iban"]}``), and
+can be overridden per supplier via the **Incoming bank priority** field on the
+supplier partner form.
+
+Every bank account received on the invoice is shown on the vendor bill
+(**Received bank accounts**, type + number) with the chosen recipient marked.
+
+The account type is read from the XML branch id
+(``FinancialInstitutionBranch/ID``: ``SE:BANKGIRO`` / ``SE:PLUSGIRO`` / BIC)
+and falls back to number analysis, so it does not depend on ``l10n_se_bank``.
+
 Known issues / Roadmap
 ======================
 

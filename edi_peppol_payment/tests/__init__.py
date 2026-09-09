@@ -3,3 +3,4 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from . import test_peppol_payment_bis3
+from . import test_incoming_peppol_bank
