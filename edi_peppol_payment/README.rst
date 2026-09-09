@@ -77,7 +77,6 @@ Known issues / Roadmap
 * BIC is always kept; receivers that strictly validate against the EN16931
   payload may warn about the extra ``FinancialInstitution`` block. In practice
   this is what payment systems need to route the payment.
-* Tested on Odoo 18.0 Enterprise.
 
 Bug Tracker
 ===========
