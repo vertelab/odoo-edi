@@ -90,7 +90,7 @@ Requirements & notes
 """,
     'category': 'Accounting/Accounting',
     'author': 'Vertel AB',
-    'website': 'https://vertel.se/apps/odoo-',
+    'website': 'https://vertel.se/apps/odoo-edi/edi_peppol_payment',
     'license': 'AGPL-3',
     'depends': [
         'edi_base',

@@ -33,7 +33,7 @@
     """,
     #'sequence': 1,
     'author': 'Vertel AB',
-    'website': 'https://vertel.se/apps/odoo-',
+    'website': 'https://vertel.se/apps/odoo-edi/edi_peppol',
     'images': ['static/description/banner.png'], # 560x280
     'license': 'AGPL-3',
     'depends': ['edi_base', 'purchase', 'agreement', 'stock'],

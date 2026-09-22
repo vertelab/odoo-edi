@@ -33,7 +33,7 @@
     """,
     #'sequence': 1,
     'author': 'Vertel AB',
-    'website': 'https://vertel.se/apps/odoo-',
+    'website': 'https://vertel.se/apps/odoo-edi/edi_gs1',
     'images': ['static/description/banner.png'], # 560x280
     'license': 'AGPL-3',
     'depends': ['account', 'base', 'edi_base'],
