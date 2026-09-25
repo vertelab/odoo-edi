@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140px" height="140px" role="img" aria-label="edi_sftp icon">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <rect width="140" height="140" rx="24" fill="url(#g)"/>
+  <text x="70" y="94" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="72" fill="#F8FAFC" text-anchor="middle">E</text>
+</svg>

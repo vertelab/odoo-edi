@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Edi Gs1 icon">
+  <!-- Odoo O (purple) -->
+  <circle cx="58" cy="58" r="38" fill="none" stroke="#875A7B" stroke-width="11"/>
+  <rect x="70" y="22" width="22" height="24" fill="#F8FAFC" rx="2"/>
+  <!-- Domain symbol (accent) bottom-right -->
+  <g transform="translate(76, 72) scale(1.05)">
+    <g fill="none" stroke="#64748B" stroke-width="2.2">
+      <circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/>
+      <line x1="9" y1="12" x2="15" y2="7"/><line x1="9" y1="12" x2="15" y2="17"/></g>
+  </g>
+</svg>

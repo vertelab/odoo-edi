@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Edi Peppol Payment icon">
+  <!-- Odoo O (purple) -->
+  <circle cx="58" cy="58" r="38" fill="none" stroke="#875A7B" stroke-width="11"/>
+  <rect x="70" y="22" width="22" height="24" fill="#F8FAFC" rx="2"/>
+  <!-- Domain symbol (accent) bottom-right -->
+  <g transform="translate(76, 72) scale(1.05)">
+    <g fill="none" stroke="#10B981" stroke-width="2.2">
+      <rect x="1" y="1" width="22" height="22" rx="3"/>
+      <line x1="1" y1="8" x2="23" y2="8"/><line x1="1" y1="15" x2="23" y2="15"/>
+      <line x1="9" y1="1" x2="9" y2="23"/><line x1="16" y1="1" x2="16" y2="23"/></g>
+  </g>
+</svg>

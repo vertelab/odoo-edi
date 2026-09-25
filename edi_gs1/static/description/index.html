@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EDI: Peppol &mdash; Vertel for Odoo</title>
+  <title>EDI: GS1 &mdash; Vertel for Odoo</title>
   <style>
     :root { --navy:#0F172A; --darkBg:#1E293B; --white:#F8FAFC; --gray:#94A3B8;
              --lightGray:#E2E8F0; --brand:#930a57; --brand2:#8105a7; }
@@ -43,8 +43,8 @@
 </head>
 <body>
 <div class="hero">
-  <h1>EDI: Peppol</h1>
-  <p class="subtitle">Sends and receives invoices via Peppol.</p>
+  <h1>EDI: GS1</h1>
+  <p class="subtitle">Adds GS1 EDI message support.</p>
   <div class="meta">
     <span>Odoo 18.0</span><span>&middot;</span>
     <span>Uncategorized</span><span>&middot;</span>
@@ -54,40 +54,37 @@
 <div class="container">
   <section id="overview">
     <h2>Overview</h2>
-    <p>Sends and receives invoices via Peppol.</p>
-    <p>It introduces the model(s) <code>Partner</code>, <code>PurchaseLine</code>, <code>ProductCataloguePeppol</code> to handle this workflow.</p>
-    <p>It extends Odoo's contacts, product templates, purchase orders.</p>
+    <p>Adds GS1 EDI message support.</p>
+    <p>It extends Odoo's invoices and journal entries, journals, contacts.</p>
   </section>
   <section id="features">
     <h2>Key Features</h2>
     <div class="feature-grid">
-      <div class="feature-card"><h4>Dedicated data model</h4><p>Adds its own models: Partner, PurchaseLine, ProductCataloguePeppol.</p></div>
-      <div class="feature-card"><h4>API integration</h4><p>Exposes HTTP endpoints for external systems.</p></div>
-      <div class="feature-card"><h4>Actions</h4><p>Adds action_view_edi_messages, action_accept_catalogue, action_decline_catalogue.</p></div>
-      <div class="feature-card"><h4>UI integration</h4><p>Extends 7 view(s) in the Odoo interface.</p></div>
+      <div class="feature-card"><h4>Actions</h4><p>Adds action_pack_edi_message, action_pack_edi.</p></div>
+      <div class="feature-card"><h4>UI integration</h4><p>Extends 5 view(s) in the Odoo interface.</p></div>
     </div>
   </section>
   <section id="screenshots">
     <h2>Module Graphics</h2>
     <div class="screenshots">
       <figure>
-        <img src="icon.png" alt="EDI: Peppol icon" width="140" height="140">
+        <img src="icon.png" alt="EDI: GS1 icon" width="140" height="140">
         <figcaption>Icon &mdash; 140 &times; 140 px</figcaption>
       </figure>
       <figure>
-        <img src="banner.png" alt="EDI: Peppol banner" width="560" height="280">
+        <img src="banner.png" alt="EDI: GS1 banner" width="560" height="280">
         <figcaption>Banner &mdash; 560 &times; 280 px</figcaption>
       </figure>
     </div>
   </section>
   <section id="dependencies">
     <h2>Dependencies</h2>
-    <ul><li><code>edi_base</code></li><li><code>purchase</code></li><li><code>agreement</code></li><li><code>stock</code></li></ul>
+    <ul><li><code>account</code></li><li><code>base</code></li><li><code>edi_base</code></li></ul>
     <p><small>Requires <strong>Odoo 18.0</strong> or later.</small></p>
   </section>
   <section id="installation">
     <h2>Installation</h2>
-    <p>Install the module <code>edi_peppol</code> from the Odoo Apps menu,
+    <p>Install the module <code>edi_gs1</code> from the Odoo Apps menu,
        or deploy it via the Vertel SaltStack pipeline.</p>
   </section>
   <section id="support">
@@ -97,7 +94,7 @@
   </section>
 </div>
 <footer>
-  <p><strong>EDI: Peppol</strong> &mdash; by <a href="https://vertel.se">Vertel Sverige AB</a></p>
+  <p><strong>EDI: GS1</strong> &mdash; by <a href="https://vertel.se">Vertel Sverige AB</a></p>
   <p><a href="https://vertel.se">vertel.se</a> &middot;
      <a href="mailto:info@vertel.se">info@vertel.se</a></p>
 </footer>
