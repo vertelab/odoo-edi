@@ -15,8 +15,8 @@ Odoo banner: 560 x 280
 Odoo icon: 140 x 140
 
 HEX
-#875A7B   (Odoo purple)
-#10B981   (accent)
+#930a57   (magenta - background gradient start)
+#8a077f   (purple - background gradient end)
 
 Source: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Colors/Color_picker_tool
 
