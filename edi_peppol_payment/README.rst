@@ -89,9 +89,9 @@ Credits
 Authors
 ~~~~~~~
 
-* Vertel AB
+* Vertel Sverige AB
 
 Maintainers
 ~~~~~~~~~~~
 
-This module is maintained by Vertel AB.
+This module is maintained by Vertel Sverige AB.

@@ -23,25 +23,17 @@
 #
 {
     'name': 'EDI: Base',
-    'version': '18.0.1.0.0',
-    'summary': "Base framework for EDI message handling.",
+    'version': '1.0',
+    'summary': """
+        Short (1 phrase/line) summary of the module's purpose, used as
+        subtitle on modules listing or apps.odoo.com""",
     'category': '', # Technical Settings|Localization|Payroll Localization|Account Charts|User types|Invoicing|Sales|Human Resources|Operations|Marketing|Manufacturing|Website|Theme|Administration|Appraisals|Sign|Helpdesk|Administration|Extra Rights|Other Extra Rights|
-    'description': '''
-Base
-====
-
-    Base framework for EDI message handling.
-
-    Features:
-
-        - Web integration: Exposes HTTP endpoints for external systems.
-        - Guided Wizards: Step-by-step dialogs for data entry.
-        - UI Integration: Extends 10 view(s) in the Odoo interface.
-        - Extends Odoo: Builds on edi.envelope, edi.message, edi.message.format, edi.route.
-    ''',
+    'description': """
+        Long description of module's purpose
+    """,
     #'sequence': 1,
-    'author': 'Vertel AB',
-    'website': 'https://vertel.se/apps/odoo-edi/edi_base',
+    'author': 'Vertel Sverige AB',
+    'website': 'https://vertel.se/apps/odoo-',
     'images': ['static/description/banner.png'], # 560x280
     'license': 'AGPL-3',
     'depends': ['account_edi_ubl_cii'],
