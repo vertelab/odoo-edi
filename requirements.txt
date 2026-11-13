@@ -1,3 +1,8 @@
 PyMuPDF
 pytesseract
 pdftotext
+
+# ── Saknade beroenden — inventering 2026-11-13 ──────────────────────────────
+# edi_peppol importerar xmltodict på modulnivå (edi_message.py,
+# edi_message_format.py). PEPPOL-avsnittet kan inte ens laddas utan den.
+xmltodict
